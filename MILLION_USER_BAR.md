@@ -121,15 +121,15 @@
 
 ---
 
-## 現況評分 · Honest draft score (post Meta streak / 3★ mastery pass)
+## 現況評分 · Honest draft score (post Meta + Capacitor Haptics)
 
 依目前程式／資產閱讀（非願望清單）。**禁止 soft-launch**；**不宣稱 ship-ready**。
 
 | # | 項目 | 結果 | 現況依據（代碼事實） |
 |---|------|------|----------------------|
-| 1 | 3秒看懂＋想點 | **Fail** | 開始屏＋L1 純倒水教學可讀；仍無定稿投放 icon／未做競品「想點」驗證 |
+| 1 | 3秒看懂＋想點 | **Partial** | 開始屏＋L1 倒水教學可讀；`store-assets/finals/` ICON A 1024 已定稿。仍缺外部「想點」／首 3s 競品對照實測 → 未滿 Pass |
 | 2 | USP 貫穿（40–60% lock） | **Pass** | **80** 關；有蓋 **40/80 = 50%**；連續無蓋 ≤3；L1–2 零蓋；L3 teach；單關 ≤2 蓋 |
-| 3 | 倒水手感／15s 廣告 | **Partial** | WebAudio（pour/land/complete/uncap/win）＋`navigator.vibrate`；開蓋有 flip＋火花。UA 素材級仍未實機驗證 → 未滿 Pass |
+| 3 | 倒水手感／15s 廣告 | **Partial** | WebAudio（pour/land/complete/uncap/win）＋**Capacitor Haptics**（native impact/notification）＋web `navigator.vibrate` fallback；開蓋 flip＋火花。仍缺實機 15s UA 剪輯驗證 → 未滿 Pass |
 | 4 | ≥80 關＋曲線假說 | **Pass** | **80** 關；DESIGN 載明顏色／蓋密度曲線；生成＝reverse-scramble（可解建構）＋applyCaps |
 | 5 | Day1 不傷好感 | **Pass** | `START_COINS=120`、`freeHints=3`、`HINT=25`、星獎 8/15/28；失敗牆 index&lt;15 → **5**、L16+ → **2** |
 | 6 | Meta 回來理由 | **Pass** | Daily 自適應＋首清 +40；連勝里程碑 Day **3/7/14**（幣＋提示）＋下一里程碑 HUD／首屏；首達 3★ **+22**；每 10 關全 3★ chapter chest（+80🪙＋1 hint）；關卡選單顯示缺星＋獎勵預告 |
@@ -137,14 +137,14 @@
 | 8 | 品牌投放級 | **Pass** | 定名 ColorTube Sort；`store-assets/finals/` 齊 **ICON A 1024**＋Shot1–5 EN（見 STORE_FINALS_GATE）；ZH 次要。投放素材迭代另凍結（無預算）≠ 缺資產 |
 | 9 | 穩定／ACCEPTANCE | **Fail** | 有 **ACCEPTANCE.md** 列出 QA Fail／回歸項；套件未全綠、無自動化全過證明 |
 
-**總評：** **5 Pass / 1 Partial / 3 Fail** → 閘門仍關閉。Meta（連勝里程碑＋3★ mastery／chapter chest）與品牌 finals 已達 Pass；**變現／ACCEPTANCE 全綠／手感實機 UA 驗證** 仍是硬缺口。**不宣稱 ship-ready。**
+**總評：** **5 Pass / 2 Partial / 2 Fail** → 閘門仍關閉。Meta＋品牌 finals 已 Pass；手感已接 Capacitor Haptics 仍 Partial（缺實機 UA 剪輯）；**變現／ACCEPTANCE 全綠** 仍是硬缺口。**不宣稱 ship-ready。**
 
 ---
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
 1. **真變現** — AdMob SDK＋帳號測試 ID；`remove_ads` 真 Billing／StoreKit（維持不打斷倒水）。  
-2. **手感收滿 Pass** — 實機 UA 剪輯驗證；必要時加 Capacitor Haptics。  
+2. **手感收滿 Pass** — Capacitor Haptics 已接；仍差實機 15s UA 剪輯驗證（投放預算凍結期間可延後，但閘門仍標 Partial）。  
 3. **ACCEPTANCE 全綠** — ACCEPTANCE 項清零並可重複跑（品牌 finals 已齊；勿把 mock IAP／假 AdMob 標成 Done）。
 
 不得把 mock IAP／假 AdMob 標成 Done。

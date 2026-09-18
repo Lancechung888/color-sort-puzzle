@@ -508,7 +508,7 @@
   }
 
 
-  // --- Sample SFX (assets/audio) + optional vibrate ---
+  // --- Sample SFX (assets/audio) + Capacitor Haptics / vibrate ---
   // Replaces oscillator beeps with short clips suitable for UA first 3s.
   const SFX_BASE = 'assets/audio/';
   const SFX_STEMS = ['pour', 'land', 'complete', 'uncap', 'win', 'blocked', 'ui_tap'];
@@ -569,7 +569,38 @@
     tap() { playSfx('ui_tap', 0.55); },
   };
 
+  /**
+   * Native-first haptics: Capacitor Haptics on Android/iOS, navigator.vibrate on web.
+   * Never throws if plugin/platform missing (web / stub builds stay silent-safe).
+   */
   function haptic(kind) {
+    try {
+      const cap = typeof Capacitor !== 'undefined' ? Capacitor : null;
+      const plugins = (cap && cap.Plugins) || {};
+      const H = plugins.Haptics || (typeof Haptics !== 'undefined' ? Haptics : null);
+      const native = !!(cap && cap.getPlatform && (cap.getPlatform() === 'android' || cap.getPlatform() === 'ios'));
+      if (H && native) {
+        // Cap 6 string enums: ImpactStyle LIGHT|MEDIUM|HEAVY; NotificationType SUCCESS|WARNING|ERROR
+        if (kind === 'complete') {
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          return;
+        }
+        if (kind === 'uncap') {
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          return;
+        }
+        if (kind === 'illegal') {
+          Promise.resolve(H.notification({ type: 'ERROR' })).catch(function () {});
+          return;
+        }
+        if (kind === 'win') {
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
+        Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+        return;
+      }
+    } catch (_) { /* fall through to vibrate */ }
     if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
     try {
       if (kind === 'complete') navigator.vibrate([12, 30, 18]);

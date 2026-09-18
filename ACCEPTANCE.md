@@ -52,8 +52,8 @@
 |----|------|------|------|
 | M-1 | 真 AdMob rewarded + interstitial | **Blocked** | ＝P0② |
 | M-2 | 真 `remove_ads` IAP | **Blocked** | 產品態「即將開放」直到 Billing／StoreKit |
-| B-1 | 最終 icon 1024 + 商店截圖 | **Fail** | 概念稿不足 |
-| R-1 | 回流理由厚度 | **Fail** | Daily 有；streak／三星重玩仍薄 |
+| B-1 | 最終 icon 1024 + 商店截圖 | **Pass** | `store-assets/finals/` ICON A 1024＋Shot1–5 EN 齊（見 STORE_FINALS_GATE） |
+| R-1 | 回流理由厚度 | **Pass** | Daily＋連勝里程碑 Day 3/7/14＋首達 3★＋chapter chest（PR #24） |
 
 ---
 
