@@ -1172,9 +1172,11 @@
       const complete = isFilledComplete(tube);
       const capped = isCapped(idx);
       const el = document.createElement('div');
+      const pourTarget = selected >= 0 && selected !== idx && canPour(selected, idx);
       el.className =
         'tube' +
         (selected === idx ? ' selected' : '') +
+        (pourTarget ? ' pour-target' : '') +
         (complete ? ' complete' : '') +
         (capped ? ' capped' : '') +
         (capped && pendingUncapIdx === idx && Date.now() <= pendingUncapUntil ? ' cap-pending' : '');
@@ -1183,7 +1185,11 @@
       el.setAttribute('role', 'button');
       el.setAttribute(
         'aria-label',
-        capped ? `Tube ${idx + 1} (capped)` : `Tube ${idx + 1}`
+        capped
+          ? `Tube ${idx + 1} (capped)`
+          : pourTarget
+            ? `Tube ${idx + 1} (valid pour target)`
+            : `Tube ${idx + 1}`
       );
 
       const rim = document.createElement('div');
