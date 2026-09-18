@@ -697,6 +697,14 @@
         doPour(selected, idx);
         return;
       }
+      // Day-1 clarity: say why this pour is illegal (capped dest already toasted above)
+      if (!isCapped(idx)) {
+        if (freeSpace(tubes[idx]) <= 0) {
+          toast('Tube full');
+        } else if (tubes[idx].length > 0 && topColor(tubes[selected]) !== topColor(tubes[idx])) {
+          toast("Colors don't match");
+        }
+      }
       shakeTube(idx);
       if (tubes[idx].length > 0 && !isCapped(idx)) selected = idx;
       else selected = -1;
@@ -818,7 +826,8 @@
 
       if (isWon()) {
         restartFailCount = 0;
-        setTimeout(showWin, 320);
+        celebrateLevelClear();
+        setTimeout(showWin, 480);
       }
     }, firstPourOfLevel);
   }
@@ -1304,6 +1313,18 @@
     el.classList.remove('completePop');
     void el.offsetWidth;
     el.classList.add('complete', 'completePop');
+  }
+
+  /** Level-clear juice: cascade glow on filled tubes, then showWin (no confetti here). */
+  function celebrateLevelClear() {
+    let delay = 0;
+    for (let i = 0; i < tubes.length; i++) {
+      if (!isFilledComplete(tubes[i])) continue;
+      const idx = i;
+      setTimeout(() => glowPulse(idx), delay);
+      delay += 55;
+    }
+    haptic('complete');
   }
 
   function flashCompleteWhite() {
