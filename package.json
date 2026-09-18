@@ -1,7 +1,7 @@
 {
   "name": "color-sort-puzzle",
   "version": "1.0.0",
-  "description": "\u5f69\u7ba1\u5206\u985e ColorTube Sort \u2014 hybrid-casual tube sorting puzzle",
+  "description": "彩管分類 ColorTube Sort — hybrid-casual tube sorting puzzle",
   "private": true,
   "scripts": {
     "start": "python3 -m http.server 8765",
@@ -15,12 +15,13 @@
     "native:check": "node scripts/native-wiring-check.js"
   },
   "dependencies": {
-    "@capacitor/core": "^6.2.0",
     "@capacitor-community/admob": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/haptics": "^6.0.3",
     "@capgo/native-purchases": "^6.0.42"
   },
   "devDependencies": {
-    "@capacitor/cli": "^6.2.0",
-    "@capacitor/android": "^6.2.0"
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0"
   }
 }
