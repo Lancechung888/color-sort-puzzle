@@ -1,9 +1,6 @@
-# Shot5 v5 — PR#8 退修後重做
+# Shot5 v6 — primary sell (post PR#10)
 
-## Fixes
-1. Badge **4 厚金蓋 · 6 管擠盤** — numbers match art (4 gold / 6 tubes)
-2. All lids **gold thick on-tube**; no floating lids; no black lids
-3. Copy softened: 「今日挑戰風格 · 多蓋關卡」／Daily-style · multi-lid levels + disclaimer（後期／內容跟上後可主力）
-
-## Gate
-- Not primary sell shot until live daily/mid-late mainline can show ≥3 caps
+- Content unlocked: mainline 15 levels ≥3 caps + daily forced ≥3 (關卡節奏 PR#10)
+- Disclaimer **removed**
+- Title back to 「今日挑戰 · 蓋子更多」／Daily Challenge · more lids
+- Art lock unchanged: 6 tubes / 4 thick gold lids; badge numbers match; no floaters/black lids
