@@ -1,5 +1,5 @@
-# Shot5 v2 — 蓋子更多 / denser
+# Shot5 v3 — denser + thicker gold lids
 
-- Visual: 6-tube board, **3 gold lids** (was 2)
-- Title unchanged: 今日挑戰 · 蓋子更多
-- Honesty note: mainline levels currently ≤2 caps/level — this shot is campaign-styled density; recommend content follow-up so live daily can match ad claim
+- 6 tubes, **4 thick gold lids** (taller/brighter paint)
+- Badge: 4 厚金蓋 · 6 管擠盤
+- Still campaign-styled vs live ≤2 caps/level honesty note
