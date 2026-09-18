@@ -1141,3 +1141,26 @@ body.ad-capture .playfield {
 body.ad-capture #app {
   padding-top: calc(8px + var(--safe-top));
 }
+
+.privacy-row {
+  margin: 14px 0 0;
+  text-align: center;
+}
+
+.privacy-link {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted, rgba(255, 255, 255, 0.7));
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.privacy-link:hover,
+.privacy-link:focus-visible {
+  color: var(--accent, #4ecdc4);
+}
+
+.shop-privacy {
+  margin-top: 10px;
+}
