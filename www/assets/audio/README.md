@@ -29,3 +29,7 @@ Re-generate from the box (example):
 ## v2 tactile pass (pour / uncap / blocked)
 
 CEO follow-up after #15: keep land/complete/win/ui_tap; re-synthesize **pour** (layered liquid), **uncap** (metal lid pop+ring), **blocked** (multi-impact plastic/metal rattle). Still ffmpeg lavfi, no speech, no third-party packs.
+
+## v2b loudness
+
+`uncap` / `blocked` peak-normalized toward `pour` (~−0.5 dB headroom + limiter) so UA block/uncap reads on phone speakers. Wiring unchanged.
