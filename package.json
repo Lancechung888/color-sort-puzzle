@@ -10,7 +10,9 @@
     "cap:sync": "npm run build:www && npx cap sync",
     "cap:android": "npm run build:www && npx cap open android",
     "cap:add:android": "npx cap add android",
-    "postinstall": "echo \"Run: npm run build:www && npx cap sync (after npx cap add android)\""
+    "postinstall": "echo \"Run: npm run build:www && npx cap sync (after npx cap add android)\"",
+    "aab:internal": "bash scripts/build-internal-aab.sh",
+    "native:check": "node scripts/native-wiring-check.js"
   },
   "dependencies": {
     "@capacitor/core": "^6.2.0",

@@ -54,12 +54,15 @@
 
 ## E. 本機建置與上傳內部測試
 
+> **可驗收進度（測試 ID 階段）**：見 [`docs/NATIVE_ACCEPTANCE.md`](./NATIVE_ACCEPTANCE.md)。  
+> 一鍵內測 AAB：`npm run aab:internal`（缺 JDK／SDK 時非 0 退出並印缺項）。配線自檢：`npm run native:check`。
+
 1. `npm install`
 2. `npm run build:www`
-3. 第一次：`npx cap add android`（產生本機 `android/`；**勿把完整 android 樹硬塞進 git**，除非另有共識）
+3. 第一次：`npx cap add android`（或 `npm run cap:add:android`；產生本機 `android/`；**勿把完整 android 樹硬塞進 git**，除非另有共識）
 4. `npx cap sync`
-5. 依 `native-templates/android/README.md` 確認 AdMob App ID、Billing 權限。
-6. 設定簽章（keystore）→ `./gradlew bundleRelease` 產出 AAB。
+5. 依 `native-templates/android/README.md` 確認 AdMob App ID、Billing 權限；簽名步驟見 `docs/NATIVE_ACCEPTANCE.md` §1。
+6. 設定簽章（keystore）後跑 `npm run aab:internal`（或手動 `./gradlew bundleRelease`）產出 AAB。
 7. Play Console → **內部測試** → 上傳 AAB → 將測試連結給授權測試帳號驗證：
    - 示範／正式廣告是否依設定顯示
    - `remove_ads` 購買成功後 `removeAds` 才為 true；一般點擊不得白送

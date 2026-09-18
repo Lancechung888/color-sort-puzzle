@@ -54,3 +54,9 @@ cd android && ./gradlew bundleRelease
 4. `./gradlew bundleRelease` → 上傳 Play **內部測試**。
 
 產品 ID `remove_ads` 須先在 Play Console 建立並啟用；內部測試＋License testers。詳見 `docs/PLAY_POST_APPROVAL_CHECKLIST.md`。完整就緒勾選：`docs/NATIVE_PACK_READY.md`。
+
+## 5. 可驗收文件與一鍵 AAB
+
+- 測試 ID 階段驗收說明（簽名／缺 SDK 行為／打勾清單）：[`docs/NATIVE_ACCEPTANCE.md`](../../docs/NATIVE_ACCEPTANCE.md)
+- 本機一鍵內測 AAB：`npm run aab:internal`（→ `scripts/build-internal-aab.sh`；無 JDK／SDK 時明確非 0 失敗）
+- 測 ID 配線自檢（不需 `android/`）：`npm run native:check`
