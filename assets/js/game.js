@@ -754,6 +754,7 @@
       pouring = false;
       updateChrome();
       render();
+      pulseLandRise(toIdx, amount);
 
       // Juice: newly completed filled tube
       if (isFilledComplete(tubes[toIdx]) && !wasCompleteBefore[toIdx]) {
@@ -1237,6 +1238,28 @@
     flash.className = 'complete-flash';
     app.appendChild(flash);
     setTimeout(() => flash.remove(), 80);
+  }
+
+
+  /** New layers on dest: fill-rise + brief glass flash (pour weight). */
+  function pulseLandRise(toIdx, amount) {
+    const toEl = tubesWrap.children[toIdx];
+    if (!toEl || amount <= 0) return;
+    toEl.classList.add('dest-receive');
+    setTimeout(() => toEl.classList.remove('dest-receive'), 400);
+    const layers = toEl.querySelectorAll('.layer');
+    const n = layers.length;
+    const start = Math.max(0, n - amount);
+    for (let i = start; i < n; i++) {
+      const layer = layers[i];
+      const delay = (i - start) * 28;
+      layer.style.animationDelay = delay + 'ms';
+      layer.classList.add('land-rise');
+      setTimeout(() => {
+        layer.classList.remove('land-rise');
+        layer.style.animationDelay = '';
+      }, 480 + delay);
+    }
   }
 
   // --- Pour animation + splash ---

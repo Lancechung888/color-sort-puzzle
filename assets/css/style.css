@@ -499,6 +499,28 @@ html, body {
   to { opacity: 0; transform: translateY(-8px) scaleY(0.6); }
 }
 
+/* Destination fill-rise — weight on land (million-user pour juice) */
+.layer.land-rise {
+  transform-origin: bottom center;
+  animation: landRise 0.42s cubic-bezier(0.34, 1.45, 0.64, 1) both;
+}
+
+@keyframes landRise {
+  0% { opacity: 0.55; transform: scaleY(0.12) translateY(6px); }
+  55% { opacity: 1; transform: scaleY(1.08) translateY(0); }
+  78% { transform: scaleY(0.94); }
+  100% { opacity: 1; transform: scaleY(1) translateY(0); }
+}
+
+.tube.dest-receive .tube-glass {
+  animation: destReceive 0.38s ease-out;
+}
+
+@keyframes destReceive {
+  0% { filter: brightness(1); }
+  35% { filter: brightness(1.14); }
+  100% { filter: brightness(1); }
+}
 
 /* Cap / lid module (蓋子管) — P0: thick/bright for thumbnails + ad first 3s */
 :root,
