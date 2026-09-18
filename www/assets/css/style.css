@@ -620,6 +620,25 @@ html, body {
   100% { filter: brightness(1); box-shadow: none; }
 }
 
+
+.complete-spark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 58;
+  opacity: 0.95;
+  animation: completeSpark 0.48s cubic-bezier(0.2, 0.7, 0.25, 1) forwards;
+}
+
+@keyframes completeSpark {
+  0% { transform: translate(0, 0) scale(1.1); opacity: 1; }
+  70% { opacity: 0.85; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.15); opacity: 0; }
+}
+
 .uncap-spark {
   position: absolute;
   width: 7px;
