@@ -73,3 +73,7 @@ Assumptions: soft launch TW / SE Asia, ~2–4k MAU, hybrid-casual retention, ARP
 ## Non-goals (v1)
 
 No multiplayer, no account, no energy system, no real ad/IAP SDK until store build.
+
+## 百萬用戶品質槓桿（上架前必讀）
+
+完整 Pass/Fail 標準見 **[MILLION_USER_BAR.md](./MILLION_USER_BAR.md)**。對齊榜上第一梯隊 hybrid-casual；**未全過不准上架**。**禁止 soft-launch**，直到該槓桿全部 Pass。百萬下載另需買量，產品側不承諾自然百萬。
