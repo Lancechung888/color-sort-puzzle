@@ -715,6 +715,33 @@
     toast('Lid opened');
   }
 
+
+  /** Color-matched rim burst when a tube first fills solid (整管完成). */
+  function spawnCompleteBurst(tubeEl, colorId) {
+    if (!tubeEl) return;
+    const hex = (SOLIDS && SOLIDS[colorId]) || (PALETTE && PALETTE[colorId]) || '#4ecdc4';
+    const rect = tubeEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top - appRect.top + 10;
+    const n = 14;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'complete-spark';
+      const ang = -Math.PI / 2 + (Math.random() - 0.5) * 2.2;
+      const dist = 22 + Math.random() * 34;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = hex;
+      p.style.boxShadow = '0 0 10px ' + hex;
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 8 + 'px');
+      p.style.animationDelay = (Math.random() * 40) + 'ms';
+      app.appendChild(p);
+      setTimeout(() => p.remove(), 520);
+    }
+  }
+
   function spawnUncapBurst(tubeEl) {
     const rect = tubeEl.getBoundingClientRect();
     const appRect = app.getBoundingClientRect();
@@ -760,6 +787,7 @@
       if (isFilledComplete(tubes[toIdx]) && !wasCompleteBefore[toIdx]) {
         lightScreenShake();
         glowPulse(toIdx);
+        spawnCompleteBurst(tubesWrap.children[toIdx], tubes[toIdx][0]);
         SFX.complete();
         haptic('complete');
         if (isWon()) {
