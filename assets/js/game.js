@@ -9,18 +9,18 @@
   const PALETTE = window.COLOR_PALETTE;
   const SOLIDS = window.COLOR_SOLIDS || window.COLOR_PALETTE;
   const STORAGE_KEY = 'colorTubeSort_v2';
-  const FAIL_LOOP_THRESHOLD_EARLY = 3;
+  const FAIL_LOOP_THRESHOLD_EARLY = 5;
   const FAIL_LOOP_THRESHOLD_LATE = 2;
-  const START_COINS = 70;
-  const HINT_COIN_COST = 40;
+  const START_COINS = 120;
+  const HINT_COIN_COST = 25;
   const THEME_COIN_COST = 280;
   const HINT_PACK_COIN_COST = 120;
   const HINT_PACK_SIZE = 5;
   const STAR_REWARDS = { 1: 8, 2: 15, 3: 28 };
-  /** index < 10 → 3; from level 11+ (index ≥ 10) → 2 */
+  /** index < 15 → early (5); from level 16+ (index ≥ 15) → late (2) */
   function failLoopThreshold() {
     if (isDailyMode) return FAIL_LOOP_THRESHOLD_EARLY;
-    return levelIndex < 10 ? FAIL_LOOP_THRESHOLD_EARLY : FAIL_LOOP_THRESHOLD_LATE;
+    return levelIndex < 15 ? FAIL_LOOP_THRESHOLD_EARLY : FAIL_LOOP_THRESHOLD_LATE;
   }
 
   const THEMES = {
@@ -38,12 +38,13 @@
     removeAds: false,
     themes: { classic: true, neon: false, cat: false },
     activeTheme: 'classic',
-    freeHints: 2,
+    freeHints: 3,
     streak: 0,
     lastLoginDate: '',
     dailyDoneDate: '',
     onboardingDone: false,
     capTeachDone: false,
+    uncapArmTipDone: false,
   };
 
   // --- Session state ---
@@ -102,6 +103,8 @@
   const app = $('#app');
   const toastEl = $('#toast');
   const onboardingTip = $('#onboarding-tip');
+  /** 'onboarding' | 'cap' | null — so dismiss only marks the tip shown */
+  let activeTipKind = null;
 
   // --- Persistence ---
   function todayStr() {
@@ -474,7 +477,14 @@
       // First tap: arm + lid pulse + tip; do not uncap yet
       selected = -1;
       armPendingUncap(idx);
-      toast('Tap again to uncap (free move)');
+      if (!save.uncapArmTipDone) {
+        // Strengthen first-time teach only — later taps stay short (no spam)
+        toast('Double-tap the lid to open it — free move (doesn\'t cost a pour)');
+        save.uncapArmTipDone = true;
+        persist();
+      } else {
+        toast('Tap again to uncap (free move)');
+      }
       render();
       shakeTube(idx); // after render so shake class isn't wiped
       return;
@@ -1358,6 +1368,7 @@
 
   function maybeShowOnboarding() {
     if (save.onboardingDone) {
+      if (activeTipKind === 'onboarding') activeTipKind = null;
       onboardingTip.hidden = true;
       return;
     }
@@ -1367,8 +1378,10 @@
         tipP.innerHTML =
           '👆 Tap a colored tube to lift, then tap another to pour.<br />Goal: every tube is one solid color (or empty).';
       }
+      activeTipKind = 'onboarding';
       onboardingTip.hidden = false;
     } else {
+      if (activeTipKind === 'onboarding') activeTipKind = null;
       onboardingTip.hidden = true;
     }
   }
@@ -1379,8 +1392,11 @@
     const tipP = onboardingTip.querySelector('p');
     if (tipP) {
       tipP.innerHTML =
-        '🧢 <strong>Capped tubes</strong>: can\'t pour in or out while capped.<br />Double-tap to uncap (free move); pouring onto a lid shows "Capped — can\'t pour".';
+        '🧢 <strong>New: lids!</strong> A capped tube can\'t pour in or out.<br />' +
+        '<strong>Double-tap</strong> the lid to open it (free — doesn\'t use a move).<br />' +
+        'Try pouring onto a lid → shake + toast <em>"Capped — can\'t pour"</em>.';
     }
+    activeTipKind = 'cap';
     onboardingTip.hidden = false;
   }
 
@@ -1524,8 +1540,13 @@
     $('#btn-daily').addEventListener('click', startDailyChallenge);
     $('#btn-start-daily').addEventListener('click', startDailyChallenge);
     $('#btn-dismiss-tip').addEventListener('click', () => {
-      save.onboardingDone = true;
-      save.capTeachDone = true;
+      if (activeTipKind === 'cap') {
+        save.capTeachDone = true;
+      } else {
+        // Default / onboarding: only clear pour teach — keep L3 lid teach for later
+        save.onboardingDone = true;
+      }
+      activeTipKind = null;
       persist();
       onboardingTip.hidden = true;
     });
