@@ -79,3 +79,7 @@ AdMob / Billing wiring notes: `src/monetization.md` (matches `game.js` stubs). i
 ## Tech
 
 Single-page HTML5 + vanilla JS + CSS. No heavy engine. Touch and mouse both work.
+
+## 驗收
+
+閘門報告見 [ACCEPTANCE.md](./ACCEPTANCE.md)（百萬用戶級；能玩 ≠ 通過）。
