@@ -28,6 +28,16 @@ Boot events (auto on script load):
 | `daily_start` | `startDailyChallenge` / daily `loadLevel` | `mode: "daily"`, `daily_key` (YYYY-MM-DD), `level_id` (source board index if known) | |
 | `daily_clear` | `showWin` in daily mode | `mode: "daily"`, `daily_key`, `stars`, `moves` | |
 
+## Meta / retention
+
+| Event | When | Required params | Notes |
+| --- | --- | --- | --- |
+| `streak_milestone` | Login claims Day 3 / 7 / 14 streak chest | `day`, `coins`, `hints`, `streak` | Soft daily +coins still apply separately; no punishment on miss |
+| `first_three_star` | First time a main level reaches 3★ | `mode: "main"`, `level_id`, `bonus` | Bonus is on top of `STAR_REWARDS[3]` |
+| `chapter_chest` | All levels in a 10-level chapter are 3★ (first claim) | `chapter`, `coins`, `hints`, `levels` | Replay reason for missing stars |
+
+`level_clear` may also include `first_three_star` (bool) and `chapter_chest` (chapter # or 0).
+
 ## Economy / ads / IAP
 
 | Event | When | Required params | Notes |
@@ -46,6 +56,8 @@ Boot events (auto on script load):
 6. Use hint (free/coins/ad) → `hint_used`; ad path also → `rewarded_complete` with `placement: "hint"`.
 7. Daily Challenge → `daily_start` then on clear `daily_clear`.
 8. Successful remove-ads purchase → `iap_remove_ads`.
+9. Login on streak Day 3/7/14 → `streak_milestone`.
+10. First 3★ on a level → `first_three_star`; fill a 10-level chapter → `chapter_chest`.
 
 ## Provider hook (later)
 
