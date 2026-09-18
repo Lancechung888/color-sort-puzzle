@@ -52,6 +52,11 @@
   let tubes = [];
   let caps = []; // parallel to tubes; true = lid on
   let selected = -1;
+  /** Two-tap uncap: first tap arms, second within window confirms (free move). */
+  let pendingUncapIdx = -1;
+  let pendingUncapUntil = 0;
+  let pendingUncapTimer = 0;
+  const PENDING_UNCAP_MS = 2000;
   let history = [];
   let moves = 0;
   let pouring = false;
@@ -251,6 +256,7 @@
     tubes = cloneTubes(def.tubes);
     caps = hydrateCaps(def, tubes.length);
     selected = -1;
+    clearPendingUncap();
     history = [];
     moves = 0;
     pouring = false;
@@ -382,18 +388,53 @@
   }
 
   // --- Actions ---
+  function clearPendingUncap() {
+    pendingUncapIdx = -1;
+    pendingUncapUntil = 0;
+    clearTimeout(pendingUncapTimer);
+    pendingUncapTimer = 0;
+  }
+
+  function armPendingUncap(idx) {
+    pendingUncapIdx = idx;
+    pendingUncapUntil = Date.now() + PENDING_UNCAP_MS;
+    clearTimeout(pendingUncapTimer);
+    pendingUncapTimer = setTimeout(() => {
+      if (pendingUncapIdx === idx) {
+        clearPendingUncap();
+        render();
+      }
+    }, PENDING_UNCAP_MS + 30);
+  }
+
   function selectTube(idx) {
     if (pouring) return;
 
-    // Cap module: only tap self to uncap (one-way). Target capped → shake, do not uncap.
+    // Cap module: destination while holding liquid → never uncap; two-tap self to uncap.
     if (isCapped(idx)) {
       if (selected >= 0 && selected !== idx) {
+        // Holding liquid: capped destination is locked (signature「有蓋倒不出」)
+        clearPendingUncap();
         shakeTube(idx);
+        toast('有蓋，倒不進去');
         return;
       }
-      uncapTube(idx);
+      const now = Date.now();
+      if (pendingUncapIdx === idx && now <= pendingUncapUntil) {
+        clearPendingUncap();
+        uncapTube(idx);
+        return;
+      }
+      // First tap: arm + lid pulse + tip; do not uncap yet
+      selected = -1;
+      armPendingUncap(idx);
+      toast('點一下揭蓋（不占步數）');
+      render();
+      shakeTube(idx); // after render so shake class isn't wiped
       return;
     }
+
+    clearPendingUncap();
 
     if (selected === idx) {
       selected = -1;
@@ -503,6 +544,7 @@
     caps = prev.caps ? cloneCaps(prev.caps) : hydrateCaps({}, tubes.length);
     moves = prev.moves;
     selected = -1;
+    clearPendingUncap();
     if (!infiniteUndoLevel) undosUsed++;
     updateChrome();
     render();
@@ -577,7 +619,7 @@
         el.classList.add('hint-uncap');
         setTimeout(() => render(), 900);
       }
-      toast('提示：點這支管子打開蓋子');
+      toast('提示：連點兩下揭蓋（不占步數）');
       return;
     }
     selected = move.from;
@@ -791,7 +833,8 @@
         'tube' +
         (selected === idx ? ' selected' : '') +
         (complete ? ' complete' : '') +
-        (capped ? ' capped' : '');
+        (capped ? ' capped' : '') +
+        (capped && pendingUncapIdx === idx && Date.now() <= pendingUncapUntil ? ' cap-pending' : '');
       el.style.width = tubeW + 'px';
       el.dataset.index = idx;
       el.setAttribute('role', 'button');
@@ -1199,7 +1242,7 @@
     const tipP = onboardingTip.querySelector('p');
     if (tipP) {
       tipP.innerHTML =
-        '🧢 <strong>蓋子管</strong>：有蓋的管子不能倒進／倒出。<br />點管子本身打開蓋子（開蓋不計步數），再開的才能倒水。';
+        '🧢 <strong>蓋子管</strong>：有蓋不能倒進／倒出。<br />連點兩下揭蓋（不占步數）；拿著液體點有蓋管會提示「倒不進去」。';
     }
     onboardingTip.hidden = false;
   }

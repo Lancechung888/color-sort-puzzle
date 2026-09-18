@@ -68,7 +68,7 @@ Assumptions: soft launch TW / SE Asia, ~2–4k MAU, hybrid-casual retention, ARP
 
 ## 蓋子管 (cap module) — density-locked curve
 
-**蓋子管** USP: optional `caps:[bool…]` + `modules:['cap']` + `teach:'cap'`. Capped tubes cannot pour in/out; tap self to uncap (one-way, **not a move**; undo can re-lid). Signature uncap juice (WebAudio + lid flip + sparks).
+**蓋子管** USP: optional `caps:[bool…]` + `modules:['cap']` + `teach:'cap'`. Capped tubes cannot pour in/out. **Two-tap uncap** (first tap arms lid pulse + tip「點一下揭蓋（不占步數）」; second within ~2s confirms; **not a move**; undo can re-lid). Holding liquid + tap capped dest → shake +「有蓋，倒不進去」(never uncaps). Signature uncap juice (WebAudio + lid flip + sparks).
 
 ### Cap curve (master ruling)
 

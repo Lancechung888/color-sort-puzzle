@@ -591,6 +591,20 @@ html, body {
   transform: none;
 }
 
+/* First-tap arm: pulse lid until second tap / timeout */
+.tube.cap-pending .tube-lid {
+  animation: lidPendingPulse 0.65s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 200, 80, 0.85));
+}
+.tube.cap-pending {
+  outline: 2px solid rgba(255, 193, 7, 0.75);
+  outline-offset: 3px;
+}
+@keyframes lidPendingPulse {
+  0%, 100% { transform: translateX(-50%) scale(1); filter: brightness(1) drop-shadow(0 0 4px rgba(255,200,80,0.4)); }
+  50% { transform: translateX(-50%) scale(1.08); filter: brightness(1.35) drop-shadow(0 0 12px rgba(255,220,100,0.95)); }
+}
+
 /* Pour stream + splash */
 .pour-stream {
   position: absolute;
