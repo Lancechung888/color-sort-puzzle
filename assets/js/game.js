@@ -337,46 +337,67 @@
   }
 
 
-  // --- WebAudio SFX (simple oscillators) + optional vibrate ---
-  let audioCtx = null;
-  function ensureAudio() {
-    if (audioCtx) return audioCtx;
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return null;
-    audioCtx = new AC();
-    return audioCtx;
+  // --- Sample SFX (assets/audio) + optional vibrate ---
+  // Replaces oscillator beeps with short clips suitable for UA first 3s.
+  const SFX_BASE = 'assets/audio/';
+  const SFX_STEMS = ['pour', 'land', 'complete', 'uncap', 'win', 'blocked', 'ui_tap'];
+  let sfxExt = null;
+  let sfxUnlocked = false;
+  const sfxCache = Object.create(null);
+
+  function detectSfxExt() {
+    if (sfxExt) return sfxExt;
+    const probe = document.createElement('audio');
+    if (probe.canPlayType('audio/ogg; codecs="vorbis"') || probe.canPlayType('audio/ogg')) {
+      sfxExt = '.ogg';
+    } else {
+      sfxExt = '.mp3';
+    }
+    return sfxExt;
   }
+
+  function sfxUrl(stem) {
+    return SFX_BASE + stem + detectSfxExt();
+  }
+
+  function warmSfx(stem) {
+    if (sfxCache[stem]) return sfxCache[stem];
+    const a = new Audio(sfxUrl(stem));
+    a.preload = 'auto';
+    a.volume = 0.85;
+    sfxCache[stem] = a;
+    return a;
+  }
+
+  function playSfx(stem, vol) {
+    try {
+      const proto = warmSfx(stem);
+      const a = new Audio(proto.currentSrc || sfxUrl(stem));
+      a.volume = vol == null ? 0.85 : vol;
+      const p = a.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch (_) { /* ignore missing/blocked audio */ }
+  }
+
   function resumeAudio() {
-    const ctx = ensureAudio();
-    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+    if (sfxUnlocked) return;
+    sfxUnlocked = true;
+    detectSfxExt();
+    SFX_STEMS.forEach((stem) => {
+      try { warmSfx(stem); } catch (_) { /* ignore */ }
+    });
   }
-  function beep(freq, dur, type, gain, slideTo) {
-    const ctx = ensureAudio();
-    if (!ctx) return;
-    const t0 = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const g = ctx.createGain();
-    osc.type = type || 'sine';
-    osc.frequency.setValueAtTime(freq, t0);
-    if (slideTo) osc.frequency.exponentialRampToValueAtTime(Math.max(40, slideTo), t0 + dur);
-    g.gain.setValueAtTime(0.0001, t0);
-    g.gain.exponentialRampToValueAtTime(gain || 0.12, t0 + 0.012);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    osc.connect(g);
-    g.connect(ctx.destination);
-    osc.start(t0);
-    osc.stop(t0 + dur + 0.02);
-  }
+
   const SFX = {
-    pour() { beep(420, 0.14, 'triangle', 0.08, 180); },
-    land() { beep(160, 0.07, 'square', 0.06); setTimeout(() => beep(110, 0.05, 'sine', 0.04), 40); },
-    complete() { beep(520, 0.08, 'sine', 0.1); setTimeout(() => beep(780, 0.12, 'sine', 0.09), 70); },
-    uncap() { beep(880, 0.05, 'square', 0.07, 240); setTimeout(() => beep(1320, 0.08, 'triangle', 0.05), 30); },
-    win() {
-      [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => beep(f, 0.14, 'sine', 0.1), i * 90));
-    },
-    illegal() { beep(140, 0.12, 'sawtooth', 0.05, 80); },
+    pour() { playSfx('pour', 0.9); },
+    land() { playSfx('land', 0.75); },
+    complete() { playSfx('complete', 0.85); },
+    uncap() { playSfx('uncap', 0.9); },
+    win() { playSfx('win', 0.9); },
+    illegal() { playSfx('blocked', 0.85); },
+    tap() { playSfx('ui_tap', 0.55); },
   };
+
   function haptic(kind) {
     if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
     try {
@@ -1309,6 +1330,12 @@
   }
 
   function bindShop() {
+    // Soft UI tap on primary chrome (not every shop SKU click — keeps ads clean)
+    ['btn-undo', 'btn-restart', 'btn-hint', 'btn-shop', 'btn-next', 'btn-start'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', () => SFX.tap(), { capture: true });
+    });
+
     $('#btn-shop').addEventListener('click', openShop);
     $('#btn-start-shop').addEventListener('click', () => {
       openShop();
