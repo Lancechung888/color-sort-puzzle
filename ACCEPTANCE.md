@@ -1,60 +1,67 @@
-# ACCEPTANCE · ColorTube Sort
+# 彩管分類 · 驗收報告（百萬用戶閘門）
 
-> Manual / QA gate. Any **Fail** blocks store submission.  
-> Do **not** mark AdMob / real IAP as Pass without publisher account + SDK proof.
+> 結論：**不過** — P0②③ 仍 Blocked，禁止上架。  
+> 標準：找問題／擋過關，不是蓋章。能玩 ≠ 通過。
 
-## P0 — must be green
+驗收日：2026-09-18  
+重驗日：2026-09-18（P0①④）  
+驗收角色：遊戲驗收
 
-| ID | Check | Expected | Status |
-|----|-------|----------|--------|
-| P0-1 | Shop「去除廣告」click | Toast **即將開放／需商店帳號**; `save.removeAds` stays **false** (unless `localStorage.colorTubeSort_devIap=1`) | **Pass** (fixed) |
-| P0-2 | Fail-sheet「去除廣告」 | Same as P0-1; does **not** grant remove-ads or pretend purchase succeeded | **Pass** (fixed) |
-| P0-3 | Level skip | No double-click / dblclick on level label to advance; start CTA must not click-through into tubes | **Pass** (fixed) |
-| P0-4 | Infinite undo SKU | UI「本關無限撤銷」= unlimited undos this level + no star penalty; history not soft-capped at 100 while active | **Pass** (fixed) |
-| P0-5 | Fake AdMob as Done | Must remain **TODO** needing account; stubs OK; never claim ship-ready monetization | **Pass** (policy) |
+---
 
-## Economy / curve (accepted rulings)
+## 閘門結論
 
-| ID | Check | Expected | Status |
-|----|-------|----------|--------|
-| E-1 | New save coins / hints | 70 coins, 2 free hints | **Pass** |
-| E-2 | Hint coin cost | 40 | **Pass** |
-| E-3 | Star rewards | 8 / 15 / 28 | **Pass** |
-| E-4 | Fail wall | index &lt; 10 → threshold 3; index ≥ 10 → 2 | **Pass** |
-| E-5 | Daily challenge | Adaptive near `maxUnlocked`, not hard late-catalog pull | **Pass** |
-| C-1 | L1–2 | Zero caps, pour-only | **Pass** |
-| C-2 | L3 | 2 colors + 1 cap + teach | **Pass** |
-| C-3 | Cap density | 40–60% mainline; consec uncapped ≤3; ≤2 caps/level | **Pass** (50%, max consec 3) |
-| C-4 | Level count | ≥50 solid; aim 80 | **Pass** (80) |
-| C-5 | First 4-color | After solid 3-color stretch | **Pass** (~L11) |
+| 結果 | 說明 |
+|------|------|
+| **不過** | P0①④ 已 Pass；P0②③ 真廣告／`?ad=1` 產線仍 **Blocked**（等帳號） |
+| 上架 | **禁止**直到②③解除 Blocked 並複驗通過 |
 
-## Juice
+---
 
-| ID | Check | Expected | Status |
-|----|-------|----------|--------|
-| J-1 | WebAudio | pour, land, complete tube, uncap, win | **Pass** (oscillators) |
-| J-2 | Vibrate | complete / illegal (optional API) | **Pass** |
-| J-3 | Uncap feel | Signature lid motion + feedback | **Pass** (CSS + sparks + SFX) |
+## P0（一票否決）— ①–④ 對照
 
-## Still Fail / open (not this turn)
+| ID | 檢查項 | 狀態 | 重現／備註 |
+|----|--------|------|------------|
+| **P0①** | 商店假 IAP | **Pass** | 點「去除廣告」→ toast「即將開放／需商店帳號」；`removeAds` 維持 false（除非 `localStorage.colorTubeSort_devIap=1`） |
+| **P0②** | 真 AdMob／變現 SDK | **Blocked** | 仍 stub／`USE_TEST_ADS`；等出版社帳號＋正式單元。**不可標 Pass** |
+| **P0③** | `?ad=1` 當廣告流 | **Blocked** | 僅 ad-capture 截圖模式，非廣告播放；等真 SDK 後另開驗收項。**不可當變現完成** |
+| **P0④** | 跳關／開始鈕穿透 | **Pass** | 雙擊關卡標籤不跳關；開始畫面雙擊「開始遊戲」不誤觸開蓋 |
 
-| ID | Check | Status | Notes |
-|----|-------|--------|-------|
-| M-1 | Real AdMob rewarded + interstitial on device | **Fail** | Needs `@capacitor-community/admob` + publisher / app IDs |
-| M-2 | Real `remove_ads` IAP (Play Billing / StoreKit) | **Fail** | Gated「即將開放」until wired |
-| B-1 | Final icon 1024 + 5 store shots | **Fail** | Concept drafts only |
-| A-1 | Automated ACCEPTANCE runner all green | **Fail** | This doc is manual; no CI suite yet |
-| R-1 | Meta return reasons first-tier thick | **Fail** | Daily adaptive OK; streak / 3★ replay still thin |
-| J-4 | 15s UA creative validated on device | **Fail** | Juice present; creative not shot / approved |
+### 重驗證據（2026-09-18）
 
-## Smoke steps (manual)
+1. **① Pass**：清 localStorage → 商店 → 去除廣告 →「即將開放」，權益未變。  
+2. **④ Pass**：關卡標籤連點雙擊仍停在關卡 1；重整後仍從 1 起。  
+3. **④ Pass**：開始鈕快速雙擊正常進關，無「蓋子打開了」誤觸。  
+4. **②③ Blocked**：未接真 SDK／帳號前維持阻擋，不重測為 Pass。
 
-1. Clear site data → confirm 70 coins / 2 hints on HUD.  
-2. Play L1–2: no lids. L3: one lid + teach tip.  
-3. Restart early level 3× → fail sheet on 3rd; on L11+ sheet on 2nd.  
-4. Shop → 去除廣告 → must toast 即將開放; reload → ads path still active.  
-5. Confirm level label double-click does nothing.  
-6. Pour / complete / uncap / win: hear tones; illegal pour vibrates if supported.  
-7. DEV only: `localStorage.setItem('colorTubeSort_devIap','1')` then IAP may grant; default must be off.
+---
 
-**Suite result:** P0 + economy/curve/juice checks Pass; monetization / brand / automation **Fail** → **not ship-ready**.
+## 抽測（附帶，未翻盤閘門）
+
+| ID | 檢查 | 狀態 |
+|----|------|------|
+| J-音效 | WebAudio pour／land／uncap／win 路徑 | **Pass**（實測有動畫／toast；工具無法聽音量） |
+| C-蓋子密度 | L1–2 無蓋；L3 起有蓋；≤2／關；主線約 50% | **Pass** |
+
+---
+
+## 仍開著（非本輪關單）
+
+| ID | 檢查 | 狀態 | 備註 |
+|----|------|------|------|
+| M-1 | 真 AdMob rewarded + interstitial | **Blocked** | ＝P0② |
+| M-2 | 真 `remove_ads` IAP | **Blocked** | 產品態「即將開放」直到 Billing／StoreKit |
+| B-1 | 最終 icon 1024 + 商店截圖 | **Fail** | 概念稿不足 |
+| R-1 | 回流理由厚度 | **Fail** | Daily 有；streak／三星重玩仍薄 |
+
+---
+
+## Smoke（複驗手冊）
+
+1. 清站內資料 → 商店去除廣告必須「即將開放」，重整後廣告路徑仍在。  
+2. 關卡標籤雙擊無跳關；開始鈕雙擊無穿透開蓋。  
+3. L1–2 無蓋；L3 有蓋＋教學。  
+4. DEV only：`localStorage.setItem('colorTubeSort_devIap','1')` 才可 mock 給獎；預設必須關。  
+5. ②③：有出版社帳號＋真 SDK 憑證前，**維持 Blocked**。
+
+**Suite：** ①④ Pass；②③ Blocked → **not ship-ready**。
