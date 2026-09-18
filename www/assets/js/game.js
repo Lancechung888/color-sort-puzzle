@@ -612,6 +612,7 @@
       else if (kind === 'land') navigator.vibrate(10); // ~8–12ms light tick
       else if (kind === 'illegal') navigator.vibrate(28);
       else if (kind === 'uncap') navigator.vibrate(10);
+      else if (kind === 'select') navigator.vibrate(8);
       else if (kind === 'win') navigator.vibrate([20, 40, 20, 40, 40]);
     } catch (_) { /* ignore */ }
   }
@@ -690,6 +691,8 @@
     }
     if (tubes[idx].length === 0) return;
     selected = idx;
+    SFX.tap();
+    haptic('select');
     render();
   }
 
