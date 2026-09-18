@@ -599,6 +599,11 @@
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
           return;
         }
+        if (kind === 'arm' || kind === 'undo') {
+          // Soft lid-arm / undo — invite, not error
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          return;
+        }
         if (kind === 'illegal') {
           Promise.resolve(H.notification({ type: 'ERROR' })).catch(function () {});
           return;
@@ -618,6 +623,8 @@
       else if (kind === 'land') navigator.vibrate(10); // ~8–12ms light tick
       else if (kind === 'illegal') navigator.vibrate(28);
       else if (kind === 'uncap') navigator.vibrate(10);
+      else if (kind === 'arm') navigator.vibrate(8); // lid first-tap invite
+      else if (kind === 'undo') navigator.vibrate(8);
       else if (kind === 'select') navigator.vibrate(8);
       else if (kind === 'win') navigator.vibrate([20, 40, 20, 40, 40]);
     } catch (_) { /* ignore */ }
@@ -673,7 +680,8 @@
         toast('Tap again to uncap (free move)');
       }
       render();
-      shakeTube(idx); // after render so shake class isn't wiped
+      // Soft invite only — never illegal SFX/haptic (that reserved for blocked pours)
+      pulseLidArm(idx);
       return;
     }
 
@@ -826,6 +834,8 @@
     if (!infiniteUndoLevel) undosUsed++;
     updateChrome();
     render();
+    SFX.tap();
+    haptic('undo');
   }
 
   function restart() {
@@ -1252,6 +1262,22 @@
     el.innerHTML = [1, 2, 3]
       .map((i) => `<span class="${i <= s ? '' : 'empty'}">★</span>`)
       .join('');
+  }
+
+  /**
+   * First tap on a capped tube: soft lid nudge + tap — teaches double-tap uncap.
+   * Must NOT use shakeTube (illegal blocked SFX/ERROR haptic).
+   */
+  function pulseLidArm(idx) {
+    const el = tubesWrap.children[idx];
+    if (el) {
+      el.classList.remove('lid-arm-nudge');
+      void el.offsetWidth;
+      el.classList.add('lid-arm-nudge');
+      setTimeout(() => el.classList.remove('lid-arm-nudge'), 420);
+    }
+    SFX.tap();
+    haptic('arm');
   }
 
   function shakeTube(idx) {

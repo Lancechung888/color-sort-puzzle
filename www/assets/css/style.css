@@ -726,6 +726,24 @@ html, body {
   50% { transform: translateX(-50%) scale(1.08); filter: brightness(1.35) drop-shadow(0 0 12px rgba(255,220,100,0.95)); }
 }
 
+/* One-shot lid nudge on arm (invite, not blocked-shake) */
+.tube.lid-arm-nudge .tube-lid {
+  animation: lidArmNudge 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes lidArmNudge {
+  0% { transform: translateX(-50%) scale(1) rotate(0deg); }
+  35% { transform: translateX(-50%) scale(1.14) rotate(-6deg); }
+  70% { transform: translateX(-50%) scale(1.06) rotate(4deg); }
+  100% { transform: translateX(-50%) scale(1) rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tube.cap-pending .tube-lid { animation: none; }
+  .tube.lid-arm-nudge .tube-lid {
+    animation: none;
+    filter: drop-shadow(0 0 10px rgba(255, 200, 80, 0.95));
+  }
+}
+
 /* Pour stream + splash — JS aims via rotate (source lip → target mouth) */
 .pour-stream {
   position: absolute;
