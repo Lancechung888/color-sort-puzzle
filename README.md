@@ -46,7 +46,11 @@ color-sort-puzzle/
     css/style.css      # themes + juice UI
     js/levels.js       # 40 levels (cap tutorial 1–5) + candy palette
     js/ads.js          # AdMob bridge (USE_TEST_ADS) + browser mock
+    js/billing.js      # Play Billing / StoreKit skeleton (remove_ads)
+    js/analytics.js    # event track helpers
     js/game.js         # gameplay, 蓋子管, economy, shop, ad/IAP stubs
+  docs/
+    NATIVE_PACK_READY.md  # Android packaging DONE vs SDK BLOCKED
 ```
 
 ## Retention & monetization (stubs)
@@ -55,7 +59,7 @@ color-sort-puzzle/
 - Coins, 3-star ratings, daily streak, 今日挑戰, unlockable themes
 - Shop: 去除廣告, 主題包, 提示包, 無限撤銷（本關）
 - Fail-loop soft prompt + hint paywall (rewarded / coins / IAP mocks)
-- No real AdMob or Billing SDK yet — see `TODO` comments in `game.js`
+- AdMob / Billing: Capacitor plugins + `ads.js` / `billing.js` (test IDs; see `docs/NATIVE_PACK_READY.md`)
 
 ## Levels
 
@@ -67,14 +71,16 @@ See **[STORE.md](./STORE.md)** for ASO copy (TW zh-Hant + EN), monetization wiri
 
 ### Capacitor (Android first)
 
+Packaging readiness checklist: **[docs/NATIVE_PACK_READY.md](./docs/NATIVE_PACK_READY.md)** (DONE in repo vs BLOCKED on missing JDK/SDK).
+
 ```bash
-npm install          # if network allows; templates work without it
+npm install
 npm run build:www    # syncs index.html + assets/ → www/
-npx cap add android  # requires Android SDK on your machine
+npx cap add android  # generates local android/ (gitignored); needs Node — Gradle needs JDK+SDK
 npx cap sync
 ```
 
-AdMob / Billing wiring notes: `src/monetization.md` (matches `game.js` stubs). iOS after Play soft-launch.
+AdMob / Billing wiring notes: `src/monetization.md`. Manifest snippets: `native-templates/android/`. iOS after Play soft-launch.
 
 ## Tech
 
