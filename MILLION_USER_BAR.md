@@ -121,7 +121,7 @@
 
 ---
 
-## 現況評分 · Honest draft score (post Meta + Capacitor Haptics)
+## 現況評分 · Honest draft score (post Meta + Haptics + `npm run accept`)
 
 依目前程式／資產閱讀（非願望清單）。**禁止 soft-launch**；**不宣稱 ship-ready**。
 
@@ -135,16 +135,17 @@
 | 6 | Meta 回來理由 | **Pass** | Daily 自適應＋首清 +40；連勝里程碑 Day **3/7/14**（幣＋提示）＋下一里程碑 HUD／首屏；首達 3★ **+22**；每 10 關全 3★ chapter chest（+80🪙＋1 hint）；關卡選單顯示缺星＋獎勵預告 |
 | 7 | 真 AdMob＋remove_ads | **Fail** | AdMob **未**進依賴／需 publisher 帳號（TODO）；商店「去除廣告」→ **即將開放**，**不會**假授 `removeAds`（DEV flag 預設 OFF） |
 | 8 | 品牌投放級 | **Pass** | 定名 ColorTube Sort；`store-assets/finals/` 齊 **ICON A 1024**＋Shot1–5 EN（見 STORE_FINALS_GATE）；ZH 次要。投放素材迭代另凍結（無預算）≠ 缺資產 |
-| 9 | 穩定／ACCEPTANCE | **Fail** | 有 **ACCEPTANCE.md** 列出 QA Fail／回歸項；套件未全綠、無自動化全過證明 |
+| 9 | 穩定／ACCEPTANCE | **Partial** | `npm run accept` 自動化 **全綠**（關卡／經濟／P0①／測 ID 配線／倒水護欄）；**P0②③** 仍 Blocked → 未滿 Pass；無已知 P0 崩 |
 
-**總評：** **5 Pass / 2 Partial / 2 Fail** → 閘門仍關閉。Meta＋品牌 finals 已 Pass；手感已接 Capacitor Haptics 仍 Partial（缺實機 UA 剪輯）；**變現／ACCEPTANCE 全綠** 仍是硬缺口。**不宣稱 ship-ready。**
+**總評：** **5 Pass / 3 Partial / 1 Fail** → 閘門仍關閉。Meta＋品牌 finals 已 Pass；手感／首屏／ACCEPTANCE 自動化為 Partial；**真變現（#7）** 仍是唯一 Fail。**不宣稱 ship-ready。**
 
 ---
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
-1. **真變現** — AdMob SDK＋帳號測試 ID；`remove_ads` 真 Billing／StoreKit（維持不打斷倒水）。  
-2. **手感收滿 Pass** — Capacitor Haptics 已接；仍差實機 15s UA 剪輯驗證（投放預算凍結期間可延後，但閘門仍標 Partial）。  
-3. **ACCEPTANCE 全綠** — ACCEPTANCE 項清零並可重複跑（品牌 finals 已齊；勿把 mock IAP／假 AdMob 標成 Done）。
+1. **真變現** — Play 過審後換正式 AdMob／Billing 單元；`remove_ads` 真接線（維持不打斷倒水）。勿把測 ID／Coming soon 標 Done。  
+2. **手感收滿 Pass** — Capacitor Haptics 已接；仍差實機 15s UA 剪輯驗證（投放預算凍結期間可延後，閘門仍 Partial）。  
+3. **ACCEPTANCE → Pass** — `npm run accept` 已可重複跑且自動化項全綠；仍差 P0②③ 實機變現複驗後才能把 #9 從 Partial 拉滿。  
+4. **首屏／Icon「想點」** — finals icon 已齊；仍缺外部 3s 競品對照實測（#1 Partial）。
 
 不得把 mock IAP／假 AdMob 標成 Done。
