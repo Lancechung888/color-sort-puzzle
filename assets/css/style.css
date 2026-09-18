@@ -501,33 +501,42 @@ html, body {
 }
 
 .tube-lid {
+  /* Ad-first: thicker + brighter metal lid so USP reads at ~48–58px / first 3s */
   position: absolute;
-  top: -2px;
+  top: -6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 108%;
-  height: 16px;
+  width: 118%;
+  height: 22px;
   z-index: 6;
   pointer-events: none;
-  border-radius: 8px 8px 4px 4px;
+  border-radius: 9px 9px 5px 5px;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(200,210,230,0.35) 40%, rgba(80,90,120,0.55) 100%);
+    linear-gradient(180deg,
+      rgba(255,255,255,0.95) 0%,
+      rgba(235,242,255,0.82) 18%,
+      rgba(175,190,220,0.58) 48%,
+      rgba(95,105,140,0.62) 78%,
+      rgba(55,65,95,0.78) 100%);
   border: 2.5px solid var(--tube-border);
   box-shadow:
-    0 4px 10px rgba(0,0,0,0.35),
-    inset 0 1px 0 rgba(255,255,255,0.5);
+    0 6px 16px rgba(0,0,0,0.55),
+    0 2px 5px rgba(0,0,0,0.4),
+    inset 0 2px 1px rgba(255,255,255,0.85),
+    inset 0 -3px 5px rgba(0,0,0,0.28);
 }
 
 .tube-lid::after {
   content: '';
   position: absolute;
-  top: 3px;
+  top: 4px;
   left: 50%;
   transform: translateX(-50%);
-  width: 28%;
-  height: 5px;
-  border-radius: 3px;
-  background: rgba(255,255,255,0.45);
+  width: 38%;
+  height: 7px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.4));
+  box-shadow: 0 0 8px rgba(255,255,255,0.65);
 }
 
 .tube.uncapping .tube-lid {
@@ -591,18 +600,18 @@ html, body {
   transform: none;
 }
 
-/* First-tap arm: pulse lid until second tap / timeout */
+/* First-tap arm: pulse lid until second tap / timeout (more obvious for ads + small size) */
 .tube.cap-pending .tube-lid {
-  animation: lidPendingPulse 0.65s ease-in-out infinite;
-  filter: drop-shadow(0 0 8px rgba(255, 200, 80, 0.85));
+  animation: lidPendingPulse 0.55s ease-in-out infinite;
+  filter: drop-shadow(0 0 14px rgba(255, 200, 80, 1));
 }
 .tube.cap-pending {
-  outline: 2px solid rgba(255, 193, 7, 0.75);
-  outline-offset: 3px;
+  outline: 3px solid rgba(255, 193, 7, 0.92);
+  outline-offset: 4px;
 }
 @keyframes lidPendingPulse {
-  0%, 100% { transform: translateX(-50%) scale(1); filter: brightness(1) drop-shadow(0 0 4px rgba(255,200,80,0.4)); }
-  50% { transform: translateX(-50%) scale(1.08); filter: brightness(1.35) drop-shadow(0 0 12px rgba(255,220,100,0.95)); }
+  0%, 100% { transform: translateX(-50%) scale(1); filter: brightness(1.08) drop-shadow(0 0 6px rgba(255,200,80,0.6)); }
+  50% { transform: translateX(-50%) scale(1.14); filter: brightness(1.55) drop-shadow(0 0 18px rgba(255,230,120,1)); }
 }
 
 /* Pour stream + splash */

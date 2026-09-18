@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Lid readability preview</title>
+<link rel="stylesheet" href="../../../assets/css/style.css"/>
+<style>
+  body { margin: 0; min-height: 100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; background:#1a1f2e; font-family:system-ui,sans-serif; color:#fff; }
+  h1 { font-size:14px; opacity:0.7; margin:0; font-weight:500; }
+  .row { display:flex; gap:28px; align-items:flex-end; }
+  .label { text-align:center; font-size:11px; margin-top:8px; opacity:0.65; }
+  .tube { height: 140px; }
+  .tube-glass { height: 120px; }
+  .tube.cap-pending { margin-top: 8px; }
+</style>
+</head>
+<body>
+  <h1>Lid readability — capped / cap-pending</h1>
+  <div class="row">
+    <div>
+      <div class="tube capped" style="width:58px">
+        <div class="tube-rim"></div>
+        <div class="tube-glass"><div class="tube-layers">
+          <div class="layer" style="height:30%; background:#ff6b6b"></div>
+          <div class="layer" style="height:30%; background:#4ecdc4"></div>
+          <div class="layer" style="height:30%; background:#ffe66d"></div>
+        </div></div>
+        <div class="tube-lid"></div>
+      </div>
+      <div class="label">capped 58px</div>
+    </div>
+    <div>
+      <div class="tube capped cap-pending" style="width:58px">
+        <div class="tube-rim"></div>
+        <div class="tube-glass"><div class="tube-layers">
+          <div class="layer" style="height:40%; background:#a78bfa"></div>
+          <div class="layer" style="height:40%; background:#34d399"></div>
+        </div></div>
+        <div class="tube-lid"></div>
+      </div>
+      <div class="label">cap-pending</div>
+    </div>
+    <div>
+      <div class="tube capped" style="width:48px">
+        <div class="tube-rim"></div>
+        <div class="tube-glass" style="height:100px"><div class="tube-layers">
+          <div class="layer" style="height:50%; background:#60a5fa"></div>
+          <div class="layer" style="height:50%; background:#f472b6"></div>
+        </div></div>
+        <div class="tube-lid"></div>
+      </div>
+      <div class="label">small 48px</div>
+    </div>
+  </div>
+</body>
+</html>
