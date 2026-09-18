@@ -622,9 +622,9 @@
     return null;
   }
 
-  /* === Monetization stubs ===
-   * TODO: Wire Google Play Billing Library / StoreKit 2 for real IAP.
-   * TODO: Wire AdMob interstitial + rewarded (Capacitor plugins).
+  /* === Monetization ===
+   * AdMob: assets/js/ads.js (ColorTubeAds). Billing: assets/js/billing.js (ColorTubeBilling).
+   * Fake IAP only when localStorage colorTubeSort_devIap===1 (default OFF).
    */
   /** Real Billing/StoreKit not wired. Default: never grant paid entitlements.
    * Set localStorage colorTubeSort_devIap=1 for DEV-only mock grants (default OFF).
@@ -650,11 +650,39 @@
   }
 
   function purchaseRemoveAds() {
-    // Never permanently grant removeAds via shop click until real IAP.
+    // ACCEPTANCE P0①: normal shop click must NOT grant removeAds.
+    // Real grant only via Play Billing success, or explicit DEV flag.
     if (save.removeAds) {
       toast('已去除廣告');
       return;
     }
+    const billing = window.ColorTubeBilling;
+    const canNative =
+      billing &&
+      typeof billing.isBillingReady === 'function' &&
+      billing.isBillingReady() &&
+      typeof billing.purchaseRemoveAds === 'function';
+    if (canNative) {
+      toast('開啟購買…');
+      Promise.resolve(billing.purchaseRemoveAds())
+        .then((ok) => {
+          if (ok || (billing.isRemoveAdsOwned && billing.isRemoveAdsOwned())) {
+            save.removeAds = true;
+            persist();
+            refreshHud();
+            refreshShopButtons();
+            toast('已去除廣告');
+          } else {
+            toast('購買未完成或已取消');
+          }
+        })
+        .catch((e) => {
+          console.warn('[IAP] purchaseRemoveAds', e);
+          toast('購買失敗，請稍後再試');
+        });
+      return;
+    }
+    // Plugin missing / web / billing not ready → gated mock only (dev flag OFF by default)
     if (!isDevIapEnabled()) {
       toast('即將開放／需商店帳號');
       return;
@@ -663,6 +691,7 @@
       save.removeAds = true;
       persist();
       refreshHud();
+      refreshShopButtons();
       toast('（DEV）已去除廣告');
     });
   }
@@ -1029,6 +1058,22 @@
   function openShop() {
     refreshShopButtons();
     openOverlay(shopOverlay);
+    // Native only: try restore once (no grant on web / missing plugin)
+    try {
+      const billing = window.ColorTubeBilling;
+      if (billing && typeof billing.restorePurchasesOnce === 'function') {
+        Promise.resolve(billing.restorePurchasesOnce()).then((owned) => {
+          if (owned) {
+            save.removeAds = true;
+            persist();
+            refreshHud();
+            refreshShopButtons();
+          } else {
+            refreshShopButtons();
+          }
+        }).catch(() => {});
+      }
+    } catch (_) { /* ignore */ }
   }
 
   function refreshShopButtons() {
@@ -1041,7 +1086,17 @@
       }
       if (removeCard) removeCard.classList.add('owned');
     } else if (btnRemove) {
-      btnRemove.textContent = isDevIapEnabled() ? 'NT$99 · DEV購買' : '即將開放';
+      const billingReady =
+        window.ColorTubeBilling &&
+        typeof window.ColorTubeBilling.isBillingReady === 'function' &&
+        window.ColorTubeBilling.isBillingReady();
+      if (isDevIapEnabled()) {
+        btnRemove.textContent = 'NT$99 · DEV購買';
+      } else if (billingReady) {
+        btnRemove.textContent = '去除廣告';
+      } else {
+        btnRemove.textContent = '即將開放';
+      }
       btnRemove.disabled = false;
       if (removeCard) removeCard.classList.remove('owned');
     }
@@ -1290,6 +1345,25 @@
     });
 
     bindShop();
+
+    // Native Billing restore once at boot (no-op on web; never mock-grants)
+    try {
+      const billing = window.ColorTubeBilling;
+      if (billing && typeof billing.initBilling === 'function') {
+        Promise.resolve(billing.initBilling()).then(() => {
+          if (typeof billing.restorePurchasesOnce === 'function') {
+            return billing.restorePurchasesOnce();
+          }
+        }).then((owned) => {
+          if (owned) {
+            save.removeAds = true;
+            persist();
+            refreshHud();
+            refreshShopButtons();
+          }
+        }).catch(() => {});
+      }
+    } catch (_) { /* ignore */ }
 
     // Level skip via dblclick removed (ACCEPTANCE P0).
 

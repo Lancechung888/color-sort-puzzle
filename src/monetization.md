@@ -1,35 +1,45 @@
-# Monetization SDK wiring (TODO)
+# Monetization SDK wiring
 
-Browser / Capacitor bridge: `assets/js/ads.js` (`window.ColorTubeAds`, `USE_TEST_ADS`). Load before `game.js`. Keep browser mock when plugin missing.
+Browser / Capacitor bridges:
 
-Align native plugins with stubs in `assets/js/game.js` (**Monetization stubs** section).
+| Layer | File | Global | Status |
+|-------|------|--------|--------|
+| AdMob JS | `assets/js/ads.js` | `window.ColorTubeAds` | **Done**（`USE_TEST_ADS=true` + PROD placeholders；外掛缺失時保留 stub） |
+| Billing skeleton | `assets/js/billing.js` | `window.ColorTubeBilling` | **Skeleton**（`@capgo/native-purchases`；非 native／外掛缺失 → **不發放**） |
+| Game wiring | `assets/js/game.js` | shop / stubs | 接上 Billing；假 IAP 僅 `colorTubeSort_devIap===1` |
+
+Load order（`index.html`／`www/index.html`）：
+
+`levels.js` → `ads.js` → `billing.js` → `game.js`
 
 ## Init / ship order
 
-1. **AdMob rewarded** → replace `showRewardedStub(onReward, label)`
+1. **AdMob rewarded** → `showRewardedStub` / `ColorTubeAds.showRewarded`  
    - Call `onReward` only after the user earns the reward.
-   - Used for: hint paywall, fail-loop「看廣告繼續」, other soft prompts.
-2. **AdMob interstitial** → replace `showInterstitialStub(reason)`
-   - Skip entirely when `save.removeAds === true`.
-   - Do **not** show mid-pour.
-3. **remove_ads IAP** → replace `mockIapPurchase('remove_ads', onSuccess)`
-   - Google Play Billing / StoreKit 2.
-   - On success: set `save.removeAds = true`, persist, refresh shop UI.
+2. **AdMob interstitial** → `showInterstitialStub` / `ColorTubeAds.showInterstitial`  
+   - Skip when `save.removeAds === true`. Never mid-pour.
+3. **remove_ads IAP** → `ColorTubeBilling.purchaseRemoveAds`（真 Billing）  
+   - On success only: merge `removeAds: true` into `localStorage` key `colorTubeSort_v2`.  
+   - Web／外掛缺失：toast「即將開放／需商店帳號」，**不**寫入權益（ACCEPTANCE P0①）。
 
-## Other product IDs (stubs today)
+## Product IDs
 
-| Stub productId | Purpose |
-|----------------|---------|
-| `remove_ads` | One-time remove interstitial |
-| `theme_neon` / `theme_cat` | Theme unlock IAP |
-| `hint_pack_5` | Consumable hint pack |
-| `infinite_undo_level` | Soft unlock undos this level |
+| productId | Type | Status |
+|-----------|------|--------|
+| `remove_ads` | non-consumable | Billing skeleton wired |
+| `theme_neon` / `theme_cat` | IAP | mock gated only |
+| `hint_pack_5` | consumable | mock gated only |
+| `infinite_undo_level` | soft unlock | mock gated only |
 
-## Capacitor plugins (when ready)
+## Capacitor plugins
 
 ```text
-# TODO: @capacitor-community/admob (or official AdMob Capacitor plugin)
-# TODO: @capacitor-community/in-app-purchases or cordova-plugin-purchase / native Billing
+@capacitor-community/admob@^6.2.0          # Cap 6
+@capgo/native-purchases@^6.0.42            # Cap 6 peer
 ```
 
-See `STORE.md` for ASO copy, cost, and Android-first publish order.
+過審後逐步操作（建立 App、AdMob 單元、換正式 ID、建 `remove_ads`、打 AAB）：見 **`docs/PLAY_POST_APPROVAL_CHECKLIST.md`**。  
+設定註解：`capacitor.config.notes.md`。Manifest 片段：`native-templates/android/README.md`。
+
+See `STORE.md` for ASO copy, Data safety, and Android-first publish order.  
+**Do not claim the app is published** until Play listing is live.
