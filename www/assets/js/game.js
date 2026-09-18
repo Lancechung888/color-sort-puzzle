@@ -1,5 +1,5 @@
 /**
- * ColorTube Sort (彩管分類) — retention + monetization build
+ * ColorTube Sort — retention + monetization build (English-first UI)
  * Vanilla JS. Mock IAP / ads with TODO hooks for Play Billing & StoreKit.
  */
 (function () {
@@ -24,9 +24,9 @@
   }
 
   const THEMES = {
-    classic: { id: 'classic', name: '經典玻璃', free: true },
-    neon: { id: 'neon', name: '霓虹夜店', free: false },
-    cat: { id: 'cat', name: '療癒貓咪色', free: false },
+    classic: { id: 'classic', name: 'Classic Glass', free: true },
+    neon: { id: 'neon', name: 'Neon Club', free: false },
+    cat: { id: 'cat', name: 'Cozy Cat', free: false },
   };
 
   // --- Persistable state ---
@@ -209,7 +209,7 @@
     save.themes[id] = true;
     persist();
     applyTheme(id);
-    toast(`已解鎖主題：${THEMES[id].name}` + (via ? `（${via}）` : ''));
+    toast(`Theme unlocked: ${THEMES[id].name}` + (via ? ` (${via})` : ''));
     refreshShopButtons();
   }
 
@@ -413,10 +413,10 @@
     // Cap module: destination while holding liquid → never uncap; two-tap self to uncap.
     if (isCapped(idx)) {
       if (selected >= 0 && selected !== idx) {
-        // Holding liquid: capped destination is locked (signature「有蓋倒不出」)
+        // Holding liquid: capped destination is locked (signature: capped = can't pour)
         clearPendingUncap();
         shakeTube(idx);
-        toast('有蓋，倒不進去');
+        toast("Capped — can't pour");
         return;
       }
       const now = Date.now();
@@ -428,7 +428,7 @@
       // First tap: arm + lid pulse + tip; do not uncap yet
       selected = -1;
       armPendingUncap(idx);
-      toast('點一下揭蓋（不占步數）');
+      toast('Tap again to uncap (free move)');
       render();
       shakeTube(idx); // after render so shake class isn't wiped
       return;
@@ -476,7 +476,7 @@
     } else {
       render();
     }
-    toast('蓋子打開了');
+    toast('Lid opened');
   }
 
   function spawnUncapBurst(tubeEl) {
@@ -574,7 +574,7 @@
       hideWin();
       isDailyMode = false;
       loadLevel(save.level || 0);
-      toast('已回到主線關卡');
+      toast('Back to main levels');
       return;
     }
     if (levelIndex < LEVELS.length - 1) {
@@ -585,7 +585,7 @@
       loadLevel(levelIndex);
     } else {
       hideWin();
-      toast('恭喜通關全部關卡！🎉');
+      toast('You cleared every level! 🎉');
       levelIndex = 0;
       save.level = 0;
       persist();
@@ -608,7 +608,7 @@
   function applyHint() {
     const move = findHintMove();
     if (!move) {
-      toast('目前沒有明顯提示');
+      toast('No clear hint right now');
       return;
     }
     if (move.uncap) {
@@ -619,7 +619,7 @@
         el.classList.add('hint-uncap');
         setTimeout(() => render(), 900);
       }
-      toast('提示：連點兩下揭蓋（不占步數）');
+      toast('Hint: double-tap to uncap (free move)');
       return;
     }
     selected = move.from;
@@ -631,7 +631,7 @@
         if (selected === move.from) render();
       }, 700);
     }
-    toast('提示：倒入高亮試管');
+    toast('Hint: pour into the highlighted tube');
   }
 
   function findHintMove() {
@@ -683,11 +683,11 @@
     // TODO: Google Play Billing / StoreKit 2 — real purchase flow required for store.
     console.info('[IAP] not available (needs store account)', productId);
     if (!isDevIapEnabled()) {
-      toast('即將開放／需商店帳號');
+      toast('Coming soon / needs store account');
       return;
     }
     console.warn('[IAP DEV] granting', productId);
-    toast('（DEV）模擬購買 ✓');
+    toast('(DEV) Mock purchase ✓');
     if (onSuccess) onSuccess();
   }
 
@@ -695,7 +695,7 @@
     // ACCEPTANCE P0①: normal shop click must NOT grant removeAds.
     // Real grant only via Play Billing success, or explicit DEV flag.
     if (save.removeAds) {
-      toast('已去除廣告');
+      toast('Ads removed');
       return;
     }
     const billing = window.ColorTubeBilling;
@@ -705,7 +705,7 @@
       billing.isBillingReady() &&
       typeof billing.purchaseRemoveAds === 'function';
     if (canNative) {
-      toast('開啟購買…');
+      toast('Opening purchase…');
       Promise.resolve(billing.purchaseRemoveAds())
         .then((ok) => {
           if (ok || (billing.isRemoveAdsOwned && billing.isRemoveAdsOwned())) {
@@ -713,20 +713,20 @@
             persist();
             refreshHud();
             refreshShopButtons();
-            toast('已去除廣告');
+            toast('Ads removed');
           } else {
-            toast('購買未完成或已取消');
+            toast('Purchase incomplete or canceled');
           }
         })
         .catch((e) => {
           console.warn('[IAP] purchaseRemoveAds', e);
-          toast('購買失敗，請稍後再試');
+          toast('Purchase failed — try again later');
         });
       return;
     }
     // Plugin missing / web / billing not ready → gated mock only (dev flag OFF by default)
     if (!isDevIapEnabled()) {
-      toast('即將開放／需商店帳號');
+      toast('Coming soon / needs store account');
       return;
     }
     mockIapPurchase('remove_ads', () => {
@@ -734,7 +734,7 @@
       persist();
       refreshHud();
       refreshShopButtons();
-      toast('（DEV）已去除廣告');
+      toast('(DEV) Ads removed');
     });
   }
 
@@ -749,7 +749,7 @@
     }
     // TODO: wire @capacitor-community/admob interstitial
     console.info('[Ads stub] Interstitial', reason);
-    toast('（示範）插頁廣告 · ' + (reason || ''));
+    toast('(Demo) Interstitial · ' + (reason || ''));
   }
 
   function showRewardedStub(onReward, label) {
@@ -758,7 +758,7 @@
     }
     // TODO: AdMob rewarded via ads.js; call onReward only after earn
     console.info('[Ads stub] Rewarded', label || '');
-    toast('（示範）獎勵廣告' + (label ? ' · ' + label : ''));
+    toast('(Demo) Rewarded ad' + (label ? ' · ' + label : ''));
     setTimeout(() => onReward && onReward(), 400);
   }
 
@@ -845,11 +845,11 @@
   function startDailyChallenge() {
     const key = todayStr();
     if (save.dailyDoneDate === key) {
-      toast('今日挑戰已完成！連續登入 ' + (save.streak || 0) + ' 天');
+      toast('Daily already done! Streak ' + (save.streak || 0) + ' days');
     }
     hideAllOverlays();
     loadLevel(0, { daily: true, dailyKey: key, def: getDailyDef() });
-    toast('今日挑戰開始！');
+    toast('Daily Challenge started!');
   }
 
   // --- Render ---
@@ -890,7 +890,7 @@
       el.setAttribute('role', 'button');
       el.setAttribute(
         'aria-label',
-        capped ? `試管 ${idx + 1}（有蓋）` : `試管 ${idx + 1}`
+        capped ? `Tube ${idx + 1} (capped)` : `Tube ${idx + 1}`
       );
 
       const rim = document.createElement('div');
@@ -931,13 +931,13 @@
 
   function updateChrome() {
     if (isDailyMode) {
-      levelLabel.textContent = '今日挑戰';
+      levelLabel.textContent = 'Daily Challenge';
     } else {
-      levelLabel.textContent = `關卡 ${levelIndex + 1} / ${LEVELS.length}`;
+      levelLabel.textContent = `Level ${levelIndex + 1} / ${LEVELS.length}`;
     }
     const def = isDailyMode ? getDailyDef() : LEVELS[levelIndex];
     const par = estimatePar(def);
-    movesLabel.textContent = `步數 ${moves} · 標準 ${par}`;
+    movesLabel.textContent = `Moves ${moves} · Par ${par}`;
     btnUndo.disabled = history.length === 0;
     updateLevelStarsPreview();
   }
@@ -1095,16 +1095,16 @@
       }, 180 + i * 160);
     });
 
-    $('#win-reward').textContent = `+${coins} 金幣`;
+    $('#win-reward').textContent = `+${coins} coins`;
     const detail =
-      (isDailyMode ? '今日挑戰完成！' : `關卡 ${levelIndex + 1} 完成`) +
-      ` · ${stars} 星` +
-      (undosUsed && !infiniteUndoLevel ? '（使用過撤銷）' : '');
+      (isDailyMode ? 'Daily Challenge complete!' : `Level ${levelIndex + 1} complete`) +
+      ` · ${stars} star${stars === 1 ? '' : 's'}` +
+      (undosUsed && !infiniteUndoLevel ? ' (used undo)' : '');
     $('#win-detail').textContent = detail;
 
     const nextBtn = $('#btn-next');
-    if (isDailyMode) nextBtn.textContent = '回到主線';
-    else nextBtn.textContent = levelIndex < LEVELS.length - 1 ? '下一關' : '再玩一次';
+    if (isDailyMode) nextBtn.textContent = 'Back to main';
+    else nextBtn.textContent = levelIndex < LEVELS.length - 1 ? 'Next' : 'Play again';
 
     spawnConfetti();
   }
@@ -1174,7 +1174,7 @@
     const btnRemove = $('#btn-buy-remove-ads');
     if (save.removeAds) {
       if (btnRemove) {
-        btnRemove.textContent = '已去除廣告';
+        btnRemove.textContent = 'Ads removed';
         btnRemove.disabled = true;
       }
       if (removeCard) removeCard.classList.add('owned');
@@ -1184,11 +1184,11 @@
         typeof window.ColorTubeBilling.isBillingReady === 'function' &&
         window.ColorTubeBilling.isBillingReady();
       if (isDevIapEnabled()) {
-        btnRemove.textContent = 'NT$99 · DEV購買';
+        btnRemove.textContent = 'NT$99 · DEV buy';
       } else if (billingReady) {
-        btnRemove.textContent = '去除廣告';
+        btnRemove.textContent = 'Remove ads';
       } else {
-        btnRemove.textContent = '即將開放';
+        btnRemove.textContent = 'Coming soon';
       }
       btnRemove.disabled = false;
       if (removeCard) removeCard.classList.remove('owned');
@@ -1201,10 +1201,10 @@
     const undoBtn = $('#btn-buy-infinite-undo');
     if (undoBtn) {
       if (infiniteUndoLevel) {
-        undoBtn.textContent = '本關已啟用';
+        undoBtn.textContent = 'Active this level';
         undoBtn.disabled = true;
       } else {
-        undoBtn.textContent = '本關解鎖';
+        undoBtn.textContent = 'Unlock this level';
         undoBtn.disabled = false;
       }
     }
@@ -1219,7 +1219,7 @@
     if (useBtnSel) {
       const b = $(useBtnSel);
       if (b) {
-        b.textContent = active ? '使用中' : '使用';
+        b.textContent = active ? 'In use' : 'Use';
         b.disabled = active;
         b.onclick = () => applyTheme(id);
       }
@@ -1228,7 +1228,7 @@
       const b = $(coinBtnSel);
       if (b) {
         if (owned) {
-          b.textContent = active ? '使用中' : '使用';
+          b.textContent = active ? 'In use' : 'Use';
           b.className = 'btn btn-sm';
           b.onclick = () => applyTheme(id);
         } else {
@@ -1245,7 +1245,7 @@
           b.style.display = 'none';
         } else {
           b.style.display = '';
-          b.textContent = '用真錢解鎖';
+          b.textContent = 'Unlock with cash';
           b.onclick = () =>
             mockIapPurchase('theme_' + id, () => unlockTheme(id, 'IAP'));
         }
@@ -1259,10 +1259,10 @@
       return;
     }
     if (!spendCoins(THEME_COIN_COST)) {
-      toast('金幣不足');
+      toast('Not enough coins');
       return;
     }
-    unlockTheme(id, '金幣');
+    unlockTheme(id, 'coins');
   }
 
   function showFailPrompt() {
@@ -1278,7 +1278,7 @@
       const tipP = onboardingTip.querySelector('p');
       if (tipP) {
         tipP.innerHTML =
-          '👆 點選有顏色的試管舉起，再點另一支倒入。<br />目標：每支試管只剩一種顏色（或空的）。';
+          '👆 Tap a colored tube to lift, then tap another to pour.<br />Goal: every tube is one solid color (or empty).';
       }
       onboardingTip.hidden = false;
     } else {
@@ -1292,7 +1292,7 @@
     const tipP = onboardingTip.querySelector('p');
     if (tipP) {
       tipP.innerHTML =
-        '🧢 <strong>蓋子管</strong>：有蓋不能倒進／倒出。<br />連點兩下揭蓋（不占步數）；拿著液體點有蓋管會提示「倒不進去」。';
+        '🧢 <strong>Capped tubes</strong>: can\'t pour in or out while capped.<br />Double-tap to uncap (free move); pouring onto a lid shows "Capped — can\'t pour".';
     }
     onboardingTip.hidden = false;
   }
@@ -1323,13 +1323,13 @@
 
     $('#btn-buy-hints-coins').addEventListener('click', () => {
       if (!spendCoins(HINT_PACK_COIN_COST)) {
-        toast('金幣不足');
+        toast('Not enough coins');
         return;
       }
       save.freeHints = (save.freeHints || 0) + HINT_PACK_SIZE;
       persist();
       refreshHud();
-      toast(`獲得提示 ×${HINT_PACK_SIZE}`);
+      toast(`Got hints ×${HINT_PACK_SIZE}`);
     });
 
     $('#btn-buy-hints-iap').addEventListener('click', () => {
@@ -1337,7 +1337,7 @@
         save.freeHints = (save.freeHints || 0) + HINT_PACK_SIZE;
         persist();
         refreshHud();
-        toast(`獲得提示 ×${HINT_PACK_SIZE}`);
+        toast(`Got hints ×${HINT_PACK_SIZE}`);
       });
     });
 
@@ -1345,7 +1345,7 @@
       mockIapPurchase('infinite_undo_level', () => {
         infiniteUndoLevel = true;
         refreshShopButtons();
-        toast('本關無限撤銷已啟用');
+        toast('Unlimited undo enabled for this level');
       });
     });
 
@@ -1357,7 +1357,7 @@
     });
     $('#btn-hint-coins').addEventListener('click', () => {
       if (!spendCoins(HINT_COIN_COST)) {
-        toast('金幣不足');
+        toast('Not enough coins');
         return;
       }
       closeOverlay(hintPaywall);
@@ -1434,7 +1434,7 @@
       onboardingTip.hidden = true;
     });
     $('#streak-display').addEventListener('click', () => {
-      toast(`連續登入 ${save.streak || 0} 天`);
+      toast(`Login streak ${save.streak || 0} days`);
     });
 
     bindShop();
