@@ -36,11 +36,17 @@ color-sort-puzzle/
   index.html
   README.md
   DESIGN.md
+  STORE.md             # ASO + publish checklist
   package.json
+  capacitor.config.json
+  scripts/sync-www.sh
+  src/monetization.md  # AdMob / IAP init order TODOs
+  www/                 # Capacitor webDir (npm run build:www)
   assets/
     css/style.css      # themes + juice UI
-    js/levels.js       # 35 levels + palette
-    js/game.js         # gameplay, economy, shop, ad/IAP stubs
+    js/levels.js       # 40 levels (cap tutorial 1–5) + candy palette
+    js/ads.js          # AdMob bridge (USE_TEST_ADS) + browser mock
+    js/game.js         # gameplay, 蓋子管, economy, shop, ad/IAP stubs
 ```
 
 ## Retention & monetization (stubs)
@@ -55,9 +61,20 @@ color-sort-puzzle/
 
 35 levels: handcrafted early stages (1–10), then generated solvable stages with more colors, taller tubes (capacity 4–5), and more tubes.
 
-## Mobile path (later)
+## 上架路徑
 
-Wrap with Capacitor; plug AdMob + Play Billing / StoreKit. See DESIGN.md for monetization guardrails and ~$300/mo sketch.
+See **[STORE.md](./STORE.md)** for ASO copy (TW zh-Hant + EN), monetization wiring order (AdMob rewarded → interstitial → remove_ads IAP), Play/Apple costs, and appId `com.lancechung.colortubesort`.
+
+### Capacitor (Android first)
+
+```bash
+npm install          # if network allows; templates work without it
+npm run build:www    # syncs index.html + assets/ → www/
+npx cap add android  # requires Android SDK on your machine
+npx cap sync
+```
+
+AdMob / Billing wiring notes: `src/monetization.md` (matches `game.js` stubs). iOS after Play soft-launch.
 
 ## Tech
 

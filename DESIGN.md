@@ -15,7 +15,7 @@
 |------|----------------|
 | Visual juice | Better glass tubes, pour splash, confetti, glow on complete tube, soft shake |
 | Stars | 3★ if under par & no undo; 2★ within 1.5× par; 1★ clear — replay incentive |
-| Coins | +10 / +20 / +40 by stars; persist in localStorage; spend on hints / themes |
+| Coins | +6 / +12 / +22 by stars; persist in localStorage; spend on hints / themes |
 | Daily streak | Login streak counter + soft coin bonus; **今日挑戰** = hard-ish daily pick |
 | Themes | Free classic glass; neon / cat skins locked behind coins or mock IAP |
 | Onboarding | Soft tip only on level 1 |
@@ -30,23 +30,25 @@ Select → Pour (legal) → Sort → Win (stars + coins) → Next level. Undo / 
 | Surface | Product | Notes |
 |---------|---------|--------|
 | 商店 · 去除廣告 | One-time IAP (~NT$99) | Skips interstitial stub; UI shows「已去除廣告」 |
-| 商店 · 主題包 | Neon / Cat | 200 coins **or**「用真錢解鎖」mock IAP |
+| 商店 · 主題包 | Neon / Cat | 280 coins **or**「用真錢解鎖」mock IAP |
 | 商店 · 提示包 ×5 | Consumable | Coins or IAP; freeHints counter |
 | 商店 · 無限撤銷（本關） | Soft IAP | Undos don't hurt star rating this level |
-| Fail-loop (3rd restart) | Soft sheet |「看廣告繼續」vs「去除廣告永久」vs skip (+ interstitial if not removed) |
-| Hint button (no free) | Paywall sheet | Rewarded ad / 30 coins / buy pack |
+| Fail-loop (2nd restart) | Soft sheet |「看廣告繼續」vs「去除廣告永久」vs skip (+ interstitial if not removed) |
+| Hint button (no free) | Paywall sheet | Rewarded ad / 50 coins / buy pack |
 
 **TODO in code:** Google Play Billing / StoreKit 2; AdMob interstitial + rewarded (e.g. Capacitor plugins).
 
 ## Economy (simple)
 
-- Start: **100** coins + **2** free hints.
-- Win: **+10 / +20 / +40** by 1/2/3 stars (replay half reward if not improving stars).
-- Daily first clear: **+25** bonus.
-- Daily login streak: soft **+5–15** coins.
-- Hint: **30** coins if no free hints (else paywall).
-- Theme: **200** coins each or IAP mock.
-- Hint pack: **100** coins → ×5.
+- Start: **40** coins + **1** free hint.
+- Win: **+6 / +12 / +22** by 1/2/3 stars (replay half reward if not improving stars).
+- Daily first clear: **+40** bonus.
+- Daily login streak: soft **min(10, 3+streak)** coins.
+- Hint: **50** coins if no free hints (else paywall).
+- Theme: **280** coins each or IAP mock.
+- Hint pack: **120** coins → ×5.
+- Fail-loop soft prompt after **2** restarts.
+- 今日挑戰 index: adaptive `clamp(maxUnlocked-2 + seed%5, 3, last)`.
 
 ## ~US$300 / month path (sketch)
 
@@ -62,6 +64,11 @@ Assumptions: soft launch TW / SE Asia, ~2–4k MAU, hybrid-casual retention, ARP
 **Guardrails:** Never interrupt mid-pour; cap fail-loop prompts; rewarded always optional. Remove-ads disables interstitial; rewarded can remain as optional bonus.
 
 **Scale path:** More theme packs, level packs, season daily challenges — keep base 35+ levels free and completable.
+
+
+## 蓋子管 (cap module) — shipped in levels 1–5
+
+**蓋子管** is live as the early differentiator: optional `caps:[bool…]` + `modules:['cap']` + `teach:'cap'` on level defs. Capped tubes cannot pour in/out; tap the tube itself to uncap (one-way, **does not count as a move**; undo can re-lid). Visual lid overlay + teach tip on level 1. Levels 1–5 are the cap tutorial arc; the previous early handcrafted curve follows. Further mid-game double-cap / multi-color caps remain a content roadmap item — never interrupt mid-pour.
 
 ## Non-goals (v1)
 

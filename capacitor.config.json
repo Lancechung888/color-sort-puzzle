@@ -1,0 +1,8 @@
+{
+  "appId": "com.lancechung.colortubesort",
+  "appName": "ColorTube Sort",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}
