@@ -143,6 +143,9 @@ Keywords: color sort, water sort, tube puzzle, pour puzzle, color sorting, relax
 
 ## Data Safety / privacy checklist (short)
 
+> **EN primary (host + Play form):** [`docs/PRIVACY_POLICY_EN.md`](./docs/PRIVACY_POLICY_EN.md) · [`docs/PLAY_DATA_SAFETY.md`](./docs/PLAY_DATA_SAFETY.md) · index [`docs/PRIVACY_README.md`](./docs/PRIVACY_README.md).
+
+
 > Full checklist also mirrored from launch notes below. App: localStorage save, AdMob, optional IAP; **no account / no cloud sync**.
 
 # Play 資料安全／隱私勾選注意清單（ColorTube Sort）
