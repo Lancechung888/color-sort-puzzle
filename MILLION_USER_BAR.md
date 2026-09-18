@@ -28,11 +28,11 @@
 
 | 條件 | Pass 標準 |
 |------|-----------|
-| 貫穿率 | 蓋子管（或同級 USP）出現在主線 **≥60%** 關卡 |
-| 教學後 | 不可「教完 1–5 關就消失」；中後期仍有雙蓋／決策張力 |
+| 貫穿率 | 蓋子管出現在主線 **40–60%**（accepted density lock；非教學限定） |
+| 教學後 | L1–2 無蓋；L3 教蓋；之後貫穿且連續無蓋 **≤3**；單關 ≤2 蓋 |
 | 可感知 | 玩家複述「這款跟別的水管不一樣」時能講出該點 |
 
-**Fail：** USP 只活在教學弧；主線變回純 clone。
+**Fail：** USP 只活在教學弧；主線變回純 clone；或密度偏離 40–60% / 連續無蓋過長。
 
 ### 3. 倒水手感可拍廣告 · Pour feel = 15s ad juice
 **EN:** SFX + haptic-grade feedback (WebAudio OK); juice worthy of a 15s UA creative.
@@ -62,7 +62,7 @@
 | 條件 | Pass 標準 |
 |------|-----------|
 | 前 15 關 | 不逼氪、不連續插頁打斷；提示／廣告皆可選 |
-| 失敗牆 | 軟性失敗提示門檻 **≥3** 次重來（不可 1–2 次就逼廣告／IAP） |
+| 失敗牆 | 前段（index &lt; 10）軟性失敗門檻 **≥3**；L11+ 可降為 **2**（accepted tiered wall） |
 | 經濟 | 金幣／提示節奏不讓正常玩家感覺「被榨」 |
 
 **Fail：** 早期硬牆、失敗 2 次就強推去廣告／永久去廣告。
@@ -121,32 +121,30 @@
 
 ---
 
-## 現況評分 · Honest draft score (repo as of docs pass)
+## 現況評分 · Honest draft score (post economy / curve / juice pass)
 
-依目前程式／資產閱讀（非願望清單）。分數僅作嚴苛草稿；**總評：未達上架資格（大多 Fail）**。
+依目前程式／資產閱讀（非願望清單）。**禁止 soft-launch**；**不宣稱 ship-ready**。
 
 | # | 項目 | 結果 | 現況依據（代碼事實） |
 |---|------|------|----------------------|
-| 1 | 3秒看懂＋想點 | **Fail** | 有開始屏與倒水循環，但無定稿 icon／投放級首屏；「想點」未對標競品驗證 |
-| 2 | USP 貫穿 ≥60% | **Fail** | 蓋子管僅 **levels 1–5**（約 **5/40 ≈ 12.5%**），教學完即消失 |
-| 3 | 倒水手感／15s 廣告 | **Fail** | 有 CSS 飛濺／shake／confetti；**無 WebAudio、無 haptic** |
-| 4 | ≥80 關＋曲線假說 | **Fail** | **40 關**（5 tutorial + handcrafted + 25 generated）；無數據化假說文件；生成可解但深度不足 |
-| 5 | Day1 不傷好感 | **Fail** | `FAIL_LOOP_THRESHOLD = 2`（門檻 **< 3**）；前段雖未硬氪，失敗牆過早 |
-| 6 | Meta 回來理由 | **Fail** | 今日挑戰／連勝／三星有 stub 邏輯，但差異與複刷誘因偏薄，未達第一梯隊「真正有理由」 |
-| 7 | 真 AdMob＋remove_ads | **Fail** | `ads.js` 有橋接＋`USE_TEST_ADS`；**`@capacitor-community/admob` 未進 package**；`mockIapPurchase` 仍是模擬購買 |
-| 8 | 品牌投放級 | **Fail** | `STORE.md` 有 ASO 文案；**無 icon、無五張商店圖資產** |
-| 9 | 穩定／ACCEPTANCE | **Fail** | **無 ACCEPTANCE 套件**；無崩潰監控／全過證明 |
+| 1 | 3秒看懂＋想點 | **Fail** | 開始屏＋L1 純倒水教學可讀；仍無定稿投放 icon／未做競品「想點」驗證 |
+| 2 | USP 貫穿（40–60% lock） | **Pass** | **80** 關；有蓋 **40/80 = 50%**；連續無蓋 ≤3；L1–2 零蓋；L3 teach；單關 ≤2 蓋 |
+| 3 | 倒水手感／15s 廣告 | **Partial** | WebAudio（pour/land/complete/uncap/win）＋`navigator.vibrate`；開蓋有 flip＋火花。UA 素材級仍未實機驗證 → 未滿 Pass |
+| 4 | ≥80 關＋曲線假說 | **Pass** | **80** 關；DESIGN 載明顏色／蓋密度曲線；生成＝reverse-scramble（可解建構）＋applyCaps |
+| 5 | Day1 不傷好感 | **Pass** | `START_COINS=70`、`freeHints=2`、`HINT=40`、星獎 8/15/28；失敗牆 index&lt;10 → **3**、L11+ → **2** |
+| 6 | Meta 回來理由 | **Fail** | 今日挑戰已改近進度自適應；連勝／三星複刷誘因仍偏薄 |
+| 7 | 真 AdMob＋remove_ads | **Fail** | AdMob **未**進依賴／需 publisher 帳號（TODO）；商店「去除廣告」→ **即將開放**，**不會**假授 `removeAds`（DEV flag 預設 OFF） |
+| 8 | 品牌投放級 | **Fail** | 有 ASO／icon 概念草稿；無定稿 1024 icon＋五張投放級截圖 |
+| 9 | 穩定／ACCEPTANCE | **Fail** | 有 **ACCEPTANCE.md** 列出 QA Fail／回歸項；套件未全綠、無自動化全過證明 |
 
-**總評：** **0 / 9 Pass** → 閘門關閉。現況定位：可玩原型＋商店／變現腳手架，**不是**可上架、可買量的 hybrid-casual 成品。
+**總評：** **3 Pass / 1 Partial / 5 Fail** → 閘門仍關閉。本輪推進了經濟、蓋密度曲線、體量、基礎手感與 IAP 誠實閘；**變現／品牌／ACCEPTANCE 全綠／Meta** 仍是硬缺口。
 
 ---
 
-## 下一刀只做 Top 3 gaps
+## 下一刀 Top gaps（仍禁止 soft-launch）
 
-只列缺口最大、且不修就不可能過閘的三刀（**本輪只定標準，不實作**）：
+1. **真變現** — AdMob SDK＋帳號測試 ID；`remove_ads` 真 Billing／StoreKit（維持不打斷倒水）。  
+2. **手感收滿 Pass** — 實機 UA 剪輯驗證；必要時加 Capacitor Haptics。  
+3. **品牌＋ACCEPTANCE 全綠** — 定稿 icon／五圖；ACCEPTANCE 項清零並可重複跑。
 
-1. **USP 貫穿＋關卡體量** — 蓋子（或同級記憶點）拉到主線 **≥60%**；關卡拉到 **≥80**（或等價深度）並寫下可驗證難度假說、死關檢查。  
-2. **倒水手感達廣告級** — WebAudio 倒水／完成／過關音＋觸覺級反饋；juice 調到可拍 15s UA。  
-3. **真變現接線** — AdMob rewarded／interstitial 實機可跑（測試 ID OK）＋`remove_ads` 真 IAP；維持不打斷倒水。
-
-其餘（品牌五圖、ACCEPTANCE、失敗牆≥3、Meta 加厚）在 Top 3 達標後再排，**不得**用「先 soft-launch」跳過。
+不得把 mock IAP／假 AdMob 標成 Done。

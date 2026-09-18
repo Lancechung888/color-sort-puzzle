@@ -531,12 +531,48 @@ html, body {
 }
 
 .tube.uncapping .tube-lid {
-  animation: lidPop 0.28s ease-out forwards;
+  animation: lidPop 0.38s cubic-bezier(0.2, 0.9, 0.3, 1.2) forwards;
+  transform-origin: 50% 50%;
 }
 
 @keyframes lidPop {
-  0% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
-  100% { transform: translateX(-50%) translateY(-18px) scale(1.1); opacity: 0; }
+  0% { transform: translateX(-50%) translateY(0) rotate(0deg) scale(1); opacity: 1; filter: brightness(1); }
+  40% { transform: translateX(-50%) translateY(-10px) rotate(-18deg) scale(1.15); opacity: 1; filter: brightness(1.35); }
+  100% { transform: translateX(-42%) translateY(-36px) rotate(42deg) scale(0.7); opacity: 0; filter: brightness(1.6); }
+}
+
+.tube.uncapping .tube-glass {
+  animation: tubeUncapFlash 0.35s ease-out;
+}
+
+@keyframes tubeUncapFlash {
+  0% { filter: brightness(0.92); box-shadow: none; }
+  35% { filter: brightness(1.15); box-shadow: 0 0 18px rgba(255, 220, 120, 0.55); }
+  100% { filter: brightness(1); box-shadow: none; }
+}
+
+.uncap-spark {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 60;
+  background: radial-gradient(circle, #fff6c2 0%, #ffc107 45%, #ff9800 100%);
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.8);
+  animation: uncapSpark 0.4s ease-out forwards;
+}
+
+@keyframes uncapSpark {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+
+/* Block click-through right after dismissing start/overlays */
+#app.input-gate .tubes-wrap,
+#app.input-gate .toolbar {
+  pointer-events: none !important;
 }
 
 .tube.hint-uncap {

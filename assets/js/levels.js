@@ -1,271 +1,97 @@
 /**
- * ColorTube Sort — Level data
- * Tubes: color ids bottom → top. Capacity default 4.
- * Generated levels: reverse-scramble from solved with 2 empty tubes
- * (each color appears exactly `capacity` times → playable / solvable).
+ * ColorTube Sort — Level data (density-locked caps)
+ * L1–2: pure pour, no caps. L3: 2c + 1 cap + teach. L4–5: light caps.
+ * Mainline cap density 40–60%; consecutive uncapped ≤3; ≤2 caps/level.
+ * Generated: reverse-scramble + applyCaps (solvable by construction; uncap is free).
  */
 window.COLOR_SORT_LEVELS = (function () {
-  function mulberry32(a) {
-    return function () {
-      let t = (a += 0x6d2b79f5);
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-
-  function isComplete(tube, capacity) {
-    if (!tube.length) return true;
-    if (tube.length !== capacity) return false;
-    const c = tube[0];
-    return tube.every((x) => x === c);
-  }
-
-  function isSolved(tubes, capacity) {
-    return tubes.every((t) => isComplete(t, capacity));
-  }
-
-  /**
-   * Reverse scramble: move liquid onto any tube with free space.
-   * With 2+ empty tubes and exact color counts this yields solvable puzzles.
-   */
-  function reverseScramble(numColors, capacity, extraEmpty, moves, seed) {
-    const tubes = [];
-    for (let c = 1; c <= numColors; c++) tubes.push(Array(capacity).fill(c));
-    for (let e = 0; e < extraEmpty; e++) tubes.push([]);
-
-    const rng = mulberry32(seed);
-    let applied = 0;
-    let guard = moves * 30;
-    while (applied < moves && guard-- > 0) {
-      const fromCandidates = [];
-      for (let i = 0; i < tubes.length; i++) {
-        if (tubes[i].length > 0) fromCandidates.push(i);
-      }
-      if (!fromCandidates.length) break;
-      const from = fromCandidates[Math.floor(rng() * fromCandidates.length)];
-      const color = tubes[from][tubes[from].length - 1];
-      let run = 0;
-      for (let k = tubes[from].length - 1; k >= 0 && tubes[from][k] === color; k--) run++;
-      const pourAmount = 1 + Math.floor(rng() * run);
-
-      const toCandidates = [];
-      for (let i = 0; i < tubes.length; i++) {
-        if (i === from) continue;
-        if (tubes[i].length + pourAmount <= capacity) toCandidates.push(i);
-      }
-      if (!toCandidates.length) continue;
-      const to = toCandidates[Math.floor(rng() * toCandidates.length)];
-      for (let p = 0; p < pourAmount; p++) tubes[to].push(tubes[from].pop());
-      applied++;
-    }
-
-    // Ensure not trivially solved; extra scramble if needed
-    let extraGuard = 50;
-    while (isSolved(tubes, capacity) && extraGuard-- > 0) {
-      const from = Math.floor(rng() * numColors); // first numColors were filled
-      if (!tubes[from].length) continue;
-      const empties = [];
-      for (let i = 0; i < tubes.length; i++) if (!tubes[i].length) empties.push(i);
-      if (!empties.length) break;
-      const to = empties[Math.floor(rng() * empties.length)];
-      const n = 1 + Math.floor(rng() * Math.min(2, tubes[from].length));
-      for (let p = 0; p < n; p++) tubes[to].push(tubes[from].pop());
-    }
-
-    return { tubes: tubes.map((t) => t.slice()), capacity };
-  }
-
-  const capTutorial = [
-    {
-      capacity: 4,
-      modules: ['cap'],
-      teach: 'cap',
-      par: 1,
-      tubes: [[1, 1], [1, 1], []],
-      caps: [true, false, false],
-    },
-    {
-      capacity: 4,
-      modules: ['cap'],
-      par: 3,
-      tubes: [[1, 1, 2, 2], [], [2, 2, 1, 1]],
-      caps: [false, true, false],
-    },
-    {
-      capacity: 4,
-      modules: ['cap'],
-      par: 4,
-      tubes: [[2, 2, 1, 1], [1, 1, 2, 2], []],
-      caps: [false, true, false],
-    },
-    {
-      capacity: 4,
-      modules: ['cap'],
-      par: 5,
-      tubes: [[1, 2, 1, 2], [2, 1, 2, 1], []],
-      caps: [true, true, false],
-    },
-    {
-      capacity: 4,
-      modules: ['cap'],
-      par: 8,
-      tubes: [[1, 1, 2, 3], [2, 2, 3, 1], [3, 3, 1, 2], []],
-      caps: [false, false, true, false],
-    },
+  const levels = [
+    {capacity:4, par:2, tubes:[[1,1,1,2],[2,2,2,1],[]]},
+    {capacity:4, par:4, tubes:[[1,2,1,2],[2,1,2,1],[]]},
+    {capacity:4, modules:["cap"], teach:'cap', par:3, tubes:[[1,1,2,2],[],[2,2,1,1]], caps:[true,false,false]},
+    {capacity:4, modules:["cap"], par:6, tubes:[[1,1,2,3],[2,2,3,1],[3,3,1,2],[],[]], caps:[false,true,false,false,false]},
+    {capacity:4, modules:["cap"], par:8, tubes:[[1,2,1,3],[2,3,2,1],[3,1,3,2],[],[]], caps:[true,false,true,false,false]},
+    {capacity:4, par:8, tubes:[[1,2,3,1],[2,3,1,2],[3,1,2,3],[],[]]},
+    {capacity:4, par:9, tubes:[[1,2,1,2],[3,1,3,2],[2,3,1,3],[],[]]},
+    {capacity:4, modules:["cap"], par:10, tubes:[[1,3,2,1],[2,1,3,2],[3,2,1,3],[],[]], caps:[false,true,false,false,false]},
+    {capacity:4, par:10, tubes:[[1,1,2,3],[2,2,3,1],[3,3,1,2],[],[]]},
+    {capacity:4, modules:["cap"], par:11, tubes:[[1,2,3,2],[2,3,1,1],[3,1,2,3],[],[]], caps:[true,false,false,false,false]},
+    {capacity:4, par:12, tubes:[[1,1,1,2],[2,2,2,3],[3,3,3,4],[4,4,4,1],[],[]]},
+    {capacity:4, modules:["cap"], par:14, tubes:[[1,2,3,4],[2,1,4,3],[3,4,1,2],[4,3,2,1],[],[]], caps:[false,true,false,true,false,false]},
+    {capacity:4, par:14, tubes:[[1,1,2,3],[2,2,3,4],[3,3,4,1],[4,4,1,2],[],[]]},
+    {capacity:4, modules:["cap"], par:15, tubes:[[1,2,1,3],[2,3,4,2],[3,4,1,4],[4,1,2,3],[],[]], caps:[true,false,false,false,false,false]},
+    {capacity:4, par:16, tubes:[[1,4,2,3],[2,1,3,4],[3,2,4,1],[4,3,1,2],[],[]]},
+    {capacity:4, modules:["cap"], tubes:[[1,1,3],[3],[1,1],[4,4,4],[2,2,2],[2,4,3,3]], caps:[false,true,false,false,false,false]},
+    {capacity:4, tubes:[[1,1,1,1],[4,3],[3],[3,3,4],[2,2],[4,4,2,2]]},
+    {capacity:4, modules:["cap"], tubes:[[3,2],[2,2,4],[3,1],[1,1,4,4],[1],[3,3,2,4]], caps:[false,false,false,false,false,true]},
+    {capacity:4, tubes:[[1],[2,2,3],[1,1,1,3],[4,4,4,3],[5,2],[4,5,5,5],[3,2]]},
+    {capacity:4, modules:["cap"], tubes:[[4,4,4],[3,3],[4],[3,1,5,5],[2,2,2,2],[3,1,1,1],[5,5]], caps:[false,false,false,true,false,false,false]},
+    {capacity:4, tubes:[[5],[1,1,1,1],[4,4,4,2],[4,5,5],[3,3,3,3],[5,2,2,2],[]]},
+    {capacity:4, modules:["cap"], tubes:[[1,1],[2,2,5,5],[4,4,3,2],[4,4,5],[1,3],[5],[3,3,2,1]], caps:[false,true,false,false,false,false,false]},
+    {capacity:4, tubes:[[2,2],[1,3,3,3],[5,5],[4,4,4],[3],[5,5,4,2],[2,1,1,1]]},
+    {capacity:4, modules:["cap"], tubes:[[1,1,1],[2,4,3],[4,4,2],[4,3,3,3],[5,2,6],[6,6,6,2],[],[5,5,5,1]], caps:[false,false,false,false,true,false,false,false]},
+    {capacity:4, modules:["cap"], tubes:[[5,1,1,1],[2,2,3],[3,4,4,4],[5,5,5,2],[6,1,3],[6,6,6,3],[4,2],[]], caps:[false,false,false,false,true,false,false,false]},
+    {capacity:4, tubes:[[1,1],[6,6,6],[3,1,5],[4,4,4,3],[2,2,2,2],[6,5,5,5],[4,1,3],[3]]},
+    {capacity:4, modules:["cap"], tubes:[[1,1,1],[5,5,6,2],[3,2,2],[3,2,4,3],[5,5],[1],[4,4,6,6],[3,4,6]], caps:[false,false,false,false,false,false,false,true]},
+    {capacity:4, tubes:[[1,1,1,1],[2,2,2],[3,3,3],[4,4,7,3],[4],[6,6,2,7],[7,7],[5,4,6],[5,5,6,5]]},
+    {capacity:4, modules:["cap"], tubes:[[1,1,6,3],[2,1,1],[5,5],[2,2],[5],[6,6,4,4],[6,2,4,5],[3,4,3,3],[7,7,7,7]], caps:[true,false,false,false,false,false,false,false,false]},
+    {capacity:4, tubes:[[1,1,1],[2,2,2,4],[6,6,5],[4,5,1,2],[5,6,7,4],[7,4,5],[7,3,3,6],[],[7,3,3]]},
+    {capacity:5, modules:["cap"], tubes:[[2,6,6,6],[5,5,4,5,4],[3,3,3,2],[4,7,7,7,7],[5,4,6,6],[5,2],[2,3],[7,1,1,1],[1,1,4,3,2]], caps:[true,false,false,false,false,false,false,false,false]},
+    {capacity:4, tubes:[[1,1],[6,6,3,1],[3,3,6,8],[4,4,4,4],[5,5,8],[1,2],[2,2],[7,7,8,6],[5,5,7,2],[8,3,7]]},
+    {capacity:4, modules:["cap"], tubes:[[1,1],[1,8,8,8],[3,3,3,2],[4,4,4,6],[8,5,1,3],[6,5,6,6],[4,2],[2,2,5],[7,7,7,7],[5]], caps:[false,false,true,false,false,false,false,false,false,false]},
+    {capacity:5, tubes:[[1,7,7,7],[2,2,4,3,3],[7],[4,4,2,4,6],[5,6,6,3,4],[6,8],[3,8,8],[8,8,3,2,2],[7,1,1,1,1],[5,5,5,5,6]]},
+    {capacity:5, modules:["cap"], tubes:[[1,8,3],[2,1,6],[3,3],[4,4,4,4],[5,5,5,6,7],[5,2,2,8],[8,4,5,7,1],[8,8,6,1,1],[7,6,3,3],[7,7,6,2,2]], caps:[false,false,false,false,false,false,true,false,false,false]},
+    {capacity:4, tubes:[[1,1,1,3],[7,5,2],[3,3,3],[6,2,2],[5,9,5],[4,5,6,6],[4,4,4,1],[9],[8,8,8,2],[8,7,7],[9,9,6,7]]},
+    {capacity:5, modules:["cap"], tubes:[[6,5,5,5,6],[2,2,2,2,4],[3,3,4,7],[4,4,4],[5,5,7,1],[6,6,8,1,1],[7,9,9,9,7],[8,8,8],[9,9,6,2,8],[3,1,7],[3,3,1]], caps:[false,false,false,false,true,false,false,false,false,false,false]},
+    {capacity:5, tubes:[[1,7,5,3],[2,1,1,1,2],[3,2,2,3],[4,4],[5,5,5],[6,6],[7,7,1,7,3],[8,8,8,8,3],[9,9,9,9,7],[8,4,4,2,5],[9,4,6,6,6]]},
+    {capacity:4, modules:["cap"], tubes:[[2,6,9,9],[5,5,5,1],[3,3,9,3],[4,4,4,6],[5,2,6,6],[9,10,10,10],[7,7,7],[8,8,7,2],[1,1,1,10],[],[8,8],[3,2,4]], caps:[false,false,false,false,false,false,false,true,false,false,false,false]},
+    {capacity:5, tubes:[[1,1,1,9,1],[2,2,2,8,4],[10,7,7],[6,6,6,2,3],[5,5,4,4,10],[3,3,9,9],[],[8,8,8,8,4],[9,9,3],[10,10,6,6,2],[7,7,7,10,3],[4,1,5,5,5]]},
+    {capacity:5, modules:["cap"], tubes:[[1,1,4,6],[2,6,5,5,5],[3,3,8,8,5],[6,6,1,7],[4,4],[9,10],[7,7,7,7],[8,8,8,4,5],[9,9,9,1,1],[2,2,2,2],[3,3,3,9,4],[10,10,10,10,6]], caps:[true,false,false,false,false,false,false,false,false,false,false,false]},
+    {capacity:4, tubes:[[4,1,8,5],[2,2,2,2],[3,3,3,5],[4,4],[9,9,9],[6,6,5,7],[7,7],[8,8],[10,10,6,6],[10,10,8,11],[11,11,11,3],[1,5,7],[1,4,1,9]]},
+    {capacity:5, modules:["cap"], tubes:[[5,5,5,5,5],[2,2],[4,11,11,9,3],[6,3,3,3,8],[7,1,1,1,3],[6,6,6,6],[7,7],[1,1,7,7],[9,9,9,9,8],[10,10,10,10,4],[11,11,2,2,2],[4,4,10,11],[8,8,8,4]], caps:[false,false,false,true,false,false,false,false,false,false,false,false,false]},
+    {capacity:5, tubes:[[1,1,1,1],[2,2,11],[3,7,4,11],[4,6,6,6,9],[5,10,3,1],[6,2,8,8,8],[7,7,7,9],[7,4,2,2,3],[9,9,9,5,6],[10,10,10,8,8],[11,11],[4,5,5,5],[3,3,11,10,4]]},
+    {capacity:4, modules:["cap"], tubes:[[10,6,6,9],[11,1,9],[11,12,4,4],[5,4,10,10],[5,5,7],[2,2,9],[7,7,7,5],[1,2,2],[9],[3,3,3,3],[11,11,6,6],[12,12,12,8],[1,1,8],[4,8,8,10]], caps:[false,true,false,false,false,false,false,false,false,false,false,false,false,false]},
+    {capacity:5, tubes:[[1,1,4],[2,8,4,12,6],[3,3,3,1,1],[4,4,11,10],[5,5,5,5,4],[6,6,7,10,9],[7,7,7,7],[12,12,8,8,8],[9],[10,3,9,2],[11,11,10,10],[12,6,6,3,1],[2,2,11,11,9],[8,2,12,5,9]]},
+    {capacity:5, modules:["cap"], tubes:[[1,9,3,3],[2,4],[3,3,3,12,12],[1,5,11,11],[5,5,5,10,12],[2,2,2,2,5],[1,1,10],[8,6,6,10,10],[9,9,11,11,8],[10,9,12,8],[11,6,6,6,9],[12,4,4],[8,8,4,4,1],[7,7,7,7,7]], caps:[false,false,false,true,false,false,false,false,false,false,false,false,false,false]},
+    {capacity:4, tubes:[[6,6,1,1],[4,4,3,5],[4,3,3],[6,6,1],[5,5,2],[2,2,1,5],[3,2,4],[]]},
+    {capacity:4, modules:["cap"], tubes:[[1,1,3,7],[4,4],[3,3,3],[4,4,1,1],[5,5,7,7],[6,6],[6,6,5],[2,2,2,2],[7,5]], caps:[false,false,false,true,false,false,false,false,false]},
+    {capacity:4, modules:["cap"], tubes:[[1,7,3,4],[8],[3,1,5],[1,2,7,8],[5,3,6,7],[6,6,8,1],[5,8,7,3],[6,5],[4,4,4],[2,2,2]], caps:[false,false,false,false,true,false,false,false,false,false]},
+    {capacity:5, tubes:[[1,1,3,7,5],[3,5,6,4,6],[4,4,4,4],[1,1,1,2],[5,3,3,5,3],[7,7,7,7,2],[8,8,6,6,8],[6,2,2,2],[],[8,8,5]]},
+    {capacity:4, modules:["cap"], tubes:[[1,2,8,8],[1,3,2,6],[3,3,7,7],[4,4,5,5],[5,1,1,5],[9,9,9],[7,4,4],[8],[9,7],[2,2,6],[6,6,8,3]], caps:[true,false,false,false,false,false,false,false,false,false,false]},
+    {capacity:5, tubes:[[1],[5,5,8,4,4],[3,1,1],[4,4,3,3,2],[5,5,5,1],[6,6,6,6,2],[7,7,7,7,8],[2,2,8,6,4],[9,9,9,9,3],[9,7],[3,8,8,1,2]]},
+    {capacity:4, modules:["cap"], tubes:[[1,1],[10,10],[3,3,3,10],[4,4,1],[6,7,5,5],[6,6,5,5],[7,7,7,8],[8,8,9],[9,9,9,8],[2,2,3],[10,6,2,2],[4,4,1]], caps:[false,false,true,false,false,false,false,false,false,false,false,false]},
+    {capacity:5, tubes:[[6,1,2,5,7],[2,2,2,2],[3,3,5,4],[5,3,3,1,4],[5,5,8],[6,6,6,10],[7],[8,8,8,8,4],[9,9,1,1,3],[10,10,10,7,4],[6,9,4,9,9],[10,7,7,1]]},
+    {capacity:5, modules:["cap"], tubes:[[1,6,11,8],[7,7,7,6,5],[7,2,2,2],[4,4,4,1],[5,5,3,10],[3,3,3,3,1],[9,9,11,2,10],[6,6,8,1],[9,9,9,10,11],[7,6],[2,10,8,8,8],[4,1,10],[4,5,5,11,11]], caps:[false,false,false,false,false,false,true,false,false,false,false,false,false]},
+    {capacity:5, tubes:[[8,8,9],[2,2,2],[3,1,7,2,5],[8,8,1,12],[5,5,5,10],[6,6,6,6],[7,10,9,4,3],[8,1,10,10,4],[9,9,9,4,5],[10,12,2,6],[11,11,11,11,11],[12,12,12,4],[3,3,3,4],[7,7,7,1,1]]},
+    {capacity:4, modules:["cap"], tubes:[[2,3],[5,1,3],[5,3],[4,4,5,5],[1,1,3],[4,4,1],[2,2,2]], caps:[false,true,false,false,false,false,false]},
+    {capacity:4, tubes:[[1,2],[2,1,2],[5,3,3,1],[4,4,1,4],[5,6,5,5],[6,6],[2,6],[3,3,4]]},
+    {capacity:5, modules:["cap"], tubes:[[1,1,1,5,7],[2,2],[3,2,2,6,6],[5],[5,5,5,2,7],[6,6,6,4,4],[1,1,3],[7,7,3,3],[7,3,4,4,4]], caps:[false,false,true,false,false,false,false,false,false]},
+    {capacity:5, tubes:[[6,3],[2,2,3,3],[5,5,5,5,1],[4,6,2,6,6],[7,7,7,7],[6,4,4],[7,8,2,2],[8,8,8,3],[4,4,5,1],[1,1,1,8,3]]},
+    {capacity:5, modules:["cap"], tubes:[[3,8],[2,2,9,8,8],[5,6,2,9,1],[4,4,7,7,3],[6,9,9,4,7],[6,5,5,5,6],[7,7,2,1,1],[1],[9,8,8,2,6],[4,4],[5,3,1,3,3]], caps:[false,false,false,false,true,false,false,false,false,false,false]},
+    {capacity:5, tubes:[[9,9,9,10,10],[2,4,4,8],[1,1,1,8,10],[4],[5,8,1,8,2],[6,9,2,7,4],[5,5,7,7,7],[7,3,3,8],[3,4,3,3],[10,5,5],[9,2,2,10,1],[6,6,6,6]]},
+    {capacity:4, modules:["cap"], tubes:[[1,1,1,2],[9,5],[2,7,7,3],[3,3,2],[3,11,9,9],[6,6,6,6],[7,11,7],[5,5,4,1],[9,10,10],[10],[11,4,10,8],[4,4,11,8],[2,8,8,5]], caps:[false,false,false,false,true,false,false,false,false,false,false,false,false]},
+    {capacity:4, tubes:[[1,1,8,2],[9,2],[3,3,11],[4,4],[5,2,6,6],[10,10,10],[7,7,7,7],[8,4,6,6],[5,5,5,9],[10,4,1,12],[11,11,9],[12,12,12],[8,8,1,3],[3,11,2,9]]},
+    {capacity:4, modules:["cap"], tubes:[[4,1,6],[2,2,2,3],[6,6,6],[4,1],[3,4],[1,3],[2,3,4,1],[5,5,5,5]], caps:[false,true,false,false,false,false,false,false]},
+    {capacity:4, tubes:[[1,1,1,3],[6,2,2,5],[3,3],[4,4,4,3],[5,5,2,2],[6,4],[7,7,7,1],[6,7,5],[6]]},
+    {capacity:4, modules:["cap"], tubes:[[1,1,1,1],[2,2],[3],[4,6,7,8],[5,5,3,3],[6,6,5],[7,7,7],[8,5,8,8],[2,2,4],[3,6,4,4]], caps:[false,false,false,true,false,false,false,false,false,false]},
+    {capacity:4, tubes:[[1,1],[7,5,1],[3,3,3,4],[1,4,5,3],[5,8,8],[6,6,6,6],[2],[8,8,4,5],[9,9,9,9],[4,2,2,2],[7,7,7]]},
+    {capacity:4, modules:["cap"], tubes:[[1],[10,3,8,8],[3,3,8],[1,7,7,9],[10,10],[4,4,4,4],[7,1,6,7],[8,2,2],[9,1,2,3],[6,5,5,5],[10,9,5],[6,6,9,2]], caps:[false,false,false,false,false,false,false,false,true,false,false,false]},
+    {capacity:5, tubes:[[11,11,10],[3,4,3,3,3],[6,6,6,7,10],[4,9,7,7,8],[5,5,3,11],[6,4,4,1,1],[7,7,5,6],[8,8,10,9,5],[9,9,9,8],[10,8],[2,2,2,2,2],[4,5,11,11,10],[1,1,1]]},
+    {capacity:5, modules:["cap"], tubes:[[5,5,7,10,10],[2,2,2,12],[3,3,3,3,8],[4,4,11],[5,5,5,6,6],[6,6,6,11,4],[7,8,7,11,2],[11,11,4,8,1],[9,9,9,9,10],[12,12,12,12],[1,1,7,7],[10,10,4,2],[9,8,1,1],[3,8]], caps:[false,false,false,false,false,false,false,true,false,false,false,false,false,false]},
+    {capacity:4, tubes:[[1,3,1,1],[3,1,4,4],[],[4,5,5,2],[5,3,3],[4,5,2,2],[2]]},
+    {capacity:5, modules:["cap"], tubes:[[4,4,4],[2,2,2,1],[3,3,1,4,6],[4,6,1],[5,3,3,3],[5],[2,2,6,6,6],[5,5,5,1,1]], caps:[false,false,true,false,false,false,false,false]},
+    {capacity:5, modules:["cap"], tubes:[[1,3,3],[2,2,2,6],[3,1,1],[4,4,4,6],[5,5,7,1,4],[2,7,7,4,1],[7,2,3,7],[5,5,5,3],[6,6,6]], caps:[false,false,false,false,false,true,false,false,false]},
+    {capacity:5, tubes:[[5,1],[2,2,4,4],[6,6,6],[4,4,7,1,1],[3,3,3,3,3],[6,7,7,7,2],[7,8,5,5],[8,8,8,8,4],[2,6,1,2],[1,5,5]]},
+    {capacity:5, modules:["cap"], tubes:[[1,1,1,9,3],[2,2,2,6,7],[3,3,3,3,1],[4],[5,8,4,4,7],[9],[5,5,1,4,4],[8,7,9,9,9],[2,2,6,6,5],[6,6,5],[7,7,8,8,8]], caps:[true,false,false,false,false,false,false,false,false,false,false]},
+    {capacity:5, tubes:[[6,6,6,7,7],[2,2,9,7],[3,7,4,7,4],[2,2,2,1],[5,4,10,10,10],[6,6,5,4],[8,8,8,5],[8,3,4,5,5],[9,9,9,9,8],[10,10],[1,1,3,3,3],[1,1]]},
+    {capacity:5, modules:["cap"], tubes:[[2],[2,2,2,2],[3,3,3,3,3],[4,4,4,4,4],[5,5,5,5,5],[6,6,6,6,6],[7,7,7,7,7],[8,8,8,8,8],[9,9,9,9,9],[10,10,10,10,10],[11,11,11,11,11],[1,1,1,1,1],[]]},
+    {capacity:5, modules:["cap"], tubes:[[2],[2,2,2,2],[3,3,3,3,3],[4,4,4,4,4],[5,5,5,5,5],[6,6,6,6,6],[7,7,7,7,7],[8,8,8,8,8],[9,9,9,9,9],[10,10,10,10,10],[11,11,11,11,11],[12,12,12,12,12],[1,1,1,1,1],[]]}
   ];
-
-  const handcrafted = [
-    // L1 — 2 colors, near-complete first win feel
-    {
-      capacity: 4,
-      tubes: [
-        [1, 1, 1, 2],
-        [2, 2, 2, 1],
-        [],
-      ],
-    },
-    // L2 — keep interleaved 2c
-    {
-      capacity: 4,
-      tubes: [
-        [1, 2, 1, 2],
-        [2, 1, 2, 1],
-        [],
-      ],
-    },
-    // L3 — 3 colors, 2 empty
-    {
-      capacity: 4,
-      tubes: [
-        [1, 1, 2, 3],
-        [2, 2, 3, 1],
-        [3, 3, 1, 2],
-        [],
-        [],
-      ],
-    },
-    // L4 — almost-complete 3c / 2 empty (satisfying finishes)
-    {
-      capacity: 4,
-      tubes: [
-        [1, 1, 1, 2],
-        [2, 2, 2, 3],
-        [3, 3, 3, 1],
-        [],
-        [],
-      ],
-    },
-    // L5 — 3 colors
-    {
-      capacity: 4,
-      tubes: [
-        [1, 2, 1, 3],
-        [2, 3, 2, 1],
-        [3, 1, 3, 2],
-        [],
-        [],
-      ],
-    },
-    // L6 — 3 colors
-    {
-      capacity: 4,
-      tubes: [
-        [1, 2, 3, 1],
-        [2, 3, 1, 2],
-        [3, 1, 2, 3],
-        [],
-        [],
-      ],
-    },
-    // L7 — 3 colors (no 4c until L9)
-    {
-      capacity: 4,
-      tubes: [
-        [1, 2, 1, 2],
-        [3, 1, 3, 2],
-        [2, 3, 1, 3],
-        [],
-        [],
-      ],
-    },
-    // L8 — 3 colors
-    {
-      capacity: 4,
-      tubes: [
-        [1, 3, 2, 1],
-        [2, 1, 3, 2],
-        [3, 2, 1, 3],
-        [],
-        [],
-      ],
-    },
-    // L9 — first 4 colors + 2 empty, grouped
-    {
-      capacity: 4,
-      tubes: [
-        [1, 1, 1, 2],
-        [2, 2, 2, 3],
-        [3, 3, 3, 4],
-        [4, 4, 4, 1],
-        [],
-        [],
-      ],
-    },
-    // L10 — 4c 2 empty moderate
-    {
-      capacity: 4,
-      tubes: [
-        [1, 2, 3, 4],
-        [2, 1, 4, 3],
-        [3, 4, 1, 2],
-        [4, 3, 2, 1],
-        [],
-        [],
-      ],
-    },
-  ];
-
-  // [colors, capacity, empty, reverseMoves, seed]
-  const configs = [
-    [4, 4, 2, 16, 2101],
-    [4, 4, 2, 22, 2102],
-    [5, 4, 2, 24, 2103],
-    [5, 4, 2, 30, 2104],
-    [5, 4, 2, 36, 2105],
-    [5, 4, 2, 40, 2106],
-    [6, 4, 2, 32, 2107],
-    [6, 4, 2, 40, 2108],
-    [6, 4, 2, 48, 2109],
-    [6, 4, 2, 55, 2110],
-    [7, 4, 2, 45, 2111],
-    [7, 4, 2, 55, 2112],
-    [7, 5, 2, 40, 2113],
-    [8, 4, 2, 50, 2114],
-    [8, 5, 2, 48, 2115],
-    [8, 5, 2, 58, 2116],
-    [9, 4, 2, 55, 2117],
-    [9, 5, 2, 55, 2118],
-    [10, 4, 2, 60, 2119],
-    [10, 5, 2, 65, 2120],
-    [10, 5, 2, 72, 2121],
-    [11, 4, 2, 70, 2122],
-    [11, 5, 2, 75, 2123],
-    [12, 4, 2, 75, 2124],
-    [12, 5, 2, 85, 2125],
-  ];
-
-  const generated = configs.map(([n, cap, empty, moves, seed]) =>
-    reverseScramble(n, cap, empty, moves, seed)
-  );
-
-  // Cap tutorial = levels 1–5; prior early curve shifts after
-  return capTutorial.concat(handcrafted, generated);
+  return levels;
 })();
 
 window.COLOR_PALETTE = [
   null,
-  /* candy gradients: top bright → bottom deep */
   'linear-gradient(180deg, #ff8a95 0%, #e74c3c 55%, #c0392b 100%)',
   'linear-gradient(180deg, #7ec8ff 0%, #3498db 55%, #1a6fa8 100%)',
   'linear-gradient(180deg, #7dffa3 0%, #2ecc71 55%, #1e8f4e 100%)',
@@ -280,20 +106,7 @@ window.COLOR_PALETTE = [
   'linear-gradient(180deg, #ff8a65 0%, #ff5722 55%, #d84315 100%)',
 ];
 
-/** Solid accents for pour stream / splash / confetti */
 window.COLOR_SOLIDS = [
-  null,
-  '#e74c3c',
-  '#3498db',
-  '#2ecc71',
-  '#f1c40f',
-  '#9b59b6',
-  '#e67e22',
-  '#1abc9c',
-  '#e91e63',
-  '#795548',
-  '#00bcd4',
-  '#8bc34a',
-  '#ff5722',
+  null, '#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6',
+  '#e67e22', '#1abc9c', '#e91e63', '#795548', '#00bcd4', '#8bc34a', '#ff5722',
 ];
-

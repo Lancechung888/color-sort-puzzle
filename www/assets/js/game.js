@@ -9,13 +9,19 @@
   const PALETTE = window.COLOR_PALETTE;
   const SOLIDS = window.COLOR_SOLIDS || window.COLOR_PALETTE;
   const STORAGE_KEY = 'colorTubeSort_v2';
-  const FAIL_LOOP_THRESHOLD = 2;
-  const START_COINS = 40;
-  const HINT_COIN_COST = 50;
+  const FAIL_LOOP_THRESHOLD_EARLY = 3;
+  const FAIL_LOOP_THRESHOLD_LATE = 2;
+  const START_COINS = 70;
+  const HINT_COIN_COST = 40;
   const THEME_COIN_COST = 280;
   const HINT_PACK_COIN_COST = 120;
   const HINT_PACK_SIZE = 5;
-  const STAR_REWARDS = { 1: 6, 2: 12, 3: 22 };
+  const STAR_REWARDS = { 1: 8, 2: 15, 3: 28 };
+  /** index < 10 → 3; from level 11+ (index ≥ 10) → 2 */
+  function failLoopThreshold() {
+    if (isDailyMode) return FAIL_LOOP_THRESHOLD_EARLY;
+    return levelIndex < 10 ? FAIL_LOOP_THRESHOLD_EARLY : FAIL_LOOP_THRESHOLD_LATE;
+  }
 
   const THEMES = {
     classic: { id: 'classic', name: '經典玻璃', free: true },
@@ -32,7 +38,7 @@
     removeAds: false,
     themes: { classic: true, neon: false, cat: false },
     activeTheme: 'classic',
-    freeHints: 1,
+    freeHints: 2,
     streak: 0,
     lastLoginDate: '',
     dailyDoneDate: '',
@@ -318,6 +324,63 @@
     return 1;
   }
 
+  function trimHistory() {
+    // Infinite-undo SKU: truly unlimited this level; otherwise soft-cap memory
+    const max = infiniteUndoLevel ? 5000 : 100;
+    while (history.length > max) history.shift();
+  }
+
+
+  // --- WebAudio SFX (simple oscillators) + optional vibrate ---
+  let audioCtx = null;
+  function ensureAudio() {
+    if (audioCtx) return audioCtx;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    audioCtx = new AC();
+    return audioCtx;
+  }
+  function resumeAudio() {
+    const ctx = ensureAudio();
+    if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+  }
+  function beep(freq, dur, type, gain, slideTo) {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    const t0 = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    if (slideTo) osc.frequency.exponentialRampToValueAtTime(Math.max(40, slideTo), t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(gain || 0.12, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g);
+    g.connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+  }
+  const SFX = {
+    pour() { beep(420, 0.14, 'triangle', 0.08, 180); },
+    land() { beep(160, 0.07, 'square', 0.06); setTimeout(() => beep(110, 0.05, 'sine', 0.04), 40); },
+    complete() { beep(520, 0.08, 'sine', 0.1); setTimeout(() => beep(780, 0.12, 'sine', 0.09), 70); },
+    uncap() { beep(880, 0.05, 'square', 0.07, 240); setTimeout(() => beep(1320, 0.08, 'triangle', 0.05), 30); },
+    win() {
+      [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => beep(f, 0.14, 'sine', 0.1), i * 90));
+    },
+    illegal() { beep(140, 0.12, 'sawtooth', 0.05, 80); },
+  };
+  function haptic(kind) {
+    if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
+    try {
+      if (kind === 'complete') navigator.vibrate([12, 30, 18]);
+      else if (kind === 'illegal') navigator.vibrate(28);
+      else if (kind === 'uncap') navigator.vibrate(10);
+      else if (kind === 'win') navigator.vibrate([20, 40, 20, 40, 40]);
+    } catch (_) { /* ignore */ }
+  }
+
   // --- Actions ---
   function selectTube(idx) {
     if (pouring) return;
@@ -357,19 +420,41 @@
   function uncapTube(idx) {
     if (!isCapped(idx)) return;
     history.push({ tubes: cloneTubes(tubes), caps: cloneCaps(caps), moves });
-    if (history.length > 100) history.shift();
+    trimHistory();
     caps[idx] = false;
     selected = -1;
+    SFX.uncap();
+    haptic('uncap');
     const el = tubesWrap.children[idx];
     if (el) {
       el.classList.add('uncapping');
+      spawnUncapBurst(el);
       setTimeout(() => {
         render();
-      }, 180);
+      }, 320);
     } else {
       render();
     }
     toast('蓋子打開了');
+  }
+
+  function spawnUncapBurst(tubeEl) {
+    const rect = tubeEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top - appRect.top + 4;
+    for (let i = 0; i < 10; i++) {
+      const p = document.createElement('div');
+      p.className = 'uncap-spark';
+      const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
+      const dist = 18 + Math.random() * 28;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist + 'px');
+      app.appendChild(p);
+      setTimeout(() => p.remove(), 420);
+    }
   }
 
   function doPour(fromIdx, toIdx) {
@@ -377,7 +462,7 @@
     if (amount <= 0) return;
 
     history.push({ tubes: cloneTubes(tubes), caps: cloneCaps(caps), moves });
-    if (history.length > 100) history.shift();
+    trimHistory();
 
     pouring = true;
     const color = topColor(tubes[fromIdx]);
@@ -397,6 +482,8 @@
       if (isFilledComplete(tubes[toIdx]) && !wasCompleteBefore[toIdx]) {
         lightScreenShake();
         glowPulse(toIdx);
+        SFX.complete();
+        haptic('complete');
         if (isWon()) {
           flashCompleteWhite();
         }
@@ -424,7 +511,7 @@
   function restart() {
     if (pouring) return;
     restartFailCount++;
-    if (restartFailCount >= FAIL_LOOP_THRESHOLD) {
+    if (restartFailCount >= failLoopThreshold()) {
       pendingFailRestart = true;
       showFailPrompt();
       return;
@@ -539,11 +626,45 @@
    * TODO: Wire Google Play Billing Library / StoreKit 2 for real IAP.
    * TODO: Wire AdMob interstitial + rewarded (Capacitor plugins).
    */
+  /** Real Billing/StoreKit not wired. Default: never grant paid entitlements.
+   * Set localStorage colorTubeSort_devIap=1 for DEV-only mock grants (default OFF).
+   */
+  function isDevIapEnabled() {
+    try {
+      return localStorage.getItem('colorTubeSort_devIap') === '1';
+    } catch (_) {
+      return false;
+    }
+  }
+
   function mockIapPurchase(productId, onSuccess) {
-    // TODO: Google Play Billing / StoreKit — replace with real purchase flow
-    console.info('[IAP stub] purchase', productId);
-    toast('模擬購買成功 ✓');
+    // TODO: Google Play Billing / StoreKit 2 — real purchase flow required for store.
+    console.info('[IAP] not available (needs store account)', productId);
+    if (!isDevIapEnabled()) {
+      toast('即將開放／需商店帳號');
+      return;
+    }
+    console.warn('[IAP DEV] granting', productId);
+    toast('（DEV）模擬購買 ✓');
     if (onSuccess) onSuccess();
+  }
+
+  function purchaseRemoveAds() {
+    // Never permanently grant removeAds via shop click until real IAP.
+    if (save.removeAds) {
+      toast('已去除廣告');
+      return;
+    }
+    if (!isDevIapEnabled()) {
+      toast('即將開放／需商店帳號');
+      return;
+    }
+    mockIapPurchase('remove_ads', () => {
+      save.removeAds = true;
+      persist();
+      refreshHud();
+      toast('（DEV）已去除廣告');
+    });
   }
 
   function showInterstitialStub(reason) {
@@ -716,6 +837,8 @@
     const el = tubesWrap.children[idx];
     if (!el) return;
     el.classList.add('invalid-shake');
+    SFX.illegal();
+    haptic('illegal');
     setTimeout(() => el.classList.remove('invalid-shake'), 360);
   }
 
@@ -775,6 +898,7 @@
     const dir = toRect.left >= fromRect.left ? 1 : -1;
     const tilt = 22 + Math.floor(Math.random() * 7); // 22–28deg
     fromEl.style.transform = `translateY(-14px) rotate(${dir * tilt}deg) scale(1.02)`;
+    SFX.pour();
 
     setTimeout(() => {
       spawnSplash(
@@ -782,6 +906,7 @@
         toRect.top + 16 - appRect.top,
         hex
       );
+      SFX.land();
       stream.remove();
       fromEl.style.transform = '';
       done();
@@ -807,6 +932,8 @@
 
   // --- Win UI ---
   function showWin() {
+    SFX.win();
+    haptic('win');
     const stars = calcStars();
     lastWinStars = stars;
     let coins = STAR_REWARDS[stars] || 10;
@@ -914,7 +1041,7 @@
       }
       if (removeCard) removeCard.classList.add('owned');
     } else if (btnRemove) {
-      btnRemove.textContent = 'NT$99 · 購買';
+      btnRemove.textContent = isDevIapEnabled() ? 'NT$99 · DEV購買' : '即將開放';
       btnRemove.disabled = false;
       if (removeCard) removeCard.classList.remove('owned');
     }
@@ -1003,7 +1130,7 @@
       const tipP = onboardingTip.querySelector('p');
       if (tipP) {
         tipP.innerHTML =
-          '👆 點選有顏色的試管舉起，再點另一支倒入。<br />有蓋的管子要先點一下開蓋，才能倒進或倒出。';
+          '👆 點選有顏色的試管舉起，再點另一支倒入。<br />目標：每支試管只剩一種顏色（或空的）。';
       }
       onboardingTip.hidden = false;
     } else {
@@ -1024,9 +1151,13 @@
 
   // --- Boot ---
   function startGame() {
+    resumeAudio();
+    // Prevent click-through from start CTA into tubes underneath
+    app.classList.add('input-gate');
     startScreen.classList.remove('show');
     isDailyMode = false;
     loadLevel(levelIndex);
+    setTimeout(() => app.classList.remove('input-gate'), 280);
   }
 
   function bindShop() {
@@ -1039,13 +1170,7 @@
     $('#coin-display').addEventListener('click', openShop);
 
     $('#btn-buy-remove-ads').addEventListener('click', () => {
-      if (save.removeAds) return;
-      mockIapPurchase('remove_ads', () => {
-        save.removeAds = true;
-        persist();
-        refreshHud();
-        toast('已去除廣告');
-      });
+      purchaseRemoveAds();
     });
 
     $('#btn-buy-hints-coins').addEventListener('click', () => {
@@ -1115,14 +1240,8 @@
     });
     $('#btn-fail-remove-ads').addEventListener('click', () => {
       closeOverlay(failPrompt);
-      mockIapPurchase('remove_ads', () => {
-        save.removeAds = true;
-        persist();
-        refreshHud();
-        restartFailCount = 0;
-        doRestartLevel();
-        toast('已去除廣告');
-      });
+      purchaseRemoveAds();
+      // Do not auto-restart as if purchase succeeded
     });
     $('#btn-fail-skip').addEventListener('click', () => {
       closeOverlay(failPrompt);
@@ -1144,6 +1263,7 @@
     loadSave();
     refreshHud();
 
+    document.addEventListener('pointerdown', resumeAudio, { once: true });
     btnUndo.addEventListener('click', undo);
     btnRestart.addEventListener('click', restart);
     btnHint.addEventListener('click', requestHint);
@@ -1152,7 +1272,11 @@
       hideWin();
       doRestartLevel();
     });
-    $('#btn-start').addEventListener('click', startGame);
+    $('#btn-start').addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      startGame();
+    });
     $('#btn-daily').addEventListener('click', startDailyChallenge);
     $('#btn-start-daily').addEventListener('click', startDailyChallenge);
     $('#btn-dismiss-tip').addEventListener('click', () => {
@@ -1167,15 +1291,7 @@
 
     bindShop();
 
-    levelLabel.addEventListener('dblclick', () => {
-      if (isDailyMode) return;
-      if (levelIndex < LEVELS.length - 1) {
-        levelIndex++;
-        save.level = levelIndex;
-        persist();
-        loadLevel(levelIndex);
-      }
-    });
+    // Level skip via dblclick removed (ACCEPTANCE P0).
 
     window.addEventListener('resize', () => {
       if (!startScreen.classList.contains('show')) render();

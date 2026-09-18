@@ -15,7 +15,7 @@
 |------|----------------|
 | Visual juice | Better glass tubes, pour splash, confetti, glow on complete tube, soft shake |
 | Stars | 3★ if under par & no undo; 2★ within 1.5× par; 1★ clear — replay incentive |
-| Coins | +6 / +12 / +22 by stars; persist in localStorage; spend on hints / themes |
+| Coins | +8 / +15 / +28 by stars; persist in localStorage; spend on hints / themes |
 | Daily streak | Login streak counter + soft coin bonus; **今日挑戰** = hard-ish daily pick |
 | Themes | Free classic glass; neon / cat skins locked behind coins or mock IAP |
 | Onboarding | Soft tip only on level 1 |
@@ -33,22 +33,22 @@ Select → Pour (legal) → Sort → Win (stars + coins) → Next level. Undo / 
 | 商店 · 主題包 | Neon / Cat | 280 coins **or**「用真錢解鎖」mock IAP |
 | 商店 · 提示包 ×5 | Consumable | Coins or IAP; freeHints counter |
 | 商店 · 無限撤銷（本關） | Soft IAP | Undos don't hurt star rating this level |
-| Fail-loop (2nd restart) | Soft sheet |「看廣告繼續」vs「去除廣告永久」vs skip (+ interstitial if not removed) |
-| Hint button (no free) | Paywall sheet | Rewarded ad / 50 coins / buy pack |
+| Fail-loop (tiered) | Soft sheet | Early levels: after **3** restarts; L11+: after **2**. 「看廣告繼續」vs「去除廣告（即將開放）」vs skip |
+| Hint button (no free) | Paywall sheet | Rewarded ad / **40** coins / buy pack |
 
-**TODO in code:** Google Play Billing / StoreKit 2; AdMob interstitial + rewarded (e.g. Capacitor plugins).
+**TODO in code (not ship-ready):** Google Play Billing / StoreKit 2; AdMob interstitial + rewarded (Capacitor plugin + publisher account). Shop「去除廣告」shows **即將開放／需商店帳號** and does **not** set `removeAds` unless DEV flag `localStorage.colorTubeSort_devIap=1`.
 
-## Economy (simple)
+## Economy (accepted ruling)
 
-- Start: **40** coins + **1** free hint.
-- Win: **+6 / +12 / +22** by 1/2/3 stars (replay half reward if not improving stars).
+- Start: **70** coins + **2** free hints.
+- Win: **+8 / +15 / +28** by 1/2/3 stars (replay half reward if not improving stars).
 - Daily first clear: **+40** bonus.
 - Daily login streak: soft **min(10, 3+streak)** coins.
-- Hint: **50** coins if no free hints (else paywall).
-- Theme: **280** coins each or IAP mock.
-- Hint pack: **120** coins → ×5.
-- Fail-loop soft prompt after **2** restarts.
-- 今日挑戰 index: adaptive `clamp(maxUnlocked-2 + seed%5, 3, last)`.
+- Hint: **40** coins if no free hints (else paywall).
+- Theme: **280** coins each; real-money IAP = **即將開放** until Billing/StoreKit.
+- Hint pack: **120** coins → ×5 (IAP path gated).
+- Fail-loop soft prompt: threshold **3** for level index **&lt; 10**; threshold **2** from level **11+**.
+- 今日挑戰: adaptive near progress `clamp(maxUnlocked-2 + seed%5, 3, last)` — **not** a hard late-catalog pull.
 
 ## ~US$300 / month path (sketch)
 
@@ -66,9 +66,21 @@ Assumptions: soft launch TW / SE Asia, ~2–4k MAU, hybrid-casual retention, ARP
 **Scale path:** More theme packs, level packs, season daily challenges — keep base 35+ levels free and completable.
 
 
-## 蓋子管 (cap module) — shipped in levels 1–5
+## 蓋子管 (cap module) — density-locked curve
 
-**蓋子管** is live as the early differentiator: optional `caps:[bool…]` + `modules:['cap']` + `teach:'cap'` on level defs. Capped tubes cannot pour in/out; tap the tube itself to uncap (one-way, **does not count as a move**; undo can re-lid). Visual lid overlay + teach tip on level 1. Levels 1–5 are the cap tutorial arc; the previous early handcrafted curve follows. Further mid-game double-cap / multi-color caps remain a content roadmap item — never interrupt mid-pour.
+**蓋子管** USP: optional `caps:[bool…]` + `modules:['cap']` + `teach:'cap'`. Capped tubes cannot pour in/out; tap self to uncap (one-way, **not a move**; undo can re-lid). Signature uncap juice (WebAudio + lid flip + sparks).
+
+### Cap curve (master ruling)
+
+| Band | Rule |
+|------|------|
+| L1–2 | **Pure pour**, **zero** caps — teach pour only |
+| L3 | 2 colors + **1 cap** + `teach:'cap'` |
+| L4–5 | Light caps (≤2), mostly 3-color |
+| L6+ | Mainline cap density **40–60%**; consecutive uncapped **≤3**; **≤2** caps/level; no worthless empty/complete-only caps |
+| 4-color | Delayed until after solid 3-color stretch (~L11) |
+
+Body: **80** levels (handcrafted early + reverse-scramble + `applyCaps`). Never interrupt mid-pour.
 
 ## Non-goals (v1)
 

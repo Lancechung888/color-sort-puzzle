@@ -18,7 +18,7 @@
       <div class="header-right">
         <button type="button" class="chip chip-coins" id="coin-display" title="金幣">
           <span class="chip-icon">🪙</span>
-          <span id="coin-count">40</span>
+          <span id="coin-count">70</span>
         </button>
         <button type="button" class="chip chip-streak" id="streak-display" title="連續登入">
           <span class="chip-icon">🔥</span>
@@ -60,7 +60,7 @@
           目標：每支試管只剩一種顏色（或空的）。
         </p>
         <div class="start-stats" id="start-stats">
-          <span>🪙 <span id="start-coins">40</span></span>
+          <span>🪙 <span id="start-coins">70</span></span>
           <span>🔥 連續 <span id="start-streak">0</span> 天</span>
         </div>
         <div class="modal-actions stacked">
@@ -97,16 +97,16 @@
       <div class="modal modal-premium modal-shop">
         <button type="button" class="modal-close" id="btn-shop-close" aria-label="關閉">×</button>
         <h2>商店</h2>
-        <p class="shop-balance">持有金幣：<strong id="shop-coins">40</strong> 🪙</p>
+        <p class="shop-balance">持有金幣：<strong id="shop-coins">70</strong> 🪙</p>
 
         <section class="shop-section">
           <h3>去除廣告</h3>
           <div class="shop-card" id="shop-remove-ads">
             <div class="shop-card-info">
               <strong>永久去除插頁廣告</strong>
-              <span class="shop-desc">一次購買，暢玩無干擾</span>
+              <span class="shop-desc">需接商店帳號後開放；目前無法模擬解鎖</span>
             </div>
-            <button type="button" class="btn btn-iap" id="btn-buy-remove-ads">NT$99 · 購買</button>
+            <button type="button" class="btn btn-iap" id="btn-buy-remove-ads">即將開放</button>
           </div>
         </section>
 
@@ -155,8 +155,8 @@
           </div>
           <div class="shop-card">
             <div class="shop-card-info">
-              <strong>無限撤銷（本關）</strong>
-              <span class="shop-desc">本關不計撤銷扣星</span>
+              <strong>本關無限撤銷</strong>
+              <span class="shop-desc">本關可無限次撤銷，且不扣星</span>
             </div>
             <button type="button" class="btn btn-sm btn-iap" id="btn-buy-infinite-undo">本關解鎖</button>
           </div>
@@ -174,7 +174,7 @@
         <p>沒有免費提示了。選擇一種方式繼續：</p>
         <div class="modal-actions stacked">
           <button type="button" class="btn btn-primary" id="btn-hint-ad">📺 看廣告獲得提示</button>
-          <button type="button" class="btn btn-coins" id="btn-hint-coins">花 50 金幣</button>
+          <button type="button" class="btn btn-coins" id="btn-hint-coins">花 40 金幣</button>
           <button type="button" class="btn btn-iap" id="btn-hint-pack">購買提示包 ×5</button>
         </div>
       </div>
@@ -187,7 +187,7 @@
         <p>連續重來多次。要不要休息一下，或解鎖更順暢的體驗？</p>
         <div class="modal-actions stacked">
           <button type="button" class="btn btn-primary" id="btn-fail-ad">📺 看廣告繼續</button>
-          <button type="button" class="btn btn-iap" id="btn-fail-remove-ads">去除廣告永久</button>
+          <button type="button" class="btn btn-iap" id="btn-fail-remove-ads">去除廣告（即將開放）</button>
           <button type="button" class="btn btn-ghost" id="btn-fail-skip">先繼續重來</button>
         </div>
       </div>
