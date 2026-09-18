@@ -522,6 +522,17 @@ html, body {
   100% { filter: brightness(1); }
 }
 
+/* First pour of level — Day-1 “got it” success flash */
+.tube.first-pour-glow .tube-glass {
+  animation: firstPourGlow 0.42s ease-out;
+}
+
+@keyframes firstPourGlow {
+  0% { filter: brightness(1); box-shadow: none; }
+  40% { filter: brightness(1.22); box-shadow: 0 0 18px rgba(255, 255, 255, 0.38); }
+  100% { filter: brightness(1); box-shadow: none; }
+}
+
 /* Cap / lid module (蓋子管) — P0: thick/bright for thumbnails + ad first 3s */
 :root,
 [data-theme="classic"] {
