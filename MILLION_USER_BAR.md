@@ -127,7 +127,7 @@
 
 | # | 項目 | 結果 | 現況依據（代碼事實） |
 |---|------|------|----------------------|
-| 1 | 3秒看懂＋想點 | **Partial** | 開始屏＋L1 倒水教學可讀；`store-assets/finals/` ICON A 1024 已定稿。仍缺外部「想點」／首 3s 競品對照實測 → 未滿 Pass |
+| 1 | 3秒看懂＋想點 | **Partial** | 開始屏 `.start-hook` CSS 迷你預覽（揭蓋→倒水→整色）＋短 lead「Uncap · Pour · Sort」；L1 教學可讀；`store-assets/finals/` ICON A 1024 已定稿。**仍缺**外部「想點」/首 3s 競品對照實測 → 維持 Partial，未標 Pass |
 | 2 | USP 貫穿（40–60% lock） | **Pass** | **80** 關；有蓋 **40/80 = 50%**；連續無蓋 ≤3；L1–2 零蓋；L3 teach；單關 ≤2 蓋 |
 | 3 | 倒水手感／15s 廣告 | **Partial** | WebAudio（pour/land/complete/uncap/win）＋**Capacitor Haptics**（native impact/notification）＋web `navigator.vibrate` fallback；開蓋 flip＋火花。仍缺實機 15s UA 剪輯驗證 → 未滿 Pass |
 | 4 | ≥80 關＋曲線假說 | **Pass** | **80** 關；DESIGN 載明顏色／蓋密度曲線；生成＝reverse-scramble（可解建構）＋applyCaps |
@@ -137,7 +137,7 @@
 | 8 | 品牌投放級 | **Pass** | 定名 ColorTube Sort；`store-assets/finals/` 齊 **ICON A 1024**＋Shot1–5 EN（見 STORE_FINALS_GATE）；ZH 次要。投放素材迭代另凍結（無預算）≠ 缺資產 |
 | 9 | 穩定／ACCEPTANCE | **Partial** | `npm run accept` 自動化 **全綠**（關卡／經濟／P0①／測 ID 配線／倒水護欄）；**P0②③** 仍 Blocked → 未滿 Pass；無已知 P0 崩 |
 
-**總評：** **5 Pass / 3 Partial / 1 Fail** → 閘門仍關閉。Meta＋品牌 finals 已 Pass；手感／首屏／ACCEPTANCE 自動化為 Partial；**真變現（#7）** 仍是唯一 Fail。**不宣稱 ship-ready。**
+**總評：** **5 Pass / 3 Partial / 1 Fail** → 閘門仍關閉。Meta＋品牌 finals 已 Pass；手感／首屏（已加 start-hook，仍 Partial）／ACCEPTANCE 自動化為 Partial；**真變現（#7）** 仍是唯一 Fail。**不宣稱 ship-ready。**
 
 ---
 
@@ -146,6 +146,6 @@
 1. **真變現** — Play 過審後換正式 AdMob／Billing 單元；`remove_ads` 真接線（維持不打斷倒水）。勿把測 ID／Coming soon 標 Done。  
 2. **手感收滿 Pass** — Capacitor Haptics 已接；仍差實機 15s UA 剪輯驗證（投放預算凍結期間可延後，閘門仍 Partial）。  
 3. **ACCEPTANCE → Pass** — `npm run accept` 已可重複跑且自動化項全綠；仍差 P0②③ 實機變現複驗後才能把 #9 從 Partial 拉滿。  
-4. **首屏／Icon「想點」** — finals icon 已齊；仍缺外部 3s 競品對照實測（#1 Partial）。
+4. **首屏／Icon「想點」** — finals icon 已齊；**in-product start-hook**（開始屏 capped→uncap→pour→sorted 循環預覽）已上；仍缺外部 3s 競品對照實測（#1 維持 Partial）。
 
 不得把 mock IAP／假 AdMob 標成 Done。

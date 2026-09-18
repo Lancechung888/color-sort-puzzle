@@ -55,10 +55,46 @@
       <div class="modal modal-premium">
         <p class="subtitle">Uncap · Pour · Sort</p>
         <h2>ColorTube Sort</h2>
-        <p class="modal-lead">
-          Tap a tube to lift matching top layers, then tap another to pour.<br />
-          Goal: every tube is one solid color (or empty).
-        </p>
+        <div class="start-hook" aria-hidden="true">
+          <div class="start-hook-row">
+            <!-- Source: capped → uncap → pour -->
+            <div class="tube start-hook-tube start-hook-src">
+              <div class="tube-rim"></div>
+              <div class="tube-glass">
+                <div class="tube-layers">
+                  <div class="layer start-hook-l1" style="background:linear-gradient(180deg,#ff8a95 0%,#e74c3c 55%,#c0392b 100%)"></div>
+                  <div class="layer start-hook-l2" style="background:linear-gradient(180deg,#7ec8ff 0%,#3498db 55%,#1a6fa8 100%)"></div>
+                  <div class="layer start-hook-l3" style="background:linear-gradient(180deg,#ff8a95 0%,#e74c3c 55%,#c0392b 100%)"></div>
+                </div>
+              </div>
+              <div class="tube-lid"></div>
+            </div>
+            <!-- Dest: empty → receive red → sorted -->
+            <div class="tube start-hook-tube start-hook-dst">
+              <div class="tube-rim"></div>
+              <div class="tube-glass">
+                <div class="tube-layers">
+                  <div class="layer start-hook-d1" style="background:linear-gradient(180deg,#ff8a95 0%,#e74c3c 55%,#c0392b 100%)"></div>
+                  <div class="layer start-hook-d2" style="background:linear-gradient(180deg,#ff8a95 0%,#e74c3c 55%,#c0392b 100%)"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Already sorted green (goal clarity) -->
+            <div class="tube start-hook-tube start-hook-done complete">
+              <div class="tube-rim"></div>
+              <div class="tube-glass">
+                <div class="tube-layers">
+                  <div class="layer" style="height:25%;background:linear-gradient(180deg,#7dffa3 0%,#2ecc71 55%,#1e8f4e 100%)"></div>
+                  <div class="layer" style="height:25%;background:linear-gradient(180deg,#7dffa3 0%,#2ecc71 55%,#1e8f4e 100%)"></div>
+                  <div class="layer" style="height:25%;background:linear-gradient(180deg,#7dffa3 0%,#2ecc71 55%,#1e8f4e 100%)"></div>
+                  <div class="layer" style="height:25%;background:linear-gradient(180deg,#7dffa3 0%,#2ecc71 55%,#1e8f4e 100%)"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="start-hook-stream" aria-hidden="true"></div>
+        </div>
+        <p class="modal-lead">Uncap · Pour · Sort — one solid color per tube.</p>
         <div class="start-stats" id="start-stats">
           <span>🪙 <span id="start-coins">120</span></span>
           <span>🔥 Streak <span id="start-streak">0</span> days</span>
