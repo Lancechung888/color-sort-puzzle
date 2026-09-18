@@ -133,7 +133,7 @@
 | 4 | ≥80 關＋曲線假說 | **Pass** | **80** 關；DESIGN 載明顏色／蓋密度曲線；生成＝reverse-scramble（可解建構）＋applyCaps |
 | 5 | Day1 不傷好感 | **Pass** | `START_COINS=120`、`freeHints=3`、`HINT=25`、星獎 8/15/28；失敗牆 index&lt;15 → **5**、L16+ → **2** |
 | 6 | Meta 回來理由 | **Pass** | Daily 自適應＋首清 +40；連勝里程碑 Day **3/7/14**（幣＋提示）＋下一里程碑 HUD／首屏；首達 3★ **+22**；每 10 關全 3★ chapter chest（+80🪙＋1 hint）；關卡選單顯示缺星＋獎勵預告 |
-| 7 | 真 AdMob＋remove_ads | **Fail** | AdMob **未**進依賴／需 publisher 帳號（TODO）；商店「去除廣告」→ **即將開放**，**不會**假授 `removeAds`（DEV flag 預設 OFF） |
+| 7 | 真 AdMob＋remove_ads | **Fail** | AdMob **已**進 npm 依賴（`@capacitor-community/admob`）＋測單元／`USE_TEST_ADS` 已配線；Manifest `APPLICATION_ID` 可由 `scripts/patch-android-admob.sh` 補上。仍 **Fail** 直至實機 SDK 廣告驗證＋真 `remove_ads` IAP（Play 過審後）。商店「去除廣告」→ **即將開放**，**不會**假授 `removeAds`（DEV flag 預設 OFF） |
 | 8 | 品牌投放級 | **Pass** | 定名 ColorTube Sort；`store-assets/finals/` 齊 **ICON A 1024**＋Shot1–5 EN（見 STORE_FINALS_GATE）；ZH 次要。投放素材迭代另凍結（無預算）≠ 缺資產 |
 | 9 | 穩定／ACCEPTANCE | **Partial** | `npm run accept` 自動化 **全綠**（關卡／經濟／P0①／測 ID 配線／倒水護欄）；**P0②③** 仍 Blocked → 未滿 Pass；無已知 P0 崩 |
 
