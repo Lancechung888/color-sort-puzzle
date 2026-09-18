@@ -10,7 +10,7 @@ Browser / Capacitor bridges:
 
 Load order（`index.html`／`www/index.html`）：
 
-`levels.js` → `ads.js` → `billing.js` → `game.js`
+`levels.js` → `ads.js` → `billing.js` → `analytics.js` → `game.js`
 
 ## Init / ship order
 
@@ -38,6 +38,7 @@ Load order（`index.html`／`www/index.html`）：
 @capgo/native-purchases@^6.0.42            # Cap 6 peer
 ```
 
+原生包就緒勾選（DONE vs SDK BLOCKED）：見 **`docs/NATIVE_PACK_READY.md`**。  
 過審後逐步操作（建立 App、AdMob 單元、換正式 ID、建 `remove_ads`、打 AAB）：見 **`docs/PLAY_POST_APPROVAL_CHECKLIST.md`**。  
 設定註解：`capacitor.config.notes.md`。Manifest 片段：`native-templates/android/README.md`。
 
