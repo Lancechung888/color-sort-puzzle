@@ -144,3 +144,7 @@ Do this on the machine that can run Gradle — **not** required for repo readine
 **BLOCKED (environment):** JDK (`JAVA_HOME` / `java`), Android SDK (`ANDROID_HOME` / `local.properties`), therefore Gradle assemble/bundle and Studio open from this box.
 
 **OUT OF SCOPE:** Real AdMob/Billing IDs, Play approval, UA creatives, enabling free/fake `remove_ads`.
+
+---
+
+Also see operational acceptance: [`docs/NATIVE_ACCEPTANCE.md`](NATIVE_ACCEPTANCE.md) (`npm run native:check` / `npm run aab:internal`).
