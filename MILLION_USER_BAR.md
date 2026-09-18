@@ -121,7 +121,7 @@
 
 ---
 
-## 現況評分 · Honest draft score (post economy / curve / juice pass)
+## 現況評分 · Honest draft score (post Meta streak / 3★ mastery pass)
 
 依目前程式／資產閱讀（非願望清單）。**禁止 soft-launch**；**不宣稱 ship-ready**。
 
@@ -132,12 +132,12 @@
 | 3 | 倒水手感／15s 廣告 | **Partial** | WebAudio（pour/land/complete/uncap/win）＋`navigator.vibrate`；開蓋有 flip＋火花。UA 素材級仍未實機驗證 → 未滿 Pass |
 | 4 | ≥80 關＋曲線假說 | **Pass** | **80** 關；DESIGN 載明顏色／蓋密度曲線；生成＝reverse-scramble（可解建構）＋applyCaps |
 | 5 | Day1 不傷好感 | **Pass** | `START_COINS=120`、`freeHints=3`、`HINT=25`、星獎 8/15/28；失敗牆 index&lt;15 → **5**、L16+ → **2** |
-| 6 | Meta 回來理由 | **Fail** | 今日挑戰已改近進度自適應；連勝／三星複刷誘因仍偏薄 |
+| 6 | Meta 回來理由 | **Pass** | Daily 自適應＋首清 +40；連勝里程碑 Day **3/7/14**（幣＋提示）＋下一里程碑 HUD／首屏；首達 3★ **+22**；每 10 關全 3★ chapter chest（+80🪙＋1 hint）；關卡選單顯示缺星＋獎勵預告 |
 | 7 | 真 AdMob＋remove_ads | **Fail** | AdMob **未**進依賴／需 publisher 帳號（TODO）；商店「去除廣告」→ **即將開放**，**不會**假授 `removeAds`（DEV flag 預設 OFF） |
-| 8 | 品牌投放級 | **Fail** | 有 ASO／icon 概念草稿；無定稿 1024 icon＋五張投放級截圖 |
+| 8 | 品牌投放級 | **Pass** | 定名 ColorTube Sort；`store-assets/finals/` 齊 **ICON A 1024**＋Shot1–5 EN（見 STORE_FINALS_GATE）；ZH 次要。投放素材迭代另凍結（無預算）≠ 缺資產 |
 | 9 | 穩定／ACCEPTANCE | **Fail** | 有 **ACCEPTANCE.md** 列出 QA Fail／回歸項；套件未全綠、無自動化全過證明 |
 
-**總評：** **3 Pass / 1 Partial / 5 Fail** → 閘門仍關閉。本輪推進了經濟、蓋密度曲線、體量、基礎手感與 IAP 誠實閘；**變現／品牌／ACCEPTANCE 全綠／Meta** 仍是硬缺口。
+**總評：** **5 Pass / 1 Partial / 3 Fail** → 閘門仍關閉。Meta（連勝里程碑＋3★ mastery／chapter chest）與品牌 finals 已達 Pass；**變現／ACCEPTANCE 全綠／手感實機 UA 驗證** 仍是硬缺口。**不宣稱 ship-ready。**
 
 ---
 
@@ -145,6 +145,6 @@
 
 1. **真變現** — AdMob SDK＋帳號測試 ID；`remove_ads` 真 Billing／StoreKit（維持不打斷倒水）。  
 2. **手感收滿 Pass** — 實機 UA 剪輯驗證；必要時加 Capacitor Haptics。  
-3. **品牌＋ACCEPTANCE 全綠** — 定稿 icon／五圖；ACCEPTANCE 項清零並可重複跑。
+3. **ACCEPTANCE 全綠** — ACCEPTANCE 項清零並可重複跑（品牌 finals 已齊；勿把 mock IAP／假 AdMob 標成 Done）。
 
 不得把 mock IAP／假 AdMob 標成 Done。

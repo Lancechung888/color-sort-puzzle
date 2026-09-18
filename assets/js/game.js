@@ -17,6 +17,17 @@
   const HINT_PACK_COIN_COST = 120;
   const HINT_PACK_SIZE = 5;
   const STAR_REWARDS = { 1: 8, 2: 15, 3: 28 };
+  /** First time a level hits 3★ — clear bonus beyond STAR_REWARDS[3] (not +1 spam). */
+  const FIRST_THREE_STAR_BONUS = 22;
+  /** Every CHAPTER_SIZE main levels all-3★ → chest (coins + free hint). */
+  const CHAPTER_SIZE = 10;
+  const CHAPTER_CHEST = { coins: 80, hints: 1 };
+  /** Login streak milestones — soft Day1 (no harsh loss), real return reason. */
+  const STREAK_MILESTONES = [
+    { day: 3, coins: 50, hints: 1, label: '3-day streak' },
+    { day: 7, coins: 100, hints: 2, label: 'Week streak' },
+    { day: 14, coins: 180, hints: 3, label: 'Two-week streak' },
+  ];
   /** index < 15 → early (5); from level 16+ (index ≥ 15) → late (2) */
   function failLoopThreshold() {
     if (isDailyMode) return FAIL_LOOP_THRESHOLD_EARLY;
@@ -42,6 +53,8 @@
     streak: 0,
     lastLoginDate: '',
     dailyDoneDate: '',
+    streakMilestonesClaimed: [], // day numbers claimed (3/7/14)
+    chapterChestsClaimed: [], // chapter numbers 1..N
     onboardingDone: false,
     capTeachDone: false,
     uncapArmTipDone: false,
@@ -86,6 +99,8 @@
   let lastWinStars = 0;
   let lastWinCoins = 0;
   let pendingFailRestart = false;
+  /** Toast queued from login streak (shown after HUD ready). */
+  let pendingStreakToast = '';
 
   // --- DOM ---
   const $ = (sel) => document.querySelector(sel);
@@ -123,6 +138,7 @@
         save = Object.assign({}, save, data);
         if (!save.themes) save.themes = { classic: true, neon: false, cat: false };
         save.themes.classic = true;
+        ensureMetaSaveArrays();
       }
     } catch (_) { /* ignore */ }
 
@@ -149,25 +165,151 @@
     } catch (_) { /* ignore */ }
   }
 
+  function ensureMetaSaveArrays() {
+    if (!Array.isArray(save.streakMilestonesClaimed)) save.streakMilestonesClaimed = [];
+    if (!Array.isArray(save.chapterChestsClaimed)) save.chapterChestsClaimed = [];
+  }
+
+  function nextStreakMilestone() {
+    ensureMetaSaveArrays();
+    const s = save.streak || 0;
+    for (let i = 0; i < STREAK_MILESTONES.length; i++) {
+      const m = STREAK_MILESTONES[i];
+      if (s < m.day || save.streakMilestonesClaimed.indexOf(m.day) < 0) return m;
+    }
+    return null;
+  }
+
+  function claimStreakMilestones() {
+    ensureMetaSaveArrays();
+    const s = save.streak || 0;
+    const claimed = [];
+    STREAK_MILESTONES.forEach((m) => {
+      if (s >= m.day && save.streakMilestonesClaimed.indexOf(m.day) < 0) {
+        save.streakMilestonesClaimed.push(m.day);
+        save.coins = (save.coins || 0) + m.coins;
+        save.freeHints = (save.freeHints || 0) + m.hints;
+        claimed.push(m);
+        trackEvent('streak_milestone', {
+          day: m.day,
+          coins: m.coins,
+          hints: m.hints,
+          streak: s,
+        });
+      }
+    });
+    return claimed;
+  }
+
   function updateStreakOnLogin() {
+    ensureMetaSaveArrays();
     const today = todayStr();
     if (save.lastLoginDate === today) return;
+
+    let resetSoft = false;
+    let prevStreak = save.streak || 0;
     if (!save.lastLoginDate) {
       save.streak = 1;
     } else {
       const prev = new Date(save.lastLoginDate + 'T12:00:00');
       const now = new Date(today + 'T12:00:00');
       const diffDays = Math.round((now - prev) / 86400000);
-      if (diffDays === 1) save.streak = (save.streak || 0) + 1;
-      else save.streak = 1;
+      if (diffDays === 1) {
+        save.streak = (save.streak || 0) + 1;
+      } else {
+        resetSoft = diffDays > 1 && prevStreak > 0;
+        save.streak = 1;
+      }
     }
     save.lastLoginDate = today;
-    // Soft daily streak bonus coins (first login of day)
-    if (save.streak > 0) {
-      const bonus = Math.min(10, 3 + save.streak);
-      save.coins = (save.coins || 0) + bonus;
+
+    // Soft daily streak bonus (Day1 goodwill — no coin loss on miss)
+    const soft = Math.min(10, 3 + (save.streak || 0));
+    save.coins = (save.coins || 0) + soft;
+
+    const milestones = claimStreakMilestones();
+    if (milestones.length) {
+      const m = milestones[milestones.length - 1];
+      pendingStreakToast =
+        '🔥 ' + m.label + '! +' + m.coins + ' coins' +
+        (m.hints ? ' + ' + m.hints + ' hint' + (m.hints > 1 ? 's' : '') : '');
+    } else if (resetSoft) {
+      const next = nextStreakMilestone();
+      pendingStreakToast = next
+        ? 'Missed yesterday — streak restarts at 1. Next milestone: Day ' + next.day + ' (+' + next.coins + '🪙)'
+        : 'Missed yesterday — streak restarts at 1. Come back tomorrow!';
+    } else {
+      const next = nextStreakMilestone();
+      pendingStreakToast = next
+        ? 'Day ' + (save.streak || 0) + ' · +' + soft + '🪙 · next milestone Day ' + next.day
+        : 'Day ' + (save.streak || 0) + ' · +' + soft + '🪙 · streak master!';
     }
+
     persist();
+  }
+
+  function chapterOfIndex(idx) {
+    return Math.floor(idx / CHAPTER_SIZE) + 1;
+  }
+
+  function chapterRange(chapter) {
+    const start = (chapter - 1) * CHAPTER_SIZE;
+    const end = Math.min(start + CHAPTER_SIZE, LEVELS.length);
+    return { start: start, end: end, need: end - start };
+  }
+
+  function countPerfectInChapter(chapter) {
+    const r = chapterRange(chapter);
+    let n = 0;
+    for (let i = r.start; i < r.end; i++) {
+      if ((save.stars[i] || 0) >= 3) n++;
+    }
+    return { have: n, need: r.need, start: r.start, end: r.end };
+  }
+
+  function tryClaimChapterChest(forIndex) {
+    ensureMetaSaveArrays();
+    const chapter = chapterOfIndex(forIndex);
+    if (save.chapterChestsClaimed.indexOf(chapter) >= 0) return null;
+    const prog = countPerfectInChapter(chapter);
+    if (prog.have < prog.need) return null;
+    save.chapterChestsClaimed.push(chapter);
+    save.coins = (save.coins || 0) + CHAPTER_CHEST.coins;
+    save.freeHints = (save.freeHints || 0) + CHAPTER_CHEST.hints;
+    trackEvent('chapter_chest', {
+      chapter: chapter,
+      coins: CHAPTER_CHEST.coins,
+      hints: CHAPTER_CHEST.hints,
+      levels: prog.need,
+    });
+    return { chapter: chapter, coins: CHAPTER_CHEST.coins, hints: CHAPTER_CHEST.hints };
+  }
+
+  function focusChapter() {
+    const unlocked = Math.max(save.maxUnlocked || 0, save.level || 0, levelIndex || 0);
+    return chapterOfIndex(Math.min(unlocked, LEVELS.length - 1));
+  }
+
+  function refreshMetaTeasers() {
+    const el = $('#start-meta-teaser');
+    if (!el) return;
+    ensureMetaSaveArrays();
+    const next = nextStreakMilestone();
+    const streakLine = next
+      ? '🔥 Day ' + (save.streak || 0) + ' · next milestone Day ' + next.day + ' (+' + next.coins + '🪙)'
+      : '🔥 Day ' + (save.streak || 0) + ' · all streak milestones claimed';
+    const ch = focusChapter();
+    const prog = countPerfectInChapter(ch);
+    const claimed = save.chapterChestsClaimed.indexOf(ch) >= 0;
+    let chLine;
+    if (claimed) {
+      chLine = 'Chapter ' + ch + ' chest claimed';
+    } else if (prog.have >= prog.need) {
+      chLine = 'Chapter ' + ch + ' chest ready!';
+    } else {
+      chLine = '★ Ch.' + ch + ' ' + prog.have + '/' + prog.need + ' perfect → +' + CHAPTER_CHEST.coins + '🪙';
+    }
+    el.textContent = streakLine + ' · ' + chLine;
   }
 
   // --- Economy helpers ---
@@ -199,6 +341,7 @@
     set('#shop-coins', c);
     set('#shop-hints', save.freeHints || 0);
     updateLevelStarsPreview();
+    refreshMetaTeasers();
     refreshShopButtons();
   }
 
@@ -1134,6 +1277,9 @@
     const stars = calcStars();
     lastWinStars = stars;
     let coins = STAR_REWARDS[stars] || 10;
+    let metaBits = [];
+    let masteryBonus = 0;
+    let chest = null;
 
     if (isDailyMode) {
       const key = todayStr();
@@ -1144,16 +1290,33 @@
     } else {
       const prev = save.stars[levelIndex] || 0;
       if (stars > prev) {
-        // First-time / improved: full reward; else half for replay
         save.stars[levelIndex] = stars;
+        // First-time 3★ mastery bonus (explicit replay reason)
+        if (stars === 3 && prev < 3) {
+          masteryBonus = FIRST_THREE_STAR_BONUS;
+          coins += masteryBonus;
+          metaBits.push('First 3★ +' + masteryBonus + '🪙');
+          trackEvent('first_three_star', {
+            mode: 'main',
+            level_id: analyticsLevelId(),
+            bonus: masteryBonus,
+          });
+        }
       } else {
         coins = Math.max(5, Math.floor(coins / 2));
       }
       save.maxUnlocked = Math.max(save.maxUnlocked || 0, levelIndex + 1);
       if (levelIndex >= (save.level || 0)) save.level = Math.min(levelIndex + 1, LEVELS.length - 1);
+
+      chest = tryClaimChapterChest(levelIndex);
+      if (chest) {
+        // coins already added inside tryClaimChapterChest — don't double-count in lastWinCoins path
+        metaBits.push('Chapter ' + chest.chapter + ' chest +' + chest.coins + '🪙 +' + chest.hints + ' hint');
+      }
     }
 
     lastWinCoins = coins;
+    // Chapter chest coins were added in tryClaimChapterChest; only add clear/mastery coins here
     addCoins(coins);
     persist();
 
@@ -1172,6 +1335,8 @@
         stars: stars,
         moves: moves,
         undos_used: undosUsed,
+        first_three_star: masteryBonus > 0,
+        chapter_chest: chest ? chest.chapter : 0,
       });
     }
 
@@ -1188,18 +1353,33 @@
       }, 180 + i * 160);
     });
 
-    $('#win-reward').textContent = `+${coins} coins`;
+    const totalShown = coins + (chest ? chest.coins : 0);
+    $('#win-reward').textContent = `+${totalShown} coins`;
     const detail =
       (isDailyMode ? 'Daily Challenge complete!' : `Level ${levelIndex + 1} complete`) +
       ` · ${stars} star${stars === 1 ? '' : 's'}` +
       (undosUsed && !infiniteUndoLevel ? ' (used undo)' : '');
     $('#win-detail').textContent = detail;
+    const winMeta = $('#win-meta');
+    if (winMeta) {
+      if (metaBits.length) {
+        winMeta.hidden = false;
+        winMeta.textContent = metaBits.join(' · ');
+      } else if (!isDailyMode && stars < 3) {
+        winMeta.hidden = false;
+        winMeta.textContent = 'Replay for 3★ (+' + FIRST_THREE_STAR_BONUS + '🪙 first time) · Ch. chest every ' + CHAPTER_SIZE + ' perfect';
+      } else {
+        winMeta.hidden = true;
+        winMeta.textContent = '';
+      }
+    }
 
     const nextBtn = $('#btn-next');
     if (isDailyMode) nextBtn.textContent = 'Back to main';
     else nextBtn.textContent = levelIndex < LEVELS.length - 1 ? 'Next' : 'Play again';
 
     spawnConfetti();
+    refreshMetaTeasers();
   }
 
   function hideWin() {
@@ -1228,6 +1408,81 @@
     }
   }
 
+  // --- Level select / ★ mastery ---
+  function openLevels() {
+    renderLevelsGrid();
+    openOverlay($('#levels-overlay'));
+  }
+
+  function closeLevels() {
+    closeOverlay($('#levels-overlay'));
+  }
+
+  function renderLevelsGrid() {
+    const grid = $('#levels-grid');
+    const teaser = $('#levels-teaser');
+    const foot = $('#levels-footnote');
+    if (!grid) return;
+    ensureMetaSaveArrays();
+    const maxU = Math.max(save.maxUnlocked || 0, 0);
+    const ch = focusChapter();
+    const prog = countPerfectInChapter(ch);
+    const claimed = save.chapterChestsClaimed.indexOf(ch) >= 0;
+    if (teaser) {
+      teaser.textContent =
+        'First 3★ +' + FIRST_THREE_STAR_BONUS + '🪙 · Chapter ' + ch + ': ' +
+        prog.have + '/' + prog.need + ' perfect → +' + CHAPTER_CHEST.coins + '🪙 +' + CHAPTER_CHEST.hints + ' hint' +
+        (claimed ? ' (claimed)' : '');
+    }
+    grid.innerHTML = '';
+    const showUntil = Math.min(LEVELS.length, Math.max(maxU + 1, 1));
+    for (let i = 0; i < showUntil; i++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'level-cell';
+      btn.setAttribute('role', 'listitem');
+      const best = save.stars[i] || 0;
+      const locked = i > maxU;
+      if (locked) btn.classList.add('locked');
+      if (best >= 3) btn.classList.add('perfect');
+      else if (best > 0) btn.classList.add('partial');
+      const starsHtml = [1, 2, 3]
+        .map((s) => '<span class="' + (s <= best ? 'lit' : 'empty') + '">★</span>')
+        .join('');
+      btn.innerHTML =
+        '<span class="level-cell-num">' + (i + 1) + '</span>' +
+        '<span class="level-cell-stars">' + starsHtml + '</span>';
+      if (!locked) {
+        btn.addEventListener('click', () => {
+          closeLevels();
+          startScreen.classList.remove('show');
+          isDailyMode = false;
+          loadLevel(i);
+          if (best < 3) {
+            toast('Aim for 3★ · first time +' + FIRST_THREE_STAR_BONUS + '🪙');
+          }
+        });
+      } else {
+        btn.disabled = true;
+        btn.title = 'Locked';
+      }
+      grid.appendChild(btn);
+    }
+    if (foot) {
+      const missing = [];
+      for (let i = prog.start; i < prog.end; i++) {
+        if ((save.stars[i] || 0) < 3 && i <= maxU) missing.push(i + 1);
+      }
+      foot.textContent = missing.length
+        ? 'Missing ★ on: L' + missing.slice(0, 8).join(', L') + (missing.length > 8 ? '…' : '') + ' — replay to fill the chest'
+        : claimed
+          ? 'Chapter ' + ch + ' complete. Keep the streak going!'
+          : prog.have >= prog.need
+            ? 'Clear any level in this chapter to open the chest'
+            : 'Unlock more levels to grow this chapter';
+    }
+  }
+
   // --- Overlays ---
   function openOverlay(el) {
     if (el) el.classList.add('show');
@@ -1238,7 +1493,7 @@
   }
 
   function hideAllOverlays() {
-    [startScreen, winOverlay, shopOverlay, hintPaywall, failPrompt].forEach(closeOverlay);
+    [startScreen, winOverlay, shopOverlay, hintPaywall, failPrompt, $('#levels-overlay')].forEach(closeOverlay);
   }
 
   function openShop() {
@@ -1526,6 +1781,12 @@
 
     loadSave();
     refreshHud();
+    refreshMetaTeasers();
+    if (pendingStreakToast) {
+      const msg = pendingStreakToast;
+      pendingStreakToast = '';
+      setTimeout(() => toast(msg, 3200), 400);
+    }
 
     document.addEventListener('pointerdown', resumeAudio, { once: true });
     btnUndo.addEventListener('click', undo);
@@ -1555,8 +1816,18 @@
       onboardingTip.hidden = true;
     });
     $('#streak-display').addEventListener('click', () => {
-      toast(`Login streak ${save.streak || 0} days`);
+      const next = nextStreakMilestone();
+      const s = save.streak || 0;
+      if (next) {
+        toast('Streak ' + s + ' · next Day ' + next.day + ': +' + next.coins + '🪙 +' + next.hints + ' hint' + (next.hints > 1 ? 's' : ''));
+      } else {
+        toast('Streak ' + s + ' days — all milestones claimed. Keep it lit!');
+      }
     });
+    const btnStartLevels = $('#btn-start-levels');
+    if (btnStartLevels) btnStartLevels.addEventListener('click', openLevels);
+    const btnLevelsClose = $('#btn-levels-close');
+    if (btnLevelsClose) btnLevelsClose.addEventListener('click', closeLevels);
 
     bindShop();
 
