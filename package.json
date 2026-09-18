@@ -12,7 +12,8 @@
     "cap:add:android": "npx cap add android",
     "postinstall": "echo \"Run: npm run build:www && npx cap sync (after npx cap add android)\"",
     "aab:internal": "bash scripts/build-internal-aab.sh",
-    "native:check": "node scripts/native-wiring-check.js"
+    "native:check": "node scripts/native-wiring-check.js",
+    "accept": "node scripts/acceptance-check.js"
   },
   "dependencies": {
     "@capacitor-community/admob": "^6.2.0",
