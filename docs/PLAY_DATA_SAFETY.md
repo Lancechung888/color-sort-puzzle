@@ -3,13 +3,14 @@
 **Aligned with:** AdMob + optional Play Billing (`remove_ads` @ **$2.99**) + on-device save only · **no account / no cloud sync**  
 **Primary locale:** en-US · Update if you add Firebase Analytics / Crashlytics later.
 
-Use with the English privacy policy: `docs/PRIVACY_POLICY_EN.md` (host HTTPS URL first).
+Use with the English privacy policy: `docs/PRIVACY_POLICY_EN.md` · live HTTPS: **https://lancechung888.github.io/color-sort-puzzle/privacy/**
 
 ---
 
 ## A. Before filling the form
 
-- [ ] Privacy policy HTTPS URL live and linked in Play Console + in-app About
+- [x] Privacy policy HTTPS URL: https://lancechung888.github.io/color-sort-puzzle/privacy/ (GitHub Pages `/docs` on `main`; link in Play Console after Pages is live + in-app About)
+- [ ] Public support email (policy still uses `[replace with public support email]`)
 - [ ] App content → Ads: **Yes, my app contains ads**
 - [ ] In-app products: `remove_ads` non-consumable, display name **Remove Ads**, price **$2.99**
 - [ ] Target audience: **not** “Designed for children”; prefer 18+ or mixed / not primarily children
@@ -80,4 +81,4 @@ Check **Yes, collected** then add rows. Confirm against your live AdMob / UMP co
 
 ---
 
-*Draft for launch sprint — replace contact email and hosted privacy URL before Play submission.*
+*Draft for launch sprint — HTTPS privacy URL is set; replace contact email placeholder before Play submission.*

@@ -91,9 +91,13 @@ We may update this policy. The effective date at the top will change. Material c
 
 ## 11. Hosting this page
 
-Publish this file (or an HTML export) at a stable **HTTPS** URL and paste that URL into:
+Publish the HTML export at a stable **HTTPS** URL and paste that URL into:
 - Google Play Console → App content → Privacy policy
 - App Store Connect → Privacy Policy URL
-- In-app Settings / About link
+- In-app Settings / About / Privacy Policy link
 
-Placeholder URL until hosted: `https://YOUR_DOMAIN/colortube-sort/privacy`
+**Public HTTPS URL (GitHub Pages):** `https://lancechung888.github.io/color-sort-puzzle/privacy/`
+
+HTML source: [`docs/privacy/index.html`](./privacy/index.html)
+
+**GitHub Pages setup:** deploy from branch **`main`**, folder **`/docs`**. After Pages is enabled and this path is live, the URL above is the store / in-app privacy policy link.
