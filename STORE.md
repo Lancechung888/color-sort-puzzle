@@ -7,6 +7,8 @@ Suggested **appId**: `com.lancechung.colortubesort`
 > **Locales:** **Primary = English (en-US)** — default Play / App Store listing and in-app UI.  
 > **Secondary = Traditional Chinese (zh-Hant)** — optional TW/HK listing only. Ship English-first for global hybrid-casual.
 
+> **Market lock (see `docs/MARKET_SCAN_EN.md`):** Keep title **ColorTube Sort: Lid Puzzle**. Stuff *water sort / color sort / tube* into short desc + Apple keywords. Remove Ads IAP target **$2.99**. UA first-3s: gold lid blocks pour → uncap (not plain water ASMR alone).
+
 ## ASO — Google Play
 
 ### English (EN) — **Primary / default listing**
@@ -14,7 +16,7 @@ Suggested **appId**: `com.lancechung.colortubesort`
 | Field | Copy |
 |--------|------|
 | **Title** | ColorTube Sort: Lid Puzzle |
-| **Short description** | Lids lock tubes. Uncap, pour, 3-star clears. Daily challenge! |
+| **Short description** | Water color sort — lids lock tubes. Uncap, pour, 3-star clears. Daily! |
 
 ### Traditional Chinese (TW zh-Hant) — secondary
 
