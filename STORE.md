@@ -1,3 +1,5 @@
+> **揭蓋硬規則：** Icon／首圖／預覽前3秒必須有蓋子；標題禁用泛用 Water Puzzle。詳見 `store-assets/商店素材規格包_v1.md`。
+
 # ColorTube Sort — Store listing & publish checklist
 
 Suggested **appId**: `com.lancechung.colortubesort`
@@ -8,15 +10,15 @@ Suggested **appId**: `com.lancechung.colortubesort`
 
 | Field | Copy |
 |--------|------|
-| **Title** | 彩管分類：顏色排序益智 |
-| **Short description** | 倒水排序、三星過關、今日挑戰。免費解壓水管拼圖！ |
+| **Title** | 彩管分類：揭蓋倒水益智 |
+| **Short description** | 有蓋倒不出。揭蓋、倒水、三星過關。今日挑戰免費解壓！ |
 
 ### English (EN)
 
 | Field | Copy |
 |--------|------|
-| **Title** | ColorTube Sort: Water Puzzle |
-| **Short description** | Pour & sort colors. 3-star levels, daily challenge. Chill puzzle! |
+| **Title** | ColorTube Sort: Lid Puzzle |
+| **Short description** | Lids lock tubes. Uncap, pour, 3-star clears. Daily challenge! |
 
 ## ASO — Apple App Store
 
@@ -25,7 +27,7 @@ Suggested **appId**: `com.lancechung.colortubesort`
 | Field | Copy |
 |--------|------|
 | **Name** | 彩管分類 ColorTube Sort |
-| **Subtitle** | 倒水排序 · 解壓益智 |
+| **Subtitle** | 揭蓋倒水 · 三星益智 |
 | **Keywords** | 顏色排序,水管,倒水,拼圖,益智,解壓,每日挑戰,三星,液體,休閒 |
 
 ### English (EN)
@@ -33,7 +35,7 @@ Suggested **appId**: `com.lancechung.colortubesort`
 | Field | Copy |
 |--------|------|
 | **Name** | ColorTube Sort |
-| **Subtitle** | Pour & Sort Color Puzzle |
+| **Subtitle** | Uncap, Pour & Sort |
 | **Keywords** | water,sort,pour,tube,puzzle,relax,daily,casual,brain,liquid |
 
 ## Monetization wiring order
@@ -67,9 +69,9 @@ Optional later: theme / hint-pack IAPs. Guardrails: never interrupt mid-pour; re
 
 # Google Play 商店文案
 
-## 繁中 · 完整長述（建議標題：彩管分類：顏色排序益智）
+## 繁中 · 完整長述（建議標題：彩管分類：揭蓋倒水益智）
 
-倒水、分類、解壓——《彩管分類 ColorTube Sort》是一款一指就能玩的水管顏色排序益智遊戲。
+先看到蓋子，再決定倒水。《彩管分類 ColorTube Sort》——有蓋鎖定不能倒，點蓋揭開（不占步數），再一指倒水分類。
 
 【怎麼玩】
 • 點選彩管拿起頂層液體，點另一支合法彩管倒下
@@ -101,9 +103,9 @@ Optional later: theme / hint-pack IAPs. Guardrails: never interrupt mid-pour; re
 
 ---
 
-## English · Full description (title: ColorTube Sort: Water Puzzle)
+## English · Full description (title: ColorTube Sort: Lid Puzzle)
 
-Pour, sort, relax — ColorTube Sort is a one-thumb water-tube color sorting puzzle.
+See the lid before you pour. ColorTube Sort — capped tubes lock; tap to uncap (free move), then pour and sort.
 
 HOW TO PLAY
 • Tap a tube to lift its top liquid layers, then tap a valid tube to pour
