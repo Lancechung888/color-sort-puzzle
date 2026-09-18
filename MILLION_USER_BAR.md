@@ -128,7 +128,7 @@
 | # | 項目 | 結果 | 現況依據（代碼事實） |
 |---|------|------|----------------------|
 | 1 | 3秒看懂＋想點 | **Partial** | 開始屏 `.start-hook` CSS 迷你預覽（揭蓋→倒水→整色）＋短 lead「Uncap · Pour · Sort」；L1 教學可讀；`store-assets/finals/` ICON A 1024 已定稿。**仍缺**外部「想點」/首 3s 競品對照實測 → 維持 Partial，未標 Pass |
-| 2 | USP 貫穿（40–60% lock） | **Pass** | **80** 關；有蓋 **40/80 = 50%**；連續無蓋 ≤3；L1–2 零蓋；L3 teach；單關 ≤2 蓋 |
+| 2 | USP 貫穿（40–60% lock） | **Pass** | **80** 關；有蓋 **43/80 = 53.8%**；連續無蓋 ≤3；L1–2 零蓋；L3 teach；單關 ≤2 蓋（15 關曾 3–4 蓋已夾回；幽靈 `modules:cap` 補成真蓋；`L-CAPS-MAX` 恢復 ≤2） |
 | 3 | 倒水手感／15s 廣告 | **Partial** | WebAudio（pour/land/complete/uncap/win）＋**Capacitor Haptics**（native impact/notification）＋web `navigator.vibrate` fallback；開蓋 flip＋火花。仍缺實機 15s UA 剪輯驗證 → 未滿 Pass |
 | 4 | ≥80 關＋曲線假說 | **Pass** | **80** 關；DESIGN 載明顏色／蓋密度曲線；生成＝reverse-scramble（可解建構）＋applyCaps |
 | 5 | Day1 不傷好感 | **Pass** | `START_COINS=120`、`freeHints=3`、`HINT=25`、星獎 8/15/28；失敗牆 index&lt;15 → **5**、L16+ → **2** |

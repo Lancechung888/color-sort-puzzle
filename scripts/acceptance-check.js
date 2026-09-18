@@ -138,11 +138,11 @@ if (levels) {
   if (badCapsLen === 0) pass('L-CAPS-LEN', 'caps[] length matches tubes[] where present');
   else fail('L-CAPS-LEN', `${badCapsLen} levels have caps[] length ≠ tubes[]`);
 
-  // Crowded mid/late lids (ad honesty) allow >2; flag only if absurd.
-  if (maxCaps <= 4) {
-    pass('L-CAPS-MAX', `max lids/level = ${maxCaps} (≤4 crowded-lid lock)`);
+  // Million-user bar: ≤2 caps/level (DESIGN + MILLION_USER_BAR lock).
+  if (maxCaps <= 2) {
+    pass('L-CAPS-MAX', `max lids/level = ${maxCaps} (≤2 bar lock)`);
   } else {
-    fail('L-CAPS-MAX', `max lids/level = ${maxCaps} (unexpected >4)`);
+    fail('L-CAPS-MAX', `max lids/level = ${maxCaps} (need ≤2)`);
   }
 
   if (unsolvable === 0) pass('L-COLOR', 'every level: each color count divisible by capacity');
