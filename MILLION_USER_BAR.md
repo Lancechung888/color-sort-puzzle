@@ -131,7 +131,7 @@
 | 2 | USP 貫穿（40–60% lock） | **Pass** | **80** 關；有蓋 **40/80 = 50%**；連續無蓋 ≤3；L1–2 零蓋；L3 teach；單關 ≤2 蓋 |
 | 3 | 倒水手感／15s 廣告 | **Partial** | WebAudio（pour/land/complete/uncap/win）＋`navigator.vibrate`；開蓋有 flip＋火花。UA 素材級仍未實機驗證 → 未滿 Pass |
 | 4 | ≥80 關＋曲線假說 | **Pass** | **80** 關；DESIGN 載明顏色／蓋密度曲線；生成＝reverse-scramble（可解建構）＋applyCaps |
-| 5 | Day1 不傷好感 | **Pass** | `START_COINS=70`、`freeHints=2`、`HINT=40`、星獎 8/15/28；失敗牆 index&lt;10 → **3**、L11+ → **2** |
+| 5 | Day1 不傷好感 | **Pass** | `START_COINS=120`、`freeHints=3`、`HINT=25`、星獎 8/15/28；失敗牆 index&lt;15 → **5**、L16+ → **2** |
 | 6 | Meta 回來理由 | **Fail** | 今日挑戰已改近進度自適應；連勝／三星複刷誘因仍偏薄 |
 | 7 | 真 AdMob＋remove_ads | **Fail** | AdMob **未**進依賴／需 publisher 帳號（TODO）；商店「去除廣告」→ **即將開放**，**不會**假授 `removeAds`（DEV flag 預設 OFF） |
 | 8 | 品牌投放級 | **Fail** | 有 ASO／icon 概念草稿；無定稿 1024 icon＋五張投放級截圖 |
