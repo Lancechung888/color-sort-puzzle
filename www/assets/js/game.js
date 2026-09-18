@@ -66,6 +66,22 @@
   let infiniteUndoLevel = false;
   let isDailyMode = false;
   let dailySeedKey = '';
+  /** last hint source for hint_used attribution */
+  let lastHintSource = 'unknown';
+
+  function trackEvent(name, params) {
+    if (window.ColorTubeAnalytics && typeof ColorTubeAnalytics.track === 'function') {
+      ColorTubeAnalytics.track(name, params || {});
+    }
+  }
+
+  function analyticsMode() {
+    return isDailyMode ? 'daily' : 'main';
+  }
+
+  function analyticsLevelId() {
+    return (typeof levelIndex === 'number' ? levelIndex : 0) + 1;
+  }
   let lastWinStars = 0;
   let lastWinCoins = 0;
   let pendingFailRestart = false;
@@ -268,6 +284,15 @@
     hideWin();
     maybeShowOnboarding();
     maybeShowCapTeach(def);
+    if (opts.daily) {
+      trackEvent('daily_start', {
+        mode: 'daily',
+        daily_key: dailySeedKey || '',
+        level_id: (def && typeof def._dailyIndex === 'number') ? def._dailyIndex + 1 : analyticsLevelId(),
+      });
+    } else {
+      trackEvent('level_start', { mode: 'main', level_id: analyticsLevelId() });
+    }
   }
 
   function topColor(tube) {
@@ -620,6 +645,7 @@
       save.freeHints--;
       persist();
       refreshHud();
+      lastHintSource = 'free';
       applyHint();
       return;
     }
@@ -632,6 +658,13 @@
       toast('No clear hint right now');
       return;
     }
+    trackEvent('hint_used', {
+      level_id: analyticsLevelId(),
+      mode: analyticsMode(),
+      source: lastHintSource || 'unknown',
+      hint_kind: move.uncap ? 'uncap' : 'pour',
+    });
+    lastHintSource = 'unknown';
     if (move.uncap) {
       selected = -1;
       render();
@@ -734,6 +767,7 @@
             persist();
             refreshHud();
             refreshShopButtons();
+            trackEvent('iap_remove_ads', { product_id: 'remove_ads', source: 'play_billing' });
             toast('Ads removed');
           } else {
             toast('Purchase incomplete or canceled');
@@ -755,6 +789,7 @@
       persist();
       refreshHud();
       refreshShopButtons();
+      trackEvent('iap_remove_ads', { product_id: 'remove_ads', source: 'dev_mock' });
       toast('(DEV) Ads removed');
     });
   }
@@ -774,13 +809,18 @@
   }
 
   function showRewardedStub(onReward, label) {
+    const placement = label || 'unknown';
+    const wrapped = function (reward) {
+      trackEvent('rewarded_complete', { placement: placement });
+      if (onReward) onReward(reward);
+    };
     if (window.ColorTubeAds && typeof window.ColorTubeAds.showRewarded === 'function') {
-      return window.ColorTubeAds.showRewarded(onReward, label);
+      return window.ColorTubeAds.showRewarded(wrapped, label);
     }
     // TODO: AdMob rewarded via ads.js; call onReward only after earn
     console.info('[Ads stub] Rewarded', label || '');
     toast('(Demo) Rewarded ad' + (label ? ' · ' + label : ''));
-    setTimeout(() => onReward && onReward(), 400);
+    setTimeout(() => wrapped(), 400);
   }
 
   // --- Daily challenge ---
@@ -1103,6 +1143,24 @@
     addCoins(coins);
     persist();
 
+    if (isDailyMode) {
+      trackEvent('daily_clear', {
+        mode: 'daily',
+        daily_key: todayStr(),
+        stars: stars,
+        moves: moves,
+        undos_used: undosUsed,
+      });
+    } else {
+      trackEvent('level_clear', {
+        mode: 'main',
+        level_id: analyticsLevelId(),
+        stars: stars,
+        moves: moves,
+        undos_used: undosUsed,
+      });
+    }
+
     winOverlay.classList.add('show');
     const starEls = winOverlay.querySelectorAll('.win-stars .star');
     starEls.forEach((el) => el.classList.remove('lit'));
@@ -1178,10 +1236,12 @@
       if (billing && typeof billing.restorePurchasesOnce === 'function') {
         Promise.resolve(billing.restorePurchasesOnce()).then((owned) => {
           if (owned) {
+            const was = !!save.removeAds;
             save.removeAds = true;
             persist();
             refreshHud();
             refreshShopButtons();
+            if (!was) trackEvent('iap_remove_ads', { product_id: 'remove_ads', source: 'restore' });
           } else {
             refreshShopButtons();
           }
@@ -1287,6 +1347,12 @@
   }
 
   function showFailPrompt() {
+    trackEvent('level_fail', {
+      level_id: analyticsLevelId(),
+      mode: analyticsMode(),
+      fail_reason: 'restart_loop',
+      restart_count: restartFailCount,
+    });
     openOverlay(failPrompt);
   }
 
@@ -1380,6 +1446,7 @@
     $('#btn-hint-close').addEventListener('click', () => closeOverlay(hintPaywall));
     $('#btn-hint-ad').addEventListener('click', () => {
       closeOverlay(hintPaywall);
+      lastHintSource = 'rewarded';
       showRewardedStub(() => applyHint(), 'hint');
     });
     $('#btn-hint-coins').addEventListener('click', () => {
@@ -1388,6 +1455,7 @@
         return;
       }
       closeOverlay(hintPaywall);
+      lastHintSource = 'coins';
       applyHint();
     });
     $('#btn-hint-pack').addEventListener('click', () => {
@@ -1400,6 +1468,7 @@
           save.freeHints--;
           persist();
           refreshHud();
+          lastHintSource = 'pack';
           applyHint();
         }
       });
@@ -1476,10 +1545,12 @@
           }
         }).then((owned) => {
           if (owned) {
+            const was = !!save.removeAds;
             save.removeAds = true;
             persist();
             refreshHud();
             refreshShopButtons();
+            if (!was) trackEvent('iap_remove_ads', { product_id: 'remove_ads', source: 'restore' });
           }
         }).catch(() => {});
       }
