@@ -1,6 +1,6 @@
 # ColorTube Sort — Analytics event table
 
-Stable event names. Client sink: `assets/js/analytics.js` → `console.info('[Analytics]', …)` until a GA4/Firebase provider is set via `ColorTubeAnalytics.setProvider`.
+Stable event names. Client sink: `assets/js/analytics.js` → `console.info('[Analytics]', …)` always. Optional GA4: set `ColorTubeAnalyticsConfig.MEASUREMENT_ID` in `assets/js/analytics-config.js` (or `window.__COLOR_TUBE_GA4_ID__`) to a real `G-…` id; `analytics-ga4.js` then loads gtag and calls `setProvider`. Empty id = **no network** (honest console-only).
 
 ## Identity & D1
 
@@ -59,7 +59,18 @@ Boot events (auto on script load):
 9. Login on streak Day 3/7/14 → `streak_milestone`.
 10. First 3★ on a level → `first_three_star`; fill a 10-level chapter → `chapter_chest`.
 
-## Provider hook (later)
+## Provider hook (GA4 optional)
+
+1. Create a GA4 property + Web (or Android) data stream; copy Measurement ID (`G-…`).
+2. Set it in `assets/js/analytics-config.js`:
+
+```js
+ColorTubeAnalyticsConfig.MEASUREMENT_ID = 'G-XXXXXXXX'; // real id only
+```
+
+   Or at runtime before `analytics-ga4.js`: `window.__COLOR_TUBE_GA4_ID__ = 'G-XXXXXXXX'`.
+3. Rebuild www: `npm run build:www`. Empty / missing id → provider stays idle (console only, no gtag request).
+4. Manual override still works:
 
 ```js
 ColorTubeAnalytics.setProvider(function (event, params) {
@@ -67,4 +78,4 @@ ColorTubeAnalytics.setProvider(function (event, params) {
 });
 ```
 
-No retention optimization claims until these events land in a backend and a D1 report is built from `session_start` / `first_open`.
+No retention optimization claims until events land in GA4 (or another backend) and a D1 report is built from `session_start` / `first_open`. Do **not** invent a Measurement ID.

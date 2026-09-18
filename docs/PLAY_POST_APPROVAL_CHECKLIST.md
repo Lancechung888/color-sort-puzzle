@@ -77,3 +77,13 @@
 4. 商店點「去除廣告」在無真 Billing 成功時必須維持「即將開放／需商店帳號」，**不可**寫入 `removeAds`。
 
 完成以上後，才進行正式軌道與對外上架聲明。
+
+---
+
+## F. GA4 analytics (optional but recommended)
+
+1. Create a GA4 property for ColorTube Sort; add a data stream (Web and/or Android).
+2. Copy Measurement ID (`G-…`) into `assets/js/analytics-config.js` → `MEASUREMENT_ID`.
+3. `npm run build:www` (and rebuild AAB if shipping native).
+4. Verify in Console + GA4 Realtime/DebugView (`session_start`, `level_start`, …). Empty id keeps console-only — **do not invent** an id.
+
