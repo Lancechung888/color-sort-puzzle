@@ -6,53 +6,195 @@
   <meta name="theme-color" content="#1a1a2e" />
   <meta name="description" content="彩管分類 ColorTube Sort — 把同色水倒進同一試管" />
   <title>彩管分類 ColorTube Sort</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-<body>
+<body data-theme="classic">
   <div id="app">
     <header class="header">
       <div class="brand">彩管分類</div>
-      <div class="level-badge" id="level-label">關卡 1</div>
+      <div class="header-right">
+        <button type="button" class="chip chip-coins" id="coin-display" title="金幣">
+          <span class="chip-icon">🪙</span>
+          <span id="coin-count">100</span>
+        </button>
+        <button type="button" class="chip chip-streak" id="streak-display" title="連續登入">
+          <span class="chip-icon">🔥</span>
+          <span id="streak-count">0</span>
+        </button>
+        <button type="button" class="btn-icon" id="btn-shop" title="商店" aria-label="商店">🛒</button>
+      </div>
     </header>
 
-    <div class="toolbar">
-      <button type="button" class="btn" id="btn-undo" disabled title="Undo">撤銷</button>
-      <button type="button" class="btn btn-danger" id="btn-restart" title="Restart">重來</button>
-      <button type="button" class="btn btn-hint" id="btn-hint" title="Hint">提示</button>
+    <div class="meta-row">
+      <div class="level-badge" id="level-label">關卡 1</div>
+      <div class="stars-preview" id="level-stars" title="本關最佳星星"></div>
     </div>
 
-    <main class="playfield">
+    <div class="toolbar">
+      <button type="button" class="btn" id="btn-undo" disabled title="撤銷">撤銷</button>
+      <button type="button" class="btn btn-danger" id="btn-restart" title="重來">重來</button>
+      <button type="button" class="btn btn-hint" id="btn-hint" title="提示">提示</button>
+      <button type="button" class="btn btn-ghost" id="btn-daily" title="今日挑戰">今日挑戰</button>
+    </div>
+
+    <main class="playfield" id="playfield">
       <div class="tubes-wrap" id="tubes-wrap" aria-label="試管區"></div>
+      <div class="onboarding-tip" id="onboarding-tip" hidden>
+        <p>👆 點選有顏色的試管舉起，再點另一支倒入。<br />目標：每支試管只剩一種顏色（或空的）。</p>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-dismiss-tip">知道了</button>
+      </div>
     </main>
 
     <div class="status-bar" id="moves-label">步數 0</div>
 
     <!-- Start screen -->
     <div class="overlay show" id="start-screen">
-      <div class="modal">
+      <div class="modal modal-premium">
         <p class="subtitle">ColorTube Sort</p>
         <h2>彩管分類</h2>
-        <p>
+        <p class="modal-lead">
           點選試管取出上方同色液體，再點另一支倒入。<br />
           目標：每支試管只剩一種顏色（或空的）。
         </p>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-primary" id="btn-start">開始遊戲</button>
+        <div class="start-stats" id="start-stats">
+          <span>🪙 <span id="start-coins">100</span></span>
+          <span>🔥 連續 <span id="start-streak">0</span> 天</span>
+        </div>
+        <div class="modal-actions stacked">
+          <button type="button" class="btn btn-primary btn-lg" id="btn-start">開始遊戲</button>
+          <button type="button" class="btn btn-daily-cta" id="btn-start-daily">今日挑戰</button>
+          <button type="button" class="btn" id="btn-start-shop">商店</button>
         </div>
       </div>
     </div>
 
     <!-- Win overlay -->
     <div class="overlay" id="win-overlay">
-      <div class="modal">
+      <div class="modal modal-premium modal-win">
         <h2>勝利！</h2>
-        <p>關卡完成 — Level cleared!</p>
-        <div class="modal-actions">
-          <button type="button" class="btn" id="btn-win-restart">重來</button>
-          <button type="button" class="btn btn-primary" id="btn-next">下一關 Next</button>
+        <div class="win-stars" id="win-stars" aria-label="星星評分">
+          <span class="star" data-i="1">★</span>
+          <span class="star" data-i="2">★</span>
+          <span class="star" data-i="3">★</span>
+        </div>
+        <p class="win-reward" id="win-reward">+0 金幣</p>
+        <p class="win-detail" id="win-detail">關卡完成</p>
+        <div class="modal-actions stacked">
+          <button type="button" class="btn btn-primary btn-lg" id="btn-next">下一關</button>
+          <div class="row-actions">
+            <button type="button" class="btn" id="btn-win-restart">重來</button>
+            <button type="button" class="btn btn-ghost" id="btn-win-shop">商店</button>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Shop modal -->
+    <div class="overlay" id="shop-overlay">
+      <div class="modal modal-premium modal-shop">
+        <button type="button" class="modal-close" id="btn-shop-close" aria-label="關閉">×</button>
+        <h2>商店</h2>
+        <p class="shop-balance">持有金幣：<strong id="shop-coins">100</strong> 🪙</p>
+
+        <section class="shop-section">
+          <h3>去除廣告</h3>
+          <div class="shop-card" id="shop-remove-ads">
+            <div class="shop-card-info">
+              <strong>永久去除插頁廣告</strong>
+              <span class="shop-desc">一次購買，暢玩無干擾</span>
+            </div>
+            <button type="button" class="btn btn-iap" id="btn-buy-remove-ads">NT$99 · 購買</button>
+          </div>
+        </section>
+
+        <section class="shop-section">
+          <h3>主題</h3>
+          <div class="shop-card" data-theme-id="classic">
+            <div class="shop-card-info">
+              <strong>經典玻璃</strong>
+              <span class="shop-desc">預設免費主題</span>
+            </div>
+            <button type="button" class="btn btn-sm" id="btn-theme-classic">使用中</button>
+          </div>
+          <div class="shop-card" data-theme-id="neon">
+            <div class="shop-card-info">
+              <strong>霓虹夜店</strong>
+              <span class="shop-desc">螢光邊框 · 暗黑舞台</span>
+            </div>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-sm btn-coins" id="btn-buy-neon-coins">200 🪙</button>
+              <button type="button" class="btn btn-sm btn-iap" id="btn-buy-neon-iap">用真錢解鎖</button>
+            </div>
+          </div>
+          <div class="shop-card" data-theme-id="cat">
+            <div class="shop-card-info">
+              <strong>療癒貓咪色</strong>
+              <span class="shop-desc">柔粉奶油 · 療癒配色</span>
+            </div>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-sm btn-coins" id="btn-buy-cat-coins">200 🪙</button>
+              <button type="button" class="btn btn-sm btn-iap" id="btn-buy-cat-iap">用真錢解鎖</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="shop-section">
+          <h3>道具</h3>
+          <div class="shop-card">
+            <div class="shop-card-info">
+              <strong>提示包 ×5</strong>
+              <span class="shop-desc">目前免費提示：<span id="shop-hints">0</span></span>
+            </div>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-sm btn-coins" id="btn-buy-hints-coins">100 🪙</button>
+              <button type="button" class="btn btn-sm btn-iap" id="btn-buy-hints-iap">購買提示包</button>
+            </div>
+          </div>
+          <div class="shop-card">
+            <div class="shop-card-info">
+              <strong>無限撤銷（本關）</strong>
+              <span class="shop-desc">本關不計撤銷扣星</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-iap" id="btn-buy-infinite-undo">本關解鎖</button>
+          </div>
+        </section>
+
+        <p class="shop-footnote">※ 目前為模擬購買，之後接入 Google Play Billing / StoreKit</p>
+      </div>
+    </div>
+
+    <!-- Hint paywall -->
+    <div class="overlay" id="hint-paywall">
+      <div class="modal modal-premium">
+        <button type="button" class="modal-close" id="btn-hint-close" aria-label="關閉">×</button>
+        <h2>獲得提示</h2>
+        <p>沒有免費提示了。選擇一種方式繼續：</p>
+        <div class="modal-actions stacked">
+          <button type="button" class="btn btn-primary" id="btn-hint-ad">📺 看廣告獲得提示</button>
+          <button type="button" class="btn btn-coins" id="btn-hint-coins">花 30 金幣</button>
+          <button type="button" class="btn btn-iap" id="btn-hint-pack">購買提示包 ×5</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fail-loop soft prompt -->
+    <div class="overlay" id="fail-prompt">
+      <div class="modal modal-premium">
+        <h2>卡住了嗎？</h2>
+        <p>連續重來多次。要不要休息一下，或解鎖更順暢的體驗？</p>
+        <div class="modal-actions stacked">
+          <button type="button" class="btn btn-primary" id="btn-fail-ad">📺 看廣告繼續</button>
+          <button type="button" class="btn btn-iap" id="btn-fail-remove-ads">去除廣告永久</button>
+          <button type="button" class="btn btn-ghost" id="btn-fail-skip">先繼續重來</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" hidden></div>
   </div>
 
   <script src="assets/js/levels.js"></script>
