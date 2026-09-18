@@ -772,23 +772,73 @@
     return h >>> 0;
   }
 
+  /** Ensure daily boards show crowded gold lids (store/UA honesty). Uncap is free. */
+  function ensureDailyCrowdedCaps(tubes, capsIn, seed, minCaps) {
+    const n = tubes.length;
+    const caps = cloneCaps(capsIn || []);
+    while (caps.length < n) caps.push(false);
+    let count = caps.filter(Boolean).length;
+    if (count >= minCaps) return caps.slice(0, n);
+
+    // Prefer non-empty tubes for visible gold lids
+    const candidates = [];
+    for (let i = 0; i < n; i++) {
+      if (caps[i]) continue;
+      if (tubes[i] && tubes[i].length > 0) candidates.push(i);
+    }
+    for (let i = 0; i < n; i++) {
+      if (!caps[i] && (!tubes[i] || !tubes[i].length) && candidates.indexOf(i) < 0) {
+        candidates.push(i);
+      }
+    }
+    // Deterministic shuffle from date seed
+    let s = seed >>> 0;
+    for (let i = candidates.length - 1; i > 0; i--) {
+      s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+      const j = s % (i + 1);
+      const tmp = candidates[i];
+      candidates[i] = candidates[j];
+      candidates[j] = tmp;
+    }
+    for (let k = 0; k < candidates.length && count < minCaps; k++) {
+      caps[candidates[k]] = true;
+      count++;
+    }
+    return caps.slice(0, n);
+  }
+
   function getDailyDef() {
     const key = todayStr();
     const seed = dateSeed(key);
-    // Adaptive near player progress (not a hard late-pull from 0.45*length)
+    // Prefer crowded mid/late boards (≥6 tubes) near progress; fall back upward
     const maxU = save.maxUnlocked || 0;
-    const idx = Math.min(
+    let idx = Math.min(
       LEVELS.length - 1,
-      Math.max(3, maxU - 2 + (seed % 5))
+      Math.max(11, maxU - 1 + (seed % 6))
     );
+    // Walk forward to a board with enough tubes for ≥3 lids
+    for (let step = 0; step < LEVELS.length; step++) {
+      const i = (idx + step) % LEVELS.length;
+      if ((LEVELS[i].tubes || []).length >= 6) {
+        idx = Math.max(i, 11); // never pull teaching L1–5 as daily showcase
+        if (idx < 11) idx = 11;
+        break;
+      }
+    }
+    if (idx < 11) idx = Math.min(LEVELS.length - 1, 11);
     const base = LEVELS[idx];
+    const tubes = cloneTubes(base.tubes);
+    const caps = ensureDailyCrowdedCaps(tubes, base.caps || [], seed, 3);
+    const modules = base.modules ? base.modules.slice() : [];
+    if (caps.some(Boolean) && modules.indexOf('cap') < 0) modules.push('cap');
     return {
       capacity: base.capacity,
-      tubes: cloneTubes(base.tubes),
-      caps: cloneCaps(base.caps || []),
-      modules: base.modules ? base.modules.slice() : undefined,
-      par: Math.ceil(estimatePar(base) * 1.1),
+      tubes: tubes,
+      caps: caps,
+      modules: modules.length ? modules : ['cap'],
+      par: Math.ceil(estimatePar(base) * 1.15),
       _dailyIndex: idx,
+      _dailyMinCaps: 3,
     };
   }
 
