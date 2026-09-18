@@ -4,3 +4,6 @@ android/
 ios/
 .idea/
 *.log
+*.jks
+*.keystore
+keystore.properties
