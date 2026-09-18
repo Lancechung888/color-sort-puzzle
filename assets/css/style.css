@@ -495,48 +495,81 @@ html, body {
 }
 
 
-/* Cap / lid module (蓋子管) */
+/* Cap / lid module (蓋子管) — P0: thick/bright for thumbnails + ad first 3s */
+:root,
+[data-theme="classic"] {
+  --lid-top: #fff8e7;
+  --lid-mid: #ffc857;
+  --lid-bot: #c47a12;
+  --lid-edge: rgba(255, 230, 150, 0.95);
+  --lid-glow: 0 0 14px rgba(255, 200, 80, 0.85), 0 0 28px rgba(255, 170, 40, 0.45);
+}
+[data-theme="neon"] {
+  --lid-top: #fff;
+  --lid-mid: #ffe66d;
+  --lid-bot: #ff00e5;
+  --lid-edge: rgba(0, 245, 255, 0.95);
+  --lid-glow: 0 0 16px rgba(255, 0, 229, 0.9), 0 0 32px rgba(0, 245, 255, 0.55);
+}
+[data-theme="cat"] {
+  --lid-top: #fff;
+  --lid-mid: #ffb4c8;
+  --lid-bot: #ff8fab;
+  --lid-edge: rgba(255, 180, 200, 0.95);
+  --lid-glow: 0 0 14px rgba(255, 143, 171, 0.8), 0 0 24px rgba(162, 210, 255, 0.4);
+}
+
 .tube.capped .tube-glass {
-  filter: brightness(0.92);
+  filter: brightness(0.9);
 }
 
 .tube-lid {
-  /* Ad-first: thicker + brighter metal lid so USP reads at ~48–58px / first 3s */
   position: absolute;
-  top: -6px;
+  top: -8px;
   left: 50%;
   transform: translateX(-50%);
-  width: 118%;
-  height: 22px;
+  width: 124%;
+  height: 26px;
   z-index: 6;
   pointer-events: none;
-  border-radius: 9px 9px 5px 5px;
+  border-radius: 11px 11px 6px 6px;
   background:
     linear-gradient(180deg,
-      rgba(255,255,255,0.95) 0%,
-      rgba(235,242,255,0.82) 18%,
-      rgba(175,190,220,0.58) 48%,
-      rgba(95,105,140,0.62) 78%,
-      rgba(55,65,95,0.78) 100%);
-  border: 2.5px solid var(--tube-border);
+      var(--lid-top) 0%,
+      var(--lid-mid) 42%,
+      var(--lid-bot) 100%);
+  border: 3px solid var(--lid-edge);
   box-shadow:
-    0 6px 16px rgba(0,0,0,0.55),
-    0 2px 5px rgba(0,0,0,0.4),
-    inset 0 2px 1px rgba(255,255,255,0.85),
-    inset 0 -3px 5px rgba(0,0,0,0.28);
+    var(--lid-glow),
+    0 6px 14px rgba(0,0,0,0.45),
+    inset 0 2px 0 rgba(255,255,255,0.75),
+    inset 0 -3px 6px rgba(0,0,0,0.28);
+}
+
+/* Chunkier grip bar — readable at ~320px thumb */
+.tube-lid::before {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42%;
+  height: 7px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.35));
+  box-shadow: 0 1px 2px rgba(0,0,0,0.25);
 }
 
 .tube-lid::after {
   content: '';
   position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 38%;
+  bottom: -5px;
+  left: 8%;
+  right: 8%;
   height: 7px;
-  border-radius: 4px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.4));
-  box-shadow: 0 0 8px rgba(255,255,255,0.65);
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(180deg, rgba(40,30,10,0.55), rgba(20,15,5,0.35));
+  z-index: -1;
 }
 
 .tube.uncapping .tube-lid {
@@ -600,18 +633,18 @@ html, body {
   transform: none;
 }
 
-/* First-tap arm: pulse lid until second tap / timeout (more obvious for ads + small size) */
+/* First-tap arm: pulse lid until second tap / timeout */
 .tube.cap-pending .tube-lid {
-  animation: lidPendingPulse 0.55s ease-in-out infinite;
-  filter: drop-shadow(0 0 14px rgba(255, 200, 80, 1));
+  animation: lidPendingPulse 0.65s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 200, 80, 0.85));
 }
 .tube.cap-pending {
-  outline: 3px solid rgba(255, 193, 7, 0.92);
-  outline-offset: 4px;
+  outline: 2px solid rgba(255, 193, 7, 0.75);
+  outline-offset: 3px;
 }
 @keyframes lidPendingPulse {
-  0%, 100% { transform: translateX(-50%) scale(1); filter: brightness(1.08) drop-shadow(0 0 6px rgba(255,200,80,0.6)); }
-  50% { transform: translateX(-50%) scale(1.14); filter: brightness(1.55) drop-shadow(0 0 18px rgba(255,230,120,1)); }
+  0%, 100% { transform: translateX(-50%) scale(1); filter: brightness(1) drop-shadow(0 0 4px rgba(255,200,80,0.4)); }
+  50% { transform: translateX(-50%) scale(1.08); filter: brightness(1.35) drop-shadow(0 0 12px rgba(255,220,100,0.95)); }
 }
 
 /* Pour stream + splash */
