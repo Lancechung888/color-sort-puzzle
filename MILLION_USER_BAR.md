@@ -127,9 +127,9 @@
 
 | # | 項目 | 結果 | 現況依據（代碼事實） |
 |---|------|------|----------------------|
-| 1 | 3秒看懂＋想點 | **Partial** | 開始屏 `.start-hook` CSS 迷你預覽（揭蓋→倒水→整色）＋短 lead「Uncap · Pour · Sort」；L1 教學可讀；`store-assets/finals/` ICON A 1024 已定稿。**仍缺**外部「想點」/首 3s 競品對照實測 → 維持 Partial，未標 Pass |
+| 1 | 3秒看懂＋想點 | **Partial** | 開始屏 `.start-hook` CSS 迷你預覽（揭蓋→倒水→整色）＋短 lead「Uncap · Pour · Sort」；L1 教學可讀；`store-assets/finals/` ICON A 1024 已定稿；**首倒成功拍**（每關第一次合法倒水：`firstPour` haptic MEDIUM／vibrate 18ms＋`.first-pour-glow`＋加濃 splash）。**仍缺**外部「想點」/首 3s 競品對照實測 → 維持 Partial，未標 Pass |
 | 2 | USP 貫穿（40–60% lock） | **Pass** | **80** 關；有蓋 **43/80 = 53.8%**；連續無蓋 ≤3；L1–2 零蓋；L3 teach；單關 ≤2 蓋（15 關曾 3–4 蓋已夾回；幽靈 `modules:cap` 補成真蓋；`L-CAPS-MAX` 恢復 ≤2） |
-| 3 | 倒水手感／15s 廣告 | **Partial** | WebAudio（pour/land/complete/uncap/win）＋**Capacitor Haptics**＋vibrate fallback；開蓋 flip＋火花；stream 對準目標口＋land 觸覺；dest fill-rise；**complete-tube 同色 rim burst**（`.complete-spark`）；**select tap＋haptic**（`SFX.tap`＋`haptic('select')`／vibrate 8ms，僅成功選源）。仍缺實機 15s UA 剪輯驗證 → 維持 Partial，未標 Pass |
+| 3 | 倒水手感／15s 廣告 | **Partial** | WebAudio（pour/land/complete/uncap/win）＋**Capacitor Haptics**＋vibrate fallback；開蓋 flip＋火花；stream 對準目標口＋land 觸覺；dest fill-rise；**complete-tube 同色 rim burst**（`.complete-spark`）；**select tap＋haptic**；**first-pour-of-level**（`.first-pour-glow`＋`haptic('firstPour')`＋加濃 splash）。仍缺實機 15s UA 剪輯驗證 → 維持 Partial，未標 Pass |
 | 4 | ≥80 關＋曲線假說 | **Pass** | **80** 關；DESIGN 載明顏色／蓋密度曲線；生成＝reverse-scramble（可解建構）＋applyCaps |
 | 5 | Day1 不傷好感 | **Pass** | `START_COINS=120`、`freeHints=3`、`HINT=25`、星獎 8/15/28；失敗牆 index&lt;15 → **5**、L16+ → **2** |
 | 6 | Meta 回來理由 | **Pass** | Daily 自適應＋首清 +40；連勝里程碑 Day **3/7/14**（幣＋提示）＋下一里程碑 HUD／首屏；首達 3★ **+22**；每 10 關全 3★ chapter chest（+80🪙＋1 hint）；關卡選單顯示缺星＋獎勵預告 |
@@ -144,8 +144,8 @@
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
 1. **真變現** — Play 過審後換正式 AdMob／Billing 單元；`remove_ads` 真接線（維持不打斷倒水）。勿把測 ID／Coming soon 標 Done。  
-2. **手感收滿 Pass** — stream→target＋land haptic＋dest fill-rise＋complete rim burst＋select tap/haptic 已上；仍差實機 15s UA 剪輯驗證（投放預算凍結期間可延後，閘門仍 Partial）。  
+2. **手感收滿 Pass** — stream→target＋land haptic＋dest fill-rise＋complete rim burst＋select tap/haptic＋**first-pour success** 已上；仍差實機 15s UA 剪輯驗證（投放預算凍結期間可延後，閘門仍 Partial）。  
 3. **ACCEPTANCE → Pass** — `npm run accept` 已可重複跑且自動化項全綠；仍差 P0②③ 實機變現複驗後才能把 #9 從 Partial 拉滿。  
-4. **首屏／Icon「想點」** — finals icon 已齊；**in-product start-hook**（開始屏 capped→uncap→pour→sorted 循環預覽）已上；仍缺外部 3s 競品對照實測（#1 維持 Partial）。
+4. **首屏／Icon「想點」** — finals icon 已齊；**in-product start-hook**＋**首倒成功拍**已上；仍缺外部 3s 競品對照實測（#1 維持 Partial）。
 
 不得把 mock IAP／假 AdMob 標成 Done。

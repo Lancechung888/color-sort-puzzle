@@ -585,6 +585,11 @@
           Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
           return;
         }
+        if (kind === 'firstPour') {
+          // First legal pour of level — clearer success than land, under complete
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          return;
+        }
         if (kind === 'land') {
           // Light land tick — must stay under complete/win weight
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
@@ -609,6 +614,7 @@
     if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
     try {
       if (kind === 'complete') navigator.vibrate([12, 30, 18]);
+      else if (kind === 'firstPour') navigator.vibrate(18); // Day-1 first pour success
       else if (kind === 'land') navigator.vibrate(10); // ~8–12ms light tick
       else if (kind === 'illegal') navigator.vibrate(28);
       else if (kind === 'uncap') navigator.vibrate(10);
@@ -774,6 +780,7 @@
     pouring = true;
     const color = topColor(tubes[fromIdx]);
     const wasCompleteBefore = tubes.map(isFilledComplete);
+    const firstPourOfLevel = moves === 0;
 
     animatePour(fromIdx, toIdx, color, amount, () => {
       for (let i = 0; i < amount; i++) {
@@ -785,6 +792,9 @@
       updateChrome();
       render();
       pulseLandRise(toIdx, amount);
+      if (firstPourOfLevel) {
+        pulseFirstPourSuccess(toIdx);
+      }
 
       // Juice: newly completed filled tube
       if (isFilledComplete(tubes[toIdx]) && !wasCompleteBefore[toIdx]) {
@@ -802,7 +812,7 @@
         restartFailCount = 0;
         setTimeout(showWin, 320);
       }
-    });
+    }, firstPourOfLevel);
   }
 
   function undo() {
@@ -1272,6 +1282,16 @@
   }
 
 
+  /** First legal pour of the level — clear Day-1 success beat (bar #1). */
+  function pulseFirstPourSuccess(idx) {
+    const el = tubesWrap.children[idx];
+    if (!el) return;
+    el.classList.remove('first-pour-glow');
+    void el.offsetWidth;
+    el.classList.add('first-pour-glow');
+    setTimeout(() => el.classList.remove('first-pour-glow'), 420);
+  }
+
   /** New layers on dest: fill-rise + brief glass flash (pour weight). */
   function pulseLandRise(toIdx, amount) {
     const toEl = tubesWrap.children[toIdx];
@@ -1294,7 +1314,7 @@
   }
 
   // --- Pour animation + splash ---
-  function animatePour(fromIdx, toIdx, color, amount, done) {
+  function animatePour(fromIdx, toIdx, color, amount, done, firstPour) {
     const fromEl = tubesWrap.children[fromIdx];
     const toEl = tubesWrap.children[toIdx];
     if (!fromEl || !toEl) {
@@ -1343,9 +1363,9 @@
     SFX.pour();
 
     setTimeout(() => {
-      spawnSplash(endX, endY, hex);
+      spawnSplash(endX, endY, hex, firstPour ? 24 : null);
       SFX.land();
-      haptic('land');
+      haptic(firstPour ? 'firstPour' : 'land');
       stream.remove();
       fromEl.style.transform = '';
       fromEl.classList.remove('pouring-tilt');
@@ -1353,8 +1373,8 @@
     }, 380);
   }
 
-  function spawnSplash(x, y, color) {
-    const n = 16 + Math.floor(Math.random() * 5); // 16–20
+  function spawnSplash(x, y, color, count) {
+    const n = count || (16 + Math.floor(Math.random() * 5)); // 16–20 default
     for (let i = 0; i < n; i++) {
       const p = document.createElement('div');
       p.className = 'splash-particle';
