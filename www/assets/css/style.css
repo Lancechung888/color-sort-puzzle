@@ -652,17 +652,17 @@ html, body {
   50% { transform: translateX(-50%) scale(1.08); filter: brightness(1.35) drop-shadow(0 0 12px rgba(255,220,100,0.95)); }
 }
 
-/* Pour stream + splash */
+/* Pour stream + splash — JS aims via rotate (source lip → target mouth) */
 .pour-stream {
   position: absolute;
-  width: 14px;
-  border-radius: 7px;
+  width: 12px;
+  border-radius: 6px;
   pointer-events: none;
   z-index: 50;
   opacity: 0.95;
-  transform-origin: top center;
+  transform-origin: top center; /* rotate + height grow along aim axis */
   animation: streamFall 0.38s ease-in forwards;
-  box-shadow: 0 0 8px currentColor;
+  box-shadow: 0 0 10px currentColor, 0 0 2px rgba(255,255,255,0.35) inset;
 }
 
 @keyframes streamFall {

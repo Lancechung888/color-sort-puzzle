@@ -585,6 +585,11 @@
           Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
           return;
         }
+        if (kind === 'land') {
+          // Light land tick — must stay under complete/win weight
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          return;
+        }
         if (kind === 'uncap') {
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
           return;
@@ -604,6 +609,7 @@
     if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return;
     try {
       if (kind === 'complete') navigator.vibrate([12, 30, 18]);
+      else if (kind === 'land') navigator.vibrate(10); // ~8–12ms light tick
       else if (kind === 'illegal') navigator.vibrate(28);
       else if (kind === 'uncap') navigator.vibrate(10);
       else if (kind === 'win') navigator.vibrate([20, 40, 20, 40, 40]);
@@ -1248,14 +1254,28 @@
     const hex = SOLIDS[color] || '#888';
     const fill = PALETTE[color] || hex;
 
+    const dir = toRect.left >= fromRect.left ? 1 : -1;
+    const tilt = 22 + Math.floor(Math.random() * 7); // 22–28deg
+    // Aim stream from tilted source lip → destination mouth (not vertical under source)
+    const lipOffset = dir * (fromRect.width * 0.28);
+    const startX = fromRect.left + fromRect.width / 2 - appRect.left + lipOffset;
+    const startY = fromRect.top - appRect.top + 6;
+    const endX = toRect.left + toRect.width / 2 - appRect.left;
+    const endY = toRect.top - appRect.top + 14;
+    const dx = endX - startX;
+    const dy = endY - startY;
+    const dist = Math.max(36, Math.hypot(dx, dy));
+    // CSS stream grows downward; rotate from vertical so length reaches target mouth
+    const angleDeg = Math.atan2(dx, dy) * (180 / Math.PI);
+
     const stream = document.createElement('div');
     stream.className = 'pour-stream';
     stream.style.background = fill;
     stream.style.color = hex;
-    stream.style.left = fromRect.left + fromRect.width / 2 - 7 - appRect.left + 'px';
-    stream.style.top = fromRect.top - appRect.top + 10 + 'px';
-    const dist = Math.max(40, toRect.top - fromRect.top + 48);
+    stream.style.left = startX - 6 + 'px';
+    stream.style.top = startY + 'px';
     stream.style.setProperty('--stream-h', dist + 'px');
+    stream.style.transform = 'rotate(' + angleDeg + 'deg)';
     app.appendChild(stream);
 
     const layers = fromEl.querySelectorAll('.layer');
@@ -1264,19 +1284,14 @@
       if (layer) layer.classList.add('pouring-out');
     }
 
-    const dir = toRect.left >= fromRect.left ? 1 : -1;
-    const tilt = 22 + Math.floor(Math.random() * 7); // 22–28deg
     fromEl.classList.add('pouring-tilt');
     fromEl.style.transform = `translateY(-14px) rotate(${dir * tilt}deg) scale(1.02)`;
     SFX.pour();
 
     setTimeout(() => {
-      spawnSplash(
-        toRect.left + toRect.width / 2 - appRect.left,
-        toRect.top + 16 - appRect.top,
-        hex
-      );
+      spawnSplash(endX, endY, hex);
       SFX.land();
+      haptic('land');
       stream.remove();
       fromEl.style.transform = '';
       fromEl.classList.remove('pouring-tilt');
