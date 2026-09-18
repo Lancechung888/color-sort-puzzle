@@ -25,3 +25,7 @@ Re-generate from the box (example):
 ```
 
 `scripts/sync-www.sh` copies all of `assets/` into `www/assets/`, so these ship with Capacitor builds automatically.
+
+## v2 tactile pass (pour / uncap / blocked)
+
+CEO follow-up after #15: keep land/complete/win/ui_tap; re-synthesize **pour** (layered liquid), **uncap** (metal lid pop+ring), **blocked** (multi-impact plastic/metal rattle). Still ffmpeg lavfi, no speech, no third-party packs.
