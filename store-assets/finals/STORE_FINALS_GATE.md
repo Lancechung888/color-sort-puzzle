@@ -1,6 +1,7 @@
 # Store finals gate — ICON + Shot1–5
 
 ## Status
+Primary store screenshots = **EN set**; ZH secondary.
 ICON A + Shot1–5 齊套於 `store-assets/finals/`。
 
 ## Shot5 v6 (primary OK)

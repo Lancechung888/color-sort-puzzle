@@ -4,39 +4,42 @@
 
 Suggested **appId**: `com.lancechung.colortubesort`
 
+> **Locales:** **Primary = English (en-US)** — default Play / App Store listing and in-app UI.  
+> **Secondary = Traditional Chinese (zh-Hant)** — optional TW/HK listing only. Ship English-first for global hybrid-casual.
+
 ## ASO — Google Play
 
-### Traditional Chinese (TW zh-Hant)
-
-| Field | Copy |
-|--------|------|
-| **Title** | 彩管分類：揭蓋倒水益智 |
-| **Short description** | 有蓋倒不出。揭蓋、倒水、三星過關。今日挑戰免費解壓！ |
-
-### English (EN)
+### English (EN) — **Primary / default listing**
 
 | Field | Copy |
 |--------|------|
 | **Title** | ColorTube Sort: Lid Puzzle |
 | **Short description** | Lids lock tubes. Uncap, pour, 3-star clears. Daily challenge! |
 
-## ASO — Apple App Store
-
-### Traditional Chinese (TW)
+### Traditional Chinese (TW zh-Hant) — secondary
 
 | Field | Copy |
 |--------|------|
-| **Name** | 彩管分類 ColorTube Sort |
-| **Subtitle** | 揭蓋倒水 · 三星益智 |
-| **Keywords** | 顏色排序,水管,倒水,拼圖,益智,解壓,每日挑戰,三星,液體,休閒 |
+| **Title** | 彩管分類：揭蓋倒水益智 |
+| **Short description** | 有蓋倒不出。揭蓋、倒水、三星過關。今日挑戰免費解壓！ |
 
-### English (EN)
+## ASO — Apple App Store
+
+### English (EN) — **Primary / default listing**
 
 | Field | Copy |
 |--------|------|
 | **Name** | ColorTube Sort |
 | **Subtitle** | Uncap, Pour & Sort |
 | **Keywords** | water,sort,pour,tube,puzzle,relax,daily,casual,brain,liquid |
+
+### Traditional Chinese (TW) — secondary
+
+| Field | Copy |
+|--------|------|
+| **Name** | 彩管分類 ColorTube Sort |
+| **Subtitle** | 揭蓋倒水 · 三星益智 |
+| **Keywords** | 顏色排序,水管,倒水,拼圖,益智,解壓,每日挑戰,三星,液體,休閒 |
 
 ## Monetization wiring order
 
@@ -67,43 +70,9 @@ Optional later: theme / hint-pack IAPs. Guardrails: never interrupt mid-pour; re
 
 ## Play Store — long descriptions
 
-# Google Play 商店文案
+# Google Play store copy
 
-## 繁中 · 完整長述（建議標題：彩管分類：揭蓋倒水益智）
-
-先看到蓋子，再決定倒水。《彩管分類 ColorTube Sort》——有蓋鎖定不能倒，點蓋揭開（不占步數），再一指倒水分類。
-
-【怎麼玩】
-• 點選彩管拿起頂層液體，點另一支合法彩管倒下
-• 只能倒進空管，或頂色相同且有空位的管子
-• 把每支管子變成「空管」或「單一純色」即過關
-• 同色連續層會一起倒下，節奏乾脆、手感解壓
-
-【為什麼好玩】
-• 玻璃管＋倒水飛濺＋整管發光＋過關撒花，視覺爽感一次到位
-• 三星評分：少步數、少撤銷挑戰滿分，適合反覆挑戰
-• 金幣經濟＋提示／主題商店，進度會留在本機
-• 「今日挑戰」＋登入連勝，每天都有理由回來
-• 無計時、無生命限制，節奏由你決定，適合通勤與睡前
-
-【內容】
-• 35+ 關卡：前段教學手感，後段多色、更高管、更多管子
-• 主題皮膚：經典玻璃、霓虹夜店、療癒貓咪色（可解鎖）
-• 撤銷／重來／提示，卡關也不氣人
-
-【免費遊玩與可選購買】
-• 遊戲本體完整可玩
-• 可選擇觀看獎勵廣告換提示或繼續
-• 可選「去除廣告」一次買斷，插頁廣告不再出現（獎勵廣告仍可當選項）
-• 主題包、提示包等為可選內購
-
-下載《彩管分類》，一指倒水，把混亂排成彩虹。
-
-關鍵字：彩管分類、顏色排序、水管拼圖、倒水遊戲、顏色分類、益智解壓、每日挑戰、休閒益智、液體排序、無計時
-
----
-
-## English · Full description (title: ColorTube Sort: Lid Puzzle)
+## English · Full description (PRIMARY — title: ColorTube Sort: Lid Puzzle)
 
 See the lid before you pour. ColorTube Sort — capped tubes lock; tap to uncap (free move), then pour and sort.
 
@@ -134,6 +103,40 @@ FREE TO PLAY + OPTIONAL PURCHASES
 Download ColorTube Sort and turn messy tubes into clean colors.
 
 Keywords: color sort, water sort, tube puzzle, pour puzzle, color sorting, relaxing puzzle, daily challenge, casual brain game, liquid sort, no timer
+
+---
+
+## 繁中 · 完整長述（secondary zh-Hant — 建議標題：彩管分類：揭蓋倒水益智）
+
+先看到蓋子，再決定倒水。《彩管分類 ColorTube Sort》——有蓋鎖定不能倒，點蓋揭開（不占步數），再一指倒水分類。
+
+【怎麼玩】
+• 點選彩管拿起頂層液體，點另一支合法彩管倒下
+• 只能倒進空管，或頂色相同且有空位的管子
+• 把每支管子變成「空管」或「單一純色」即過關
+• 同色連續層會一起倒下，節奏乾脆、手感解壓
+
+【為什麼好玩】
+• 玻璃管＋倒水飛濺＋整管發光＋過關撒花，視覺爽感一次到位
+• 三星評分：少步數、少撤銷挑戰滿分，適合反覆挑戰
+• 金幣經濟＋提示／主題商店，進度會留在本機
+• 「今日挑戰」＋登入連勝，每天都有理由回來
+• 無計時、無生命限制，節奏由你決定，適合通勤與睡前
+
+【內容】
+• 35+ 關卡：前段教學手感，後段多色、更高管、更多管子
+• 主題皮膚：經典玻璃、霓虹夜店、療癒貓咪色（可解鎖）
+• 撤銷／重來／提示，卡關也不氣人
+
+【免費遊玩與可選購買】
+• 遊戲本體完整可玩
+• 可選擇觀看獎勵廣告換提示或繼續
+• 可選「去除廣告」一次買斷，插頁廣告不再出現（獎勵廣告仍可當選項）
+• 主題包、提示包等為可選內購
+
+下載《彩管分類》，一指倒水，把混亂排成彩虹。
+
+關鍵字：彩管分類、顏色排序、水管拼圖、倒水遊戲、顏色分類、益智解壓、每日挑戰、休閒益智、液體排序、無計時
 
 
 ## Data Safety / privacy checklist (short)
