@@ -1,4 +1,4 @@
-/* ColorTube Sort — premium styles + themes (Traditional Chinese UI) */
+/* ColorTube Sort — premium styles + themes (English-first UI) */
 :root,
 [data-theme="classic"] {
   --bg-top: #1a1a2e;
@@ -20,7 +20,7 @@
   --modal-bg: linear-gradient(165deg, #2a2a4a 0%, #1a1a2e 55%, #141428 100%);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bot: env(safe-area-inset-bottom, 0px);
-  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font: "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius-btn: 14px;
   --shadow-btn: 0 4px 14px rgba(0,0,0,0.25);
 }
@@ -385,6 +385,11 @@ html, body {
 
 .tube.invalid-shake {
   animation: shake 0.35s ease;
+}
+
+/* Instant pour tilt — don't fight the select-lift transition */
+.tube.pouring-tilt {
+  transition: none;
 }
 
 @keyframes shake {
