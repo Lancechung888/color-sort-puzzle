@@ -528,7 +528,7 @@
       spawnUncapBurst(el);
       setTimeout(() => {
         render();
-      }, 320);
+      }, 400);
     } else {
       render();
     }
@@ -1029,6 +1029,8 @@
   function shakeTube(idx) {
     const el = tubesWrap.children[idx];
     if (!el) return;
+    el.classList.remove('invalid-shake');
+    void el.offsetWidth; // restart shake if retriggered mid-animation
     el.classList.add('invalid-shake');
     SFX.illegal();
     haptic('illegal');
@@ -1090,6 +1092,7 @@
 
     const dir = toRect.left >= fromRect.left ? 1 : -1;
     const tilt = 22 + Math.floor(Math.random() * 7); // 22–28deg
+    fromEl.classList.add('pouring-tilt');
     fromEl.style.transform = `translateY(-14px) rotate(${dir * tilt}deg) scale(1.02)`;
     SFX.pour();
 
@@ -1102,6 +1105,7 @@
       SFX.land();
       stream.remove();
       fromEl.style.transform = '';
+      fromEl.classList.remove('pouring-tilt');
       done();
     }, 380);
   }
@@ -1275,7 +1279,7 @@
         typeof window.ColorTubeBilling.isBillingReady === 'function' &&
         window.ColorTubeBilling.isBillingReady();
       if (isDevIapEnabled()) {
-        btnRemove.textContent = 'NT$99 · DEV buy';
+        btnRemove.textContent = '$0.99 · DEV buy';
       } else if (billingReady) {
         btnRemove.textContent = 'Remove ads';
       } else {
