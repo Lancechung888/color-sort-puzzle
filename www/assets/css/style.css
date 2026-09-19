@@ -587,6 +587,53 @@ html, body {
   }
 }
 
+/* Hint-paywall primary CTA — soft mint/emerald arm (same recovery family as fail-hint-arm) */
+#btn-hint-ad.hint-pay-arm,
+#btn-hint-coins.hint-pay-arm {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.92), rgba(16, 185, 129, 0.88));
+  color: #06251a;
+  border: 1px solid rgba(52, 211, 153, 0.75);
+  box-shadow:
+    0 0 0 1px rgba(16, 185, 129, 0.35),
+    0 0 18px rgba(52, 211, 153, 0.32),
+    0 6px 18px rgba(16, 185, 129, 0.28);
+  animation: hintPayArmPulse 1.5s ease-in-out infinite;
+}
+@keyframes hintPayArmPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(16, 185, 129, 0.32),
+      0 0 14px rgba(52, 211, 153, 0.26),
+      0 6px 16px rgba(16, 185, 129, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(52, 211, 153, 0.62),
+      0 0 26px rgba(16, 185, 129, 0.45),
+      0 6px 22px rgba(52, 211, 153, 0.35);
+  }
+}
+.modal.hint-pay-recover {
+  box-shadow:
+    0 0 0 1px rgba(52, 211, 153, 0.28),
+    0 18px 48px rgba(16, 185, 129, 0.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  #btn-hint-ad.hint-pay-arm,
+  #btn-hint-coins.hint-pay-arm {
+    animation: none;
+    border-color: rgba(52, 211, 153, 0.9);
+    box-shadow:
+      0 0 0 1px rgba(16, 185, 129, 0.5),
+      0 6px 16px rgba(16, 185, 129, 0.25);
+  }
+  .modal.hint-pay-recover {
+    box-shadow:
+      0 0 0 1px rgba(52, 211, 153, 0.4),
+      0 12px 36px rgba(16, 185, 129, 0.1);
+  }
+}
+
 .btn-lg {
   padding: 14px 22px;
   font-size: 1rem;
