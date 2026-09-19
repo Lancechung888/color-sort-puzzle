@@ -109,6 +109,8 @@
   let pendingStreakToast = '';
   /** Highest streak milestone claimed this login — start-screen claim juice (not toast). */
   let pendingStreakMilestone = null;
+  /** Once-per-session soft cue when start shows Daily ready. */
+  let dailyReadyCueFired = false;
   let streakClaimClearTimer = 0;
   /** Shop theme-unlock claim juice clear timer. */
   let themeClaimClearTimer = 0;
@@ -579,6 +581,41 @@
     updateLevelStarsPreview();
     refreshMetaTeasers();
     refreshShopButtons();
+    refreshDailyCta();
+  }
+
+  /**
+   * Start-screen Daily CTA: sky/cyan Ready pulse when not yet cleared today;
+   * quiet Done when dailyDoneDate === todayStr(). Optional once-per-session arm cue.
+   */
+  function refreshDailyCta(opts) {
+    opts = opts || {};
+    const btn = $('#btn-start-daily');
+    const badge = $('#daily-cta-badge');
+    if (!btn) return;
+    const ready = save.dailyDoneDate !== todayStr();
+    btn.classList.toggle('daily-ready', ready);
+    btn.classList.toggle('daily-done', !ready);
+    if (badge) {
+      badge.hidden = false;
+      badge.textContent = ready ? 'Ready' : 'Done ✓';
+    }
+    btn.setAttribute('aria-label', ready
+      ? 'Daily Challenge — Ready'
+      : 'Daily Challenge — Done today');
+    if (
+      opts.cue &&
+      ready &&
+      !dailyReadyCueFired &&
+      startScreen &&
+      startScreen.classList.contains('show')
+    ) {
+      dailyReadyCueFired = true;
+      setTimeout(function () {
+        haptic('arm');
+        SFX.tap();
+      }, 320);
+    }
   }
 
   function toast(msg, ms) {
@@ -1915,6 +1952,7 @@
         dailyFirstClear = true;
         coins += DAILY_FIRST_CLEAR_BONUS; // first clear bonus — celebrated by #win-daily only
         save.dailyDoneDate = key;
+        refreshDailyCta(); // Done state ready if player returns to start
       }
     } else {
       const prev = save.stars[levelIndex] || 0;
@@ -3097,6 +3135,7 @@
     });
 
     startScreen.classList.add('show');
+    refreshDailyCta({ cue: true });
     updateChrome();
   }
 
