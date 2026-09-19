@@ -92,7 +92,7 @@ WHY IT CLICKS
 • No timers and no lives — play at your own pace
 
 WHAT’S INSIDE
-• 35+ levels: early stages teach the rule; later stages add colors, height, and more tubes
+• 80+ levels: early stages teach the rule; later stages add colors, height, and more tubes
 • Themes: Classic Glass, Neon Club, Cozy Cat (unlockable)
 • Undo / Restart / Hint when you’re stuck
 
@@ -126,7 +126,7 @@ Keywords: color sort, water sort, tube puzzle, pour puzzle, color sorting, relax
 • 無計時、無生命限制，節奏由你決定，適合通勤與睡前
 
 【內容】
-• 35+ 關卡：前段教學手感，後段多色、更高管、更多管子
+• 80+ 關卡：前段教學手感，後段多色、更高管、更多管子
 • 主題皮膚：經典玻璃、霓虹夜店、療癒貓咪色（可解鎖）
 • 撤銷／重來／提示，卡關也不氣人
 
