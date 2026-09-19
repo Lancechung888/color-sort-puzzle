@@ -125,6 +125,8 @@
   let shopBuyArmTimer = 0;
   /** HUD #btn-hint soft-arm cue timer (once per ★-track drop when freeHints≥1). */
   let hudHintArmTimer = 0;
+  /** HUD #btn-undo soft-arm cue timer (once per ★-track drop when freeHints<1 + undo available). */
+  let hudUndoArmTimer = 0;
   let streakClaimClearTimer = 0;
   /** Shop theme-unlock claim juice clear timer. */
   let themeClaimClearTimer = 0;
@@ -754,6 +756,7 @@
     starDropHapticFired = false;
     levelFirstUncapDone = false;
     clearHudHintArm();
+    clearHudUndoArm();
     clearStarTrackDropPulse();
     clearStarTrackRecoverPulse();
     infiniteUndoLevel = false;
@@ -1339,6 +1342,7 @@
 
   function undo() {
     if (pouring || !history.length) return;
+    clearHudUndoArm();
     const prev = history.pop();
     tubes = prev.tubes;
     caps = prev.caps ? cloneCaps(prev.caps) : hydrateCaps({}, tubes.length);
@@ -1398,6 +1402,7 @@
   function requestHint() {
     if (pouring) return;
     clearHudHintArm();
+    clearHudUndoArm();
     if (spendFreeHint()) {
       lastHintSource = 'free';
       applyHint();
@@ -1431,6 +1436,7 @@
       return false;
     }
     clearHudHintArm();
+    clearHudUndoArm();
     trackEvent('hint_used', {
       level_id: analyticsLevelId(),
       mode: analyticsMode(),
@@ -1804,6 +1810,8 @@
     movesLabel.classList.add(
       projected === 3 ? 'track-perfect' : projected === 2 ? 'track-good' : 'track-ok'
     );
+    // Sync undo affordance before recovery soft-arm so #btn-undo.disabled matches history
+    btnUndo.disabled = history.length === 0;
     // Soft haptic + visual juice when dropping off 3★ / 2★ track mid-level (re-arms after recover)
     if (
       !starDropHapticFired &&
@@ -1812,7 +1820,7 @@
     ) {
       pulseStarTrackDrop(lastProjectedStars);
       starDropHapticFired = true;
-      armHudHintOnStarDrop();
+      armHudRecoveryOnStarDrop();
     } else if (
       lastProjectedStars < projected &&
       ((projected === 3 && lastProjectedStars <= 2) || (projected === 2 && lastProjectedStars === 1))
@@ -1821,9 +1829,9 @@
       pulseStarTrackRecover(projected);
       starDropHapticFired = false; // allow another drop warning this level
       clearHudHintArm(); // re-arm allowed on a later drop
+      clearHudUndoArm();
     }
     lastProjectedStars = projected;
-    btnUndo.disabled = history.length === 0;
     updateLevelStarsPreview();
   }
 
@@ -2776,6 +2784,7 @@
       (el && el.id === 'levels-overlay')
     ) {
       clearHudHintArm();
+      clearHudUndoArm();
     }
   }
 
@@ -2976,20 +2985,62 @@
     if (btnHint) btnHint.classList.remove('hud-hint-arm');
   }
 
+  function clearHudUndoArm() {
+    if (hudUndoArmTimer) {
+      clearTimeout(hudUndoArmTimer);
+      hudUndoArmTimer = 0;
+    }
+    if (btnUndo) btnUndo.classList.remove('hud-undo-arm');
+  }
+
   /**
-   * Soft-arm HUD #btn-hint when mid-level ★-track drops and freeHints remain.
-   * Once per drop (tied to starDropHapticFired); mint/emerald recovery family.
-   * Does not double-fire starDrop haptic — arm cue is a separate soft invite @300ms.
+   * Soft-arm HUD recovery CTA on mid-level ★-track drop (once per drop via starDropHapticFired).
+   * Prefer free Hint (mint/emerald); else Undo when available (rose/amber track-drop family).
+   * Exclusive — never arm both. Separate soft invite @300ms (does not double-fire starDrop haptic).
+   */
+  function armHudRecoveryOnStarDrop() {
+    clearHudHintArm();
+    clearHudUndoArm();
+    if (playfieldOverlayBlocking()) return;
+    if ((save.freeHints || 0) >= 1) {
+      armHudHintOnStarDrop();
+      return;
+    }
+    armHudUndoOnStarDrop();
+  }
+
+  /**
+   * Soft-arm HUD #btn-hint when freeHints remain (mint/emerald recovery family).
+   * Caller clears both arms first; skip if overlay blocking.
    */
   function armHudHintOnStarDrop() {
-    clearHudHintArm();
     if ((save.freeHints || 0) < 1) return;
     if (playfieldOverlayBlocking()) return;
     if (!btnHint) return;
+    clearHudUndoArm(); // exclusivity: hint wins
     btnHint.classList.add('hud-hint-arm');
     hudHintArmTimer = setTimeout(function () {
       hudHintArmTimer = 0;
       if (!btnHint || !btnHint.classList.contains('hud-hint-arm')) return;
+      if (playfieldOverlayBlocking()) return;
+      haptic('arm');
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+    }, 300);
+  }
+
+  /**
+   * Soft-arm HUD #btn-undo when freeHints<1 and undo is available (rose/amber track-drop family).
+   * Skip if disabled / empty history / overlay blocking.
+   */
+  function armHudUndoOnStarDrop() {
+    if ((save.freeHints || 0) >= 1) return;
+    if (playfieldOverlayBlocking()) return;
+    if (!btnUndo || btnUndo.disabled || history.length === 0) return;
+    clearHudHintArm(); // exclusivity
+    btnUndo.classList.add('hud-undo-arm');
+    hudUndoArmTimer = setTimeout(function () {
+      hudUndoArmTimer = 0;
+      if (!btnUndo || !btnUndo.classList.contains('hud-undo-arm')) return;
       if (playfieldOverlayBlocking()) return;
       haptic('arm');
       try { SFX.tap(); } catch (_) { /* ignore */ }
