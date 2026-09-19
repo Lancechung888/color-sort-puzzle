@@ -618,6 +618,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'perfect') {
+          // 3★ perfect — heavier than win; one HEAVY + SUCCESS, no spam loop
+          Promise.resolve(H.impact({ style: 'HEAVY' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
         return;
       }
@@ -633,6 +639,7 @@
       else if (kind === 'undo') navigator.vibrate(8);
       else if (kind === 'select') navigator.vibrate(8);
       else if (kind === 'win') navigator.vibrate([20, 40, 20, 40, 40]);
+      else if (kind === 'perfect') navigator.vibrate([24, 36, 24, 36, 48]);
     } catch (_) { /* ignore */ }
   }
 
@@ -1464,9 +1471,10 @@
   // --- Win UI ---
   function showWin() {
     SFX.win();
-    haptic('win');
     const stars = calcStars();
     lastWinStars = stars;
+    // 3★ gets distinct perfect haptic; 1–2★ keep standard win
+    haptic(stars === 3 ? 'perfect' : 'win');
     let coins = STAR_REWARDS[stars] || 10;
     let metaBits = [];
     let masteryBonus = 0;
@@ -1532,14 +1540,25 @@
     }
 
     winOverlay.classList.add('show');
+    const winModal = winOverlay.querySelector('.modal-win');
+    const winStars = $('#win-stars');
+    const winTitle = $('#win-title');
+    if (winModal) winModal.classList.toggle('perfect', stars === 3);
+    if (winStars) winStars.classList.toggle('perfect', stars === 3);
+    if (winTitle) winTitle.textContent = stars === 3 ? 'Perfect!' : 'You win!';
+
     const starEls = winOverlay.querySelectorAll('.win-stars .star');
-    starEls.forEach((el) => el.classList.remove('lit'));
+    starEls.forEach((el) => el.classList.remove('lit', 'perfect-pop'));
     starEls.forEach((el, i) => {
       setTimeout(() => {
         if (i < stars) {
-          el.classList.remove('starPop');
+          el.classList.remove('starPop', 'perfect-pop');
           void el.offsetWidth;
           el.classList.add('lit', 'starPop');
+          if (stars === 3 && i === 2) {
+            el.classList.add('perfect-pop');
+            spawnPerfectBurst(winStars);
+          }
         }
       }, 180 + i * 160);
     });
@@ -1548,7 +1567,7 @@
     $('#win-reward').textContent = `+${totalShown} coins`;
     const detail =
       (isDailyMode ? 'Daily Challenge complete!' : `Level ${levelIndex + 1} complete`) +
-      ` · ${stars} star${stars === 1 ? '' : 's'}` +
+      (stars === 3 ? ' · Perfect 3★' : ` · ${stars} star${stars === 1 ? '' : 's'}`) +
       (undosUsed && !infiniteUndoLevel ? ' (used undo)' : '');
     $('#win-detail').textContent = detail;
     const winMeta = $('#win-meta');
@@ -1559,6 +1578,9 @@
       } else if (!isDailyMode && stars < 3) {
         winMeta.hidden = false;
         winMeta.textContent = 'Replay for 3★ (+' + FIRST_THREE_STAR_BONUS + '🪙 first time) · Ch. chest every ' + CHAPTER_SIZE + ' perfect';
+      } else if (stars === 3 && !metaBits.length) {
+        winMeta.hidden = false;
+        winMeta.textContent = 'Perfect clear — no undo · under par';
       } else {
         winMeta.hidden = true;
         winMeta.textContent = '';
@@ -1569,24 +1591,70 @@
     if (isDailyMode) nextBtn.textContent = 'Back to main';
     else nextBtn.textContent = levelIndex < LEVELS.length - 1 ? 'Next' : 'Play again';
 
-    spawnConfetti();
+    spawnConfetti(stars === 3);
     refreshMetaTeasers();
   }
 
   function hideWin() {
     winOverlay.classList.remove('show');
+    const winModal = winOverlay.querySelector('.modal-win');
+    const winStars = $('#win-stars');
+    const winTitle = $('#win-title');
+    if (winModal) winModal.classList.remove('perfect');
+    if (winStars) winStars.classList.remove('perfect');
+    if (winTitle) winTitle.textContent = 'You win!';
   }
 
-  function spawnConfetti() {
+  function prefersReducedMotion() {
+    try {
+      return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /** Gold rim burst around win-stars on 3★ — distinct from board confetti. */
+  function spawnPerfectBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const golds = ['#f7b731', '#ffe66d', '#ffd700', '#ffb347', '#fff3c4'];
+    for (let i = 0; i < 22; i++) {
+      const p = document.createElement('div');
+      p.className = 'perfect-spark';
+      const ang = (Math.PI * 2 * i) / 22 + (Math.random() - 0.5) * 0.25;
+      const dist = 28 + Math.random() * 42;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = golds[i % golds.length];
+      p.style.boxShadow = '0 0 12px ' + golds[i % golds.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 6 + 'px');
+      p.style.animationDelay = (Math.random() * 50) + 'ms';
+      app.appendChild(p);
+      setTimeout(() => p.remove(), 620);
+    }
+  }
+
+  function spawnConfetti(perfect) {
+    if (prefersReducedMotion()) return;
     // Prefer solids from colors present on the board; fall back to full palette
     const used = new Set();
     tubes.forEach((tube) => tube.forEach((c) => used.add(c)));
     let colors = [...used].map((id) => SOLIDS[id]).filter(Boolean);
     if (!colors.length) colors = SOLIDS.filter(Boolean);
+    // 3★: bias confetti toward gold so perfect reads different from 1–2★
+    if (perfect) {
+      const golds = ['#f7b731', '#ffe66d', '#ffd700', '#ffb347'];
+      colors = golds.concat(colors.slice(0, 3));
+    }
     const shapes = ['', 'round', 'long'];
-    for (let i = 0; i < 70; i++) {
+    const count = perfect ? 88 : 70;
+    for (let i = 0; i < count; i++) {
       const p = document.createElement('div');
-      p.className = 'confetti ' + shapes[i % shapes.length];
+      p.className = 'confetti ' + shapes[i % shapes.length] + (perfect && i % 3 === 0 ? ' gold' : '');
       p.style.left = Math.random() * 100 + '%';
       p.style.top = Math.random() * 18 + '%';
       const c = colors[Math.floor(Math.random() * colors.length)];
