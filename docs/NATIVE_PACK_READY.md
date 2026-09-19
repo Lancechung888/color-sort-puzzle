@@ -21,7 +21,7 @@
 | `npx cap sync` + plugins discovered | **DONE** (AdMob + NativePurchases) |
 | AdMob `APPLICATION_ID` Manifest patch | **SCRIPT READY** (`scripts/patch-android-admob.sh`; run after sync / via `aab:internal`) |
 | JDK 17 + Android SDK on this packaging box | **DONE** (`JAVA_HOME=/home/box/sdk/jdk-17.0.20.1+1`, `ANDROID_HOME=/home/box/sdk/android`) |
-| Release signing + `bundleRelease` AAB | **MACHINE-DEPENDENT** (keystore local; see signing §) |
+| Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19): `npm run aab:internal` → signed `app-release.aab` (~6.1 MB; upload keystore local/gitignored). Copy: `/workspace/colortube-artifacts/ColorTubeSort-internal-20260919-release.aab` |
 | Play Console / real AdMob / real IAP IDs | **OUT OF SCOPE** (post-approval; see checklist) |
 
 ---
@@ -65,6 +65,14 @@
   - `JAVA_HOME=/home/box/sdk/jdk-17.0.20.1+1`
   - `ANDROID_HOME=/home/box/sdk/android`
   - Gradle can compile; Manifest patch is still required for AdMob native init.
+
+### DONE this packaging box — signed internal AAB (2026-09-19 Asia/Taipei)
+
+- [x] `npm install` + `npm run aab:internal` (build:www → `cap sync` → AdMob Manifest patch → `bundleRelease`)
+- [x] Plugins on sync: AdMob 6.2.0, Haptics 6.0.3, NativePurchases 6.0.42
+- [x] `validateSigningRelease` / `signReleaseBundle` succeeded (upload keystore via local `android/keystore.properties`)
+- [x] Artifact: `android/app/build/outputs/bundle/release/app-release.aab` (~6.1 MB) + durable copy under `/workspace/colortube-artifacts/`
+- [ ] **Not** uploaded to Play (account still in review). Test AdMob IDs only — do **not** mark MILLION_USER_BAR #7 Pass.
 
 ### Still required on each machine that owns `android/`
 

@@ -2,7 +2,7 @@
 
 > **給 CEO 三問一行摘要**  
 > 1) Capacitor android／簽名：**文件齊備**（本機 `cap add`＋keystore／`signingConfigs` 步驟齊，`android/` 不進 git）。  
-> 2) 內測 AAB：`npm run aab:internal` 一鍵路徑已就緒；**本環境無 JDK／Android SDK → 腳本非 0 退出並印缺項（預期）**。  
+> 2) 內測 AAB：`npm run aab:internal` 一鍵路徑已就緒；**本包裝箱已具備 JDK 17 + Android SDK；`npm run aab:internal` 於 2026-09-19 產出**已簽名** release AAB（測 ID）。無 SDK 的 agent／CI 箱仍應非 0 退出並印缺項**。  
 > 3) AdMob／Billing 測 ID：**接線打勾已過關**（見 §3）；假 IAP 預設關、未上架、無白送。
 
 ---
@@ -16,7 +16,7 @@
 | 假 IAP | **關**（`colorTubeSort_devIap` 預設關閉；無 native Billing 不 grant） |
 | 本文件 | **可驗收**：文件＋script＋測 ID 配線＝流程就緒證明 |
 
-驗收不以「agent 箱產出 AAB」為門檻（此箱無 JDK／SDK 為預期）。驗收以：**文件齊、腳本在缺 SDK 時明確失敗、測 ID 配線可核對**。
+驗收以：**文件齊、測 ID 配線可核對、有 SDK 時可產出簽名 AAB**；無 SDK 的環境腳本必須明確失敗。本包裝箱 2026-09-19 已驗證簽名 AAB 路徑。
 
 ---
 
