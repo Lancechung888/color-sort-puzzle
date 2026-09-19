@@ -931,6 +931,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'newBest') {
+          // New-best star improve claim — same weight as mastery/daily; second beat after win
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         if (kind === 'streak') {
           // Login streak milestone claim — same weight as daily/mastery/chest
           Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
@@ -1015,6 +1021,7 @@
       else if (kind === 'chest') navigator.vibrate(26); // chapter chest second beat ~20–30ms
       else if (kind === 'mastery') navigator.vibrate(26); // first-3★ mastery second beat ~20–30ms
       else if (kind === 'daily') navigator.vibrate(26); // daily first-clear second beat ~20–30ms
+      else if (kind === 'newBest') navigator.vibrate(24); // new-best star improve second beat ~22–26ms
       else if (kind === 'streak') navigator.vibrate(26); // streak milestone claim ~20–30ms
       else if (kind === 'theme') navigator.vibrate(26); // theme unlock claim ~20–30ms
       else if (kind === 'hintsPack') navigator.vibrate(26); // hint-pack claim ~20–30ms
@@ -1946,6 +1953,7 @@
     let chest = null;
 
     let dailyFirstClear = false;
+    let newBestImprove = false;
     if (isDailyMode) {
       const key = todayStr();
       if (save.dailyDoneDate !== key) {
@@ -1956,6 +1964,8 @@
       }
     } else {
       const prev = save.stars[levelIndex] || 0;
+      // New-best improve: beat prior stars but NOT first-time 3★ (that uses mastery-claim only)
+      newBestImprove = stars > prev && !(stars === 3 && prev < 3);
       if (stars > prev) {
         save.stars[levelIndex] = stars;
         // First-time 3★ mastery bonus (explicit replay reason)
@@ -2014,6 +2024,7 @@
       winModal.classList.toggle('perfect', stars === 3);
       winModal.classList.toggle('chest-claim', !!chest);
       winModal.classList.toggle('mastery-claim', masteryBonus > 0);
+      winModal.classList.toggle('new-best-claim', !!newBestImprove);
       winModal.classList.toggle('daily-claim', !!dailyFirstClear);
     }
     if (winStars) winStars.classList.toggle('perfect', stars === 3);
@@ -2074,6 +2085,22 @@
       }
     }
 
+    const winNewBest = $('#win-new-best');
+    if (winNewBest) {
+      if (newBestImprove) {
+        winNewBest.hidden = false;
+        winNewBest.textContent = 'New best! ' + stars + '★';
+        // Second haptic beat after win; visual/haptic only — no extra coins
+        var newBestHapticDelay = chest ? 320 : 220;
+        setTimeout(function () { haptic('newBest'); }, newBestHapticDelay);
+        setTimeout(function () { spawnNewBestBurst(winNewBest); }, chest ? 280 : 180);
+        try { SFX.tap(); } catch (_) {}
+      } else {
+        winNewBest.hidden = true;
+        winNewBest.textContent = '';
+      }
+    }
+
     const winDaily = $('#win-daily');
     if (winDaily) {
       if (dailyFirstClear) {
@@ -2120,8 +2147,9 @@
     const winTitle = $('#win-title');
     const winChest = $('#win-chest');
     const winMastery = $('#win-mastery');
+    const winNewBest = $('#win-new-best');
     const winDaily = $('#win-daily');
-    if (winModal) winModal.classList.remove('perfect', 'chest-claim', 'mastery-claim', 'daily-claim');
+    if (winModal) winModal.classList.remove('perfect', 'chest-claim', 'mastery-claim', 'new-best-claim', 'daily-claim');
     if (winStars) winStars.classList.remove('perfect');
     if (winTitle) winTitle.textContent = 'You win!';
     if (winChest) {
@@ -2131,6 +2159,10 @@
     if (winMastery) {
       winMastery.hidden = true;
       winMastery.textContent = '';
+    }
+    if (winNewBest) {
+      winNewBest.hidden = true;
+      winNewBest.textContent = '';
     }
     if (winDaily) {
       winDaily.hidden = true;
@@ -2215,6 +2247,32 @@
       p.style.top = cy + 'px';
       p.style.background = skies[i % skies.length];
       p.style.boxShadow = '0 0 10px ' + skies[i % skies.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
+      p.style.animationDelay = (Math.random() * 50) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 650);
+    }
+  }
+
+  /** Mint/emerald burst on new-best star improve — distinct from mastery gold-lavender / daily sky / chest amber. */
+  function spawnNewBestBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const mints = ['#34d399', '#6ee7b7', '#10b981', '#a7f3d0', '#2dd4bf', '#5eead4', '#86efac'];
+    const n = 12;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'new-best-spark';
+      const ang = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.28;
+      const dist = 20 + Math.random() * 40;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = mints[i % mints.length];
+      p.style.boxShadow = '0 0 10px ' + mints[i % mints.length];
       p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
       p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
       p.style.animationDelay = (Math.random() * 50) + 'ms';
