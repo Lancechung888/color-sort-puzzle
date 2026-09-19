@@ -154,6 +154,53 @@ html, body {
 
 .chip-icon { font-size: 0.85rem; }
 
+.chip-coins {
+  position: relative;
+  overflow: visible;
+}
+.chip-coins.coin-earn {
+  border-color: rgba(247, 183, 49, 0.55);
+  box-shadow:
+    0 0 0 1px rgba(247, 183, 49, 0.35),
+    0 0 16px rgba(247, 183, 49, 0.35);
+  animation: coinEarnPulse 0.55s ease-out;
+}
+@keyframes coinEarnPulse {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.coin-earn-float {
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  transform: translate(-50%, -100%);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #ffe08a;
+  text-shadow: 0 0 10px rgba(247, 183, 49, 0.85);
+  pointer-events: none;
+  z-index: 40;
+  animation: coinEarnFloat 0.7s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes coinEarnFloat {
+  0% { opacity: 0; transform: translate(-50%, -40%); }
+  18% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -160%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chip-coins.coin-earn {
+    animation: none;
+    box-shadow: 0 0 0 1px rgba(247, 183, 49, 0.45);
+  }
+  .coin-earn-float {
+    animation: none;
+    opacity: 1;
+    top: -14px;
+    transform: translate(-50%, -100%);
+  }
+}
+
 .btn-icon {
   appearance: none;
   border: 1px solid rgba(255,255,255,0.14);
