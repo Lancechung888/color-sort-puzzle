@@ -1061,6 +1061,61 @@ html, body {
   min-height: 1.2em;
 }
 
+/* Chapter chest claim — amber signature (distinct from perfect gold) */
+.modal-win.chest-claim {
+  box-shadow:
+    0 0 0 1px rgba(255, 179, 71, 0.5),
+    0 18px 52px rgba(255, 140, 40, 0.28),
+    0 0 36px rgba(247, 183, 49, 0.2);
+}
+.modal-win.perfect.chest-claim {
+  box-shadow:
+    0 0 0 1px rgba(255, 179, 71, 0.55),
+    0 18px 56px rgba(247, 183, 49, 0.3),
+    0 0 44px rgba(255, 140, 40, 0.22);
+}
+.win-chest {
+  margin: 6px 0 2px;
+  padding: 6px 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #ffcc66;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(255, 179, 71, 0.65);
+  background: linear-gradient(180deg, rgba(255, 179, 71, 0.16), rgba(255, 140, 40, 0.08));
+  border: 1px solid rgba(255, 179, 71, 0.4);
+  border-radius: 10px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.chest-spark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 40% 50%;
+  pointer-events: none;
+  z-index: 80;
+  animation: chestSpark 0.62s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes chestSpark {
+  0% { transform: translate(0, 0) scale(0.45) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.2) rotate(40deg); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chest-spark { display: none; }
+  .modal-win.chest-claim,
+  .modal-win.perfect.chest-claim {
+    box-shadow:
+      0 0 0 1px rgba(255, 179, 71, 0.55),
+      0 12px 36px rgba(255, 140, 40, 0.22);
+  }
+  .win-chest {
+    text-shadow: 0 0 8px rgba(255, 179, 71, 0.55);
+  }
+}
+
 .modal-levels {
   max-width: min(420px, 94vw);
   max-height: min(88vh, 720px);
