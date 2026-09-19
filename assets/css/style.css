@@ -670,6 +670,41 @@ html, body {
   }
 }
 
+/* HUD #btn-undo — soft rose/amber arm on star-track drop when freeHints unavailable (track-drop family; NOT mint) */
+#btn-undo.hud-undo-arm {
+  background: linear-gradient(135deg, rgba(251, 146, 120, 0.95), rgba(245, 158, 11, 0.9));
+  color: #3a1a08;
+  border: 1px solid rgba(255, 140, 80, 0.75);
+  box-shadow:
+    0 0 0 1px rgba(255, 120, 100, 0.35),
+    0 0 18px rgba(255, 160, 80, 0.32),
+    0 6px 18px rgba(245, 158, 11, 0.28);
+  animation: hudUndoArmPulse 1.5s ease-in-out infinite;
+}
+@keyframes hudUndoArmPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(255, 120, 100, 0.32),
+      0 0 14px rgba(255, 160, 80, 0.26),
+      0 6px 16px rgba(245, 158, 11, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(255, 176, 122, 0.62),
+      0 0 26px rgba(255, 140, 80, 0.45),
+      0 6px 22px rgba(245, 158, 11, 0.35);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #btn-undo.hud-undo-arm {
+    animation: none;
+    border-color: rgba(255, 140, 80, 0.9);
+    box-shadow:
+      0 0 0 1px rgba(255, 120, 100, 0.5),
+      0 6px 16px rgba(245, 158, 11, 0.25);
+  }
+}
+
 /* Shop affordable coin CTA — warm gold/peach arm (coin family; never remove-ads / IAP) */
 #btn-buy-hints-coins.shop-buy-arm,
 #btn-buy-undo-coins.shop-buy-arm,
