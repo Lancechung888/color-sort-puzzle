@@ -62,6 +62,8 @@
     capTeachDone: false,
     uncapArmTipDone: false,
     emptyTapTipDone: false,
+    sfxOn: true,
+    hapticsOn: true,
   };
 
   // --- Session state ---
@@ -167,6 +169,8 @@
         if (!save.themes) save.themes = { classic: true, neon: false, cat: false };
         save.themes.classic = true;
         ensureMetaSaveArrays();
+        save.sfxOn = save.sfxOn !== false;
+        save.hapticsOn = save.hapticsOn !== false;
       }
     } catch (_) { /* ignore */ }
 
@@ -783,6 +787,7 @@
   }
 
   function playSfx(stem, vol) {
+    if (save.sfxOn === false) return;
     try {
       const proto = warmSfx(stem);
       const a = new Audio(proto.currentSrc || sfxUrl(stem));
@@ -816,6 +821,7 @@
    * Never throws if plugin/platform missing (web / stub builds stay silent-safe).
    */
   function haptic(kind) {
+    if (save.hapticsOn === false) return;
     try {
       const cap = typeof Capacitor !== 'undefined' ? Capacitor : null;
       const plugins = (cap && cap.Plugins) || {};
@@ -2478,6 +2484,24 @@
     } catch (_) { /* ignore */ }
   }
 
+
+  function refreshSettingsToggles() {
+    const sfxBtn = $('#btn-toggle-sfx');
+    const hapBtn = $('#btn-toggle-haptics');
+    const sfxOn = save.sfxOn !== false;
+    const hapOn = save.hapticsOn !== false;
+    if (sfxBtn) {
+      sfxBtn.textContent = sfxOn ? 'On' : 'Off';
+      sfxBtn.setAttribute('aria-pressed', sfxOn ? 'true' : 'false');
+      sfxBtn.classList.toggle('is-off', !sfxOn);
+    }
+    if (hapBtn) {
+      hapBtn.textContent = hapOn ? 'On' : 'Off';
+      hapBtn.setAttribute('aria-pressed', hapOn ? 'true' : 'false');
+      hapBtn.classList.toggle('is-off', !hapOn);
+    }
+  }
+
   function refreshShopButtons() {
     const removeCard = $('#shop-remove-ads');
     const btnRemove = $('#btn-buy-remove-ads');
@@ -2533,6 +2557,7 @@
         undoIapBtn.disabled = false;
       }
     }
+    refreshSettingsToggles();
   }
 
   function updateThemeButtons(id, useBtnSel, coinBtnSel, iapBtnSel) {
@@ -2825,6 +2850,26 @@
     });
     $('#btn-win-shop').addEventListener('click', openShop);
     $('#btn-shop-close').addEventListener('click', () => closeOverlay(shopOverlay));
+    const btnToggleSfx = $('#btn-toggle-sfx');
+    if (btnToggleSfx) {
+      btnToggleSfx.addEventListener('click', () => {
+        const next = save.sfxOn === false;
+        save.sfxOn = next;
+        persist();
+        refreshSettingsToggles();
+        if (next) SFX.tap();
+      });
+    }
+    const btnToggleHaptics = $('#btn-toggle-haptics');
+    if (btnToggleHaptics) {
+      btnToggleHaptics.addEventListener('click', () => {
+        const next = save.hapticsOn === false;
+        save.hapticsOn = next;
+        persist();
+        refreshSettingsToggles();
+        if (next) haptic('arm');
+      });
+    }
     $('#coin-display').addEventListener('click', openShop);
     const hintDisplay = $('#hint-display');
     if (hintDisplay) hintDisplay.addEventListener('click', requestHint);

@@ -1990,6 +1990,12 @@ html, body {
   justify-content: flex-end;
 }
 
+
+.btn-toggle.is-off {
+  opacity: 0.55;
+  filter: grayscale(0.35);
+}
+
 .shop-footnote {
   font-size: 0.7rem !important;
   text-align: center;
