@@ -434,6 +434,49 @@ html, body {
   }
 }
 
+/* Winning-pour — board-wide soft gold/warm rim glow during level-clearing ~380ms pour */
+#app.winning-pour {
+  animation: winningPourGlow 0.38s ease-out;
+}
+#app.winning-pour::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 4px;
+  border-radius: 20px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 214, 120, 0.35),
+    inset 0 0 28px rgba(255, 200, 80, 0.18),
+    0 0 22px rgba(255, 214, 120, 0.22);
+  z-index: 0;
+}
+#app.winning-pour .tubes-wrap {
+  filter: drop-shadow(0 0 12px rgba(255, 214, 120, 0.35));
+}
+@keyframes winningPourGlow {
+  0% { filter: drop-shadow(0 0 4px rgba(255, 214, 120, 0.2)); }
+  50% { filter: drop-shadow(0 0 18px rgba(255, 230, 160, 0.55)); }
+  100% { filter: drop-shadow(0 0 10px rgba(255, 214, 120, 0.4)); }
+}
+.splash-particle.win-pour-spark {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255, 214, 120, 0.7);
+}
+@media (prefers-reduced-motion: reduce) {
+  #app.winning-pour {
+    animation: none;
+    filter: drop-shadow(0 0 12px rgba(255, 214, 120, 0.45));
+  }
+  #app.winning-pour::before {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 214, 120, 0.4),
+      inset 0 0 20px rgba(255, 200, 80, 0.16);
+  }
+  .splash-particle.win-pour-spark { display: none; }
+}
+
 .tube.complete {
   filter: drop-shadow(var(--complete-glow));
 }
