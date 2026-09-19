@@ -805,7 +805,7 @@ html, body {
   }
 }
 
-/* Status */
+/* Status — live ★ budget track (Moves · Par · ★) */
 .status-bar {
   text-align: center;
   font-size: 0.82rem;
@@ -814,6 +814,24 @@ html, body {
   flex-shrink: 0;
   min-height: 1.25em;
   font-weight: 500;
+  transition: color 0.28s ease, text-shadow 0.28s ease;
+}
+.status-bar.track-perfect {
+  color: var(--accent-gold);
+  text-shadow: 0 0 10px rgba(247, 183, 49, 0.35);
+}
+.status-bar.track-good {
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(78, 205, 196, 0.28);
+}
+.status-bar.track-ok {
+  color: var(--muted);
+  text-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .status-bar {
+    transition: none;
+  }
 }
 
 /* Overlay modals */
