@@ -102,8 +102,11 @@
   let lastWinStars = 0;
   let lastWinCoins = 0;
   let pendingFailRestart = false;
-  /** Toast queued from login streak (shown after HUD ready). */
+  /** Toast queued from login streak (shown after HUD ready). Soft/reset only when no milestone. */
   let pendingStreakToast = '';
+  /** Highest streak milestone claimed this login — start-screen claim juice (not toast). */
+  let pendingStreakMilestone = null;
+  let streakClaimClearTimer = 0;
   /** Live ★ budget projection (HUD); reset each loadLevel. */
   let lastProjectedStars = 3;
   let starDropHapticFired = false;
@@ -235,10 +238,9 @@
 
     const milestones = claimStreakMilestones();
     if (milestones.length) {
-      const m = milestones[milestones.length - 1];
-      pendingStreakToast =
-        '🔥 ' + m.label + '! +' + m.coins + ' coins' +
-        (m.hints ? ' + ' + m.hints + ' hint' + (m.hints > 1 ? 's' : '') : '');
+      // Banner is the shout — no duplicate toast (coins/hints already granted above)
+      pendingStreakMilestone = milestones[milestones.length - 1];
+      pendingStreakToast = '';
     } else if (resetSoft) {
       const next = nextStreakMilestone();
       pendingStreakToast = next
@@ -659,6 +661,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'streak') {
+          // Login streak milestone claim — same weight as daily/mastery/chest
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
         return;
       }
@@ -680,6 +688,7 @@
       else if (kind === 'chest') navigator.vibrate(26); // chapter chest second beat ~20–30ms
       else if (kind === 'mastery') navigator.vibrate(26); // first-3★ mastery second beat ~20–30ms
       else if (kind === 'daily') navigator.vibrate(26); // daily first-clear second beat ~20–30ms
+      else if (kind === 'streak') navigator.vibrate(26); // streak milestone claim ~20–30ms
     } catch (_) { /* ignore */ }
   }
 
@@ -1862,6 +1871,32 @@
     }
   }
 
+  /** Coral/flame burst on login streak milestone claim — distinct from daily sky / chest amber. */
+  function spawnStreakBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const flames = ['#ff6b4a', '#ff8c42', '#ffb347', '#ff5e5b', '#ffa07a', '#ffd1a1', '#ff7f50'];
+    const n = 13;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'streak-spark';
+      const ang = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.28;
+      const dist = 20 + Math.random() * 40;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = flames[i % flames.length];
+      p.style.boxShadow = '0 0 10px ' + flames[i % flames.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
+      p.style.animationDelay = (Math.random() * 50) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 650);
+    }
+  }
+
   /** Gold rim burst around win-stars on 3★ — distinct from board confetti. */
   function spawnPerfectBurst(anchorEl) {
     if (!anchorEl || prefersReducedMotion()) return;
@@ -2178,8 +2213,46 @@
   }
 
   // --- Boot ---
+  function clearStreakMilestoneClaim() {
+    if (streakClaimClearTimer) {
+      clearTimeout(streakClaimClearTimer);
+      streakClaimClearTimer = 0;
+    }
+    const banner = $('#start-streak-claim');
+    if (banner) {
+      banner.hidden = true;
+      banner.textContent = '';
+    }
+    const modal = startScreen ? startScreen.querySelector('.modal-premium') : null;
+    if (modal) modal.classList.remove('streak-claim');
+    const chip = $('#streak-display');
+    if (chip) chip.classList.remove('streak-pulse');
+  }
+
+  /** Start-screen celebration for Days 3/7/14 — coins/hints already via claimStreakMilestones. */
+  function showStreakMilestoneClaim(m) {
+    if (!m) return;
+    clearStreakMilestoneClaim();
+    const banner = $('#start-streak-claim');
+    if (!banner) return;
+    var text = m.label + '! +' + m.coins + ' coins';
+    if (m.hints) {
+      text += ' + ' + m.hints + ' hint' + (m.hints > 1 ? 's' : '');
+    }
+    banner.textContent = text;
+    banner.hidden = false;
+    const modal = startScreen ? startScreen.querySelector('.modal-premium') : null;
+    if (modal) modal.classList.add('streak-claim');
+    const chip = $('#streak-display');
+    if (chip) chip.classList.add('streak-pulse');
+    setTimeout(function () { haptic('streak'); }, 220);
+    setTimeout(function () { spawnStreakBurst(banner); }, 180);
+    streakClaimClearTimer = setTimeout(clearStreakMilestoneClaim, 4500);
+  }
+
   function startGame() {
     resumeAudio();
+    clearStreakMilestoneClaim();
     // Prevent click-through from start CTA into tubes underneath
     app.classList.add('input-gate');
     startScreen.classList.remove('show');
@@ -2334,7 +2407,11 @@
     loadSave();
     refreshHud();
     refreshMetaTeasers();
-    if (pendingStreakToast) {
+    if (pendingStreakMilestone) {
+      const m = pendingStreakMilestone;
+      pendingStreakMilestone = null;
+      setTimeout(function () { showStreakMilestoneClaim(m); }, 400);
+    } else if (pendingStreakToast) {
       const msg = pendingStreakToast;
       pendingStreakToast = '';
       setTimeout(() => toast(msg, 3200), 400);
