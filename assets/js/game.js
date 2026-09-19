@@ -606,6 +606,11 @@
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
           return;
         }
+        if (kind === 'landComplete') {
+          // Completing-pour land — a touch firmer than land, still under complete MEDIUM
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          return;
+        }
         if (kind === 'uncap') {
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
           return;
@@ -638,6 +643,7 @@
       if (kind === 'complete') navigator.vibrate([12, 30, 18]);
       else if (kind === 'firstPour') navigator.vibrate(18); // Day-1 first pour success
       else if (kind === 'land') navigator.vibrate(10); // ~8–12ms light tick
+      else if (kind === 'landComplete') navigator.vibrate(14); // completing pour land — bit more than land
       else if (kind === 'illegal') navigator.vibrate(28);
       else if (kind === 'uncap') navigator.vibrate(10);
       else if (kind === 'arm') navigator.vibrate(8); // lid first-tap invite
@@ -823,6 +829,9 @@
     const color = topColor(tubes[fromIdx]);
     const wasCompleteBefore = tubes.map(isFilledComplete);
     const firstPourOfLevel = moves === 0;
+    // Anticipatory juice: dest will become filled-complete after this pour
+    const destPreview = tubes[toIdx].concat(Array(amount).fill(color));
+    const willComplete = !wasCompleteBefore[toIdx] && isFilledComplete(destPreview);
 
     animatePour(fromIdx, toIdx, color, amount, () => {
       for (let i = 0; i < amount; i++) {
@@ -855,7 +864,7 @@
         celebrateLevelClear();
         setTimeout(showWin, 480);
       }
-    }, firstPourOfLevel);
+    }, firstPourOfLevel, willComplete);
   }
 
   function undo() {
@@ -1422,7 +1431,7 @@
   }
 
   // --- Pour animation + splash ---
-  function animatePour(fromIdx, toIdx, color, amount, done, firstPour) {
+  function animatePour(fromIdx, toIdx, color, amount, done, firstPour, willComplete) {
     const fromEl = tubesWrap.children[fromIdx];
     const toEl = tubesWrap.children[toIdx];
     if (!fromEl || !toEl) {
@@ -1468,15 +1477,22 @@
 
     fromEl.classList.add('pouring-tilt');
     fromEl.style.transform = `translateY(-14px) rotate(${dir * tilt}deg) scale(1.02)`;
+    if (willComplete) toEl.classList.add('completing-pour');
     SFX.pour();
 
     setTimeout(() => {
-      spawnSplash(endX, endY, hex, firstPour ? 24 : null);
+      // Completing pour: denser splash (~26); firstPour alone still 24
+      const splashN = willComplete ? 26 : (firstPour ? 24 : null);
+      spawnSplash(endX, endY, hex, splashN);
       SFX.land();
-      haptic(firstPour ? 'firstPour' : 'land');
+      // Completing land: slightly stronger vibrate; keep Cap LIGHT (complete MEDIUM follows)
+      if (willComplete) haptic('landComplete');
+      else if (firstPour) haptic('firstPour');
+      else haptic('land');
       stream.remove();
       fromEl.style.transform = '';
       fromEl.classList.remove('pouring-tilt');
+      if (willComplete) toEl.classList.remove('completing-pour');
       done();
     }, 380);
   }

@@ -408,6 +408,32 @@ html, body {
   }
 }
 
+/* Completing-pour resolve — anticipatory rim/glass glow during ~380ms pour */
+.tube.completing-pour {
+  z-index: 3;
+  animation: completingPourGlow 0.38s ease-out;
+}
+.tube.completing-pour .tube-rim {
+  box-shadow: 0 0 0 1px rgba(255, 230, 160, 0.75), 0 0 16px rgba(255, 214, 120, 0.55);
+}
+.tube.completing-pour .tube-glass {
+  border-color: rgba(255, 230, 160, 0.85);
+  box-shadow:
+    inset 0 0 18px rgba(255, 214, 120, 0.28),
+    0 0 14px rgba(255, 200, 80, 0.42);
+}
+@keyframes completingPourGlow {
+  0% { filter: drop-shadow(0 0 6px rgba(255, 214, 120, 0.35)); transform: scale(1); }
+  55% { filter: drop-shadow(0 0 16px rgba(255, 230, 160, 0.7)); transform: scale(1.025); }
+  100% { filter: drop-shadow(0 0 10px rgba(255, 214, 120, 0.5)); transform: scale(1.01); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tube.completing-pour {
+    animation: none;
+    filter: drop-shadow(0 0 12px rgba(255, 214, 120, 0.55));
+  }
+}
+
 .tube.complete {
   filter: drop-shadow(var(--complete-glow));
 }
