@@ -127,6 +127,8 @@
   let starDropHapticFired = false;
   /** Mid-level ★-track drop pulse clear timer. */
   let starDropClearTimer = 0;
+  /** Mid-level ★-track recover pulse clear timer. */
+  let starRecoverClearTimer = 0;
 
   // --- DOM ---
   const $ = (sel) => document.querySelector(sel);
@@ -387,6 +389,7 @@
 
   /** Mid-level warning when projected stars drop off 3★ / 2★ track — one-shot per level. */
   function pulseStarTrackDrop(fromStars) {
+    clearStarTrackRecoverPulse();
     clearStarTrackDropPulse();
     if (!movesLabel) return;
     const label = fromStars === 3 ? 'Off 3★' : fromStars === 2 ? 'Off 2★' : '−1★';
@@ -399,6 +402,34 @@
     setTimeout(function () { haptic('starDrop'); }, 40);
     try { SFX.tap(); } catch (_) { /* ignore */ }
     starDropClearTimer = setTimeout(clearStarTrackDropPulse, 600);
+  }
+
+  function clearStarTrackRecoverPulse() {
+    if (starRecoverClearTimer) {
+      clearTimeout(starRecoverClearTimer);
+      starRecoverClearTimer = 0;
+    }
+    if (movesLabel) movesLabel.classList.remove('track-recover');
+    document.querySelectorAll('.track-recover-float').forEach(function (el) {
+      el.remove();
+    });
+  }
+
+  /** Mid-level celebration when undo (or move budget) recovers onto 3★ / 2★ track. */
+  function pulseStarTrackRecover(toStars) {
+    clearStarTrackDropPulse();
+    clearStarTrackRecoverPulse();
+    if (!movesLabel) return;
+    const label = toStars === 3 ? 'Back on 3★' : toStars === 2 ? 'Back on 2★' : 'Back on ★';
+    movesLabel.classList.add('track-recover');
+    const floatEl = document.createElement('span');
+    floatEl.className = 'track-recover-float';
+    floatEl.textContent = label;
+    floatEl.setAttribute('aria-hidden', 'true');
+    movesLabel.appendChild(floatEl);
+    setTimeout(function () { haptic('starRecover'); }, 40);
+    try { SFX.tap(); } catch (_) { /* ignore */ }
+    starRecoverClearTimer = setTimeout(clearStarTrackRecoverPulse, 600);
   }
 
   /** HUD celebration when coins are granted — no double grant; caller already added. */
@@ -628,6 +659,7 @@
     lastProjectedStars = 3;
     starDropHapticFired = false;
     clearStarTrackDropPulse();
+    clearStarTrackRecoverPulse();
     infiniteUndoLevel = false;
     if (!opts.daily) levelIndex = idx;
     updateChrome();
@@ -896,6 +928,12 @@
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
           return;
         }
+        if (kind === 'starRecover') {
+          // Mid-level ★-track recover — soft success invite (mirror coins, under win)
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         if (kind === 'hints') {
           // HUD free-hints earn — light success tick (mirror coins)
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
@@ -941,6 +979,7 @@
       else if (kind === 'coins') navigator.vibrate(14); // HUD coin-earn soft tick
       else if (kind === 'coinSpend') navigator.vibrate(12); // HUD coin-spend soft tick
       else if (kind === 'starDrop') navigator.vibrate(14); // ★-track drop soft warning
+      else if (kind === 'starRecover') navigator.vibrate(14); // ★-track recover soft success
       else if (kind === 'hints') navigator.vibrate(14); // HUD free-hints earn soft tick
       else if (kind === 'hintSpend') navigator.vibrate(12); // HUD free-hints spend soft tick
       else if (kind === 'hint') navigator.vibrate(12); // hint reveal soft tick
@@ -1604,16 +1643,16 @@
     const def = isDailyMode ? getDailyDef() : LEVELS[levelIndex];
     const par = estimatePar(def);
     const projected = calcStars();
-    const trackDropFloats = Array.prototype.slice.call(
-      movesLabel.querySelectorAll('.track-drop-float')
+    const trackFloats = Array.prototype.slice.call(
+      movesLabel.querySelectorAll('.track-drop-float, .track-recover-float')
     );
     movesLabel.textContent = `Moves ${moves} · Par ${par} · ${projectedStarGlyphs(projected)}`;
-    trackDropFloats.forEach(function (el) { movesLabel.appendChild(el); });
+    trackFloats.forEach(function (el) { movesLabel.appendChild(el); });
     movesLabel.classList.remove('track-perfect', 'track-good', 'track-ok');
     movesLabel.classList.add(
       projected === 3 ? 'track-perfect' : projected === 2 ? 'track-good' : 'track-ok'
     );
-    // One soft haptic + visual juice max when dropping off 3★ / 2★ track mid-level
+    // Soft haptic + visual juice when dropping off 3★ / 2★ track mid-level (re-arms after recover)
     if (
       !starDropHapticFired &&
       lastProjectedStars > projected &&
@@ -1621,6 +1660,13 @@
     ) {
       pulseStarTrackDrop(lastProjectedStars);
       starDropHapticFired = true;
+    } else if (
+      lastProjectedStars < projected &&
+      ((projected === 3 && lastProjectedStars <= 2) || (projected === 2 && lastProjectedStars === 1))
+    ) {
+      // Undo (or equivalent move budget recover) back onto 3★ / 2★ — invite, not spam
+      pulseStarTrackRecover(projected);
+      starDropHapticFired = false; // allow another drop warning this level
     }
     lastProjectedStars = projected;
     btnUndo.disabled = history.length === 0;
