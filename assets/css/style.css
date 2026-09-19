@@ -1432,6 +1432,63 @@ html, body {
   }
 }
 
+
+/* Unlimited-undo (this level) claim — indigo/periwinkle (distinct from emerald hints / violet theme) */
+.modal-shop.undo-claim {
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.55),
+    0 18px 52px rgba(99, 102, 241, 0.24),
+    0 0 36px rgba(165, 180, 252, 0.22);
+}
+.shop-undo-claim {
+  margin: 6px 0 10px;
+  padding: 6px 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #c7d2fe;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(129, 140, 248, 0.75);
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.18), rgba(165, 180, 252, 0.1));
+  border: 1px solid rgba(129, 140, 248, 0.45);
+  border-radius: 10px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.undo-spark {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 45% 55%;
+  pointer-events: none;
+  z-index: 80;
+  animation: undoSpark 0.58s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes undoSpark {
+  0% { transform: translate(0, 0) scale(0.4) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.18) rotate(35deg); opacity: 0; }
+}
+.shop-card.undo-level-pulse {
+  box-shadow:
+    0 0 0 1px rgba(129, 140, 248, 0.5),
+    0 0 18px rgba(165, 180, 252, 0.35);
+}
+@media (prefers-reduced-motion: reduce) {
+  .undo-spark { display: none; }
+  .modal-shop.undo-claim {
+    box-shadow:
+      0 0 0 1px rgba(129, 140, 248, 0.55),
+      0 12px 36px rgba(99, 102, 241, 0.22);
+  }
+  .shop-undo-claim {
+    text-shadow: 0 0 8px rgba(129, 140, 248, 0.55);
+  }
+  .shop-card.undo-level-pulse {
+    box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.5);
+  }
+}
+
 .modal-levels {
   max-width: min(420px, 94vw);
   max-height: min(88vh, 720px);
