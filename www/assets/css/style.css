@@ -1022,6 +1022,42 @@ html, body {
 }
 
 
+
+/* First uncap of level — gold-lid USP signature (mirrors first-pour-of-level) */
+.tube.uncapping.first-uncap-glow .tube-lid {
+  animation: firstUncapLidPop 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.15) forwards;
+  transform-origin: 50% 50%;
+  filter: brightness(1.28) saturate(1.12);
+}
+.tube.uncapping.first-uncap-glow .tube-glass {
+  animation: firstUncapGlass 0.42s ease-out;
+}
+
+@keyframes firstUncapLidPop {
+  0% { transform: translateX(-50%) translateY(0) rotate(0deg) scale(1); opacity: 1; filter: brightness(1.15); }
+  40% { transform: translateX(-50%) translateY(-12px) rotate(-22deg) scale(1.22); opacity: 1; filter: brightness(1.55) drop-shadow(0 0 14px rgba(255, 200, 100, 0.95)); }
+  100% { transform: translateX(-40%) translateY(-40px) rotate(48deg) scale(0.68); opacity: 0; filter: brightness(1.75) drop-shadow(0 0 18px rgba(255, 180, 80, 0.85)); }
+}
+
+@keyframes firstUncapGlass {
+  0% { filter: brightness(0.92); box-shadow: none; }
+  35% { filter: brightness(1.28); box-shadow: 0 0 22px rgba(255, 200, 120, 0.72), 0 0 36px rgba(255, 160, 80, 0.35); }
+  100% { filter: brightness(1); box-shadow: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tube.uncapping.first-uncap-glow .tube-lid {
+    animation: none;
+    opacity: 0;
+    filter: brightness(1.25) drop-shadow(0 0 12px rgba(255, 200, 100, 0.95));
+  }
+  .tube.uncapping.first-uncap-glow .tube-glass {
+    animation: none;
+    filter: brightness(1.14);
+    box-shadow: 0 0 18px rgba(255, 200, 120, 0.6), 0 0 28px rgba(255, 170, 80, 0.28);
+  }
+}
+
 .complete-spark {
   position: absolute;
   width: 8px;

@@ -131,6 +131,8 @@
   /** Live ★ budget projection (HUD); reset each loadLevel. */
   let lastProjectedStars = 3;
   let starDropHapticFired = false;
+  /** First successful uncap this level — signature USP juice (undo re-lid does not re-arm). */
+  let levelFirstUncapDone = false;
   /** Mid-level ★-track drop pulse clear timer. */
   let starDropClearTimer = 0;
   /** Mid-level ★-track recover pulse clear timer. */
@@ -737,6 +739,7 @@
     undosUsed = 0;
     lastProjectedStars = 3;
     starDropHapticFired = false;
+    levelFirstUncapDone = false;
     clearStarTrackDropPulse();
     clearStarTrackRecoverPulse();
     infiniteUndoLevel = false;
@@ -913,6 +916,12 @@
           Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
           return;
         }
+        if (kind === 'firstUncap') {
+          // First successful uncap of level — gold-lid USP; firmer than normal uncap
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         if (kind === 'land') {
           // Light land tick — must stay under complete/win weight
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
@@ -1052,6 +1061,7 @@
     try {
       if (kind === 'complete') navigator.vibrate([12, 30, 18]);
       else if (kind === 'firstPour') navigator.vibrate(18); // Day-1 first pour success
+      else if (kind === 'firstUncap') navigator.vibrate(20); // first uncap of level ~18–22ms
       else if (kind === 'land') navigator.vibrate(10); // ~8–12ms light tick
       else if (kind === 'landComplete') navigator.vibrate(14); // completing pour land — bit more than land
       else if (kind === 'winPour') navigator.vibrate(18); // winning-pour land — firmer, not full win
@@ -1184,12 +1194,23 @@
     trimHistory();
     caps[idx] = false;
     selected = -1;
+    const firstUncapOfLevel = !levelFirstUncapDone;
+    if (firstUncapOfLevel) levelFirstUncapDone = true;
     SFX.uncap();
-    haptic('uncap');
+    haptic(firstUncapOfLevel ? 'firstUncap' : 'uncap');
     const el = tubesWrap.children[idx];
     if (el) {
       el.classList.add('uncapping');
-      spawnUncapBurst(el);
+      if (firstUncapOfLevel) {
+        el.classList.remove('first-uncap-glow');
+        void el.offsetWidth;
+        el.classList.add('first-uncap-glow');
+        setTimeout(() => el.classList.remove('first-uncap-glow'), 420);
+        // Denser sparks (~20); skip burst under reduced-motion (static glow via CSS)
+        if (!prefersReducedMotion()) spawnUncapBurst(el, 20);
+      } else {
+        spawnUncapBurst(el);
+      }
       setTimeout(() => {
         render();
       }, 400);
@@ -1226,12 +1247,14 @@
     }
   }
 
-  function spawnUncapBurst(tubeEl) {
+  function spawnUncapBurst(tubeEl, count) {
+    if (!tubeEl) return;
+    const n = (typeof count === 'number' && count > 0) ? count : 10;
     const rect = tubeEl.getBoundingClientRect();
     const appRect = app.getBoundingClientRect();
     const cx = rect.left + rect.width / 2 - appRect.left;
     const cy = rect.top - appRect.top + 4;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < n; i++) {
       const p = document.createElement('div');
       p.className = 'uncap-spark';
       const ang = -Math.PI / 2 + (Math.random() - 0.5) * 1.6;
