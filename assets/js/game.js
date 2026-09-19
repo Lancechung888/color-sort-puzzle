@@ -118,6 +118,10 @@
   let coinEarnClearTimer = 0;
   /** HUD coin-spend pulse clear timer. */
   let coinSpendClearTimer = 0;
+  /** HUD free-hints earn pulse clear timer. */
+  let hintEarnClearTimer = 0;
+  /** HUD free-hints spend pulse clear timer. */
+  let hintSpendClearTimer = 0;
   /** Live ★ budget projection (HUD); reset each loadLevel. */
   let lastProjectedStars = 3;
   let starDropHapticFired = false;
@@ -204,11 +208,13 @@
     ensureMetaSaveArrays();
     const s = save.streak || 0;
     const claimed = [];
+    let totalHints = 0;
     STREAK_MILESTONES.forEach((m) => {
       if (s >= m.day && save.streakMilestonesClaimed.indexOf(m.day) < 0) {
         save.streakMilestonesClaimed.push(m.day);
         save.coins = (save.coins || 0) + m.coins;
         save.freeHints = (save.freeHints || 0) + m.hints;
+        totalHints += m.hints || 0;
         claimed.push(m);
         trackEvent('streak_milestone', {
           day: m.day,
@@ -218,6 +224,7 @@
         });
       }
     });
+    if (claimed.length && totalHints > 0) pulseHintEarn(totalHints);
     return claimed;
   }
 
@@ -295,6 +302,7 @@
     save.chapterChestsClaimed.push(chapter);
     save.coins = (save.coins || 0) + CHAPTER_CHEST.coins;
     save.freeHints = (save.freeHints || 0) + CHAPTER_CHEST.hints;
+    pulseHintEarn(CHAPTER_CHEST.hints);
     trackEvent('chapter_chest', {
       chapter: chapter,
       coins: CHAPTER_CHEST.coins,
@@ -408,6 +416,82 @@
     return true;
   }
 
+  function clearHintEarnPulse() {
+    if (hintEarnClearTimer) {
+      clearTimeout(hintEarnClearTimer);
+      hintEarnClearTimer = 0;
+    }
+    const chip = $('#hint-display');
+    if (chip) chip.classList.remove('hint-earn');
+    document.querySelectorAll('.hint-earn-float').forEach(function (el) {
+      el.remove();
+    });
+  }
+
+  function clearHintSpendPulse() {
+    if (hintSpendClearTimer) {
+      clearTimeout(hintSpendClearTimer);
+      hintSpendClearTimer = 0;
+    }
+    const chip = $('#hint-display');
+    if (chip) chip.classList.remove('hint-spend');
+    document.querySelectorAll('.hint-spend-float').forEach(function (el) {
+      el.remove();
+    });
+  }
+
+  /** HUD celebration when free hints are granted — no double grant; caller already added. */
+  function pulseHintEarn(n) {
+    if (!(n > 0)) return;
+    clearHintSpendPulse();
+    clearHintEarnPulse();
+    const chip = $('#hint-display');
+    if (!chip) return;
+    chip.classList.add('hint-earn');
+    const floatEl = document.createElement('span');
+    floatEl.className = 'hint-earn-float';
+    floatEl.textContent = '+' + n;
+    floatEl.setAttribute('aria-hidden', 'true');
+    chip.appendChild(floatEl);
+    setTimeout(function () { haptic('hints'); }, 40);
+    try { SFX.tap(); } catch (_) { /* ignore */ }
+    hintEarnClearTimer = setTimeout(clearHintEarnPulse, 700);
+  }
+
+  /** HUD feedback when a free hint is spent — no double spend; caller already deducted. */
+  function pulseHintSpend(n) {
+    if (!(n > 0)) return;
+    clearHintSpendPulse();
+    clearHintEarnPulse();
+    const chip = $('#hint-display');
+    if (!chip) return;
+    chip.classList.add('hint-spend');
+    const floatEl = document.createElement('span');
+    floatEl.className = 'hint-spend-float';
+    floatEl.textContent = '-' + n;
+    floatEl.setAttribute('aria-hidden', 'true');
+    chip.appendChild(floatEl);
+    setTimeout(function () { haptic('hintSpend'); }, 40);
+    try { SFX.tap(); } catch (_) { /* ignore */ }
+    hintSpendClearTimer = setTimeout(clearHintSpendPulse, 700);
+  }
+
+  function addFreeHints(n) {
+    if (!(n > 0)) return;
+    save.freeHints = (save.freeHints || 0) + n;
+    persist();
+    refreshHud();
+    pulseHintEarn(n);
+  }
+  function spendFreeHint() {
+    if ((save.freeHints || 0) < 1) return false;
+    save.freeHints--;
+    persist();
+    refreshHud();
+    pulseHintSpend(1);
+    return true;
+  }
+
   function refreshHud() {
     const c = save.coins || 0;
     const s = save.streak || 0;
@@ -416,11 +500,17 @@
       if (el) el.textContent = String(v);
     };
     set('#coin-count', c);
+    set('#hint-count', save.freeHints || 0);
     set('#streak-count', s);
     set('#start-coins', c);
     set('#start-streak', s);
     set('#shop-coins', c);
     set('#shop-hints', save.freeHints || 0);
+    if (btnHint) {
+      btnHint.title = (save.freeHints || 0) > 0
+        ? 'Hint · ' + save.freeHints + ' free'
+        : 'Hint';
+    }
     updateLevelStarsPreview();
     refreshMetaTeasers();
     refreshShopButtons();
@@ -770,6 +860,17 @@
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
           return;
         }
+        if (kind === 'hints') {
+          // HUD free-hints earn — light success tick (mirror coins)
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
+        if (kind === 'hintSpend') {
+          // HUD free-hints spend — soft loss tick, lighter than earn SUCCESS
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          return;
+        }
         if (kind === 'hint') {
           // Hint reveal — soft invite, under arm/select weight band but with SUCCESS tick
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
@@ -803,6 +904,8 @@
       else if (kind === 'undoPack') navigator.vibrate(26); // unlimited-undo claim ~20–30ms
       else if (kind === 'coins') navigator.vibrate(14); // HUD coin-earn soft tick
       else if (kind === 'coinSpend') navigator.vibrate(12); // HUD coin-spend soft tick
+      else if (kind === 'hints') navigator.vibrate(14); // HUD free-hints earn soft tick
+      else if (kind === 'hintSpend') navigator.vibrate(12); // HUD free-hints spend soft tick
       else if (kind === 'hint') navigator.vibrate(12); // hint reveal soft tick
     } catch (_) { /* ignore */ }
   }
@@ -1086,10 +1189,7 @@
 
   function requestHint() {
     if (pouring) return;
-    if ((save.freeHints || 0) > 0) {
-      save.freeHints--;
-      persist();
-      refreshHud();
+    if (spendFreeHint()) {
       lastHintSource = 'free';
       applyHint();
       return;
@@ -2639,6 +2739,8 @@
     $('#btn-win-shop').addEventListener('click', openShop);
     $('#btn-shop-close').addEventListener('click', () => closeOverlay(shopOverlay));
     $('#coin-display').addEventListener('click', openShop);
+    const hintDisplay = $('#hint-display');
+    if (hintDisplay) hintDisplay.addEventListener('click', requestHint);
 
     $('#btn-buy-remove-ads').addEventListener('click', () => {
       purchaseRemoveAds();
@@ -2649,18 +2751,14 @@
         toast('Not enough coins');
         return;
       }
-      save.freeHints = (save.freeHints || 0) + HINT_PACK_SIZE;
-      persist();
-      refreshHud();
+      addFreeHints(HINT_PACK_SIZE);
       // Banner is the claim shout — no toast duplicate
       showHintsPackClaim('coins');
     });
 
     $('#btn-buy-hints-iap').addEventListener('click', () => {
       mockIapPurchase('hint_pack_5', () => {
-        save.freeHints = (save.freeHints || 0) + HINT_PACK_SIZE;
-        persist();
-        refreshHud();
+        addFreeHints(HINT_PACK_SIZE);
         // Banner is the claim shout — no toast duplicate
         showHintsPackClaim('IAP');
       });
@@ -2713,14 +2811,9 @@
     });
     $('#btn-hint-pack').addEventListener('click', () => {
       mockIapPurchase('hint_pack_5', () => {
-        save.freeHints = (save.freeHints || 0) + HINT_PACK_SIZE;
-        persist();
-        refreshHud();
+        addFreeHints(HINT_PACK_SIZE);
         closeOverlay(hintPaywall);
-        if (save.freeHints > 0) {
-          save.freeHints--;
-          persist();
-          refreshHud();
+        if (spendFreeHint()) {
           lastHintSource = 'pack';
           applyHint();
         }
@@ -2743,10 +2836,7 @@
         }
         return ok;
       };
-      if ((save.freeHints || 0) > 0) {
-        save.freeHints--;
-        persist();
-        refreshHud();
+      if (spendFreeHint()) {
         grantFailHint('fail_free');
         return;
       }
