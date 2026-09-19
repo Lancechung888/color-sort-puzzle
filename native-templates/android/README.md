@@ -49,6 +49,21 @@ bash scripts/patch-android-admob.sh
 
 （`@capgo/native-purchases` + Play Billing 函式庫通常會合併進 Manifest；若缺失請手動補上或跑 §0 腳本。）
 
+
+## 4. Launcher icon + splash (finals ICON A)
+
+Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
+
+`native-templates/android/res/` (from `store-assets/finals/colortube_icon_A_1024.png`)
+
+Apply after every `cap sync`:
+
+```bash
+bash scripts/apply-android-icons.sh
+```
+
+`npm run aab:internal` runs this automatically after the AdMob Manifest patch.
+
 ## 3. 建置提醒
 
 ```bash
