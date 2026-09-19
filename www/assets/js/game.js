@@ -116,6 +116,8 @@
   let undoClaimClearTimer = 0;
   /** HUD coin-earn pulse clear timer. */
   let coinEarnClearTimer = 0;
+  /** HUD coin-spend pulse clear timer. */
+  let coinSpendClearTimer = 0;
   /** Live ★ budget projection (HUD); reset each loadLevel. */
   let lastProjectedStars = 3;
   let starDropHapticFired = false;
@@ -349,9 +351,22 @@
     });
   }
 
+  function clearCoinSpendPulse() {
+    if (coinSpendClearTimer) {
+      clearTimeout(coinSpendClearTimer);
+      coinSpendClearTimer = 0;
+    }
+    const chip = $('#coin-display');
+    if (chip) chip.classList.remove('coin-spend');
+    document.querySelectorAll('.coin-spend-float').forEach(function (el) {
+      el.remove();
+    });
+  }
+
   /** HUD celebration when coins are granted — no double grant; caller already added. */
   function pulseCoinEarn(n) {
     if (!(n > 0)) return;
+    clearCoinSpendPulse();
     clearCoinEarnPulse();
     const chip = $('#coin-display');
     if (!chip) return;
@@ -366,11 +381,30 @@
     coinEarnClearTimer = setTimeout(clearCoinEarnPulse, 700);
   }
 
+  /** HUD feedback when coins are spent — no double spend; caller already deducted. */
+  function pulseCoinSpend(n) {
+    if (!(n > 0)) return;
+    clearCoinSpendPulse();
+    clearCoinEarnPulse();
+    const chip = $('#coin-display');
+    if (!chip) return;
+    chip.classList.add('coin-spend');
+    const floatEl = document.createElement('span');
+    floatEl.className = 'coin-spend-float';
+    floatEl.textContent = '-' + n;
+    floatEl.setAttribute('aria-hidden', 'true');
+    chip.appendChild(floatEl);
+    setTimeout(function () { haptic('coinSpend'); }, 40);
+    try { SFX.tap(); } catch (_) { /* ignore */ }
+    coinSpendClearTimer = setTimeout(clearCoinSpendPulse, 700);
+  }
+
   function spendCoins(n) {
     if ((save.coins || 0) < n) return false;
     save.coins -= n;
     persist();
     refreshHud();
+    pulseCoinSpend(n);
     return true;
   }
 
@@ -731,6 +765,11 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'coinSpend') {
+          // HUD coin-spend — soft loss tick, lighter than earn SUCCESS
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          return;
+        }
         if (kind === 'hint') {
           // Hint reveal — soft invite, under arm/select weight band but with SUCCESS tick
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
@@ -763,6 +802,7 @@
       else if (kind === 'hintsPack') navigator.vibrate(26); // hint-pack claim ~20–30ms
       else if (kind === 'undoPack') navigator.vibrate(26); // unlimited-undo claim ~20–30ms
       else if (kind === 'coins') navigator.vibrate(14); // HUD coin-earn soft tick
+      else if (kind === 'coinSpend') navigator.vibrate(12); // HUD coin-spend soft tick
       else if (kind === 'hint') navigator.vibrate(12); // hint reveal soft tick
     } catch (_) { /* ignore */ }
   }
