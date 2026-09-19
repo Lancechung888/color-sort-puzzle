@@ -107,6 +107,8 @@
   /** Highest streak milestone claimed this login — start-screen claim juice (not toast). */
   let pendingStreakMilestone = null;
   let streakClaimClearTimer = 0;
+  /** Shop theme-unlock claim juice clear timer. */
+  let themeClaimClearTimer = 0;
   /** Live ★ budget projection (HUD); reset each loadLevel. */
   let lastProjectedStars = 3;
   let starDropHapticFired = false;
@@ -379,8 +381,9 @@
     save.themes[id] = true;
     persist();
     applyTheme(id);
-    toast(`Theme unlocked: ${THEMES[id].name}` + (via ? ` (${via})` : ''));
     refreshShopButtons();
+    // Banner is the claim shout — no toast duplicate
+    showThemeUnlockClaim(id, via);
   }
 
   // --- Level helpers ---
@@ -667,6 +670,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'theme') {
+          // Theme unlock claim in shop — same weight as streak/daily/mastery/chest
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
         return;
       }
@@ -689,6 +698,7 @@
       else if (kind === 'mastery') navigator.vibrate(26); // first-3★ mastery second beat ~20–30ms
       else if (kind === 'daily') navigator.vibrate(26); // daily first-clear second beat ~20–30ms
       else if (kind === 'streak') navigator.vibrate(26); // streak milestone claim ~20–30ms
+      else if (kind === 'theme') navigator.vibrate(26); // theme unlock claim ~20–30ms
     } catch (_) { /* ignore */ }
   }
 
@@ -1897,6 +1907,32 @@
     }
   }
 
+  /** Violet/magenta burst on theme unlock claim — distinct from streak coral / daily sky. */
+  function spawnThemeBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const violets = ['#a78bfa', '#c084fc', '#e879f9', '#f0abfc', '#d8b4fe', '#f5d0fe', '#c4b5fd'];
+    const n = 13;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'theme-spark';
+      const ang = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.28;
+      const dist = 20 + Math.random() * 40;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = violets[i % violets.length];
+      p.style.boxShadow = '0 0 10px ' + violets[i % violets.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
+      p.style.animationDelay = (Math.random() * 50) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 650);
+    }
+  }
+
   /** Gold rim burst around win-stars on 3★ — distinct from board confetti. */
   function spawnPerfectBurst(anchorEl) {
     if (!anchorEl || prefersReducedMotion()) return;
@@ -2033,6 +2069,7 @@
 
   function closeOverlay(el) {
     if (el) el.classList.remove('show');
+    if (el === shopOverlay) clearThemeUnlockClaim();
   }
 
   function hideAllOverlays() {
@@ -2040,6 +2077,7 @@
   }
 
   function openShop() {
+    clearThemeUnlockClaim();
     refreshShopButtons();
     openOverlay(shopOverlay);
     // Native only: try restore once (no grant on web / missing plugin)
@@ -2213,6 +2251,45 @@
   }
 
   // --- Boot ---
+  function clearThemeUnlockClaim() {
+    if (themeClaimClearTimer) {
+      clearTimeout(themeClaimClearTimer);
+      themeClaimClearTimer = 0;
+    }
+    const banner = $('#shop-theme-claim');
+    if (banner) {
+      banner.hidden = true;
+      banner.textContent = '';
+    }
+    const modal = shopOverlay ? shopOverlay.querySelector('.modal-shop') : null;
+    if (modal) modal.classList.remove('theme-claim');
+    document.querySelectorAll('.shop-card.theme-unlock-pulse').forEach(function (el) {
+      el.classList.remove('theme-unlock-pulse');
+    });
+  }
+
+  /** Shop celebration for theme unlock — applyTheme already ran; no double coins. */
+  function showThemeUnlockClaim(id, via) {
+    const theme = THEMES[id];
+    if (!theme) return;
+    clearThemeUnlockClaim();
+    const banner = $('#shop-theme-claim');
+    if (!banner) return;
+    var text = 'Theme unlocked: ' + theme.name;
+    if (via === 'coins') text += ' · coins';
+    else if (via === 'IAP') text += ' · cash';
+    else if (via) text += ' · ' + via;
+    banner.textContent = text;
+    banner.hidden = false;
+    const modal = shopOverlay ? shopOverlay.querySelector('.modal-shop') : null;
+    if (modal) modal.classList.add('theme-claim');
+    const card = document.querySelector('.shop-card[data-theme-id="' + id + '"]');
+    if (card) card.classList.add('theme-unlock-pulse');
+    setTimeout(function () { haptic('theme'); }, 220);
+    setTimeout(function () { spawnThemeBurst(banner); }, 180);
+    themeClaimClearTimer = setTimeout(clearThemeUnlockClaim, 4500);
+  }
+
   function clearStreakMilestoneClaim() {
     if (streakClaimClearTimer) {
       clearTimeout(streakClaimClearTimer);
