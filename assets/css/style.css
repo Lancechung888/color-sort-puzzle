@@ -444,8 +444,67 @@ html, body {
 }
 
 .btn-daily-cta {
+  position: relative;
   background: linear-gradient(135deg, rgba(255,107,107,0.35), rgba(247,183,49,0.35));
   border-color: rgba(247,183,49,0.5);
+}
+
+/* Daily Challenge start CTA — ready (sky/cyan) vs done (quiet) */
+.btn-daily-cta.daily-ready {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.32), rgba(34, 211, 238, 0.26));
+  border-color: rgba(56, 189, 248, 0.62);
+  box-shadow:
+    0 0 0 1px rgba(56, 189, 248, 0.35),
+    0 0 18px rgba(34, 211, 238, 0.28);
+  animation: dailyReadyPulse 1.6s ease-in-out infinite;
+}
+@keyframes dailyReadyPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(56, 189, 248, 0.32),
+      0 0 14px rgba(34, 211, 238, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(56, 189, 248, 0.58),
+      0 0 26px rgba(34, 211, 238, 0.42);
+  }
+}
+.btn-daily-cta.daily-done {
+  opacity: 0.82;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+  border-color: rgba(255,255,255,0.18);
+  box-shadow: none;
+  animation: none;
+}
+.daily-cta-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  border-radius: 999px;
+  vertical-align: middle;
+  line-height: 1.25;
+}
+.btn-daily-cta.daily-ready .daily-cta-badge {
+  color: #0c4a6e;
+  background: linear-gradient(135deg, #7dd3fc, #22d3ee);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.45);
+}
+.btn-daily-cta.daily-done .daily-cta-badge {
+  color: #b8f0d4;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(168, 230, 207, 0.35);
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn-daily-cta.daily-ready {
+    animation: none;
+    border-color: rgba(56, 189, 248, 0.7);
+    box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.5);
+  }
 }
 
 .btn-lg {

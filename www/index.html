@@ -108,7 +108,10 @@
         <p class="meta-teaser" id="start-meta-teaser">Login daily for milestone chests · Replay for ★ mastery</p>
         <div class="modal-actions stacked">
           <button type="button" class="btn btn-primary btn-lg" id="btn-start">Play</button>
-          <button type="button" class="btn btn-daily-cta" id="btn-start-daily">Daily Challenge</button>
+          <button type="button" class="btn btn-daily-cta" id="btn-start-daily" aria-describedby="daily-cta-badge">
+            <span class="daily-cta-label">Daily Challenge</span>
+            <span class="daily-cta-badge" id="daily-cta-badge" hidden></span>
+          </button>
           <button type="button" class="btn" id="btn-start-levels">Levels · ★ mastery</button>
           <button type="button" class="btn" id="btn-start-shop">Shop</button>
         </div>
