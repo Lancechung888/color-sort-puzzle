@@ -1380,7 +1380,7 @@ body.ad-capture #app {
   margin-top: 10px;
 }
 
-/* Start-screen 3s USP hook — compact CSS loop (uncap → pour → sorted) */
+/* Start-screen USP hook — block(lid) → uncap → pour → sorted (≤3s twist readable) */
 .start-hook {
   position: relative;
   width: 100%;
@@ -1432,71 +1432,92 @@ body.ad-capture #app {
   opacity: 0;
 }
 
+/* Timeline (~5.2s): 0–18% blocked pour attempt · 18–32% uncap · 32–60% pour · 60–100% settle */
 @keyframes shLid {
-  0%, 12% { transform: translateX(-50%) translateY(0) rotate(0) scale(1); opacity: 1; }
-  22% { transform: translateX(-50%) translateY(-8px) rotate(-16deg) scale(1.12); opacity: 1; }
-  32%, 100% { transform: translateX(-40%) translateY(-34px) rotate(40deg) scale(0.65); opacity: 0; }
+  0%, 18% { transform: translateX(-50%) translateY(0) rotate(0) scale(1); opacity: 1; filter: drop-shadow(0 0 0 transparent); }
+  8%, 14% { transform: translateX(-50%) translateY(0) rotate(0) scale(1.08); opacity: 1; filter: drop-shadow(0 0 10px rgba(255, 200, 60, 0.85)); }
+  22% { transform: translateX(-50%) translateY(-8px) rotate(-16deg) scale(1.12); opacity: 1; filter: none; }
+  32%, 100% { transform: translateX(-40%) translateY(-34px) rotate(40deg) scale(0.65); opacity: 0; filter: none; }
 }
 @keyframes shSrcLift {
-  0%, 28% { transform: none; filter: none; }
-  34%, 62% { transform: translateY(-10px) scale(1.03); filter: drop-shadow(0 8px 10px rgba(78,205,196,0.45)); }
-  72%, 100% { transform: none; filter: none; }
+  /* False-start lift+shake while capped (blocked), then real pour lift after uncap */
+  0%, 6% { transform: none; filter: none; }
+  10% { transform: translate(-3px, -6px) scale(1.02); filter: drop-shadow(0 6px 8px rgba(255, 180, 40, 0.35)); }
+  12% { transform: translate(3px, -6px) scale(1.02); filter: drop-shadow(0 6px 8px rgba(255, 180, 40, 0.35)); }
+  14% { transform: translate(-2px, -6px) scale(1.02); filter: drop-shadow(0 6px 8px rgba(255, 180, 40, 0.35)); }
+  16% { transform: translate(2px, -5px) scale(1.02); filter: drop-shadow(0 6px 8px rgba(255, 180, 40, 0.35)); }
+  18%, 30% { transform: none; filter: none; }
+  36%, 58% { transform: translateY(-10px) scale(1.03); filter: drop-shadow(0 8px 10px rgba(78,205,196,0.45)); }
+  68%, 100% { transform: none; filter: none; }
 }
 @keyframes shSrcTop {
-  0%, 38% { height: 24px; opacity: 1; }
-  52%, 100% { height: 0; opacity: 0; }
+  0%, 42% { height: 24px; opacity: 1; }
+  55%, 100% { height: 0; opacity: 0; }
 }
 @keyframes shDstFill {
-  0%, 40% { height: 0; opacity: 0; }
-  55%, 100% { height: 24px; opacity: 1; }
+  0%, 44% { height: 0; opacity: 0; }
+  58%, 100% { height: 24px; opacity: 1; }
 }
 @keyframes shDstDone {
-  0%, 58% { filter: none; }
-  68%, 92% { filter: drop-shadow(0 0 12px rgba(231,76,60,0.55)); }
+  0%, 62% { filter: none; }
+  72%, 92% { filter: drop-shadow(0 0 12px rgba(231,76,60,0.55)); }
   100% { filter: none; }
 }
+@keyframes shDstBlockShake {
+  0%, 8%, 18%, 100% { transform: translateX(0); }
+  10% { transform: translateX(2px); }
+  12% { transform: translateX(-3px); }
+  14% { transform: translateX(3px); }
+  16% { transform: translateX(-2px); }
+}
 @keyframes shStream {
-  0%, 38% { opacity: 0; transform: scaleY(0); }
-  42% { opacity: 0.95; transform: scaleY(0.35); }
-  52% { opacity: 0.95; transform: scaleY(1); }
-  58%, 100% { opacity: 0; transform: scaleY(0.2); }
+  /* No stream during blocked beat — only after uncap */
+  0%, 40% { opacity: 0; transform: scaleY(0); }
+  44% { opacity: 0.95; transform: scaleY(0.35); }
+  54% { opacity: 0.95; transform: scaleY(1); }
+  60%, 100% { opacity: 0; transform: scaleY(0.2); }
 }
 @keyframes shDonePulse {
-  0%, 70% { transform: scale(1); }
-  80% { transform: scale(1.06); }
-  90%, 100% { transform: scale(1); }
+  0%, 72% { transform: scale(1); }
+  82% { transform: scale(1.06); }
+  92%, 100% { transform: scale(1); }
 }
 @keyframes shSrcGlass {
   0%, 18% { filter: brightness(0.9); }
   28%, 100% { filter: brightness(1); }
 }
+@keyframes shBlockBadge {
+  0%, 7% { opacity: 0; transform: translate(-50%, 4px) scale(0.85); }
+  10%, 15% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  18%, 100% { opacity: 0; transform: translate(-50%, -6px) scale(0.9); }
+}
 
 .start-hook-src {
-  animation: shSrcLift 4.8s ease-in-out infinite;
+  animation: shSrcLift 5.2s ease-in-out infinite;
 }
 .start-hook-src .tube-glass {
   filter: brightness(0.9);
-  animation: shSrcGlass 4.8s ease-in-out infinite;
+  animation: shSrcGlass 5.2s ease-in-out infinite;
 }
 .start-hook-src .tube-lid {
-  animation: shLid 4.8s cubic-bezier(0.2, 0.9, 0.3, 1.2) infinite;
+  animation: shLid 5.2s cubic-bezier(0.2, 0.9, 0.3, 1.2) infinite;
   transform-origin: 50% 50%;
 }
 .start-hook-src .start-hook-l3 {
-  animation: shSrcTop 4.8s ease-in-out infinite;
+  animation: shSrcTop 5.2s ease-in-out infinite;
 }
 .start-hook-dst .start-hook-d1,
 .start-hook-dst .start-hook-d2 {
-  animation: shDstFill 4.8s ease-in-out infinite;
+  animation: shDstFill 5.2s ease-in-out infinite;
 }
 .start-hook-dst .start-hook-d2 {
   animation-delay: 0.08s;
 }
 .start-hook-dst {
-  animation: shDstDone 4.8s ease-in-out infinite;
+  animation: shDstDone 5.2s ease-in-out infinite, shDstBlockShake 5.2s ease-in-out infinite;
 }
 .start-hook-done {
-  animation: shDonePulse 4.8s ease-in-out infinite;
+  animation: shDonePulse 5.2s ease-in-out infinite;
 }
 
 .start-hook-stream {
@@ -1511,7 +1532,27 @@ body.ad-capture #app {
   transform-origin: top center;
   opacity: 0;
   pointer-events: none;
-  animation: shStream 4.8s ease-in-out infinite;
+  animation: shStream 5.2s ease-in-out infinite;
+}
+
+.start-hook-block {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translate(-50%, 4px) scale(0.85);
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1a1200;
+  background: linear-gradient(180deg, #ffe08a 0%, #f0b429 100%);
+  box-shadow: 0 2px 8px rgba(240, 180, 41, 0.55);
+  opacity: 0;
+  white-space: nowrap;
+  z-index: 2;
+  animation: shBlockBadge 5.2s ease-in-out infinite;
 }
 
 #start-screen .modal-lead {
@@ -1528,4 +1569,35 @@ body.ad-capture #app {
   .start-hook-src .start-hook-l2,
   .start-hook-src .start-hook-l3 { height: 21px; }
   .start-hook-stream { left: calc(50% - 46px); height: 46px; width: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start-hook-src,
+  .start-hook-src .tube-glass,
+  .start-hook-src .tube-lid,
+  .start-hook-src .start-hook-l3,
+  .start-hook-dst,
+  .start-hook-dst .start-hook-d1,
+  .start-hook-dst .start-hook-d2,
+  .start-hook-done,
+  .start-hook-stream,
+  .start-hook-block {
+    animation: none !important;
+  }
+  .start-hook-src .tube-lid {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  .start-hook-dst .start-hook-d1,
+  .start-hook-dst .start-hook-d2 {
+    height: 24px;
+    opacity: 0.35;
+  }
+  .start-hook-block {
+    opacity: 0.95;
+    transform: translate(-50%, 0) scale(1);
+  }
+  .start-hook-stream {
+    opacity: 0;
+  }
 }
