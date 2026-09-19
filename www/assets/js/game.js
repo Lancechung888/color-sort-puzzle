@@ -125,6 +125,8 @@
   /** Live ★ budget projection (HUD); reset each loadLevel. */
   let lastProjectedStars = 3;
   let starDropHapticFired = false;
+  /** Mid-level ★-track drop pulse clear timer. */
+  let starDropClearTimer = 0;
 
   // --- DOM ---
   const $ = (sel) => document.querySelector(sel);
@@ -371,6 +373,34 @@
     });
   }
 
+
+  function clearStarTrackDropPulse() {
+    if (starDropClearTimer) {
+      clearTimeout(starDropClearTimer);
+      starDropClearTimer = 0;
+    }
+    if (movesLabel) movesLabel.classList.remove('track-drop');
+    document.querySelectorAll('.track-drop-float').forEach(function (el) {
+      el.remove();
+    });
+  }
+
+  /** Mid-level warning when projected stars drop off 3★ / 2★ track — one-shot per level. */
+  function pulseStarTrackDrop(fromStars) {
+    clearStarTrackDropPulse();
+    if (!movesLabel) return;
+    const label = fromStars === 3 ? 'Off 3★' : fromStars === 2 ? 'Off 2★' : '−1★';
+    movesLabel.classList.add('track-drop');
+    const floatEl = document.createElement('span');
+    floatEl.className = 'track-drop-float';
+    floatEl.textContent = label;
+    floatEl.setAttribute('aria-hidden', 'true');
+    movesLabel.appendChild(floatEl);
+    setTimeout(function () { haptic('starDrop'); }, 40);
+    try { SFX.tap(); } catch (_) { /* ignore */ }
+    starDropClearTimer = setTimeout(clearStarTrackDropPulse, 600);
+  }
+
   /** HUD celebration when coins are granted — no double grant; caller already added. */
   function pulseCoinEarn(n) {
     if (!(n > 0)) return;
@@ -597,6 +627,7 @@
     undosUsed = 0;
     lastProjectedStars = 3;
     starDropHapticFired = false;
+    clearStarTrackDropPulse();
     infiniteUndoLevel = false;
     if (!opts.daily) levelIndex = idx;
     updateChrome();
@@ -860,6 +891,11 @@
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
           return;
         }
+        if (kind === 'starDrop') {
+          // Mid-level ★-track drop — soft warning tick
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          return;
+        }
         if (kind === 'hints') {
           // HUD free-hints earn — light success tick (mirror coins)
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
@@ -904,6 +940,7 @@
       else if (kind === 'undoPack') navigator.vibrate(26); // unlimited-undo claim ~20–30ms
       else if (kind === 'coins') navigator.vibrate(14); // HUD coin-earn soft tick
       else if (kind === 'coinSpend') navigator.vibrate(12); // HUD coin-spend soft tick
+      else if (kind === 'starDrop') navigator.vibrate(14); // ★-track drop soft warning
       else if (kind === 'hints') navigator.vibrate(14); // HUD free-hints earn soft tick
       else if (kind === 'hintSpend') navigator.vibrate(12); // HUD free-hints spend soft tick
       else if (kind === 'hint') navigator.vibrate(12); // hint reveal soft tick
@@ -1567,18 +1604,22 @@
     const def = isDailyMode ? getDailyDef() : LEVELS[levelIndex];
     const par = estimatePar(def);
     const projected = calcStars();
+    const trackDropFloats = Array.prototype.slice.call(
+      movesLabel.querySelectorAll('.track-drop-float')
+    );
     movesLabel.textContent = `Moves ${moves} · Par ${par} · ${projectedStarGlyphs(projected)}`;
+    trackDropFloats.forEach(function (el) { movesLabel.appendChild(el); });
     movesLabel.classList.remove('track-perfect', 'track-good', 'track-ok');
     movesLabel.classList.add(
       projected === 3 ? 'track-perfect' : projected === 2 ? 'track-good' : 'track-ok'
     );
-    // One soft haptic max when dropping off 3★ / 2★ track mid-level
+    // One soft haptic + visual juice max when dropping off 3★ / 2★ track mid-level
     if (
       !starDropHapticFired &&
       lastProjectedStars > projected &&
       ((lastProjectedStars === 3 && projected <= 2) || (lastProjectedStars === 2 && projected === 1))
     ) {
-      haptic('arm');
+      pulseStarTrackDrop(lastProjectedStars);
       starDropHapticFired = true;
     }
     lastProjectedStars = projected;
