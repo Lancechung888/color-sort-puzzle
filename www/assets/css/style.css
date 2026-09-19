@@ -721,7 +721,8 @@ html, body {
   pointer-events: none !important;
 }
 
-.tube.hint-uncap {
+.tube.hint-uncap,
+.tube.hint-dest {
   outline: 2px solid var(--accent-gold);
   outline-offset: 4px;
   animation: hintPulse 0.7s ease-in-out;
@@ -730,6 +731,16 @@ html, body {
 @keyframes hintPulse {
   0%, 100% { filter: drop-shadow(0 0 0 transparent); }
   50% { filter: drop-shadow(0 0 12px var(--accent-gold)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tube.hint-uncap,
+  .tube.hint-dest {
+    animation: none;
+    outline: 2px solid var(--accent-gold);
+    outline-offset: 4px;
+    filter: drop-shadow(0 0 10px var(--accent-gold));
+  }
 }
 
 .tube.capped.selected {

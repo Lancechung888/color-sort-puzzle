@@ -237,13 +237,14 @@
       </div>
     </div>
 
-    <!-- Fail-loop soft prompt -->
+    <!-- Fail-loop soft prompt — hint-first (keeps board) -->
     <div class="overlay" id="fail-prompt">
       <div class="modal modal-premium">
         <h2>Stuck?</h2>
-        <p>Lots of restarts. Take a break, or unlock a smoother experience?</p>
+        <p>Need a nudge? A hint keeps this board — no restart required.</p>
         <div class="modal-actions stacked">
-          <button type="button" class="btn btn-primary" id="btn-fail-ad">📺 Watch ad to continue</button>
+          <button type="button" class="btn btn-primary" id="btn-fail-hint">💡 Get a hint</button>
+          <button type="button" class="btn" id="btn-fail-ad">📺 Watch ad &amp; restart fresh</button>
           <button type="button" class="btn btn-iap" id="btn-fail-remove-ads">Remove ads (coming soon)</button>
           <button type="button" class="btn btn-ghost" id="btn-fail-skip">Keep restarting</button>
         </div>
