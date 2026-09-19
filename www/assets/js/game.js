@@ -119,6 +119,8 @@
   let hintPayArmTimer = 0;
   /** Levels overlay continue-cell soft-arm cue timer (once per open). */
   let levelsContinueArmTimer = 0;
+  /** Win-sheet Replay-for-3★ soft-arm cue timer (once per open). */
+  let winReplayArmTimer = 0;
   let streakClaimClearTimer = 0;
   /** Shop theme-unlock claim juice clear timer. */
   let themeClaimClearTimer = 0;
@@ -2114,6 +2116,7 @@
     }
 
     winOverlay.classList.add('show');
+    clearWinReplayArm();
     const winModal = winOverlay.querySelector('.modal-win');
     const winStars = $('#win-stars');
     const winTitle = $('#win-title');
@@ -2260,12 +2263,33 @@
       }, 1200);
     } else nextBtn.textContent = levelIndex < LEVELS.length - 1 ? 'Next' : 'Play again';
 
+    // Mastery CTA: 1-2★ mainline → Replay for 3★; soft-arm when Next is not unlocking
+    const restartBtn = $('#btn-win-restart');
+    if (restartBtn) {
+      if (!isDailyMode && stars < 3) {
+        restartBtn.textContent = 'Replay for 3★';
+        if (!newlyUnlocked) {
+          restartBtn.classList.add('win-replay-arm');
+          if (winModal) winModal.classList.add('replay-nudge');
+          winReplayArmTimer = setTimeout(function () {
+            winReplayArmTimer = 0;
+            if (!winOverlay || !winOverlay.classList.contains('show')) return;
+            haptic('arm');
+            try { SFX.tap(); } catch (_) { /* ignore */ }
+          }, 300);
+        }
+      } else {
+        restartBtn.textContent = 'Restart';
+      }
+    }
+
     spawnConfetti(stars === 3);
     refreshMetaTeasers();
   }
 
   function hideWin() {
     winOverlay.classList.remove('show');
+    clearWinReplayArm();
     const winModal = winOverlay.querySelector('.modal-win');
     const winStars = $('#win-stars');
     const winTitle = $('#win-title');
@@ -2275,7 +2299,7 @@
     const winUnlock = $('#win-unlock');
     const winDaily = $('#win-daily');
     const nextBtn = $('#btn-next');
-    if (winModal) winModal.classList.remove('perfect', 'chest-claim', 'mastery-claim', 'new-best-claim', 'unlock-claim', 'daily-claim');
+    if (winModal) winModal.classList.remove('perfect', 'chest-claim', 'mastery-claim', 'new-best-claim', 'unlock-claim', 'daily-claim', 'replay-nudge');
     if (winStars) winStars.classList.remove('perfect');
     if (winTitle) winTitle.textContent = 'You win!';
     if (winChest) {
@@ -2739,6 +2763,7 @@
     if (el === shopOverlay) { clearThemeUnlockClaim(); clearHintsPackClaim(); clearUndoPackClaim(); }
     if (el === failPrompt) clearFailHintArm();
     if (el === hintPaywall) clearHintPayArm();
+    if (el === winOverlay) clearWinReplayArm();
     if (el && el.id === 'levels-overlay') clearLevelsContinueArm();
   }
 
@@ -2901,6 +2926,20 @@
       return;
     }
     unlockTheme(id, 'coins');
+  }
+
+  function clearWinReplayArm() {
+    if (winReplayArmTimer) {
+      clearTimeout(winReplayArmTimer);
+      winReplayArmTimer = 0;
+    }
+    const restartBtn = $('#btn-win-restart');
+    if (restartBtn) {
+      restartBtn.classList.remove('win-replay-arm');
+      restartBtn.textContent = 'Restart';
+    }
+    const winModal = winOverlay && winOverlay.querySelector('.modal-win');
+    if (winModal) winModal.classList.remove('replay-nudge');
   }
 
   function clearHintPayArm() {

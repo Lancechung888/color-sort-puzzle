@@ -1930,6 +1930,51 @@ html, body {
   }
 }
 
+/* Win-sheet Replay for 3★ CTA — soft warm gold/peach arm (mastery; match play-continue / level-continue) */
+#btn-win-restart.win-replay-arm {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.92), rgba(251, 146, 60, 0.88));
+  color: #1a1208;
+  border: 1px solid rgba(251, 191, 36, 0.75);
+  box-shadow:
+    0 0 0 1px rgba(251, 146, 60, 0.35),
+    0 0 18px rgba(251, 191, 36, 0.32),
+    0 6px 18px rgba(251, 146, 60, 0.28);
+  animation: winReplayArmPulse 1.5s ease-in-out infinite;
+}
+@keyframes winReplayArmPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(251, 146, 60, 0.32),
+      0 0 14px rgba(251, 191, 36, 0.26),
+      0 6px 16px rgba(251, 146, 60, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(251, 191, 36, 0.62),
+      0 0 26px rgba(251, 146, 60, 0.45),
+      0 6px 22px rgba(251, 191, 36, 0.35);
+  }
+}
+.modal-win.replay-nudge {
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.28),
+    0 18px 48px rgba(251, 146, 60, 0.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  #btn-win-restart.win-replay-arm {
+    animation: none;
+    border-color: rgba(251, 191, 36, 0.9);
+    box-shadow:
+      0 0 0 1px rgba(251, 146, 60, 0.5),
+      0 6px 16px rgba(251, 146, 60, 0.25);
+  }
+  .modal-win.replay-nudge {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.4),
+      0 12px 36px rgba(251, 146, 60, 0.1);
+  }
+}
+
 /* Login streak milestone claim — warm coral/flame (distinct from amber chest / gold-lavender mastery / sky daily) */
 .modal-premium.streak-claim {
   box-shadow:
