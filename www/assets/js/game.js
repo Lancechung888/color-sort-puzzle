@@ -109,6 +109,8 @@
   let streakClaimClearTimer = 0;
   /** Shop theme-unlock claim juice clear timer. */
   let themeClaimClearTimer = 0;
+  /** Shop hint-pack claim juice clear timer. */
+  let hintsClaimClearTimer = 0;
   /** Live ★ budget projection (HUD); reset each loadLevel. */
   let lastProjectedStars = 3;
   let starDropHapticFired = false;
@@ -676,6 +678,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'hintsPack') {
+          // Hint-pack purchase claim in shop — same weight as theme unlock
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         if (kind === 'hint') {
           // Hint reveal — soft invite, under arm/select weight band but with SUCCESS tick
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
@@ -705,6 +713,7 @@
       else if (kind === 'daily') navigator.vibrate(26); // daily first-clear second beat ~20–30ms
       else if (kind === 'streak') navigator.vibrate(26); // streak milestone claim ~20–30ms
       else if (kind === 'theme') navigator.vibrate(26); // theme unlock claim ~20–30ms
+      else if (kind === 'hintsPack') navigator.vibrate(26); // hint-pack claim ~20–30ms
       else if (kind === 'hint') navigator.vibrate(12); // hint reveal soft tick
     } catch (_) { /* ignore */ }
   }
@@ -1946,7 +1955,33 @@
     }
   }
 
-  /** Soft mint/lime burst on hint reveal — distinct from gold pour / violet theme. */
+  /** Emerald/jade burst on hint-pack purchase — distinct from violet theme / mint board hint. */
+  function spawnHintsPackBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const emeralds = ['#34d399', '#10b981', '#2dd4bf', '#6ee7b7', '#a7f3d0', '#5eead4', '#14b8a6'];
+    const n = 13;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'hints-spark';
+      const ang = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.28;
+      const dist = 20 + Math.random() * 40;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = emeralds[i % emeralds.length];
+      p.style.boxShadow = '0 0 10px ' + emeralds[i % emeralds.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
+      p.style.animationDelay = (Math.random() * 50) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 650);
+    }
+  }
+
+    /** Soft mint/lime burst on hint reveal — distinct from gold pour / violet theme. */
   function spawnHintBurst(anchorEl) {
     if (!anchorEl || prefersReducedMotion()) return;
     const rect = anchorEl.getBoundingClientRect();
@@ -2108,7 +2143,7 @@
 
   function closeOverlay(el) {
     if (el) el.classList.remove('show');
-    if (el === shopOverlay) clearThemeUnlockClaim();
+    if (el === shopOverlay) { clearThemeUnlockClaim(); clearHintsPackClaim(); }
   }
 
   function hideAllOverlays() {
@@ -2117,6 +2152,7 @@
 
   function openShop() {
     clearThemeUnlockClaim();
+    clearHintsPackClaim();
     refreshShopButtons();
     openOverlay(shopOverlay);
     // Native only: try restore once (no grant on web / missing plugin)
@@ -2312,6 +2348,7 @@
     const theme = THEMES[id];
     if (!theme) return;
     clearThemeUnlockClaim();
+    clearHintsPackClaim(); // one shop shout at a time
     const banner = $('#shop-theme-claim');
     if (!banner) return;
     var text = 'Theme unlocked: ' + theme.name;
@@ -2327,6 +2364,44 @@
     setTimeout(function () { haptic('theme'); }, 220);
     setTimeout(function () { spawnThemeBurst(banner); }, 180);
     themeClaimClearTimer = setTimeout(clearThemeUnlockClaim, 4500);
+  }
+
+  function clearHintsPackClaim() {
+    if (hintsClaimClearTimer) {
+      clearTimeout(hintsClaimClearTimer);
+      hintsClaimClearTimer = 0;
+    }
+    const banner = $('#shop-hints-claim');
+    if (banner) {
+      banner.hidden = true;
+      banner.textContent = '';
+    }
+    const modal = shopOverlay ? shopOverlay.querySelector('.modal-shop') : null;
+    if (modal) modal.classList.remove('hints-claim');
+    document.querySelectorAll('.shop-card.hints-pack-pulse').forEach(function (el) {
+      el.classList.remove('hints-pack-pulse');
+    });
+  }
+
+  /** Shop celebration for hint-pack purchase — hints already added; no double grant. */
+  function showHintsPackClaim(via) {
+    clearHintsPackClaim();
+    clearThemeUnlockClaim(); // one shop shout at a time
+    const banner = $('#shop-hints-claim');
+    if (!banner) return;
+    var text = 'Hint pack ×' + HINT_PACK_SIZE + '!';
+    if (via === 'coins') text += ' · coins';
+    else if (via === 'IAP') text += ' · cash';
+    else if (via) text += ' · ' + via;
+    banner.textContent = text;
+    banner.hidden = false;
+    const modal = shopOverlay ? shopOverlay.querySelector('.modal-shop') : null;
+    if (modal) modal.classList.add('hints-claim');
+    const card = document.querySelector('.shop-card[data-item-id="hint-pack"]');
+    if (card) card.classList.add('hints-pack-pulse');
+    setTimeout(function () { haptic('hintsPack'); }, 220);
+    setTimeout(function () { spawnHintsPackBurst(banner); }, 180);
+    hintsClaimClearTimer = setTimeout(clearHintsPackClaim, 4500);
   }
 
   function clearStreakMilestoneClaim() {
@@ -2404,7 +2479,8 @@
       save.freeHints = (save.freeHints || 0) + HINT_PACK_SIZE;
       persist();
       refreshHud();
-      toast(`Got hints ×${HINT_PACK_SIZE}`);
+      // Banner is the claim shout — no toast duplicate
+      showHintsPackClaim('coins');
     });
 
     $('#btn-buy-hints-iap').addEventListener('click', () => {
@@ -2412,7 +2488,8 @@
         save.freeHints = (save.freeHints || 0) + HINT_PACK_SIZE;
         persist();
         refreshHud();
-        toast(`Got hints ×${HINT_PACK_SIZE}`);
+        // Banner is the claim shout — no toast duplicate
+        showHintsPackClaim('IAP');
       });
     });
 
