@@ -1301,6 +1301,62 @@ html, body {
   }
 }
 
+/* Theme unlock claim — violet/magenta (distinct from coral streak / sky daily / amber chest) */
+.modal-shop.theme-claim {
+  box-shadow:
+    0 0 0 1px rgba(192, 132, 252, 0.55),
+    0 18px 52px rgba(167, 139, 250, 0.24),
+    0 0 36px rgba(232, 121, 249, 0.22);
+}
+.shop-theme-claim {
+  margin: 6px 0 10px;
+  padding: 6px 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #e9d5ff;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(192, 132, 252, 0.75);
+  background: linear-gradient(180deg, rgba(167, 139, 250, 0.18), rgba(232, 121, 249, 0.1));
+  border: 1px solid rgba(192, 132, 252, 0.45);
+  border-radius: 10px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.theme-spark {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 45% 55%;
+  pointer-events: none;
+  z-index: 80;
+  animation: themeSpark 0.58s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes themeSpark {
+  0% { transform: translate(0, 0) scale(0.4) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.18) rotate(35deg); opacity: 0; }
+}
+.shop-card.theme-unlock-pulse {
+  box-shadow:
+    0 0 0 1px rgba(192, 132, 252, 0.5),
+    0 0 18px rgba(232, 121, 249, 0.35);
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-spark { display: none; }
+  .modal-shop.theme-claim {
+    box-shadow:
+      0 0 0 1px rgba(192, 132, 252, 0.55),
+      0 12px 36px rgba(167, 139, 250, 0.22);
+  }
+  .shop-theme-claim {
+    text-shadow: 0 0 8px rgba(192, 132, 252, 0.55);
+  }
+  .shop-card.theme-unlock-pulse {
+    box-shadow: 0 0 0 1px rgba(192, 132, 252, 0.5);
+  }
+}
+
 .modal-levels {
   max-width: min(420px, 94vw);
   max-height: min(88vh, 720px);
