@@ -507,6 +507,41 @@ html, body {
   }
 }
 
+/* Start primary CTA — Continue · Level N (warm gold/peach; distinct from sky/cyan Daily) */
+#btn-start.play-continue {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.92), rgba(251, 146, 60, 0.88));
+  color: #1a1208;
+  border: 1px solid rgba(251, 191, 36, 0.75);
+  box-shadow:
+    0 0 0 1px rgba(251, 146, 60, 0.35),
+    0 0 18px rgba(251, 191, 36, 0.32),
+    0 6px 18px rgba(251, 146, 60, 0.28);
+  animation: playContinuePulse 1.6s ease-in-out infinite;
+}
+@keyframes playContinuePulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(251, 146, 60, 0.32),
+      0 0 14px rgba(251, 191, 36, 0.26),
+      0 6px 16px rgba(251, 146, 60, 0.22);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(251, 191, 36, 0.62),
+      0 0 26px rgba(251, 146, 60, 0.45),
+      0 6px 22px rgba(251, 191, 36, 0.35);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #btn-start.play-continue {
+    animation: none;
+    border-color: rgba(251, 191, 36, 0.9);
+    box-shadow:
+      0 0 0 1px rgba(251, 146, 60, 0.5),
+      0 6px 16px rgba(251, 146, 60, 0.25);
+  }
+}
+
 .btn-lg {
   padding: 14px 22px;
   font-size: 1rem;

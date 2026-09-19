@@ -111,6 +111,8 @@
   let pendingStreakMilestone = null;
   /** Once-per-session soft cue when start shows Daily ready. */
   let dailyReadyCueFired = false;
+  /** Once-per-session soft cue when start shows Continue · Level N. */
+  let playContinueCueFired = false;
   let streakClaimClearTimer = 0;
   /** Shop theme-unlock claim juice clear timer. */
   let themeClaimClearTimer = 0;
@@ -582,6 +584,7 @@
     refreshMetaTeasers();
     refreshShopButtons();
     refreshDailyCta();
+    refreshStartPlayCta();
   }
 
   /**
@@ -615,6 +618,41 @@
         haptic('arm');
         SFX.tap();
       }, 320);
+    }
+  }
+
+  /**
+   * Start-screen primary Play CTA: fresh install stays "Play";
+   * returning players get "Continue · Level N" + soft warm gold/peach arm.
+   */
+  function refreshStartPlayCta(opts) {
+    opts = opts || {};
+    const btn = $('#btn-start');
+    if (!btn) return;
+    const targetIndex = Math.min(Math.max(save.level || 0, 0), LEVELS.length - 1);
+    const isFresh = (save.maxUnlocked || 0) === 0 && (save.level || 0) === 0;
+    if (isFresh) {
+      btn.textContent = 'Play';
+      btn.classList.remove('play-continue');
+      btn.setAttribute('aria-label', 'Play');
+    } else {
+      const n = targetIndex + 1;
+      btn.textContent = 'Continue · Level ' + n;
+      btn.classList.add('play-continue');
+      btn.setAttribute('aria-label', 'Continue — Level ' + n);
+    }
+    if (
+      opts.cue &&
+      !isFresh &&
+      !playContinueCueFired &&
+      startScreen &&
+      startScreen.classList.contains('show')
+    ) {
+      playContinueCueFired = true;
+      setTimeout(function () {
+        haptic('arm');
+        SFX.tap();
+      }, 360);
     }
   }
 
@@ -3002,6 +3040,8 @@
     app.classList.add('input-gate');
     startScreen.classList.remove('show');
     isDailyMode = false;
+    // Match Continue · Level N label (same target as refreshStartPlayCta)
+    levelIndex = Math.min(Math.max(save.level || 0, 0), LEVELS.length - 1);
     loadLevel(levelIndex);
     setTimeout(() => app.classList.remove('input-gate'), 280);
   }
@@ -3267,6 +3307,7 @@
 
     startScreen.classList.add('show');
     refreshDailyCta({ cue: true });
+    refreshStartPlayCta({ cue: true });
     updateChrome();
   }
 
