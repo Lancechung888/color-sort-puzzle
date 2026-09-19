@@ -58,6 +58,7 @@
     onboardingDone: false,
     capTeachDone: false,
     uncapArmTipDone: false,
+    emptyTapTipDone: false,
   };
 
   // --- Session state ---
@@ -469,6 +470,11 @@
     return tube.length === capacity && tube.every((x) => x === tube[0]);
   }
 
+  /** One empty slot from a filled solid complete — soft beckon juice for almost-done. */
+  function isNearComplete(tube) {
+    return tube.length === capacity - 1 && tube.length > 0 && tube.every((c) => c === tube[0]);
+  }
+
   function isWon() {
     return tubes.every(isTubeComplete);
   }
@@ -711,7 +717,15 @@
       render();
       return;
     }
-    if (tubes[idx].length === 0) return;
+    if (tubes[idx].length === 0) {
+      // First-time clarity: empty dest with nothing selected — not a valid lift
+      if (!save.emptyTapTipDone) {
+        toast('Tap a tube with color first');
+        save.emptyTapTipDone = true;
+        persist();
+      }
+      return;
+    }
     selected = idx;
     SFX.tap();
     haptic('select');
@@ -1189,6 +1203,7 @@
 
     tubes.forEach((tube, idx) => {
       const complete = isFilledComplete(tube);
+      const nearComplete = !complete && isNearComplete(tube);
       const capped = isCapped(idx);
       const el = document.createElement('div');
       const pourTarget = selected >= 0 && selected !== idx && canPour(selected, idx);
@@ -1197,6 +1212,7 @@
         (selected === idx ? ' selected' : '') +
         (pourTarget ? ' pour-target' : '') +
         (complete ? ' complete' : '') +
+        (nearComplete ? ' near-complete' : '') +
         (capped ? ' capped' : '') +
         (capped && pendingUncapIdx === idx && Date.now() <= pendingUncapUntil ? ' cap-pending' : '');
       el.style.width = tubeW + 'px';
@@ -1208,7 +1224,9 @@
           ? `Tube ${idx + 1} (capped)`
           : pourTarget
             ? `Tube ${idx + 1} (valid pour target)`
-            : `Tube ${idx + 1}`
+            : nearComplete
+              ? `Tube ${idx + 1} (almost complete)`
+              : `Tube ${idx + 1}`
       );
 
       const rim = document.createElement('div');
