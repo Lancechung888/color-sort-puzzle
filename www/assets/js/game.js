@@ -676,6 +676,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'hint') {
+          // Hint reveal — soft invite, under arm/select weight band but with SUCCESS tick
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
         return;
       }
@@ -699,6 +705,7 @@
       else if (kind === 'daily') navigator.vibrate(26); // daily first-clear second beat ~20–30ms
       else if (kind === 'streak') navigator.vibrate(26); // streak milestone claim ~20–30ms
       else if (kind === 'theme') navigator.vibrate(26); // theme unlock claim ~20–30ms
+      else if (kind === 'hint') navigator.vibrate(12); // hint reveal soft tick
     } catch (_) { /* ignore */ }
   }
 
@@ -1011,8 +1018,11 @@
       const el = tubesWrap.children[move.from];
       if (el) {
         el.classList.add('hint-uncap');
-        setTimeout(() => render(), 900);
+        setTimeout(function () { spawnHintBurst(el); }, 40);
+        setTimeout(() => render(), 1100);
       }
+      haptic('hint');
+      playSfx('tap', 0.35);
       toast('Hint: double-tap to uncap (free move)');
       return true;
     }
@@ -1021,10 +1031,13 @@
     const el = tubesWrap.children[move.to];
     if (el) {
       el.classList.add('hint-dest');
+      setTimeout(function () { spawnHintBurst(el); }, 40);
       setTimeout(() => {
         if (selected === move.from) render();
-      }, 700);
+      }, 1100);
     }
+    haptic('hint');
+    playSfx('tap', 0.35);
     toast('Hint: pour into the highlighted tube');
     return true;
   }
@@ -1930,6 +1943,32 @@
       p.style.animationDelay = (Math.random() * 50) + 'ms';
       app.appendChild(p);
       setTimeout(function () { p.remove(); }, 650);
+    }
+  }
+
+  /** Soft mint/lime burst on hint reveal — distinct from gold pour / violet theme. */
+  function spawnHintBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height * 0.28 - appRect.top;
+    const mints = ['#86efac', '#4ade80', '#a3e635', '#bef264', '#bbf7d0', '#d9f99d', '#6ee7b7'];
+    const n = 11;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'hint-spark';
+      const ang = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.3;
+      const dist = 16 + Math.random() * 32;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = mints[i % mints.length];
+      p.style.boxShadow = '0 0 9px ' + mints[i % mints.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 8 + 'px');
+      p.style.animationDelay = (Math.random() * 40) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 620);
     }
   }
 
