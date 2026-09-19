@@ -611,6 +611,11 @@
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
           return;
         }
+        if (kind === 'winPour') {
+          // Level-clearing pour land — firmer than landComplete, under full win/perfect
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          return;
+        }
         if (kind === 'uncap') {
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
           return;
@@ -644,6 +649,7 @@
       else if (kind === 'firstPour') navigator.vibrate(18); // Day-1 first pour success
       else if (kind === 'land') navigator.vibrate(10); // ~8–12ms light tick
       else if (kind === 'landComplete') navigator.vibrate(14); // completing pour land — bit more than land
+      else if (kind === 'winPour') navigator.vibrate(18); // winning-pour land — firmer, not full win
       else if (kind === 'illegal') navigator.vibrate(28);
       else if (kind === 'uncap') navigator.vibrate(10);
       else if (kind === 'arm') navigator.vibrate(8); // lid first-tap invite
@@ -832,6 +838,12 @@
     // Anticipatory juice: dest will become filled-complete after this pour
     const destPreview = tubes[toIdx].concat(Array(amount).fill(color));
     const willComplete = !wasCompleteBefore[toIdx] && isFilledComplete(destPreview);
+    // Level-clearing pour: simulate so isWon() would be true after this pour
+    const winPreview = cloneTubes(tubes);
+    for (let i = 0; i < amount; i++) {
+      winPreview[toIdx].push(winPreview[fromIdx].pop());
+    }
+    const willWinLevel = winPreview.every(isTubeComplete);
 
     animatePour(fromIdx, toIdx, color, amount, () => {
       for (let i = 0; i < amount; i++) {
@@ -864,7 +876,7 @@
         celebrateLevelClear();
         setTimeout(showWin, 480);
       }
-    }, firstPourOfLevel, willComplete);
+    }, firstPourOfLevel, willComplete, willWinLevel);
   }
 
   function undo() {
@@ -1431,7 +1443,7 @@
   }
 
   // --- Pour animation + splash ---
-  function animatePour(fromIdx, toIdx, color, amount, done, firstPour, willComplete) {
+  function animatePour(fromIdx, toIdx, color, amount, done, firstPour, willComplete, willWinLevel) {
     const fromEl = tubesWrap.children[fromIdx];
     const toEl = tubesWrap.children[toIdx];
     if (!fromEl || !toEl) {
@@ -1477,24 +1489,48 @@
 
     fromEl.classList.add('pouring-tilt');
     fromEl.style.transform = `translateY(-14px) rotate(${dir * tilt}deg) scale(1.02)`;
+    // Completing-pour tube glow; winning-pour supersedes with board-wide beat (may layer)
     if (willComplete) toEl.classList.add('completing-pour');
+    if (willWinLevel) app.classList.add('winning-pour');
     SFX.pour();
 
     setTimeout(() => {
-      // Completing pour: denser splash (~26); firstPour alone still 24
-      const splashN = willComplete ? 26 : (firstPour ? 24 : null);
+      // Winning pour: denser splash (~32) + short gold rim sparkle; else completing ~26 / first 24
+      const splashN = willWinLevel ? 32 : (willComplete ? 26 : (firstPour ? 24 : null));
       spawnSplash(endX, endY, hex, splashN);
+      if (willWinLevel) spawnWinPourSparkle(endX, endY);
       SFX.land();
-      // Completing land: slightly stronger vibrate; keep Cap LIGHT (complete MEDIUM follows)
-      if (willComplete) haptic('landComplete');
+      // Winning land: distinct winPour (under full win/perfect); else completing / first / land
+      if (willWinLevel) haptic('winPour');
+      else if (willComplete) haptic('landComplete');
       else if (firstPour) haptic('firstPour');
       else haptic('land');
       stream.remove();
       fromEl.style.transform = '';
       fromEl.classList.remove('pouring-tilt');
       if (willComplete) toEl.classList.remove('completing-pour');
+      if (willWinLevel) app.classList.remove('winning-pour');
       done();
     }, 380);
+  }
+
+  /** Short gold rim sparkle for level-clearing pour — tasteful, not confetti (confetti stays in showWin). */
+  function spawnWinPourSparkle(x, y) {
+    const golds = ['#ffd78a', '#ffe6a0', '#ffc850', '#fff0c0'];
+    const n = 8;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'splash-particle win-pour-spark';
+      p.style.background = golds[i % golds.length];
+      p.style.left = x + 'px';
+      p.style.top = y + 'px';
+      const ang = -Math.PI / 2 + (Math.random() - 0.5) * 2.2;
+      const dist = 12 + Math.random() * 22;
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 6 + 'px');
+      app.appendChild(p);
+      setTimeout(() => p.remove(), 420);
+    }
   }
 
   function spawnSplash(x, y, color, count) {
