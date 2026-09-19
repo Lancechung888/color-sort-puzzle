@@ -16,6 +16,7 @@
   const THEME_COIN_COST = 280;
   const HINT_PACK_COIN_COST = 120;
   const HINT_PACK_SIZE = 5;
+  const UNDO_LEVEL_COIN_COST = 80;
   const STAR_REWARDS = { 1: 8, 2: 15, 3: 28 };
   /** First time a level hits 3★ — clear bonus beyond STAR_REWARDS[3] (not +1 spam). */
   const FIRST_THREE_STAR_BONUS = 22;
@@ -111,6 +112,8 @@
   let themeClaimClearTimer = 0;
   /** Shop hint-pack claim juice clear timer. */
   let hintsClaimClearTimer = 0;
+  /** Shop unlimited-undo (this level) claim juice clear timer. */
+  let undoClaimClearTimer = 0;
   /** Live ★ budget projection (HUD); reset each loadLevel. */
   let lastProjectedStars = 3;
   let starDropHapticFired = false;
@@ -684,6 +687,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'undoPack') {
+          // Unlimited-undo (this level) claim in shop — same weight as hint-pack
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         if (kind === 'hint') {
           // Hint reveal — soft invite, under arm/select weight band but with SUCCESS tick
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
@@ -714,6 +723,7 @@
       else if (kind === 'streak') navigator.vibrate(26); // streak milestone claim ~20–30ms
       else if (kind === 'theme') navigator.vibrate(26); // theme unlock claim ~20–30ms
       else if (kind === 'hintsPack') navigator.vibrate(26); // hint-pack claim ~20–30ms
+      else if (kind === 'undoPack') navigator.vibrate(26); // unlimited-undo claim ~20–30ms
       else if (kind === 'hint') navigator.vibrate(12); // hint reveal soft tick
     } catch (_) { /* ignore */ }
   }
@@ -1981,7 +1991,33 @@
     }
   }
 
-    /** Soft mint/lime burst on hint reveal — distinct from gold pour / violet theme. */
+    /** Soft indigo/periwinkle burst on unlimited-undo claim — distinct from emerald hints / violet theme. */
+  function spawnUndoPackBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const indigos = ['#818cf8', '#6366f1', '#a5b4fc', '#c7d2fe', '#7c3aed', '#93c5fd', '#60a5fa'];
+    const n = 13;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'undo-spark';
+      const ang = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.28;
+      const dist = 20 + Math.random() * 40;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = indigos[i % indigos.length];
+      p.style.boxShadow = '0 0 10px ' + indigos[i % indigos.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
+      p.style.animationDelay = (Math.random() * 50) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 650);
+    }
+  }
+
+  /** Soft mint/lime burst on hint reveal — distinct from gold pour / violet theme. */
   function spawnHintBurst(anchorEl) {
     if (!anchorEl || prefersReducedMotion()) return;
     const rect = anchorEl.getBoundingClientRect();
@@ -2143,7 +2179,7 @@
 
   function closeOverlay(el) {
     if (el) el.classList.remove('show');
-    if (el === shopOverlay) { clearThemeUnlockClaim(); clearHintsPackClaim(); }
+    if (el === shopOverlay) { clearThemeUnlockClaim(); clearHintsPackClaim(); clearUndoPackClaim(); }
   }
 
   function hideAllOverlays() {
@@ -2153,6 +2189,7 @@
   function openShop() {
     clearThemeUnlockClaim();
     clearHintsPackClaim();
+    clearUndoPackClaim();
     refreshShopButtons();
     openOverlay(shopOverlay);
     // Native only: try restore once (no grant on web / missing plugin)
@@ -2204,14 +2241,30 @@
     updateThemeButtons('neon', null, '#btn-buy-neon-coins', '#btn-buy-neon-iap');
     updateThemeButtons('cat', null, '#btn-buy-cat-coins', '#btn-buy-cat-iap');
 
-    const undoBtn = $('#btn-buy-infinite-undo');
-    if (undoBtn) {
-      if (infiniteUndoLevel) {
-        undoBtn.textContent = 'Active this level';
-        undoBtn.disabled = true;
-      } else {
-        undoBtn.textContent = 'Unlock this level';
-        undoBtn.disabled = false;
+    const undoCoinBtn = $('#btn-buy-undo-coins');
+    const undoIapBtn = $('#btn-buy-infinite-undo');
+    const undoCard = document.querySelector('.shop-card[data-item-id="undo-level"]');
+    if (infiniteUndoLevel) {
+      if (undoCard) undoCard.classList.add('owned');
+      if (undoCoinBtn) {
+        undoCoinBtn.textContent = 'Active this level';
+        undoCoinBtn.disabled = true;
+        undoCoinBtn.className = 'btn btn-sm';
+      }
+      if (undoIapBtn) {
+        undoIapBtn.style.display = 'none';
+      }
+    } else {
+      if (undoCard) undoCard.classList.remove('owned');
+      if (undoCoinBtn) {
+        undoCoinBtn.textContent = UNDO_LEVEL_COIN_COST + ' 🪙';
+        undoCoinBtn.disabled = false;
+        undoCoinBtn.className = 'btn btn-sm btn-coins';
+      }
+      if (undoIapBtn) {
+        undoIapBtn.style.display = '';
+        undoIapBtn.textContent = 'Unlock with cash';
+        undoIapBtn.disabled = false;
       }
     }
   }
@@ -2348,7 +2401,8 @@
     const theme = THEMES[id];
     if (!theme) return;
     clearThemeUnlockClaim();
-    clearHintsPackClaim(); // one shop shout at a time
+    clearHintsPackClaim();
+    clearUndoPackClaim(); // one shop shout at a time
     const banner = $('#shop-theme-claim');
     if (!banner) return;
     var text = 'Theme unlocked: ' + theme.name;
@@ -2386,7 +2440,8 @@
   /** Shop celebration for hint-pack purchase — hints already added; no double grant. */
   function showHintsPackClaim(via) {
     clearHintsPackClaim();
-    clearThemeUnlockClaim(); // one shop shout at a time
+    clearThemeUnlockClaim();
+    clearUndoPackClaim(); // one shop shout at a time
     const banner = $('#shop-hints-claim');
     if (!banner) return;
     var text = 'Hint pack ×' + HINT_PACK_SIZE + '!';
@@ -2402,6 +2457,45 @@
     setTimeout(function () { haptic('hintsPack'); }, 220);
     setTimeout(function () { spawnHintsPackBurst(banner); }, 180);
     hintsClaimClearTimer = setTimeout(clearHintsPackClaim, 4500);
+  }
+
+  function clearUndoPackClaim() {
+    if (undoClaimClearTimer) {
+      clearTimeout(undoClaimClearTimer);
+      undoClaimClearTimer = 0;
+    }
+    const banner = $('#shop-undo-claim');
+    if (banner) {
+      banner.hidden = true;
+      banner.textContent = '';
+    }
+    const modal = shopOverlay ? shopOverlay.querySelector('.modal-shop') : null;
+    if (modal) modal.classList.remove('undo-claim');
+    document.querySelectorAll('.shop-card.undo-level-pulse').forEach(function (el) {
+      el.classList.remove('undo-level-pulse');
+    });
+  }
+
+  /** Shop celebration for unlimited-undo (this level) — flag already set; no double grant. */
+  function showUndoPackClaim(via) {
+    clearUndoPackClaim();
+    clearThemeUnlockClaim();
+    clearHintsPackClaim(); // one shop shout at a time
+    const banner = $('#shop-undo-claim');
+    if (!banner) return;
+    var text = 'Unlimited undo · this level!';
+    if (via === 'coins') text += ' · coins';
+    else if (via === 'IAP') text += ' · cash';
+    else if (via) text += ' · ' + via;
+    banner.textContent = text;
+    banner.hidden = false;
+    const modal = shopOverlay ? shopOverlay.querySelector('.modal-shop') : null;
+    if (modal) modal.classList.add('undo-claim');
+    const card = document.querySelector('.shop-card[data-item-id="undo-level"]');
+    if (card) card.classList.add('undo-level-pulse');
+    setTimeout(function () { haptic('undoPack'); }, 220);
+    setTimeout(function () { spawnUndoPackBurst(banner); }, 180);
+    undoClaimClearTimer = setTimeout(clearUndoPackClaim, 4500);
   }
 
   function clearStreakMilestoneClaim() {
@@ -2493,11 +2587,32 @@
       });
     });
 
+    $('#btn-buy-undo-coins').addEventListener('click', () => {
+      if (infiniteUndoLevel) {
+        toast('Already active this level');
+        return;
+      }
+      if (!spendCoins(UNDO_LEVEL_COIN_COST)) {
+        toast('Not enough coins');
+        return;
+      }
+      infiniteUndoLevel = true;
+      refreshShopButtons();
+      refreshHud();
+      // Banner is the claim shout — no toast duplicate
+      showUndoPackClaim('coins');
+    });
+
     $('#btn-buy-infinite-undo').addEventListener('click', () => {
+      if (infiniteUndoLevel) {
+        toast('Already active this level');
+        return;
+      }
       mockIapPurchase('infinite_undo_level', () => {
         infiniteUndoLevel = true;
         refreshShopButtons();
-        toast('Unlimited undo enabled for this level');
+        // Banner is the claim shout — no toast duplicate
+        showUndoPackClaim('IAP');
       });
     });
 

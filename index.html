@@ -153,6 +153,7 @@
         <p class="shop-balance">Coins: <strong id="shop-coins">70</strong> 🪙</p>
         <p class="shop-theme-claim" id="shop-theme-claim" hidden></p>
         <p class="shop-hints-claim" id="shop-hints-claim" hidden></p>
+        <p class="shop-undo-claim" id="shop-undo-claim" hidden></p>
 
         <section class="shop-section">
           <h3>Remove ads</h3>
@@ -208,12 +209,15 @@
               <button type="button" class="btn btn-sm btn-iap" id="btn-buy-hints-iap">Buy hint pack</button>
             </div>
           </div>
-          <div class="shop-card">
+          <div class="shop-card" data-item-id="undo-level">
             <div class="shop-card-info">
               <strong>Unlimited undo (this level)</strong>
               <span class="shop-desc">Undo freely this level without losing stars</span>
             </div>
-            <button type="button" class="btn btn-sm btn-iap" id="btn-buy-infinite-undo">Unlock this level</button>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-sm btn-coins" id="btn-buy-undo-coins">80 🪙</button>
+              <button type="button" class="btn btn-sm btn-iap" id="btn-buy-infinite-undo">Unlock with cash</button>
+            </div>
           </div>
         </section>
 
