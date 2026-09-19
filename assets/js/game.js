@@ -115,6 +115,8 @@
   let playContinueCueFired = false;
   /** Fail-sheet primary hint CTA soft-arm cue timer (once per open). */
   let failHintArmTimer = 0;
+  /** Hint-paywall primary CTA soft-arm cue timer (once per open). */
+  let hintPayArmTimer = 0;
   /** Levels overlay continue-cell soft-arm cue timer (once per open). */
   let levelsContinueArmTimer = 0;
   let streakClaimClearTimer = 0;
@@ -1392,7 +1394,25 @@
       applyHint();
       return;
     }
+    clearHintPayArm();
+    const coinsBtn = $('#btn-hint-coins');
+    const adBtn = $('#btn-hint-ad');
+    // Prefer coins when affordable; else arm rewarded ad. Never arm pack as primary.
+    if ((save.coins || 0) >= HINT_COIN_COST) {
+      if (coinsBtn) coinsBtn.classList.add('hint-pay-arm');
+    } else {
+      if (adBtn) adBtn.classList.add('hint-pay-arm');
+    }
+    const modal = hintPaywall && hintPaywall.querySelector('.modal');
+    if (modal) modal.classList.add('hint-pay-recover');
     openOverlay(hintPaywall);
+    // Once-per-open soft arm cue — guides eyes to best recovery CTA
+    hintPayArmTimer = setTimeout(function () {
+      hintPayArmTimer = 0;
+      if (!hintPaywall || !hintPaywall.classList.contains('show')) return;
+      haptic('arm');
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+    }, 300);
   }
 
   function applyHint() {
@@ -2718,6 +2738,7 @@
     if (el) el.classList.remove('show');
     if (el === shopOverlay) { clearThemeUnlockClaim(); clearHintsPackClaim(); clearUndoPackClaim(); }
     if (el === failPrompt) clearFailHintArm();
+    if (el === hintPaywall) clearHintPayArm();
     if (el && el.id === 'levels-overlay') clearLevelsContinueArm();
   }
 
@@ -2880,6 +2901,19 @@
       return;
     }
     unlockTheme(id, 'coins');
+  }
+
+  function clearHintPayArm() {
+    if (hintPayArmTimer) {
+      clearTimeout(hintPayArmTimer);
+      hintPayArmTimer = 0;
+    }
+    const coinsBtn = $('#btn-hint-coins');
+    const adBtn = $('#btn-hint-ad');
+    if (coinsBtn) coinsBtn.classList.remove('hint-pay-arm');
+    if (adBtn) adBtn.classList.remove('hint-pay-arm');
+    const modal = hintPaywall && hintPaywall.querySelector('.modal');
+    if (modal) modal.classList.remove('hint-pay-recover');
   }
 
   function clearFailHintArm() {
