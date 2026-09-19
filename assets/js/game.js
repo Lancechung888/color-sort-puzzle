@@ -113,6 +113,8 @@
   let dailyReadyCueFired = false;
   /** Once-per-session soft cue when start shows Continue · Level N. */
   let playContinueCueFired = false;
+  /** Fail-sheet primary hint CTA soft-arm cue timer (once per open). */
+  let failHintArmTimer = 0;
   let streakClaimClearTimer = 0;
   /** Shop theme-unlock claim juice clear timer. */
   let themeClaimClearTimer = 0;
@@ -2682,6 +2684,7 @@
   function closeOverlay(el) {
     if (el) el.classList.remove('show');
     if (el === shopOverlay) { clearThemeUnlockClaim(); clearHintsPackClaim(); clearUndoPackClaim(); }
+    if (el === failPrompt) clearFailHintArm();
   }
 
   function hideAllOverlays() {
@@ -2845,6 +2848,17 @@
     unlockTheme(id, 'coins');
   }
 
+  function clearFailHintArm() {
+    if (failHintArmTimer) {
+      clearTimeout(failHintArmTimer);
+      failHintArmTimer = 0;
+    }
+    const hintBtn = $('#btn-fail-hint');
+    if (hintBtn) hintBtn.classList.remove('fail-hint-arm');
+    const modal = failPrompt && failPrompt.querySelector('.modal-fail');
+    if (modal) modal.classList.remove('fail-recover');
+  }
+
   function showFailPrompt() {
     trackEvent('level_fail', {
       level_id: analyticsLevelId(),
@@ -2852,6 +2866,7 @@
       fail_reason: 'restart_loop',
       restart_count: restartFailCount,
     });
+    clearFailHintArm();
     const hintBtn = $('#btn-fail-hint');
     if (hintBtn) {
       if ((save.freeHints || 0) > 0) {
@@ -2861,8 +2876,18 @@
       } else {
         hintBtn.textContent = '💡 Watch ad for a hint (keeps board)';
       }
+      hintBtn.classList.add('fail-hint-arm');
     }
+    const modal = failPrompt && failPrompt.querySelector('.modal-fail');
+    if (modal) modal.classList.add('fail-recover');
     openOverlay(failPrompt);
+    // Once-per-open soft arm cue — guides eyes to hint-keeps-board primary
+    failHintArmTimer = setTimeout(function () {
+      failHintArmTimer = 0;
+      if (!failPrompt || !failPrompt.classList.contains('show')) return;
+      haptic('arm');
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+    }, 300);
   }
 
   function maybeShowOnboarding() {
