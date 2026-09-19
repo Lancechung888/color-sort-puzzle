@@ -1,7 +1,7 @@
 node_modules/
 .DS_Store
-android/
-ios/
+/android/
+/ios/
 .idea/
 *.log
 *.jks

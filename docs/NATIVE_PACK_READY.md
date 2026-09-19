@@ -20,6 +20,7 @@
 | `npx cap add android` in this environment | **DONE** (local `android/` generated; **gitignored**) |
 | `npx cap sync` + plugins discovered | **DONE** (AdMob + NativePurchases) |
 | AdMob `APPLICATION_ID` Manifest patch | **SCRIPT READY** (`scripts/patch-android-admob.sh`; run after sync / via `aab:internal`) |
+| Launcher ICON A + branded splash (vs stock Capacitor) | **DONE** (`scripts/apply-android-icons.sh` ← `native-templates/android/res/` from finals ICON A; hooked in `aab:internal`) |
 | JDK 17 + Android SDK on this packaging box | **DONE** (`JAVA_HOME=/home/box/sdk/jdk-17.0.20.1+1`, `ANDROID_HOME=/home/box/sdk/android`) |
 | Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19): `npm run aab:internal` → signed `app-release.aab` (~6.1 MB; upload keystore local/gitignored). Copy: `/workspace/colortube-artifacts/ColorTubeSort-internal-20260919-release.aab` |
 | Play Console / real AdMob / real IAP IDs | **OUT OF SCOPE** (post-approval; see checklist) |
