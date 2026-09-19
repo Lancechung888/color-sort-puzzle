@@ -102,6 +102,9 @@
   let pendingFailRestart = false;
   /** Toast queued from login streak (shown after HUD ready). */
   let pendingStreakToast = '';
+  /** Live ★ budget projection (HUD); reset each loadLevel. */
+  let lastProjectedStars = 3;
+  let starDropHapticFired = false;
 
   // --- DOM ---
   const $ = (sel) => document.querySelector(sel);
@@ -424,6 +427,8 @@
     moves = 0;
     pouring = false;
     undosUsed = 0;
+    lastProjectedStars = 3;
+    starDropHapticFired = false;
     infiniteUndoLevel = false;
     if (!opts.daily) levelIndex = idx;
     updateChrome();
@@ -1272,6 +1277,12 @@
     btnUndo.disabled = history.length === 0 || pouring;
   }
 
+  function projectedStarGlyphs(n) {
+    let s = '';
+    for (let i = 1; i <= 3; i++) s += i <= n ? '★' : '☆';
+    return s;
+  }
+
   function updateChrome() {
     if (isDailyMode) {
       levelLabel.textContent = 'Daily Challenge';
@@ -1280,7 +1291,22 @@
     }
     const def = isDailyMode ? getDailyDef() : LEVELS[levelIndex];
     const par = estimatePar(def);
-    movesLabel.textContent = `Moves ${moves} · Par ${par}`;
+    const projected = calcStars();
+    movesLabel.textContent = `Moves ${moves} · Par ${par} · ${projectedStarGlyphs(projected)}`;
+    movesLabel.classList.remove('track-perfect', 'track-good', 'track-ok');
+    movesLabel.classList.add(
+      projected === 3 ? 'track-perfect' : projected === 2 ? 'track-good' : 'track-ok'
+    );
+    // One soft haptic max when dropping off 3★ / 2★ track mid-level
+    if (
+      !starDropHapticFired &&
+      lastProjectedStars > projected &&
+      ((lastProjectedStars === 3 && projected <= 2) || (lastProjectedStars === 2 && projected === 1))
+    ) {
+      haptic('arm');
+      starDropHapticFired = true;
+    }
+    lastProjectedStars = projected;
     btnUndo.disabled = history.length === 0;
     updateLevelStarsPreview();
   }
@@ -1288,14 +1314,17 @@
   function updateLevelStarsPreview() {
     const el = $('#level-stars');
     if (!el) return;
+    const nowTrack = calcStars();
     if (isDailyMode) {
       el.innerHTML = save.dailyDoneDate === todayStr() ? '★ ★ ★' : '';
+      el.title = `Best stars · Now on track for ${nowTrack}★`;
       return;
     }
     const s = save.stars[levelIndex] || 0;
     el.innerHTML = [1, 2, 3]
       .map((i) => `<span class="${i <= s ? '' : 'empty'}">★</span>`)
       .join('');
+    el.title = `Best ${s}★ · Now on track for ${nowTrack}★`;
   }
 
   /**
