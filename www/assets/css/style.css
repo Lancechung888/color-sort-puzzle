@@ -2434,6 +2434,45 @@ html, body {
   box-shadow: 0 1px 4px rgba(251, 146, 60, 0.35);
   pointer-events: none;
 }
+/* Levels overlay — star-gap soft-arm (mint/lavender; distinct from Continue gold) */
+.level-cell.level-star-gap-arm {
+  border-color: rgba(167, 139, 250, 0.7);
+  background: linear-gradient(160deg, rgba(52, 211, 153, 0.2), rgba(167, 139, 250, 0.14));
+  box-shadow:
+    0 0 0 1px rgba(52, 211, 153, 0.32),
+    0 0 16px rgba(167, 139, 250, 0.28),
+    0 4px 12px rgba(52, 211, 153, 0.2);
+  animation: levelStarGapArmPulse 1.55s ease-in-out infinite;
+}
+@keyframes levelStarGapArmPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(52, 211, 153, 0.28),
+      0 0 12px rgba(167, 139, 250, 0.22),
+      0 4px 10px rgba(52, 211, 153, 0.16);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(167, 139, 250, 0.58),
+      0 0 22px rgba(52, 211, 153, 0.4),
+      0 4px 14px rgba(167, 139, 250, 0.28);
+  }
+}
+.level-cell-star-gap {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 6px;
+  color: #0b1f18;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.95), rgba(167, 139, 250, 0.88));
+  box-shadow: 0 1px 4px rgba(167, 139, 250, 0.35);
+  pointer-events: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .level-cell.level-continue-arm {
     animation: none;
@@ -2441,6 +2480,13 @@ html, body {
     box-shadow:
       0 0 0 1px rgba(251, 146, 60, 0.5),
       0 4px 12px rgba(251, 146, 60, 0.22);
+  }
+  .level-cell.level-star-gap-arm {
+    animation: none;
+    border-color: rgba(167, 139, 250, 0.9);
+    box-shadow:
+      0 0 0 1px rgba(52, 211, 153, 0.5),
+      0 4px 12px rgba(167, 139, 250, 0.22);
   }
 }
 
