@@ -114,6 +114,8 @@
   let hintsClaimClearTimer = 0;
   /** Shop unlimited-undo (this level) claim juice clear timer. */
   let undoClaimClearTimer = 0;
+  /** HUD coin-earn pulse clear timer. */
+  let coinEarnClearTimer = 0;
   /** Live ★ budget projection (HUD); reset each loadLevel. */
   let lastProjectedStars = 3;
   let starDropHapticFired = false;
@@ -332,6 +334,36 @@
     save.coins = Math.max(0, (save.coins || 0) + n);
     persist();
     refreshHud();
+    if (n > 0) pulseCoinEarn(n);
+  }
+
+  function clearCoinEarnPulse() {
+    if (coinEarnClearTimer) {
+      clearTimeout(coinEarnClearTimer);
+      coinEarnClearTimer = 0;
+    }
+    const chip = $('#coin-display');
+    if (chip) chip.classList.remove('coin-earn');
+    document.querySelectorAll('.coin-earn-float').forEach(function (el) {
+      el.remove();
+    });
+  }
+
+  /** HUD celebration when coins are granted — no double grant; caller already added. */
+  function pulseCoinEarn(n) {
+    if (!(n > 0)) return;
+    clearCoinEarnPulse();
+    const chip = $('#coin-display');
+    if (!chip) return;
+    chip.classList.add('coin-earn');
+    const floatEl = document.createElement('span');
+    floatEl.className = 'coin-earn-float';
+    floatEl.textContent = '+' + n;
+    floatEl.setAttribute('aria-hidden', 'true');
+    chip.appendChild(floatEl);
+    setTimeout(function () { haptic('coins'); }, 40);
+    try { SFX.tap(); } catch (_) { /* ignore */ }
+    coinEarnClearTimer = setTimeout(clearCoinEarnPulse, 700);
   }
 
   function spendCoins(n) {
@@ -693,6 +725,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'coins') {
+          // HUD coin-earn — light success tick, under hint-pack / win weight
+          Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         if (kind === 'hint') {
           // Hint reveal — soft invite, under arm/select weight band but with SUCCESS tick
           Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
@@ -724,6 +762,7 @@
       else if (kind === 'theme') navigator.vibrate(26); // theme unlock claim ~20–30ms
       else if (kind === 'hintsPack') navigator.vibrate(26); // hint-pack claim ~20–30ms
       else if (kind === 'undoPack') navigator.vibrate(26); // unlimited-undo claim ~20–30ms
+      else if (kind === 'coins') navigator.vibrate(14); // HUD coin-earn soft tick
       else if (kind === 'hint') navigator.vibrate(12); // hint reveal soft tick
     } catch (_) { /* ignore */ }
   }
