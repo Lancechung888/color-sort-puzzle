@@ -645,6 +645,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'mastery') {
+          // First-time 3★ mastery claim — same weight as chest; second beat after win/perfect
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
         return;
       }
@@ -664,6 +670,7 @@
       else if (kind === 'win') navigator.vibrate([20, 40, 20, 40, 40]);
       else if (kind === 'perfect') navigator.vibrate([24, 36, 24, 36, 48]);
       else if (kind === 'chest') navigator.vibrate(26); // chapter chest second beat ~20–30ms
+      else if (kind === 'mastery') navigator.vibrate(26); // first-3★ mastery second beat ~20–30ms
     } catch (_) { /* ignore */ }
   }
 
@@ -1583,7 +1590,7 @@
         if (stars === 3 && prev < 3) {
           masteryBonus = FIRST_THREE_STAR_BONUS;
           coins += masteryBonus;
-          metaBits.push('First 3★ +' + masteryBonus + '🪙');
+          // Banner #win-mastery is the claim shout — skip metaBits duplicate
           trackEvent('first_three_star', {
             mode: 'main',
             level_id: analyticsLevelId(),
@@ -1633,6 +1640,7 @@
     if (winModal) {
       winModal.classList.toggle('perfect', stars === 3);
       winModal.classList.toggle('chest-claim', !!chest);
+      winModal.classList.toggle('mastery-claim', masteryBonus > 0);
     }
     if (winStars) winStars.classList.toggle('perfect', stars === 3);
     // Keep Perfect! / You win!; chest banner underneath is the clearer second beat
@@ -1677,6 +1685,21 @@
       }
     }
 
+    const winMastery = $('#win-mastery');
+    if (winMastery) {
+      if (masteryBonus > 0) {
+        winMastery.hidden = false;
+        winMastery.textContent = 'First 3★! +' + masteryBonus + ' coins';
+        // Second haptic beat after win/perfect; stagger slightly if chest also fires
+        var masteryHapticDelay = chest ? 320 : 220;
+        setTimeout(function () { haptic('mastery'); }, masteryHapticDelay);
+        setTimeout(function () { spawnMasteryBurst(winMastery); }, chest ? 280 : 180);
+      } else {
+        winMastery.hidden = true;
+        winMastery.textContent = '';
+      }
+    }
+
     const winMeta = $('#win-meta');
     if (winMeta) {
       if (metaBits.length) {
@@ -1708,12 +1731,17 @@
     const winStars = $('#win-stars');
     const winTitle = $('#win-title');
     const winChest = $('#win-chest');
-    if (winModal) winModal.classList.remove('perfect', 'chest-claim');
+    const winMastery = $('#win-mastery');
+    if (winModal) winModal.classList.remove('perfect', 'chest-claim', 'mastery-claim');
     if (winStars) winStars.classList.remove('perfect');
     if (winTitle) winTitle.textContent = 'You win!';
     if (winChest) {
       winChest.hidden = true;
       winChest.textContent = '';
+    }
+    if (winMastery) {
+      winMastery.hidden = true;
+      winMastery.textContent = '';
     }
   }
 
@@ -1747,6 +1775,32 @@
       p.style.animationDelay = (Math.random() * 60) + 'ms';
       app.appendChild(p);
       setTimeout(function () { p.remove(); }, 700);
+    }
+  }
+
+  /** Cool gold/lavender burst on first-time 3★ mastery claim — distinct from chest amber. */
+  function spawnMasteryBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const cools = ['#f7b731', '#ffe66d', '#c8aaff', '#ba94ff', '#e8d4ff', '#ffd700', '#d4b8ff'];
+    const n = 13;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'mastery-spark';
+      const ang = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.28;
+      const dist = 20 + Math.random() * 40;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = cools[i % cools.length];
+      p.style.boxShadow = '0 0 10px ' + cools[i % cools.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
+      p.style.animationDelay = (Math.random() * 50) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 650);
     }
   }
 

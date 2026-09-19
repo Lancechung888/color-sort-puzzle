@@ -639,6 +639,18 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'chest') {
+          // Chapter chest claim — second beat after win/perfect; MEDIUM + SUCCESS
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
+        if (kind === 'mastery') {
+          // First-time 3★ mastery claim — same weight as chest; second beat after win/perfect
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
         return;
       }
@@ -657,6 +669,8 @@
       else if (kind === 'select') navigator.vibrate(8);
       else if (kind === 'win') navigator.vibrate([20, 40, 20, 40, 40]);
       else if (kind === 'perfect') navigator.vibrate([24, 36, 24, 36, 48]);
+      else if (kind === 'chest') navigator.vibrate(26); // chapter chest second beat ~20–30ms
+      else if (kind === 'mastery') navigator.vibrate(26); // first-3★ mastery second beat ~20–30ms
     } catch (_) { /* ignore */ }
   }
 
@@ -1576,7 +1590,7 @@
         if (stars === 3 && prev < 3) {
           masteryBonus = FIRST_THREE_STAR_BONUS;
           coins += masteryBonus;
-          metaBits.push('First 3★ +' + masteryBonus + '🪙');
+          // Banner #win-mastery is the claim shout — skip metaBits duplicate
           trackEvent('first_three_star', {
             mode: 'main',
             level_id: analyticsLevelId(),
@@ -1590,10 +1604,8 @@
       if (levelIndex >= (save.level || 0)) save.level = Math.min(levelIndex + 1, LEVELS.length - 1);
 
       chest = tryClaimChapterChest(levelIndex);
-      if (chest) {
-        // coins already added inside tryClaimChapterChest — don't double-count in lastWinCoins path
-        metaBits.push('Chapter ' + chest.chapter + ' chest +' + chest.coins + '🪙 +' + chest.hints + ' hint');
-      }
+      // coins already added inside tryClaimChapterChest — don't double-count in lastWinCoins path
+      // Chest celebration is a dedicated #win-chest beat (not a metaBits text line)
     }
 
     lastWinCoins = coins;
@@ -1625,8 +1637,13 @@
     const winModal = winOverlay.querySelector('.modal-win');
     const winStars = $('#win-stars');
     const winTitle = $('#win-title');
-    if (winModal) winModal.classList.toggle('perfect', stars === 3);
+    if (winModal) {
+      winModal.classList.toggle('perfect', stars === 3);
+      winModal.classList.toggle('chest-claim', !!chest);
+      winModal.classList.toggle('mastery-claim', masteryBonus > 0);
+    }
     if (winStars) winStars.classList.toggle('perfect', stars === 3);
+    // Keep Perfect! / You win!; chest banner underneath is the clearer second beat
     if (winTitle) winTitle.textContent = stars === 3 ? 'Perfect!' : 'You win!';
 
     const starEls = winOverlay.querySelectorAll('.win-stars .star');
@@ -1652,6 +1669,37 @@
       (stars === 3 ? ' · Perfect 3★' : ` · ${stars} star${stars === 1 ? '' : 's'}`) +
       (undosUsed && !infiniteUndoLevel ? ' (used undo)' : '');
     $('#win-detail').textContent = detail;
+    const winChest = $('#win-chest');
+    if (winChest) {
+      if (chest) {
+        winChest.hidden = false;
+        const hintLabel = chest.hints === 1 ? 'hint' : 'hints';
+        winChest.textContent =
+          'Chapter ' + chest.chapter + ' chest unlocked! +' + chest.coins + ' coins +' + chest.hints + ' ' + hintLabel;
+        // Second haptic beat after win/perfect so chest reads as its own claim
+        setTimeout(function () { haptic('chest'); }, 220);
+        setTimeout(function () { spawnChestBurst(winChest); }, 180);
+      } else {
+        winChest.hidden = true;
+        winChest.textContent = '';
+      }
+    }
+
+    const winMastery = $('#win-mastery');
+    if (winMastery) {
+      if (masteryBonus > 0) {
+        winMastery.hidden = false;
+        winMastery.textContent = 'First 3★! +' + masteryBonus + ' coins';
+        // Second haptic beat after win/perfect; stagger slightly if chest also fires
+        var masteryHapticDelay = chest ? 320 : 220;
+        setTimeout(function () { haptic('mastery'); }, masteryHapticDelay);
+        setTimeout(function () { spawnMasteryBurst(winMastery); }, chest ? 280 : 180);
+      } else {
+        winMastery.hidden = true;
+        winMastery.textContent = '';
+      }
+    }
+
     const winMeta = $('#win-meta');
     if (winMeta) {
       if (metaBits.length) {
@@ -1682,9 +1730,19 @@
     const winModal = winOverlay.querySelector('.modal-win');
     const winStars = $('#win-stars');
     const winTitle = $('#win-title');
-    if (winModal) winModal.classList.remove('perfect');
+    const winChest = $('#win-chest');
+    const winMastery = $('#win-mastery');
+    if (winModal) winModal.classList.remove('perfect', 'chest-claim', 'mastery-claim');
     if (winStars) winStars.classList.remove('perfect');
     if (winTitle) winTitle.textContent = 'You win!';
+    if (winChest) {
+      winChest.hidden = true;
+      winChest.textContent = '';
+    }
+    if (winMastery) {
+      winMastery.hidden = true;
+      winMastery.textContent = '';
+    }
   }
 
   function prefersReducedMotion() {
@@ -1692,6 +1750,57 @@
       return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     } catch (_) {
       return false;
+    }
+  }
+
+  /** Amber/gold coin-like burst on chapter chest claim — distinct from perfect-spark / confetti. */
+  function spawnChestBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const ambers = ['#ffb347', '#f7b731', '#ff8c28', '#ffe66d', '#ffd700', '#ffcc66'];
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'chest-spark';
+      const ang = (Math.PI * 2 * i) / 18 + (Math.random() - 0.5) * 0.3;
+      const dist = 24 + Math.random() * 48;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = ambers[i % ambers.length];
+      p.style.boxShadow = '0 0 10px ' + ambers[i % ambers.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
+      p.style.animationDelay = (Math.random() * 60) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 700);
+    }
+  }
+
+  /** Cool gold/lavender burst on first-time 3★ mastery claim — distinct from chest amber. */
+  function spawnMasteryBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const cools = ['#f7b731', '#ffe66d', '#c8aaff', '#ba94ff', '#e8d4ff', '#ffd700', '#d4b8ff'];
+    const n = 13;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'mastery-spark';
+      const ang = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.28;
+      const dist = 20 + Math.random() * 40;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = cools[i % cools.length];
+      p.style.boxShadow = '0 0 10px ' + cools[i % cools.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
+      p.style.animationDelay = (Math.random() * 50) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 650);
     }
   }
 
