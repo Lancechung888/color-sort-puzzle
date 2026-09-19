@@ -115,6 +115,8 @@
   let playContinueCueFired = false;
   /** Fail-sheet primary hint CTA soft-arm cue timer (once per open). */
   let failHintArmTimer = 0;
+  /** Levels overlay continue-cell soft-arm cue timer (once per open). */
+  let levelsContinueArmTimer = 0;
   let streakClaimClearTimer = 0;
   /** Shop theme-unlock claim juice clear timer. */
   let themeClaimClearTimer = 0;
@@ -2602,9 +2604,33 @@
   }
 
   // --- Level select / ★ mastery ---
+  function clearLevelsContinueArm() {
+    if (levelsContinueArmTimer) {
+      clearTimeout(levelsContinueArmTimer);
+      levelsContinueArmTimer = 0;
+    }
+  }
+
+  function continueLevelIndex(maxU) {
+    // Prefer current mainline level when unlocked; else frontier.
+    if (!isDailyMode && typeof levelIndex === 'number' && levelIndex >= 0 && levelIndex <= maxU) {
+      return levelIndex;
+    }
+    return Math.min(Math.max(maxU, 0), LEVELS.length - 1);
+  }
+
   function openLevels() {
+    clearLevelsContinueArm();
     renderLevelsGrid();
     openOverlay($('#levels-overlay'));
+    // Once-per-open soft arm — guides eyes to Continue cell
+    levelsContinueArmTimer = setTimeout(function () {
+      levelsContinueArmTimer = 0;
+      const ov = $('#levels-overlay');
+      if (!ov || !ov.classList.contains('show')) return;
+      haptic('arm');
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+    }, 300);
   }
 
   function closeLevels() {
@@ -2618,6 +2644,7 @@
     if (!grid) return;
     ensureMetaSaveArrays();
     const maxU = Math.max(save.maxUnlocked || 0, 0);
+    const continueIdx = continueLevelIndex(maxU);
     const ch = focusChapter();
     const prog = countPerfectInChapter(ch);
     const claimed = save.chapterChestsClaimed.indexOf(ch) >= 0;
@@ -2639,10 +2666,16 @@
       if (locked) btn.classList.add('locked');
       if (best >= 3) btn.classList.add('perfect');
       else if (best > 0) btn.classList.add('partial');
+      const isContinue = !locked && i === continueIdx;
+      if (isContinue) {
+        btn.classList.add('level-continue-arm');
+        btn.setAttribute('aria-label', 'Continue — Level ' + (i + 1));
+      }
       const starsHtml = [1, 2, 3]
         .map((s) => '<span class="' + (s <= best ? 'lit' : 'empty') + '">★</span>')
         .join('');
       btn.innerHTML =
+        (isContinue ? '<span class="level-cell-go" aria-hidden="true">Go</span>' : '') +
         '<span class="level-cell-num">' + (i + 1) + '</span>' +
         '<span class="level-cell-stars">' + starsHtml + '</span>';
       if (!locked) {
@@ -2685,6 +2718,7 @@
     if (el) el.classList.remove('show');
     if (el === shopOverlay) { clearThemeUnlockClaim(); clearHintsPackClaim(); clearUndoPackClaim(); }
     if (el === failPrompt) clearFailHintArm();
+    if (el && el.id === 'levels-overlay') clearLevelsContinueArm();
   }
 
   function hideAllOverlays() {
