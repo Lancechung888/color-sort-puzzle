@@ -19,6 +19,8 @@
   const STAR_REWARDS = { 1: 8, 2: 15, 3: 28 };
   /** First time a level hits 3★ — clear bonus beyond STAR_REWARDS[3] (not +1 spam). */
   const FIRST_THREE_STAR_BONUS = 22;
+  /** First daily clear of the calendar day — bonus beyond STAR_REWARDS (not replay spam). */
+  const DAILY_FIRST_CLEAR_BONUS = 40;
   /** Every CHAPTER_SIZE main levels all-3★ → chest (coins + free hint). */
   const CHAPTER_SIZE = 10;
   const CHAPTER_CHEST = { coins: 80, hints: 1 };
@@ -651,6 +653,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'daily') {
+          // Daily first-clear claim — same weight as mastery/chest; second beat after win/perfect
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         Promise.resolve(H.impact({ style: 'LIGHT' })).catch(function () {});
         return;
       }
@@ -671,6 +679,7 @@
       else if (kind === 'perfect') navigator.vibrate([24, 36, 24, 36, 48]);
       else if (kind === 'chest') navigator.vibrate(26); // chapter chest second beat ~20–30ms
       else if (kind === 'mastery') navigator.vibrate(26); // first-3★ mastery second beat ~20–30ms
+      else if (kind === 'daily') navigator.vibrate(26); // daily first-clear second beat ~20–30ms
     } catch (_) { /* ignore */ }
   }
 
@@ -1576,10 +1585,12 @@
     let masteryBonus = 0;
     let chest = null;
 
+    let dailyFirstClear = false;
     if (isDailyMode) {
       const key = todayStr();
       if (save.dailyDoneDate !== key) {
-        coins += 40; // first clear bonus
+        dailyFirstClear = true;
+        coins += DAILY_FIRST_CLEAR_BONUS; // first clear bonus — celebrated by #win-daily only
         save.dailyDoneDate = key;
       }
     } else {
@@ -1620,6 +1631,7 @@
         stars: stars,
         moves: moves,
         undos_used: undosUsed,
+        first_clear: !!dailyFirstClear,
       });
     } else {
       trackEvent('level_clear', {
@@ -1641,6 +1653,7 @@
       winModal.classList.toggle('perfect', stars === 3);
       winModal.classList.toggle('chest-claim', !!chest);
       winModal.classList.toggle('mastery-claim', masteryBonus > 0);
+      winModal.classList.toggle('daily-claim', !!dailyFirstClear);
     }
     if (winStars) winStars.classList.toggle('perfect', stars === 3);
     // Keep Perfect! / You win!; chest banner underneath is the clearer second beat
@@ -1700,6 +1713,20 @@
       }
     }
 
+    const winDaily = $('#win-daily');
+    if (winDaily) {
+      if (dailyFirstClear) {
+        winDaily.hidden = false;
+        winDaily.textContent = 'Daily first clear! +' + DAILY_FIRST_CLEAR_BONUS + ' coins';
+        // Second haptic beat after win/perfect; daily never co-occurs with chest/mastery
+        setTimeout(function () { haptic('daily'); }, 220);
+        setTimeout(function () { spawnDailyBurst(winDaily); }, 180);
+      } else {
+        winDaily.hidden = true;
+        winDaily.textContent = '';
+      }
+    }
+
     const winMeta = $('#win-meta');
     if (winMeta) {
       if (metaBits.length) {
@@ -1732,7 +1759,8 @@
     const winTitle = $('#win-title');
     const winChest = $('#win-chest');
     const winMastery = $('#win-mastery');
-    if (winModal) winModal.classList.remove('perfect', 'chest-claim', 'mastery-claim');
+    const winDaily = $('#win-daily');
+    if (winModal) winModal.classList.remove('perfect', 'chest-claim', 'mastery-claim', 'daily-claim');
     if (winStars) winStars.classList.remove('perfect');
     if (winTitle) winTitle.textContent = 'You win!';
     if (winChest) {
@@ -1742,6 +1770,10 @@
     if (winMastery) {
       winMastery.hidden = true;
       winMastery.textContent = '';
+    }
+    if (winDaily) {
+      winDaily.hidden = true;
+      winDaily.textContent = '';
     }
   }
 
@@ -1796,6 +1828,32 @@
       p.style.top = cy + 'px';
       p.style.background = cools[i % cools.length];
       p.style.boxShadow = '0 0 10px ' + cools[i % cools.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
+      p.style.animationDelay = (Math.random() * 50) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 650);
+    }
+  }
+
+  /** Sky/cyan burst on daily first-clear claim — distinct from chest amber / mastery gold-lavender. */
+  function spawnDailyBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const skies = ['#5ec8ff', '#7dd3fc', '#38bdf8', '#bae6fd', '#22d3ee', '#e0f2fe', '#67e8f9'];
+    const n = 13;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'daily-spark';
+      const ang = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.28;
+      const dist = 20 + Math.random() * 40;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = skies[i % skies.length];
+      p.style.boxShadow = '0 0 10px ' + skies[i % skies.length];
       p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
       p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
       p.style.animationDelay = (Math.random() * 50) + 'ms';
