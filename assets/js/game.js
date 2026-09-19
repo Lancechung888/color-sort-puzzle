@@ -937,6 +937,12 @@
           Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
           return;
         }
+        if (kind === 'unlock') {
+          // New-level unlock claim — same weight as newBest/mastery; second beat after win
+          Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
+          Promise.resolve(H.notification({ type: 'SUCCESS' })).catch(function () {});
+          return;
+        }
         if (kind === 'streak') {
           // Login streak milestone claim — same weight as daily/mastery/chest
           Promise.resolve(H.impact({ style: 'MEDIUM' })).catch(function () {});
@@ -1022,6 +1028,7 @@
       else if (kind === 'mastery') navigator.vibrate(26); // first-3★ mastery second beat ~20–30ms
       else if (kind === 'daily') navigator.vibrate(26); // daily first-clear second beat ~20–30ms
       else if (kind === 'newBest') navigator.vibrate(24); // new-best star improve second beat ~22–26ms
+      else if (kind === 'unlock') navigator.vibrate(24); // new-level unlock second beat ~22–26ms
       else if (kind === 'streak') navigator.vibrate(26); // streak milestone claim ~20–30ms
       else if (kind === 'theme') navigator.vibrate(26); // theme unlock claim ~20–30ms
       else if (kind === 'hintsPack') navigator.vibrate(26); // hint-pack claim ~20–30ms
@@ -1954,6 +1961,9 @@
 
     let dailyFirstClear = false;
     let newBestImprove = false;
+    let newlyUnlocked = false;
+    // Capture frontier BEFORE maxUnlocked write — unlock juice only when advancing
+    const prevMax = save.maxUnlocked || 0;
     if (isDailyMode) {
       const key = todayStr();
       if (save.dailyDoneDate !== key) {
@@ -1982,6 +1992,8 @@
       } else {
         coins = Math.max(5, Math.floor(coins / 2));
       }
+      // Frontier advance unlocks next mainline level (display = levelIndex + 2)
+      newlyUnlocked = (levelIndex + 1) > prevMax && (levelIndex + 1) < LEVELS.length;
       save.maxUnlocked = Math.max(save.maxUnlocked || 0, levelIndex + 1);
       if (levelIndex >= (save.level || 0)) save.level = Math.min(levelIndex + 1, LEVELS.length - 1);
 
@@ -2025,6 +2037,7 @@
       winModal.classList.toggle('chest-claim', !!chest);
       winModal.classList.toggle('mastery-claim', masteryBonus > 0);
       winModal.classList.toggle('new-best-claim', !!newBestImprove);
+      winModal.classList.toggle('unlock-claim', !!newlyUnlocked);
       winModal.classList.toggle('daily-claim', !!dailyFirstClear);
     }
     if (winStars) winStars.classList.toggle('perfect', stars === 3);
@@ -2101,6 +2114,25 @@
       }
     }
 
+    const winUnlock = $('#win-unlock');
+    if (winUnlock) {
+      if (newlyUnlocked) {
+        var unlockLevelNum = levelIndex + 2; // 1-based display for newly unlocked level
+        winUnlock.hidden = false;
+        winUnlock.textContent = 'Level ' + unlockLevelNum + ' unlocked!';
+        // Second haptic beat after win; stagger if chest/mastery also fire (same pattern as new-best)
+        var unlockHapticDelay = 220;
+        if (chest && masteryBonus > 0) unlockHapticDelay = 420;
+        else if (chest || masteryBonus > 0) unlockHapticDelay = 320;
+        setTimeout(function () { haptic('unlock'); }, unlockHapticDelay);
+        setTimeout(function () { spawnUnlockBurst(winUnlock); }, unlockHapticDelay === 220 ? 180 : unlockHapticDelay - 40);
+        try { SFX.tap(); } catch (_) {}
+      } else {
+        winUnlock.hidden = true;
+        winUnlock.textContent = '';
+      }
+    }
+
     const winDaily = $('#win-daily');
     if (winDaily) {
       if (dailyFirstClear) {
@@ -2133,8 +2165,15 @@
     }
 
     const nextBtn = $('#btn-next');
+    if (nextBtn) nextBtn.classList.remove('next-unlock-arm');
     if (isDailyMode) nextBtn.textContent = 'Back to main';
-    else nextBtn.textContent = levelIndex < LEVELS.length - 1 ? 'Next' : 'Play again';
+    else if (newlyUnlocked && levelIndex < LEVELS.length - 1) {
+      nextBtn.textContent = 'Play Level ' + (levelIndex + 2);
+      nextBtn.classList.add('next-unlock-arm');
+      setTimeout(function () {
+        if (nextBtn) nextBtn.classList.remove('next-unlock-arm');
+      }, 1200);
+    } else nextBtn.textContent = levelIndex < LEVELS.length - 1 ? 'Next' : 'Play again';
 
     spawnConfetti(stars === 3);
     refreshMetaTeasers();
@@ -2148,8 +2187,10 @@
     const winChest = $('#win-chest');
     const winMastery = $('#win-mastery');
     const winNewBest = $('#win-new-best');
+    const winUnlock = $('#win-unlock');
     const winDaily = $('#win-daily');
-    if (winModal) winModal.classList.remove('perfect', 'chest-claim', 'mastery-claim', 'new-best-claim', 'daily-claim');
+    const nextBtn = $('#btn-next');
+    if (winModal) winModal.classList.remove('perfect', 'chest-claim', 'mastery-claim', 'new-best-claim', 'unlock-claim', 'daily-claim');
     if (winStars) winStars.classList.remove('perfect');
     if (winTitle) winTitle.textContent = 'You win!';
     if (winChest) {
@@ -2164,10 +2205,16 @@
       winNewBest.hidden = true;
       winNewBest.textContent = '';
     }
+    if (winUnlock) {
+      winUnlock.hidden = true;
+      winUnlock.textContent = '';
+    }
     if (winDaily) {
       winDaily.hidden = true;
       winDaily.textContent = '';
     }
+    if (nextBtn) nextBtn.classList.remove('next-unlock-arm');
+    document.querySelectorAll('.unlock-spark').forEach(function (el) { el.remove(); });
   }
 
   function prefersReducedMotion() {
@@ -2273,6 +2320,32 @@
       p.style.top = cy + 'px';
       p.style.background = mints[i % mints.length];
       p.style.boxShadow = '0 0 10px ' + mints[i % mints.length];
+      p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
+      p.style.animationDelay = (Math.random() * 50) + 'ms';
+      app.appendChild(p);
+      setTimeout(function () { p.remove(); }, 650);
+    }
+  }
+
+  /** Warm gold/peach burst on new-level unlock — distinct from chest amber / mastery gold-lavender / new-best mint. */
+  function spawnUnlockBurst(anchorEl) {
+    if (!anchorEl || prefersReducedMotion()) return;
+    const rect = anchorEl.getBoundingClientRect();
+    const appRect = app.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - appRect.left;
+    const cy = rect.top + rect.height / 2 - appRect.top;
+    const peaches = ['#fbbf24', '#fcd34d', '#fdba74', '#fde68a', '#f59e0b', '#fb923c', '#ffe0a3'];
+    const n = 11;
+    for (let i = 0; i < n; i++) {
+      const p = document.createElement('div');
+      p.className = 'unlock-spark';
+      const ang = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.28;
+      const dist = 20 + Math.random() * 40;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = peaches[i % peaches.length];
+      p.style.boxShadow = '0 0 10px ' + peaches[i % peaches.length];
       p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
       p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
       p.style.animationDelay = (Math.random() * 50) + 'ms';

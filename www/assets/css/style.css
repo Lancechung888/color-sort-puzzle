@@ -1658,6 +1658,115 @@ html, body {
   }
 }
 
+/* New-level unlock claim — soft warm gold/peach (distinct from chest amber / mastery gold-lavender / new-best mint / daily sky) */
+.modal-win.unlock-claim {
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.5),
+    0 18px 52px rgba(245, 158, 11, 0.22),
+    0 0 36px rgba(253, 186, 116, 0.24);
+}
+.modal-win.perfect.unlock-claim {
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.55),
+    0 18px 56px rgba(245, 158, 11, 0.26),
+    0 0 44px rgba(253, 186, 116, 0.28);
+}
+/* Chest + unlock: keep amber chest rim (chest is the rarer beat) */
+.modal-win.unlock-claim.chest-claim {
+  box-shadow:
+    0 0 0 1px rgba(255, 179, 71, 0.5),
+    0 18px 52px rgba(255, 140, 40, 0.28),
+    0 0 36px rgba(247, 183, 49, 0.2);
+}
+/* Mastery + unlock (no chest): soft gold-peach blend */
+.modal-win.unlock-claim.mastery-claim:not(.chest-claim) {
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.48),
+    0 18px 52px rgba(200, 170, 255, 0.18),
+    0 0 36px rgba(253, 186, 116, 0.22);
+}
+.win-unlock {
+  margin: 6px 0 2px;
+  padding: 6px 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #fde68a;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(251, 191, 36, 0.7);
+  background: linear-gradient(180deg, rgba(251, 191, 36, 0.16), rgba(253, 186, 116, 0.1));
+  border: 1px solid rgba(252, 211, 77, 0.5);
+  border-radius: 10px;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.unlock-spark {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 45% 55%;
+  pointer-events: none;
+  z-index: 80;
+  animation: unlockSpark 0.58s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes unlockSpark {
+  0% { transform: translate(0, 0) scale(0.4) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0.18) rotate(28deg); opacity: 0; }
+}
+/* Next CTA soft pulse when frontier unlocks — once ~1.2s */
+.btn.next-unlock-arm {
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.55),
+    0 0 18px rgba(245, 158, 11, 0.35);
+  animation: nextUnlockArmPulse 1.2s ease-out 1;
+}
+@keyframes nextUnlockArmPulse {
+  0% {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.4),
+      0 0 10px rgba(245, 158, 11, 0.2);
+  }
+  40% {
+    box-shadow:
+      0 0 0 2px rgba(251, 191, 36, 0.65),
+      0 0 26px rgba(253, 186, 116, 0.45);
+  }
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.45),
+      0 0 14px rgba(245, 158, 11, 0.28);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .unlock-spark { display: none; }
+  .modal-win.unlock-claim,
+  .modal-win.perfect.unlock-claim {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.55),
+      0 12px 36px rgba(245, 158, 11, 0.2);
+  }
+  .modal-win.unlock-claim.chest-claim {
+    box-shadow:
+      0 0 0 1px rgba(255, 179, 71, 0.55),
+      0 12px 36px rgba(255, 140, 40, 0.22);
+  }
+  .modal-win.unlock-claim.mastery-claim:not(.chest-claim) {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.5),
+      0 12px 36px rgba(200, 170, 255, 0.16);
+  }
+  .win-unlock {
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.55);
+  }
+  .btn.next-unlock-arm {
+    animation: none;
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.6),
+      0 0 12px rgba(245, 158, 11, 0.28);
+  }
+}
+
 /* Login streak milestone claim — warm coral/flame (distinct from amber chest / gold-lavender mastery / sky daily) */
 .modal-premium.streak-claim {
   box-shadow:
