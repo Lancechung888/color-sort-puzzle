@@ -121,6 +121,8 @@
   let levelsContinueArmTimer = 0;
   /** Win-sheet Replay-for-3★ soft-arm cue timer (once per open). */
   let winReplayArmTimer = 0;
+  /** Shop affordable coin-CTA soft-arm cue timer (once per open). */
+  let shopBuyArmTimer = 0;
   let streakClaimClearTimer = 0;
   /** Shop theme-unlock claim juice clear timer. */
   let themeClaimClearTimer = 0;
@@ -692,6 +694,7 @@
     save.themes[id] = true;
     persist();
     applyTheme(id);
+    clearShopBuyArm();
     refreshShopButtons();
     // Banner is the claim shout — no toast duplicate
     showThemeUnlockClaim(id, via);
@@ -2760,7 +2763,12 @@
 
   function closeOverlay(el) {
     if (el) el.classList.remove('show');
-    if (el === shopOverlay) { clearThemeUnlockClaim(); clearHintsPackClaim(); clearUndoPackClaim(); }
+    if (el === shopOverlay) {
+      clearThemeUnlockClaim();
+      clearHintsPackClaim();
+      clearUndoPackClaim();
+      clearShopBuyArm();
+    }
     if (el === failPrompt) clearFailHintArm();
     if (el === hintPaywall) clearHintPayArm();
     if (el === winOverlay) clearWinReplayArm();
@@ -2775,7 +2783,9 @@
     clearThemeUnlockClaim();
     clearHintsPackClaim();
     clearUndoPackClaim();
+    clearShopBuyArm();
     refreshShopButtons();
+    armShopAffordablePrimary();
     openOverlay(shopOverlay);
     // Native only: try restore once (no grant on web / missing plugin)
     try {
@@ -2926,6 +2936,58 @@
       return;
     }
     unlockTheme(id, 'coins');
+  }
+
+  function clearShopBuyArm() {
+    if (shopBuyArmTimer) {
+      clearTimeout(shopBuyArmTimer);
+      shopBuyArmTimer = 0;
+    }
+    ['#btn-buy-hints-coins', '#btn-buy-undo-coins', '#btn-buy-neon-coins', '#btn-buy-cat-coins'].forEach(function (sel) {
+      const b = $(sel);
+      if (b) b.classList.remove('shop-buy-arm');
+    });
+    const modal = shopOverlay && shopOverlay.querySelector('.modal-shop');
+    if (modal) modal.classList.remove('shop-buy-nudge');
+  }
+
+  /**
+   * Soft-arm the best affordable coin CTA in shop (once per open).
+   * Priority: low freeHints → hint pack; else undo (this level); else hint pack stockpile; else cheapest locked theme.
+   * Never arm Coming soon / remove-ads / cash IAP stubs.
+   */
+  function armShopAffordablePrimary() {
+    clearShopBuyArm();
+    const coins = save.coins || 0;
+    const freeHints = save.freeHints || 0;
+    let target = null;
+
+    const hintsBtn = $('#btn-buy-hints-coins');
+    const undoBtn = $('#btn-buy-undo-coins');
+    const neonBtn = $('#btn-buy-neon-coins');
+    const catBtn = $('#btn-buy-cat-coins');
+
+    if (freeHints <= 1 && coins >= HINT_PACK_COIN_COST && hintsBtn && !hintsBtn.disabled) {
+      target = hintsBtn;
+    } else if (!infiniteUndoLevel && coins >= UNDO_LEVEL_COIN_COST && undoBtn && !undoBtn.disabled) {
+      target = undoBtn;
+    } else if (coins >= HINT_PACK_COIN_COST && hintsBtn && !hintsBtn.disabled) {
+      target = hintsBtn;
+    } else if (coins >= THEME_COIN_COST) {
+      if ((!save.themes || !save.themes.neon) && neonBtn && !neonBtn.disabled) target = neonBtn;
+      else if ((!save.themes || !save.themes.cat) && catBtn && !catBtn.disabled) target = catBtn;
+    }
+
+    if (!target) return;
+    target.classList.add('shop-buy-arm');
+    const modal = shopOverlay && shopOverlay.querySelector('.modal-shop');
+    if (modal) modal.classList.add('shop-buy-nudge');
+    shopBuyArmTimer = setTimeout(function () {
+      shopBuyArmTimer = 0;
+      if (!shopOverlay || !shopOverlay.classList.contains('show')) return;
+      haptic('arm');
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+    }, 300);
   }
 
   function clearWinReplayArm() {
@@ -3247,6 +3309,7 @@
         toast('Not enough coins');
         return;
       }
+      clearShopBuyArm();
       addFreeHints(HINT_PACK_SIZE);
       // Banner is the claim shout — no toast duplicate
       showHintsPackClaim('coins');
@@ -3270,6 +3333,7 @@
         return;
       }
       infiniteUndoLevel = true;
+      clearShopBuyArm();
       refreshShopButtons();
       refreshHud();
       // Banner is the claim shout — no toast duplicate
