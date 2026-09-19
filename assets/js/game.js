@@ -2710,6 +2710,16 @@
     const ch = focusChapter();
     const prog = countPerfectInChapter(ch);
     const claimed = save.chapterChestsClaimed.indexOf(ch) >= 0;
+    // Focus-chapter unlocked cells still missing 3★ (never locked / perfect)
+    const missingStarIdx = [];
+    for (let i = prog.start; i < prog.end; i++) {
+      if (i <= maxU && (save.stars[i] || 0) < 3) missingStarIdx.push(i);
+    }
+    // Exactly one soft-arm: Continue if continue cell is incomplete OR no star gaps;
+    // else pull into chapter-chest grind via first missing-★ cell.
+    const continueStars = save.stars[continueIdx] || 0;
+    const useStarGapArm = continueStars >= 3 && missingStarIdx.length > 0;
+    const starGapIdx = useStarGapArm ? missingStarIdx[0] : -1;
     if (teaser) {
       teaser.textContent =
         'First 3★ +' + FIRST_THREE_STAR_BONUS + '🪙 · Chapter ' + ch + ': ' +
@@ -2728,16 +2738,23 @@
       if (locked) btn.classList.add('locked');
       if (best >= 3) btn.classList.add('perfect');
       else if (best > 0) btn.classList.add('partial');
-      const isContinue = !locked && i === continueIdx;
-      if (isContinue) {
+      const isContinueArm = !useStarGapArm && !locked && i === continueIdx;
+      const isStarGapArm = useStarGapArm && !locked && i === starGapIdx && best < 3;
+      let badgeHtml = '';
+      if (isContinueArm) {
         btn.classList.add('level-continue-arm');
         btn.setAttribute('aria-label', 'Continue — Level ' + (i + 1));
+        badgeHtml = '<span class="level-cell-go" aria-hidden="true">Go</span>';
+      } else if (isStarGapArm) {
+        btn.classList.add('level-star-gap-arm');
+        btn.setAttribute('aria-label', 'Replay for 3★ — Level ' + (i + 1));
+        badgeHtml = '<span class="level-cell-star-gap" aria-hidden="true">3★</span>';
       }
       const starsHtml = [1, 2, 3]
         .map((s) => '<span class="' + (s <= best ? 'lit' : 'empty') + '">★</span>')
         .join('');
       btn.innerHTML =
-        (isContinue ? '<span class="level-cell-go" aria-hidden="true">Go</span>' : '') +
+        badgeHtml +
         '<span class="level-cell-num">' + (i + 1) + '</span>' +
         '<span class="level-cell-stars">' + starsHtml + '</span>';
       if (!locked) {
@@ -2757,10 +2774,7 @@
       grid.appendChild(btn);
     }
     if (foot) {
-      const missing = [];
-      for (let i = prog.start; i < prog.end; i++) {
-        if ((save.stars[i] || 0) < 3 && i <= maxU) missing.push(i + 1);
-      }
+      const missing = missingStarIdx.map((i) => i + 1);
       foot.textContent = missing.length
         ? 'Missing ★ on: L' + missing.slice(0, 8).join(', L') + (missing.length > 8 ? '…' : '') + ' — replay to fill the chest'
         : claimed
