@@ -933,7 +933,7 @@
     const move = findHintMove();
     if (!move) {
       toast('No clear hint right now');
-      return;
+      return false;
     }
     trackEvent('hint_used', {
       level_id: analyticsLevelId(),
@@ -951,18 +951,19 @@
         setTimeout(() => render(), 900);
       }
       toast('Hint: double-tap to uncap (free move)');
-      return;
+      return true;
     }
     selected = move.from;
     render();
     const el = tubesWrap.children[move.to];
     if (el) {
-      el.classList.add('selected');
+      el.classList.add('hint-dest');
       setTimeout(() => {
         if (selected === move.from) render();
       }, 700);
     }
     toast('Hint: pour into the highlighted tube');
+    return true;
   }
 
   function findHintMove() {
@@ -1910,6 +1911,16 @@
       fail_reason: 'restart_loop',
       restart_count: restartFailCount,
     });
+    const hintBtn = $('#btn-fail-hint');
+    if (hintBtn) {
+      if ((save.freeHints || 0) > 0) {
+        hintBtn.textContent = '💡 Free hint (keeps board)';
+      } else if ((save.coins || 0) >= HINT_COIN_COST) {
+        hintBtn.textContent = `💡 Hint for ${HINT_COIN_COST}🪙 (keeps board)`;
+      } else {
+        hintBtn.textContent = '💡 Watch ad for a hint (keeps board)';
+      }
+    }
     openOverlay(failPrompt);
   }
 
@@ -2037,7 +2048,41 @@
       });
     });
 
-    // Fail prompt
+    // Fail prompt — hint-first (keeps board); ad restart is secondary
+    $('#btn-fail-hint').addEventListener('click', () => {
+      closeOverlay(failPrompt);
+      const grantFailHint = (source) => {
+        lastHintSource = source;
+        const ok = applyHint();
+        if (ok) {
+          restartFailCount = 0;
+          trackEvent('fail_hint', {
+            level_id: analyticsLevelId(),
+            mode: analyticsMode(),
+            source: source,
+          });
+        }
+        return ok;
+      };
+      if ((save.freeHints || 0) > 0) {
+        save.freeHints--;
+        persist();
+        refreshHud();
+        grantFailHint('fail_free');
+        return;
+      }
+      if ((save.coins || 0) >= HINT_COIN_COST) {
+        if (!spendCoins(HINT_COIN_COST)) {
+          toast('Not enough coins');
+          return;
+        }
+        grantFailHint('fail_coins');
+        return;
+      }
+      showRewardedStub(() => {
+        grantFailHint('fail_rewarded');
+      }, 'fail_hint');
+    });
     $('#btn-fail-ad').addEventListener('click', () => {
       closeOverlay(failPrompt);
       showRewardedStub(() => {
