@@ -383,6 +383,31 @@ html, body {
   .tube.pour-target { animation: none; filter: drop-shadow(0 0 8px rgba(78, 205, 196, 0.55)); }
 }
 
+/* Near-complete mono-tube — soft beckon for almost-done payoff / UA readability */
+.tube.near-complete {
+  z-index: 2;
+  animation: nearCompleteBeckon 1.9s ease-in-out infinite;
+}
+.tube.near-complete .tube-rim {
+  box-shadow: 0 0 0 1px rgba(255, 214, 120, 0.55), 0 0 12px rgba(255, 200, 80, 0.35);
+}
+.tube.near-complete .tube-glass {
+  border-color: rgba(255, 214, 120, 0.7);
+  box-shadow:
+    inset 0 0 14px rgba(255, 214, 120, 0.18),
+    0 0 10px rgba(255, 200, 80, 0.28);
+}
+@keyframes nearCompleteBeckon {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 200, 80, 0.28)); transform: translateY(0) scale(1); }
+  50% { filter: drop-shadow(0 0 14px rgba(255, 214, 120, 0.55)); transform: translateY(-2px) scale(1.015); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tube.near-complete {
+    animation: none;
+    filter: drop-shadow(0 0 9px rgba(255, 200, 80, 0.45));
+  }
+}
+
 .tube.complete {
   filter: drop-shadow(var(--complete-glow));
 }
