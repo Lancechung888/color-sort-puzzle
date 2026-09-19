@@ -123,6 +123,8 @@
   let winReplayArmTimer = 0;
   /** Shop affordable coin-CTA soft-arm cue timer (once per open). */
   let shopBuyArmTimer = 0;
+  /** HUD #btn-hint soft-arm cue timer (once per ★-track drop when freeHints≥1). */
+  let hudHintArmTimer = 0;
   let streakClaimClearTimer = 0;
   /** Shop theme-unlock claim juice clear timer. */
   let themeClaimClearTimer = 0;
@@ -751,6 +753,7 @@
     lastProjectedStars = 3;
     starDropHapticFired = false;
     levelFirstUncapDone = false;
+    clearHudHintArm();
     clearStarTrackDropPulse();
     clearStarTrackRecoverPulse();
     infiniteUndoLevel = false;
@@ -1394,6 +1397,7 @@
 
   function requestHint() {
     if (pouring) return;
+    clearHudHintArm();
     if (spendFreeHint()) {
       lastHintSource = 'free';
       applyHint();
@@ -1426,6 +1430,7 @@
       toast('No clear hint right now');
       return false;
     }
+    clearHudHintArm();
     trackEvent('hint_used', {
       level_id: analyticsLevelId(),
       mode: analyticsMode(),
@@ -1807,6 +1812,7 @@
     ) {
       pulseStarTrackDrop(lastProjectedStars);
       starDropHapticFired = true;
+      armHudHintOnStarDrop();
     } else if (
       lastProjectedStars < projected &&
       ((projected === 3 && lastProjectedStars <= 2) || (projected === 2 && lastProjectedStars === 1))
@@ -1814,6 +1820,7 @@
       // Undo (or equivalent move budget recover) back onto 3★ / 2★ — invite, not spam
       pulseStarTrackRecover(projected);
       starDropHapticFired = false; // allow another drop warning this level
+      clearHudHintArm(); // re-arm allowed on a later drop
     }
     lastProjectedStars = projected;
     btnUndo.disabled = history.length === 0;
@@ -2759,6 +2766,17 @@
   // --- Overlays ---
   function openOverlay(el) {
     if (el) el.classList.add('show');
+    // HUD hint arm is mid-play only — clear when any blocking overlay covers the board
+    if (
+      el === startScreen ||
+      el === winOverlay ||
+      el === shopOverlay ||
+      el === hintPaywall ||
+      el === failPrompt ||
+      (el && el.id === 'levels-overlay')
+    ) {
+      clearHudHintArm();
+    }
   }
 
   function closeOverlay(el) {
@@ -2936,6 +2954,46 @@
       return;
     }
     unlockTheme(id, 'coins');
+  }
+
+  function playfieldOverlayBlocking() {
+    const levels = $('#levels-overlay');
+    return (
+      (startScreen && startScreen.classList.contains('show')) ||
+      (winOverlay && winOverlay.classList.contains('show')) ||
+      (shopOverlay && shopOverlay.classList.contains('show')) ||
+      (hintPaywall && hintPaywall.classList.contains('show')) ||
+      (failPrompt && failPrompt.classList.contains('show')) ||
+      (levels && levels.classList.contains('show'))
+    );
+  }
+
+  function clearHudHintArm() {
+    if (hudHintArmTimer) {
+      clearTimeout(hudHintArmTimer);
+      hudHintArmTimer = 0;
+    }
+    if (btnHint) btnHint.classList.remove('hud-hint-arm');
+  }
+
+  /**
+   * Soft-arm HUD #btn-hint when mid-level ★-track drops and freeHints remain.
+   * Once per drop (tied to starDropHapticFired); mint/emerald recovery family.
+   * Does not double-fire starDrop haptic — arm cue is a separate soft invite @300ms.
+   */
+  function armHudHintOnStarDrop() {
+    clearHudHintArm();
+    if ((save.freeHints || 0) < 1) return;
+    if (playfieldOverlayBlocking()) return;
+    if (!btnHint) return;
+    btnHint.classList.add('hud-hint-arm');
+    hudHintArmTimer = setTimeout(function () {
+      hudHintArmTimer = 0;
+      if (!btnHint || !btnHint.classList.contains('hud-hint-arm')) return;
+      if (playfieldOverlayBlocking()) return;
+      haptic('arm');
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+    }, 300);
   }
 
   function clearShopBuyArm() {
