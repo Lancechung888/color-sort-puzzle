@@ -125,6 +125,8 @@ bash "$ROOT/scripts/patch-android-webview-debug-off.sh"
 bash "$ROOT/scripts/patch-android-webview-dom-storage-on.sh"
 # Deny Autofill Framework overlays mid-run (API 26+ IMPORTANT_FOR_AUTOFILL_NO).
 bash "$ROOT/scripts/patch-android-webview-autofill-off.sh"
+# Deny third-party cookies on WebView (first-party / DomStorage stay).
+bash "$ROOT/scripts/patch-android-webview-third-party-cookies-off.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

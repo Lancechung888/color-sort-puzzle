@@ -44,6 +44,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
+import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.webkit.WebSettings;
 import androidx.core.splashscreen.SplashScreen;
@@ -92,6 +93,9 @@ import com.getcapacitor.BridgeActivity;
  * localStorage / save progress (distinct from DATABASE-OFF which denies Web SQL).
  * setImportantForAutofill(IMPORTANT_FOR_AUTOFILL_NO) on API 26+ so Autofill banners
  * cannot overlay mid-run tube taps (distinct from LONG-CLICK / HAPTIC-OFF).
+ * CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false) so
+ * ad/tracker iframes cannot set 3P cookies mid-run (first-party cookies / DomStorage
+ * stay; distinct from CLEARTEXT / MIXED-CONTENT / AUTOFILL-OFF).
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -147,6 +151,8 @@ public class MainActivity extends BridgeActivity {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         webView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
       }
+      // ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF: deny 3P cookies (minSdk 22).
+      CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false);
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.
