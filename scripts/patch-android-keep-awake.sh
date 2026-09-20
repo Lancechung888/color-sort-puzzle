@@ -44,11 +44,12 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import android.webkit.WebSettings;
 import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE:
+ * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT:
  * FLAG_KEEP_SCREEN_ON while playing; SplashScreen.installSplashScreen before
  * super.onCreate (API 31+); webView.setOverScrollMode(OVER_SCROLL_NEVER) so
  * native glow/rubber-band cannot kill mid-run play (pairs CSS overscroll-behavior:none);
@@ -66,6 +67,8 @@ import com.getcapacitor.BridgeActivity;
  * WebAudio SFX mid-run (game playSfx() / Settings Sound toggle still on via JS).
  * setMediaPlaybackRequiresUserGesture(false) so HTMLAudioElement / playSfx is not
  * blocked by sticky WebView media-gesture gates (distinct from SOUND-EFFECTS-OFF).
+ * setMixedContentMode(MIXED_CONTENT_NEVER_ALLOW) so HTTPS Capacitor origin cannot load
+ * cleartext HTTP subresources (complements ANDROID-CLEARTEXT Manifest denial).
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -96,6 +99,7 @@ public class MainActivity extends BridgeActivity {
       webView.setHapticFeedbackEnabled(false);
       webView.setVerticalScrollBarEnabled(false);
       webView.setHorizontalScrollBarEnabled(false);
+      webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.

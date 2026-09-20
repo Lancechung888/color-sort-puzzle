@@ -480,6 +480,25 @@ bash scripts/patch-android-webview-media-gesture.sh
 
 `npm run aab:internal` 在 webview-sound-effects-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2x. Deny WebView mixed content（ANDROID-WEBVIEW-MIXED-CONTENT）
+
+After **ANDROID-WEBVIEW-MEDIA-GESTURE**, Capacitor WebView may still allow mixed HTTP/HTTPS (compatibility mode). Pair with **ANDROID-CLEARTEXT** (Manifest `usesCleartextTraffic=false` + `networkSecurityConfig`) by denying mixed content at `WebSettings` so an HTTPS Capacitor origin cannot load cleartext subresources mid-run:
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after media-gesture)
+webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+```
+
+Requires `import android.webkit.WebSettings;`. Distinct from **ANDROID-CLEARTEXT** (Manifest / networkSecurityConfig) — this is the bridge WebView API gate.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-mixed-content.sh
+```
+
+`npm run aab:internal` 在 webview-media-gesture patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

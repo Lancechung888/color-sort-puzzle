@@ -138,6 +138,9 @@
 
 
 
+
+
+（已補）**ANDROID-WEBVIEW-MIXED-CONTENT**已上 — `MainActivity` `webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW)`（拒絕 HTTPS Capacitor origin 載入 cleartext 子資源；搭配 ANDROID-CLEARTEXT；`android/` 仍 gitignore）；`scripts/patch-android-webview-mixed-content.sh`＋`aab:internal` hook（media-gesture 之後、icons 之前）＋`native-templates/android/README.md` §2x；accept `ANDROID-WEBVIEW-MIXED-CONTENT`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 重跑：清乾淨 tree 後執行 `npm run accept`，exit 0 = 可自動項 Pass + Blocked 項如實列出。
 
 ---
