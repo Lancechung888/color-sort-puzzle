@@ -441,6 +441,43 @@ if (gameRaw) {
     fail('SHOP-SPEND-CONFIRM', 'missing confirmShopSpendThen / pendingSpend / Tap again to spend / theme|hints-pack|undo wiring, or soft-arm CSS slipped in');
   }
 
+  // Settings Reset progress two-tap confirm (toast only — no soft-arm CSS)
+  {
+    const htmlRaw = read('index.html') || '';
+    const jsOk =
+      /function clearPendingReset\s*\(/.test(gameRaw) &&
+      /function armPendingReset\s*\(/.test(gameRaw) &&
+      /PENDING_RESET_MS/.test(gameRaw) &&
+      /pendingResetUntil/.test(gameRaw) &&
+      /function confirmResetProgressThen\s*\(/.test(gameRaw) &&
+      /function doResetProgress\s*\(/.test(gameRaw) &&
+      /Tap again to reset all progress/.test(gameRaw) &&
+      /progress_reset_confirm_arm/.test(gameRaw) &&
+      /trackEvent\(\s*['"]progress_reset['"]/.test(gameRaw) &&
+      /STORAGE_BAK_KEY/.test(gameRaw) &&
+      /clearRunDraft\s*\(/.test(gameRaw) &&
+      /defaultSave\s*\(/.test(gameRaw) &&
+      /sfxOn/.test(gameRaw) &&
+      /hapticsOn/.test(gameRaw) &&
+      /colorAssist/.test(gameRaw) &&
+      /btn-reset-progress/.test(gameRaw) &&
+      !/reset-arm|resetArm|\.reset-arm|progress-reset-arm/.test(gameRaw);
+    const htmlOk =
+      /id=["']btn-reset-progress["']/.test(htmlRaw) &&
+      /Reset progress/.test(htmlRaw);
+    if (jsOk && htmlOk) {
+      pass(
+        'RESET-PROGRESS',
+        'Settings Reset progress two-tap confirm (toast); keeps Sound/Haptics/Color assist; clears draft+bak; no soft-arm CSS'
+      );
+    } else {
+      fail(
+        'RESET-PROGRESS',
+        'missing reset progress confirm / doResetProgress / btn-reset-progress, or soft-arm CSS slipped in'
+      );
+    }
+  }
+
   // System / hardware / browser back — dismiss overlays then pause Home (no soft-arm)
   if (
     /function handleSystemBack\s*\(/.test(gameRaw) &&
