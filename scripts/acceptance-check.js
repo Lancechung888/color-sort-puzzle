@@ -824,6 +824,38 @@ if (gameRaw) {
     }
   }
 
+  // Fail Home CTA — leave fail-loop without soft-arm (mobile escape; h stays Hint)
+  {
+    const indexHtml = read('index.html') || '';
+    const htmlHas = /id=["']btn-fail-home["']/.test(indexHtml);
+    const clickWired =
+      (/btn-fail-home|#btn-fail-home/.test(gameRaw)) &&
+      (/addEventListener\s*\(\s*['"]click['"]/.test(gameRaw)) &&
+      (/\bcloseOverlay\s*\(/.test(gameRaw) && /\bgoHome\s*\(/.test(gameRaw));
+    // Prefer a contiguous listener slice so goHome is tied to fail-home, not only win-home
+    const fhIdx = gameRaw.search(/btn-fail-home|#btn-fail-home/);
+    const fhSlice = fhIdx >= 0 ? gameRaw.slice(Math.max(0, fhIdx - 80), fhIdx + 420) : '';
+    const homePath =
+      /btn-fail-home|#btn-fail-home/.test(fhSlice) &&
+      /\bcloseOverlay\s*\(/.test(fhSlice) &&
+      /\bgoHome\s*\(/.test(fhSlice) &&
+      (/restartFailCount\s*=\s*0/.test(fhSlice) || /restartFailCount\s*=\s*0/.test(gameRaw));
+    const noSoft =
+      !/fail-home-arm|failHomeArm|\.fail-home-arm/.test(gameRaw) &&
+      !/fail-home-arm|failHomeArm|\.fail-home-arm/.test(indexHtml);
+    if (htmlHas && clickWired && homePath && noSoft) {
+      pass(
+        'FAIL-HOME',
+        'Fail overlay Home CTA (#btn-fail-home) + click closeOverlay/goHome; no soft-arm; h stays Hint'
+      );
+    } else {
+      fail(
+        'FAIL-HOME',
+        'missing #btn-fail-home / click closeOverlay+goHome wiring, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
