@@ -75,6 +75,7 @@
       sfxOn: true,
       hapticsOn: true,
       colorAssist: false,
+      reducedMotion: false,
     };
   }
   let save = defaultSave();
@@ -364,6 +365,7 @@
       sfxOn: data.sfxOn !== false,
       hapticsOn: data.hapticsOn !== false,
       colorAssist: data.colorAssist === true,
+      reducedMotion: data.reducedMotion === true,
     };
     if (data.v !== SAVE_VERSION) repaired = true;
     return { save: out, repaired: repaired, fatal: false };
@@ -1847,6 +1849,7 @@
     const keepSfx = save.sfxOn !== false;
     const keepHap = save.hapticsOn !== false;
     const keepCa = save.colorAssist === true;
+    const keepRm = save.reducedMotion === true;
 
     clearRunDraft();
     try { localStorage.removeItem(STORAGE_BAK_KEY); } catch (_) { /* ignore */ }
@@ -1856,7 +1859,9 @@
     save.sfxOn = keepSfx;
     save.hapticsOn = keepHap;
     save.colorAssist = keepCa;
+    save.reducedMotion = keepRm;
     persist();
+    applyReducedMotionClass();
 
     clearPendingUncap();
     clearPendingRestart();
@@ -3551,11 +3556,18 @@
   }
 
   function prefersReducedMotion() {
+    if (save.reducedMotion === true) return true;
     try {
       return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     } catch (_) {
       return false;
     }
+  }
+
+  function applyReducedMotionClass() {
+    try {
+      document.documentElement.classList.toggle('reduced-motion', save.reducedMotion === true);
+    } catch (_) { /* ignore */ }
   }
 
   /** Amber/gold coin-like burst on chapter chest claim — distinct from perfect-spark / confetti. */
@@ -4855,9 +4867,11 @@
     const sfxBtn = $('#btn-toggle-sfx');
     const hapBtn = $('#btn-toggle-haptics');
     const caBtn = $('#btn-toggle-color-assist');
+    const rmBtn = $('#btn-toggle-reduced-motion');
     const sfxOn = save.sfxOn !== false;
     const hapOn = save.hapticsOn !== false;
     const caOn = save.colorAssist === true;
+    const rmOn = save.reducedMotion === true;
     if (sfxBtn) {
       sfxBtn.textContent = sfxOn ? 'On' : 'Off';
       sfxBtn.setAttribute('aria-pressed', sfxOn ? 'true' : 'false');
@@ -4872,6 +4886,11 @@
       caBtn.textContent = caOn ? 'On' : 'Off';
       caBtn.setAttribute('aria-pressed', caOn ? 'true' : 'false');
       caBtn.classList.toggle('is-off', !caOn);
+    }
+    if (rmBtn) {
+      rmBtn.textContent = rmOn ? 'On' : 'Off';
+      rmBtn.setAttribute('aria-pressed', rmOn ? 'true' : 'false');
+      rmBtn.classList.toggle('is-off', !rmOn);
     }
   }
 
@@ -5458,6 +5477,17 @@
         if (next) SFX.tap();
       });
     }
+    const btnToggleReducedMotion = $('#btn-toggle-reduced-motion');
+    if (btnToggleReducedMotion) {
+      btnToggleReducedMotion.addEventListener('click', () => {
+        const next = save.reducedMotion !== true;
+        save.reducedMotion = next;
+        persist();
+        refreshSettingsToggles();
+        applyReducedMotionClass();
+        if (next) SFX.tap();
+      });
+    }
     const btnResetProgress = $('#btn-reset-progress');
     if (btnResetProgress) {
       btnResetProgress.addEventListener('click', () => {
@@ -5624,6 +5654,7 @@
     } catch (e) { /* ignore */ }
 
     loadSave();
+    applyReducedMotionClass();
     refreshHud();
     refreshMetaTeasers();
     if (pendingStreakMilestone) {

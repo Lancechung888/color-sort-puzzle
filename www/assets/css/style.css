@@ -3329,3 +3329,51 @@ body.ad-capture #app {
     opacity: 0;
   }
 }
+
+
+/* In-app Reduced motion (Settings) — force calm juice without OS prefers-reduced-motion.
+   Does not replace existing @media (prefers-reduced-motion: reduce) blocks. */
+html.reduced-motion .play-continue,
+html.reduced-motion .fail-hint-arm,
+html.reduced-motion .hint-pay-arm,
+html.reduced-motion .shop-buy-arm,
+html.reduced-motion .hud-hint-arm,
+html.reduced-motion .hud-undo-arm,
+html.reduced-motion .win-replay-arm,
+html.reduced-motion .level-continue-arm,
+html.reduced-motion .level-star-gap-arm,
+html.reduced-motion .next-unlock-arm,
+html.reduced-motion .streak-pulse,
+html.reduced-motion .theme-unlock-pulse,
+html.reduced-motion .hints-pack-pulse,
+html.reduced-motion .undo-level-pulse,
+html.reduced-motion .tube.cap-pending .tube-lid,
+html.reduced-motion .tube.lid-arm-nudge .tube-lid,
+html.reduced-motion .tube.invalid-shake,
+html.reduced-motion .tube.pouring-tilt,
+html.reduced-motion .tube.completePop,
+html.reduced-motion .star.starPop,
+html.reduced-motion #app.screen-shake {
+  animation: none !important;
+  transition: none !important;
+}
+
+html.reduced-motion .pour-stream,
+html.reduced-motion .splash-particle,
+html.reduced-motion .complete-spark,
+html.reduced-motion .uncap-spark,
+html.reduced-motion .confetti,
+html.reduced-motion .chest-spark,
+html.reduced-motion .mastery-spark,
+html.reduced-motion .daily-spark,
+html.reduced-motion .new-best-spark,
+html.reduced-motion .unlock-spark,
+html.reduced-motion .streak-spark,
+html.reduced-motion .theme-spark,
+html.reduced-motion .hints-spark,
+html.reduced-motion .undo-spark,
+html.reduced-motion .hint-spark,
+html.reduced-motion .perfect-spark {
+  display: none !important;
+  animation: none !important;
+}
