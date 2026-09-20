@@ -577,6 +577,81 @@ if (gameRaw) {
     }
   }
 
+  // Start-screen Play CTA: mid-run mainline draft → Resume · Level N (static; no soft-arm)
+  {
+    const helpIdx = gameRaw.indexOf('function mainlineResumeTargetIndex');
+    const helpSlice =
+      helpIdx >= 0 ? gameRaw.slice(helpIdx, helpIdx + 600) : '';
+    const fnIdx = gameRaw.indexOf('function refreshStartPlayCta');
+    const fnEnd = gameRaw.indexOf('function toast', fnIdx);
+    const ctaSlice =
+      fnIdx >= 0
+        ? gameRaw.slice(fnIdx, fnEnd > fnIdx ? fnEnd : fnIdx + 2500)
+        : '';
+    const startIdx = gameRaw.indexOf('function startGame');
+    const startEnd = gameRaw.indexOf('function bindShop', startIdx);
+    const startSlice =
+      startIdx >= 0
+        ? gameRaw.slice(startIdx, startEnd > startIdx ? startEnd : startIdx + 1200)
+        : '';
+    const cssOk =
+      /#btn-start\.play-in-progress/.test(cssRaw) &&
+      !/@keyframes\s+playInProgress/.test(cssRaw) &&
+      !/#btn-start\.play-in-progress[^{]*\{[^}]*animation\s*:/.test(cssRaw);
+    const jsOk =
+      /readRunDraft\s*\(/.test(helpSlice) &&
+      /draftHasProgress\s*\(/.test(helpSlice) &&
+      /mainlineResumeTargetIndex/.test(ctaSlice) &&
+      /Resume · Level/.test(ctaSlice) &&
+      /play-in-progress/.test(ctaSlice) &&
+      /in progress/.test(ctaSlice) &&
+      /mainlineResumeTargetIndex/.test(startSlice) &&
+      !/play-in-progress-arm|resume-arm|\.play-in-progress-arm/.test(gameRaw);
+    if (jsOk && cssOk) {
+      pass(
+        'START-RUN-RESUME',
+        'refreshStartPlayCta + startGame peek mid-run mainline draft → Resume · Level N + .play-in-progress static cyan; no soft-arm'
+      );
+    } else {
+      fail(
+        'START-RUN-RESUME',
+        'missing start CTA mid-run Resume peek / play-in-progress static CSS, or soft-arm slipped in'
+      );
+    }
+  }
+
+  // Start-screen Daily CTA: today's mid-run daily draft → On (static; Done wins)
+  {
+    const fnIdx = gameRaw.indexOf('function refreshDailyCta');
+    const fnEnd = gameRaw.indexOf('function refreshStartPlayCta', fnIdx);
+    const dailySlice =
+      fnIdx >= 0
+        ? gameRaw.slice(fnIdx, fnEnd > fnIdx ? fnEnd : fnIdx + 2000)
+        : '';
+    const cssOk =
+      /\.btn-daily-cta\.daily-in-progress/.test(cssRaw) &&
+      !/@keyframes\s+dailyInProgress/.test(cssRaw) &&
+      !/\.btn-daily-cta\.daily-in-progress[^{]*\{[^}]*animation\s*:/.test(cssRaw);
+    const jsOk =
+      /readRunDraft\s*\(/.test(dailySlice) &&
+      /draftHasProgress\s*\(/.test(dailySlice) &&
+      /daily-in-progress/.test(dailySlice) &&
+      /['"]On['"]/.test(dailySlice) &&
+      /in progress/.test(dailySlice) &&
+      !/daily-in-progress-arm|\.daily-in-progress-arm/.test(gameRaw);
+    if (jsOk && cssOk) {
+      pass(
+        'DAILY-RUN-RESUME',
+        'refreshDailyCta peeks today mid-run daily draft → On + .daily-in-progress static cyan; Done wins; no soft-arm'
+      );
+    } else {
+      fail(
+        'DAILY-RUN-RESUME',
+        'missing daily CTA mid-run On peek / daily-in-progress static CSS, or soft-arm slipped in'
+      );
+    }
+  }
+
   // In-play tube board Arrow/Home/End focus nav (flex-wrap geometric; no soft-arm)
   if (
     /function handleTubesBoardKeydown/.test(gameRaw) &&
