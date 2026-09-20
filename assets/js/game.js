@@ -4201,6 +4201,20 @@
         (claimed ? ' (claimed)' : '');
     }
     grid.innerHTML = '';
+    // Mid-run draft on an unlocked mainline cell in this chapter (≠ daily) — static "On" mark
+    let inProgressIdx = -1;
+    const peekDraft = readRunDraft();
+    if (peekDraft && draftHasProgress(peekDraft) && !peekDraft.daily) {
+      const di = Math.floor(Number(peekDraft.levelIndex));
+      if (
+        Number.isFinite(di) &&
+        di >= prog.start &&
+        di < prog.end &&
+        di <= maxU
+      ) {
+        inProgressIdx = di;
+      }
+    }
     // One chapter at a time (CHAPTER_SIZE cells) — browse earlier packs for ★ mastery
     for (let i = prog.start; i < prog.end; i++) {
       const btn = document.createElement('button');
@@ -4214,6 +4228,7 @@
       else if (best > 0) btn.classList.add('partial');
       const isContinueArm = !useStarGapArm && !locked && i === continueIdx;
       const isStarGapArm = useStarGapArm && !locked && i === starGapIdx && best < 3;
+      const isInProgress = !locked && i === inProgressIdx;
       let badgeHtml = '';
       if (isContinueArm) {
         btn.classList.add('level-continue-arm');
@@ -4234,6 +4249,24 @@
         );
       } else {
         btn.setAttribute('aria-label', 'Level ' + (i + 1) + ' — play');
+      }
+      // Static mid-run marker (may coexist with continue/star-gap arm; never on locked)
+      if (isInProgress) {
+        btn.classList.add('level-in-progress');
+        if (isContinueArm) {
+          btn.setAttribute('aria-label', 'Continue — Level ' + (i + 1) + ' — in progress');
+        } else if (isStarGapArm) {
+          btn.setAttribute(
+            'aria-label',
+            'Replay for 3★ — Level ' + (i + 1) + ' — in progress'
+          );
+        } else {
+          btn.setAttribute(
+            'aria-label',
+            'Level ' + (i + 1) + ' — in progress, resume'
+          );
+        }
+        badgeHtml += '<span class="level-cell-on" aria-hidden="true">On</span>';
       }
       const starsHtml = [1, 2, 3]
         .map((s) => '<span class="' + (s <= best ? 'lit' : 'empty') + '" aria-hidden="true">★</span>')

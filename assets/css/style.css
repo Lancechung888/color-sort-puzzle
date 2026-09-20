@@ -79,6 +79,7 @@ html, body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  overscroll-behavior: none;
   font-family: var(--font);
   color: var(--text);
   background:
@@ -2641,6 +2642,34 @@ html, body {
   box-shadow: 0 1px 4px rgba(167, 139, 250, 0.35);
   pointer-events: none;
 }
+/* Levels overlay — mid-run draft marker (static cyan/teal; NOT soft-arm / pulse) */
+.level-cell.level-in-progress {
+  /* outline so it can coexist with continue/star-gap arm box-shadow */
+  outline: 2px solid rgba(34, 211, 238, 0.72);
+  outline-offset: 0;
+}
+.level-cell.level-in-progress:not(.level-continue-arm):not(.level-star-gap-arm) {
+  border-color: rgba(45, 212, 191, 0.78);
+  background: linear-gradient(160deg, rgba(34, 211, 238, 0.16), rgba(45, 212, 191, 0.1));
+  box-shadow:
+    0 0 0 1px rgba(45, 212, 191, 0.38),
+    0 4px 12px rgba(34, 211, 238, 0.2);
+}
+.level-cell-on {
+  position: absolute;
+  top: 3px;
+  left: 4px; /* left — Go/3★ stay top-right when coexisting */
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 6px;
+  color: #042f2e;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.95), rgba(45, 212, 191, 0.9));
+  box-shadow: 0 1px 4px rgba(34, 211, 238, 0.35);
+  pointer-events: none;
+}
 @media (prefers-reduced-motion: reduce) {
   .level-cell.level-continue-arm {
     animation: none;
@@ -2655,6 +2684,10 @@ html, body {
     box-shadow:
       0 0 0 1px rgba(52, 211, 153, 0.5),
       0 4px 12px rgba(167, 139, 250, 0.22);
+  }
+  /* level-in-progress is static anyway — keep cyan rim */
+  .level-cell.level-in-progress {
+    outline-color: rgba(34, 211, 238, 0.85);
   }
 }
 
