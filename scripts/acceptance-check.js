@@ -2104,6 +2104,38 @@ block(
   }
 }
 
+
+// --- MUTE-KEY: m/M toggles Sound (sfxOn) + Settings aria + cheatsheet; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const gameSrc = read('assets/js/game.js') || '';
+  const htmlOk =
+    /id=["']btn-toggle-sfx["']/.test(htmlRaw) &&
+    (/id=["']btn-toggle-sfx["'][^>]*aria-keyshortcuts=["']m["']/.test(htmlRaw) ||
+      /aria-keyshortcuts=["']m["'][^>]*id=["']btn-toggle-sfx["']/.test(htmlRaw));
+  const jsOk =
+    /function toggleSfxKey\s*\(/.test(gameSrc) &&
+    /function applySfxOn\s*\(/.test(gameSrc) &&
+    (/e\.key\s*===\s*['"]m['"]/.test(gameSrc) || /key\s*===\s*['"]m['"]/.test(gameSrc)) &&
+    /Sound on/.test(gameSrc) &&
+    /Sound off/.test(gameSrc) &&
+    /Mute m/.test(gameSrc) &&
+    !/mute-arm|sfx-arm|sound-arm/.test(
+      (gameSrc.match(/function toggleSfxKey[\s\S]{0,800}/) || [''])[0]
+    );
+  if (htmlOk && jsOk) {
+    pass(
+      'MUTE-KEY',
+      'm/M → toggleSfxKey (sfxOn + toast Sound on/off) + #btn-toggle-sfx aria-keyshortcuts=m + Mute m in ? cheatsheet; no soft-arm'
+    );
+  } else {
+    fail(
+      'MUTE-KEY',
+      `missing mute key / applySfxOn|toggleSfxKey / aria-keyshortcuts=m / Mute m cheatsheet (htmlOk=${htmlOk} jsOk=${jsOk})`
+    );
+  }
+}
+
 // --- Brand favicon (ICON A derivatives; head + files) ---
 {
   const indexRaw = read('index.html') || '';
