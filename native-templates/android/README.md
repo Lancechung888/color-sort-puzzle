@@ -697,6 +697,29 @@ bash scripts/patch-android-webview-autofill-off.sh
 
 `npm run aab:internal` 在 webview-dom-storage-on patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+
+## 2ah. Deny WebView third-party cookies（ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF）
+
+After **ANDROID-WEBVIEW-AUTOFILL-OFF**, deny **third-party cookies** on the Capacitor bridge WebView so ad/tracker iframes cannot set 3P cookies mid-run. First-party cookies and DomStorage/localStorage stay available for Capacitor / save progress. Aligns with Data Safety / privacy (no account).
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after autofill-off)
+// ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF: deny 3P cookies (minSdk 22).
+CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false);
+```
+
+Requires `import android.webkit.CookieManager;`.
+
+Distinct from **ANDROID-CLEARTEXT** / **ANDROID-WEBVIEW-MIXED-CONTENT** (network cleartext), **ANDROID-WEBVIEW-GEOLOCATION-OFF**, **ANDROID-WEBVIEW-FILE-ACCESS-OFF**, and **ANDROID-WEBVIEW-AUTOFILL-OFF**. Do **not** disable first-party cookies. Do **not** touch DomStorage / `setAllowContentAccess` / JavaScript / AdMob.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-third-party-cookies-off.sh
+```
+
+`npm run aab:internal` 在 webview-autofill-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

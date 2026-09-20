@@ -3946,6 +3946,65 @@ block(
   }
 }
 
+
+// --- ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF: deny 3P cookies; no soft-arm ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-third-party-cookies-off.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk =
+    /CookieManager\s*\.\s*getInstance\s*\(\s*\)\s*\.\s*setAcceptThirdPartyCookies\s*\(\s*webView\s*,\s*false\s*\)/.test(
+      patchRaw
+    ) && /ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF/.test(patchRaw);
+  const autoIdx = aabRaw.search(/patch-android-webview-autofill-off\.sh/);
+  const cookiesIdx = aabRaw.search(
+    /patch-android-webview-third-party-cookies-off\.sh/
+  );
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    autoIdx >= 0 &&
+    cookiesIdx >= 0 &&
+    iconsIdx >= 0 &&
+    autoIdx < cookiesIdx &&
+    cookiesIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF/.test(readmeRaw) &&
+    /2ah/.test(readmeRaw);
+  const keepOk =
+    /CookieManager\s*\.\s*getInstance\s*\(\s*\)\s*\.\s*setAcceptThirdPartyCookies\s*\(\s*webView\s*,\s*false\s*\)/.test(
+      keepRaw
+    ) && /ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk =
+      /CookieManager\s*\.\s*getInstance\s*\(\s*\)\s*\.\s*setAcceptThirdPartyCookies\s*\(\s*webView\s*,\s*false\s*\)/.test(
+        mainRaw
+      );
+  }
+  const noSoft =
+    !/webview-third-party-cookies-off-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF',
+      'setAcceptThirdPartyCookies(false) + patch/aab after autofill before icons + README §2ah + keep-awake; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF',
+      `missing third-party-cookies-off / patch / aab hook-after-autofill-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';
