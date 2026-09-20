@@ -49,7 +49,7 @@ import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT + ANDROID-WEBVIEW-GEOLOCATION-OFF + ANDROID-WEBVIEW-FILE-ACCESS-OFF:
+ * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT + ANDROID-WEBVIEW-GEOLOCATION-OFF + ANDROID-WEBVIEW-FILE-ACCESS-OFF + ANDROID-WEBVIEW-JS-WINDOWS-OFF:
  * FLAG_KEEP_SCREEN_ON while playing; SplashScreen.installSplashScreen before
  * super.onCreate (API 31+); webView.setOverScrollMode(OVER_SCROLL_NEVER) so
  * native glow/rubber-band cannot kill mid-run play (pairs CSS overscroll-behavior:none);
@@ -74,6 +74,10 @@ import com.getcapacitor.BridgeActivity;
  * setAllowFileAccess/FromFileURLs/UniversalAccessFromFileURLs(false) so mid-run cannot
  * open file:// or escalate via file URLs (Capacitor serves https://localhost; leave
  * setAllowContentAccess alone for Cap plugins — distinct from GEOLOCATION-OFF).
+ * setSupportMultipleWindows(false) + setJavaScriptCanOpenWindowsAutomatically(false) so
+ * mid-run cannot spawn popup / secondary windows (focus steal, phishing surface); do NOT
+ * disable JavaScript itself; leave DomStorage / content access / cookies alone (AdMob later)
+ * — distinct from FILE-ACCESS-OFF.
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -111,6 +115,8 @@ public class MainActivity extends BridgeActivity {
       webView.getSettings().setAllowFileAccess(false);
       webView.getSettings().setAllowFileAccessFromFileURLs(false);
       webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
+      webView.getSettings().setSupportMultipleWindows(false);
+      webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.

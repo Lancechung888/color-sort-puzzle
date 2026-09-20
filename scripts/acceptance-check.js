@@ -3586,6 +3586,59 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-JS-WINDOWS-OFF: deny WebView multi-window / JS window.open ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-js-windows-off.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk =
+    /setSupportMultipleWindows\s*\(\s*false\s*\)/.test(patchRaw) &&
+    /setJavaScriptCanOpenWindowsAutomatically\s*\(\s*false\s*\)/.test(patchRaw);
+  const fileIdx = aabRaw.search(/patch-android-webview-file-access-off\.sh/);
+  const jsWinIdx = aabRaw.search(/patch-android-webview-js-windows-off\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    fileIdx >= 0 &&
+    jsWinIdx >= 0 &&
+    iconsIdx >= 0 &&
+    fileIdx < jsWinIdx &&
+    jsWinIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-JS-WINDOWS-OFF/.test(readmeRaw) && /2aa/.test(readmeRaw);
+  const keepOk =
+    /setSupportMultipleWindows\s*\(\s*false\s*\)/.test(keepRaw) &&
+    /setJavaScriptCanOpenWindowsAutomatically\s*\(\s*false\s*\)/.test(keepRaw) &&
+    /ANDROID-WEBVIEW-JS-WINDOWS-OFF/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk =
+      /setSupportMultipleWindows\s*\(\s*false\s*\)/.test(mainRaw) &&
+      /setJavaScriptCanOpenWindowsAutomatically\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-js-windows-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-JS-WINDOWS-OFF',
+      'setSupportMultipleWindows/JavaScriptCanOpenWindowsAutomatically(false) + patch/aab after file-access-off before icons + README §2aa + keep-awake; no popups; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-JS-WINDOWS-OFF',
+      `missing js-windows-off / patch / aab hook-after-file-access-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

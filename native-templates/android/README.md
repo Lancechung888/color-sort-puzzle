@@ -542,6 +542,28 @@ bash scripts/patch-android-webview-file-access-off.sh
 
 `npm run aab:internal` 在 webview-geolocation-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2aa. Deny WebView JS windows / multi-window（ANDROID-WEBVIEW-JS-WINDOWS-OFF）
+
+After **ANDROID-WEBVIEW-FILE-ACCESS-OFF**, stock WebView may still leave `setSupportMultipleWindows` / `setJavaScriptCanOpenWindowsAutomatically` open. ColorTube Sort is a **single-WebView** hybrid-casual game (Capacitor **https://localhost**); mid-run must **not** spawn popup / secondary windows (focus steal, phishing surface). Deny both at `WebSettings`:
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after file-access-off)
+webView.getSettings().setSupportMultipleWindows(false);
+webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+```
+
+Do **not** disable JavaScript itself. Do **not** touch DomStorage / content access / cookies (AdMob later).
+
+Distinct from **ANDROID-WEBVIEW-FILE-ACCESS-OFF** (filesystem / file-URL) — this only denies multi-window / `window.open` style popups.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-js-windows-off.sh
+```
+
+`npm run aab:internal` 在 webview-file-access-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
