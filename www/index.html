@@ -129,7 +129,7 @@
 
     <!-- Win overlay -->
     <div class="overlay" id="win-overlay">
-      <div class="modal modal-premium modal-win" role="dialog" aria-modal="true">
+      <div class="modal modal-premium modal-win" role="dialog" aria-modal="true" aria-labelledby="win-title">
         <h2 id="win-title">You win!</h2>
         <div class="win-stars" id="win-stars" aria-label="Star rating">
           <span class="star" data-i="1">★</span>
@@ -156,10 +156,10 @@
 
     <!-- Shop modal -->
     <div class="overlay" id="shop-overlay">
-      <div class="modal modal-premium modal-shop" role="dialog" aria-modal="true">
+      <div class="modal modal-premium modal-shop" role="dialog" aria-modal="true" aria-labelledby="shop-title">
         <button type="button" class="modal-close" id="btn-shop-close" aria-label="Close">×</button>
-        <h2>Shop</h2>
-        <p class="shop-balance">Coins: <strong id="shop-coins">70</strong> 🪙</p>
+        <h2 id="shop-title">Shop</h2>
+        <p class="shop-balance">Coins: <strong id="shop-coins">120</strong> 🪙</p>
         <p class="shop-theme-claim" id="shop-theme-claim" hidden></p>
         <p class="shop-hints-claim" id="shop-hints-claim" hidden></p>
         <p class="shop-undo-claim" id="shop-undo-claim" hidden></p>
@@ -264,9 +264,9 @@
 
     <!-- Hint paywall -->
     <div class="overlay" id="hint-paywall">
-      <div class="modal modal-premium" role="dialog" aria-modal="true">
+      <div class="modal modal-premium" role="dialog" aria-modal="true" aria-labelledby="hint-paywall-title">
         <button type="button" class="modal-close" id="btn-hint-close" aria-label="Close">×</button>
-        <h2>Get a hint</h2>
+        <h2 id="hint-paywall-title">Get a hint</h2>
         <p>No free hints left. Choose a way to continue:</p>
         <div class="modal-actions stacked">
           <button type="button" class="btn btn-primary" id="btn-hint-ad">📺 Watch ad for a hint</button>
@@ -278,8 +278,8 @@
 
     <!-- Fail-loop soft prompt — hint-first (keeps board) -->
     <div class="overlay" id="fail-prompt">
-      <div class="modal modal-premium modal-fail" role="dialog" aria-modal="true">
-        <h2>Stuck?</h2>
+      <div class="modal modal-premium modal-fail" role="dialog" aria-modal="true" aria-labelledby="fail-title">
+        <h2 id="fail-title">Stuck?</h2>
         <p>Need a nudge? A hint keeps this board — no restart required.</p>
         <div class="modal-actions stacked">
           <button type="button" class="btn btn-primary" id="btn-fail-hint">💡 Get a hint</button>
@@ -292,9 +292,9 @@
 
     <!-- Level select / ★ mastery -->
     <div class="overlay" id="levels-overlay">
-      <div class="modal modal-premium modal-levels" role="dialog" aria-modal="true">
+      <div class="modal modal-premium modal-levels" role="dialog" aria-modal="true" aria-labelledby="levels-title">
         <button type="button" class="modal-close" id="btn-levels-close" aria-label="Close">×</button>
-        <h2>Levels · ★ mastery</h2>
+        <h2 id="levels-title">Levels · ★ mastery</h2>
         <p class="levels-teaser" id="levels-teaser">First 3★ bonus · every 10 perfect → chapter chest</p>
         <div class="levels-grid" id="levels-grid" role="list"></div>
         <p class="levels-footnote" id="levels-footnote"></p>

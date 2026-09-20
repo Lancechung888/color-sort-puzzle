@@ -231,6 +231,33 @@ if (gameRaw) {
     fail('A11Y-ESC', 'missing Escape dismiss handler for dismissible overlays');
   }
 
+  // Overlay focus: move into dialog on open, restore on last close (no soft-arm)
+  if (
+    /function focusOverlayPrimary/.test(gameRaw) &&
+    /overlayFocusReturn/.test(gameRaw) &&
+    /overlayFocusDepth/.test(gameRaw) &&
+    /function safeFocus/.test(gameRaw) &&
+    /openOverlay\(winOverlay\)/.test(gameRaw)
+  ) {
+    pass('A11Y-FOCUS', 'overlay focus move-in + depth restore; win uses openOverlay');
+  } else {
+    fail('A11Y-FOCUS', 'missing focusOverlayPrimary / overlayFocusReturn depth restore');
+  }
+
+  // Dialogs expose accessible names
+  const htmlRaw = read('index.html') || '';
+  if (
+    /aria-labelledby="win-title"/.test(htmlRaw) &&
+    /aria-labelledby="shop-title"/.test(htmlRaw) &&
+    /aria-labelledby="hint-paywall-title"/.test(htmlRaw) &&
+    /aria-labelledby="fail-title"/.test(htmlRaw) &&
+    /aria-labelledby="levels-title"/.test(htmlRaw)
+  ) {
+    pass('A11Y-DIALOG', 'modals have role=dialog aria-modal aria-labelledby titles');
+  } else {
+    fail('A11Y-DIALOG', 'missing aria-labelledby on win/shop/hint/fail/levels dialogs');
+  }
+
   // Save sanitization on load path
   if (
     /function sanitizeSave/.test(gameRaw) &&
