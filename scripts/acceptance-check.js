@@ -3887,6 +3887,65 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-AUTOFILL-OFF: deny Autofill overlays mid-run (API 26+) ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-autofill-off.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk =
+    /setImportantForAutofill\s*\(\s*View\.IMPORTANT_FOR_AUTOFILL_NO\s*\)/.test(
+      patchRaw
+    ) &&
+    /Build\.VERSION\.SDK_INT\s*>=\s*Build\.VERSION_CODES\.O/.test(patchRaw) &&
+    /ANDROID-WEBVIEW-AUTOFILL-OFF/.test(patchRaw);
+  const domIdx = aabRaw.search(/patch-android-webview-dom-storage-on\.sh/);
+  const autoIdx = aabRaw.search(/patch-android-webview-autofill-off\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    domIdx >= 0 &&
+    autoIdx >= 0 &&
+    iconsIdx >= 0 &&
+    domIdx < autoIdx &&
+    autoIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-AUTOFILL-OFF/.test(readmeRaw) && /2ag/.test(readmeRaw);
+  const keepOk =
+    /setImportantForAutofill\s*\(\s*View\.IMPORTANT_FOR_AUTOFILL_NO\s*\)/.test(
+      keepRaw
+    ) &&
+    /Build\.VERSION\.SDK_INT\s*>=\s*Build\.VERSION_CODES\.O/.test(keepRaw) &&
+    /ANDROID-WEBVIEW-AUTOFILL-OFF/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk =
+      /setImportantForAutofill\s*\(\s*View\.IMPORTANT_FOR_AUTOFILL_NO\s*\)/.test(
+        mainRaw
+      ) && /Build\.VERSION\.SDK_INT\s*>=\s*Build\.VERSION_CODES\.O/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-autofill-off-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-AUTOFILL-OFF',
+      'setImportantForAutofill(NO) API26+ + patch/aab after dom-storage before icons + README §2ag + keep-awake; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-AUTOFILL-OFF',
+      `missing autofill-off / patch / aab hook-after-dom-storage-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';
