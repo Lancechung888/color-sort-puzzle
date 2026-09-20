@@ -306,6 +306,9 @@
 
 （已補）**ANDROID-WEBVIEW-BG**已上 — `MainActivity` `webView.setBackgroundColor(Color.parseColor("#1a1a2e"))`（冷啟／splash 交接不閃白；搭配 ANDROID-SPLASH-THEME＋ANDROID-SYSTEM-BARS；`android/` 仍 gitignore）；`scripts/patch-android-webview-bg.sh`＋`aab:internal` hook（text-zoom 之後、icons 之前）＋`native-templates/android/README.md` §2q；Capacitor `backgroundColor` 僅輔助、MainActivity 為 source of truth；accept `ANDROID-WEBVIEW-BG`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-WEBVIEW-ZOOM-LOCK**已上 — `MainActivity` `webView.getSettings().setSupportZoom(false)`＋`setBuiltInZoomControls(false)`＋`setDisplayZoomControls(false)`（拒絕原生 WebView 手勢縮放打爆直立管板；瀏覽器／PWA **A11Y-ZOOM** 仍可 pinch；異於 TEXT-ZOOM 的系統字級；`android/` 仍 gitignore）；`scripts/patch-android-webview-zoom-lock.sh`＋`aab:internal` hook（bg 之後、icons 之前）＋`native-templates/android/README.md` §2r；accept `ANDROID-WEBVIEW-ZOOM-LOCK`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
+
 
 
 

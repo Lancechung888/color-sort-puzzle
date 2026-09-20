@@ -3139,6 +3139,57 @@ block(
   }
 }
 
+
+// --- ANDROID-WEBVIEW-ZOOM-LOCK: setSupportZoom/builtIn/display false; no soft-arm ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-zoom-lock.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /setSupportZoom\s*\(\s*false\s*\)/.test(patchRaw) &&
+    /setBuiltInZoomControls\s*\(\s*false\s*\)/.test(patchRaw) &&
+    /setDisplayZoomControls\s*\(\s*false\s*\)/.test(patchRaw);
+  const bgIdx = aabRaw.search(/patch-android-webview-bg\.sh/);
+  const zoomLockIdx = aabRaw.search(/patch-android-webview-zoom-lock\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    zoomLockIdx >= 0 &&
+    bgIdx >= 0 &&
+    iconsIdx >= 0 &&
+    zoomLockIdx > bgIdx &&
+    iconsIdx > zoomLockIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-ZOOM-LOCK/.test(readmeRaw) && /2r/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk =
+      /setSupportZoom\s*\(\s*false\s*\)/.test(mainRaw) &&
+      /setBuiltInZoomControls\s*\(\s*false\s*\)/.test(mainRaw) &&
+      /setDisplayZoomControls\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-zoom-lock-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-ZOOM-LOCK',
+      'setSupportZoom/builtIn/displayZoomControls(false) + patch-android-webview-zoom-lock.sh + aab:internal after bg before icons + README §2r; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-ZOOM-LOCK',
+      `missing zoom-lock / patch / aab hook-after-bg-before-icons / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';
