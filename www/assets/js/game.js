@@ -4258,6 +4258,13 @@
         shareWinResult();
         return true;
       }
+      if (key === 'o' || key === 'O') {
+        const shopBtn = $('#btn-win-shop');
+        if (!shopBtn || shopBtn.disabled || shopBtn.hidden) return false;
+        e.preventDefault();
+        openShop();
+        return true;
+      }
       return false;
     }
 
