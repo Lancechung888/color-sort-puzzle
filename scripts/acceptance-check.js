@@ -1474,6 +1474,112 @@ if (gameRaw) {
     }
   }
 
+
+  // PWA-MASKABLE: maskable icons + richer manifest + iOS status-bar; no soft-arm
+  {
+    const rootManifest = path.join(root, 'site.webmanifest');
+    const docsManifest = path.join(root, 'docs/site.webmanifest');
+    const maskAssets = [
+      path.join(root, 'assets/icons/icon-maskable-192.png'),
+      path.join(root, 'assets/icons/icon-maskable-512.png'),
+      path.join(root, 'docs/icons/icon-maskable-192.png'),
+      path.join(root, 'docs/icons/icon-maskable-512.png'),
+    ];
+    const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    const docsHtml = fs.existsSync(path.join(root, 'docs/index.html'))
+      ? fs.readFileSync(path.join(root, 'docs/index.html'), 'utf8')
+      : '';
+    const syncWww = fs.existsSync(path.join(root, 'scripts/sync-www.sh'))
+      ? fs.readFileSync(path.join(root, 'scripts/sync-www.sh'), 'utf8')
+      : '';
+    const iconsExist = maskAssets.every((p) => fs.existsSync(p));
+
+    function manifestMaskableOk(filePath, iconPrefix) {
+      if (!fs.existsSync(filePath)) return false;
+      try {
+        const m = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        const icons = Array.isArray(m.icons) ? m.icons : [];
+        const hasMask192 = icons.some(
+          (i) =>
+            i &&
+            i.purpose === 'maskable' &&
+            typeof i.src === 'string' &&
+            i.src.includes(iconPrefix + 'icon-maskable-192.png')
+        );
+        const hasMask512 = icons.some(
+          (i) =>
+            i &&
+            i.purpose === 'maskable' &&
+            typeof i.src === 'string' &&
+            i.src.includes(iconPrefix + 'icon-maskable-512.png')
+        );
+        const hasAny =
+          icons.some((i) => i && i.purpose === 'any') ||
+          icons.some((i) => i && (!i.purpose || String(i.purpose).includes('any')));
+        const orientOk = m.orientation === 'portrait-primary';
+        const cats = Array.isArray(m.categories) ? m.categories.map(String) : [];
+        const catsOk = cats.includes('games') && cats.includes('puzzle');
+        const nameOk =
+          typeof m.name === 'string' &&
+          m.name.includes('ColorTube Sort: Lid Puzzle') &&
+          m.short_name === 'ColorTube Sort' &&
+          m.theme_color === '#1a1a2e' &&
+          m.background_color === '#1a1a2e';
+        return hasMask192 && hasMask512 && hasAny && orientOk && catsOk && nameOk;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    const rootOk = manifestMaskableOk(rootManifest, 'assets/icons/');
+    const docsOk = manifestMaskableOk(docsManifest, 'icons/');
+    const statusBar =
+      /apple-mobile-web-app-status-bar-style[^>]*content=["']black-translucent["']/.test(
+        indexHtml
+      ) ||
+      /content=["']black-translucent["'][^>]*name=["']apple-mobile-web-app-status-bar-style["']/.test(
+        indexHtml
+      );
+    const docsStatusBar =
+      /apple-mobile-web-app-status-bar-style[^>]*content=["']black-translucent["']/.test(
+        docsHtml
+      ) ||
+      /content=["']black-translucent["'][^>]*name=["']apple-mobile-web-app-status-bar-style["']/.test(
+        docsHtml
+      );
+    const syncOk =
+      /site\.webmanifest/.test(syncWww) &&
+      (/assets/.test(syncWww) || /maskable/.test(syncWww));
+    const noSoft =
+      !/soft-arm|claim-juice|hud-.*-pulse|pwa-maskable-arm|web-manifest-arm/.test(
+        indexHtml
+      ) &&
+      !/pwa-maskable-arm|web-manifest-arm/.test(
+        fs.existsSync(rootManifest) ? fs.readFileSync(rootManifest, 'utf8') : ''
+      );
+
+    if (
+      iconsExist &&
+      rootOk &&
+      docsOk &&
+      statusBar &&
+      docsStatusBar &&
+      syncOk &&
+      noSoft
+    ) {
+      pass(
+        'PWA-MASKABLE',
+        'maskable 192/512 (assets+docs) + purpose maskable + orientation portrait-primary + categories games/puzzle + apple status-bar black-translucent; no soft-arm'
+      );
+    } else {
+      fail(
+        'PWA-MASKABLE',
+        'missing maskable icons/manifest fields/status-bar/sync, or soft-arm' +
+          ` (icons=${iconsExist} root=${rootOk} docs=${docsOk} status=${statusBar} docsStatus=${docsStatusBar} sync=${syncOk} noSoft=${noSoft})`
+      );
+    }
+  }
+
   // KEYSHORTCUTS-MARKUP: aria-keyshortcuts on controls whose handlers already exist; no soft-arm
   {
     const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');

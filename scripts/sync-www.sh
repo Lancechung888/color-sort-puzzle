@@ -14,4 +14,4 @@ if [[ -f "$ROOT/site.webmanifest" ]]; then
   cp "$ROOT/site.webmanifest" "$WWW/site.webmanifest"
 fi
 
-echo "Synced index.html + assets/ + site.webmanifest → www/"
+echo "Synced index.html + assets/ (incl. maskable icons) + site.webmanifest → www/"
