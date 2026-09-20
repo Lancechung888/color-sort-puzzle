@@ -199,6 +199,26 @@ bash scripts/patch-android-soft-input.sh
 
 `npm run aab:internal` 在 resize patch **之後**自動跑。`android/` 仍 gitignore。
 
+
+## 2j. Mark as a game（ANDROID-IS-GAME）
+
+Hybrid-casual should tell Android this is a **game**, not a generic utility app — helps Game Dashboard / system grouping.
+
+`<application>`:
+
+```xml
+android:isGame="true"
+android:appCategory="game"
+```
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-is-game.sh
+```
+
+`npm run aab:internal` 在 soft-input patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

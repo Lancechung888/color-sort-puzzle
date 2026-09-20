@@ -2774,6 +2774,44 @@ block(
   }
 }
 
+
+// --- ANDROID-IS-GAME: application isGame=true + appCategory=game; no soft-arm ---
+{
+  const manifestPath = path.join(root, 'android/app/src/main/AndroidManifest.xml');
+  const manifestRaw = fs.existsSync(manifestPath) ? fs.readFileSync(manifestPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-is-game.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /isGame/.test(patchRaw) &&
+    /appCategory/.test(patchRaw) &&
+    /["']game["']/.test(patchRaw);
+  const aabHookOk = /patch-android-is-game\.sh/.test(aabRaw);
+  const readmeOk = /ANDROID-IS-GAME/.test(readmeRaw) && /2j/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require isGame + appCategory.
+  let localOk = !manifestRaw;
+  if (manifestRaw) {
+    const appM = /<application\b([\s\S]*?)>/i.exec(manifestRaw);
+    const attrs = appM ? appM[1] : '';
+    localOk =
+      /android:isGame\s*=\s*["']true["']/i.test(attrs) &&
+      /android:appCategory\s*=\s*["']game["']/i.test(attrs);
+  }
+  const noSoft =
+    !/is-game-arm|soft-arm|claim-juice|hud-pulse/.test(patchRaw + manifestRaw);
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-IS-GAME',
+      'application android:isGame="true" + appCategory="game" + patch-android-is-game.sh + aab:internal hook + README; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-IS-GAME',
+      `missing isGame/appCategory / patch / aab hook / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
