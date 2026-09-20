@@ -5295,6 +5295,13 @@
     if (next) SFX.tap();
   }
 
+  /** KEEP-AWAKE-KEY: toggle Keep screen on from keyboard; toast only. No soft-arm. */
+  function toggleKeepAwakeKey() {
+    const next = save.keepAwake === false;
+    applyKeepAwakeOn(next);
+    toast(next ? 'Keep screen on' : 'Keep screen off', 2000);
+  }
+
   /** MOTION-KEY: toggle Reduced motion from keyboard; toast only. No soft-arm. */
   function toggleReducedMotionKey() {
     const next = save.reducedMotion !== true;
@@ -6172,7 +6179,7 @@
         if (isHelp && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
           e.preventDefault();
           toast(
-            'Play Enter · Daily d · Shop s · Levels l · Mute m · Haptics v · Color assist c · Reduced motion x · Undo u · Hint h · Restart r · Home Esc · Win n/r/h/s/o · Fail h/b/r · Levels arrows/[ ]',
+            'Play Enter · Daily d · Shop s · Levels l · Mute m · Haptics v · Color assist c · Reduced motion x · Keep screen on k · Undo u · Hint h · Restart r · Home Esc · Win n/r/h/s/o · Fail h/b/r · Levels arrows/[ ]',
             4800
           );
           return;
@@ -6259,6 +6266,27 @@
         ) {
           e.preventDefault();
           toggleReducedMotionKey();
+          return;
+        }
+      }
+      // KEEP-AWAKE-KEY: k/K toggles Keep screen on; reachable from start/play/overlays; no soft-arm
+      {
+        const t = e.target;
+        let typing = false;
+        if (t) {
+          const tag = (t.tagName || '').toLowerCase();
+          if (tag === 'input' || tag === 'textarea' || tag === 'select') typing = true;
+          if (t.isContentEditable) typing = true;
+        }
+        if (
+          (e.key === 'k' || e.key === 'K') &&
+          !typing &&
+          !e.ctrlKey &&
+          !e.metaKey &&
+          !e.altKey
+        ) {
+          e.preventDefault();
+          toggleKeepAwakeKey();
           return;
         }
       }
