@@ -83,6 +83,8 @@ bash "$ROOT/scripts/patch-android-is-game.sh"
 bash "$ROOT/scripts/patch-android-force-dark.sh"
 # Keep WebView across density/fontScale/layoutDirection/colorMode (no mid-run recreate).
 bash "$ROOT/scripts/patch-android-config-changes.sh"
+# Draw into display cutout so env(safe-area-inset-*) is non-zero (SAFE-AREA).
+bash "$ROOT/scripts/patch-android-cutout.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

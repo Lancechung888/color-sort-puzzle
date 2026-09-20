@@ -2915,6 +2915,51 @@ block(
   }
 }
 
+
+// --- ANDROID-CUTOUT: windowLayoutInDisplayCutoutMode=shortEdges; no soft-arm ---
+{
+  const stylesPath = path.join(root, 'android/app/src/main/res/values/styles.xml');
+  const stylesRaw = fs.existsSync(stylesPath) ? fs.readFileSync(stylesPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-cutout.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /windowLayoutInDisplayCutoutMode/.test(patchRaw) && /shortEdges/.test(patchRaw);
+  const cfgIdx = aabRaw.search(/patch-android-config-changes\.sh/);
+  const cutoutIdx = aabRaw.search(/patch-android-cutout\.sh/);
+  const aabHookOk = cutoutIdx >= 0 && cfgIdx >= 0 && cutoutIdx > cfgIdx;
+  const readmeOk = /ANDROID-CUTOUT/.test(readmeRaw) && /2m/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require shortEdges on AppTheme*.
+  let stylesOk = !stylesRaw;
+  if (stylesRaw) {
+    const names = ['AppTheme', 'AppTheme.NoActionBar', 'AppTheme.NoActionBarLaunch'];
+    stylesOk = names.every((name) => {
+      const esc = name.replace(/\./g, '\\.');
+      const m = new RegExp(
+        '<style\\b[^>]*\\bname\\s*=\\s*["\']' + esc + '["\'][^>]*>([\\s\\S]*?)</style>',
+        'i'
+      ).exec(stylesRaw);
+      if (!m) return false;
+      return /<item\s+name\s*=\s*["']android:windowLayoutInDisplayCutoutMode["']\s*>\s*shortEdges\s*<\/item>/i.test(
+        m[1]
+      );
+    });
+  }
+  const noSoft =
+    !/cutout-arm|soft-arm|claim-juice|hud-pulse/.test(patchRaw + stylesRaw);
+  if (patchOk && aabHookOk && readmeOk && stylesOk && noSoft) {
+    pass(
+      'ANDROID-CUTOUT',
+      'themes android:windowLayoutInDisplayCutoutMode=shortEdges + patch-android-cutout.sh + aab:internal after config-changes + README §2m; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-CUTOUT',
+      `missing shortEdges / patch / aab hook-after-config-changes / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} stylesOk=${stylesOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
