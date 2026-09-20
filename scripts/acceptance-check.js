@@ -2675,6 +2675,56 @@ block(
   }
 }
 
+
+// --- ANDROID-RESIZE: MainActivity resizeableActivity=false; no soft-arm ---
+{
+  const manifestPath = path.join(root, 'android/app/src/main/AndroidManifest.xml');
+  const manifestRaw = fs.existsSync(manifestPath) ? fs.readFileSync(manifestPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-resize.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /resizeableActivity/.test(patchRaw) &&
+    /["']false["']/.test(patchRaw) &&
+    /MainActivity/.test(patchRaw);
+  const aabHookOk = /patch-android-resize\.sh/.test(aabRaw);
+  const readmeOk = /ANDROID-RESIZE/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require resizeableActivity=false on MainActivity.
+  let localOk = !manifestRaw;
+  if (manifestRaw) {
+    const actRe = /<activity\b([\s\S]*?)>/gi;
+    let hit = false;
+    let ok = false;
+    let m;
+    while ((m = actRe.exec(manifestRaw))) {
+      const attrs = m[1];
+      if (
+        /android:name\s*=\s*["'](?:\.MainActivity|[^"']*MainActivity)["']/i.test(
+          attrs
+        )
+      ) {
+        hit = true;
+        ok = /android:resizeableActivity\s*=\s*["']false["']/i.test(attrs);
+        break;
+      }
+    }
+    localOk = hit && ok;
+  }
+  const noSoft =
+    !/resize-arm|soft-arm|claim-juice|hud-pulse/.test(patchRaw + manifestRaw);
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-RESIZE',
+      'MainActivity android:resizeableActivity="false" + patch-android-resize.sh + aab:internal hook + README; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-RESIZE',
+      `missing resize lock / patch / aab hook / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');

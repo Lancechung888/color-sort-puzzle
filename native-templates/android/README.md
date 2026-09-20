@@ -164,6 +164,25 @@ bash scripts/patch-android-cleartext.sh
 
 `npm run aab:internal` 在 no-backup patch **之後**自動跑。`android/` 仍 gitignore。
 
+
+## 2h. Disable multi-window resize（ANDROID-RESIZE）
+
+Portrait hybrid-casual tube layout breaks in multi-window / freeform. Lock MainActivity:
+
+```xml
+android:resizeableActivity="false"
+```
+
+（與 portrait 同屬 activity 屬性；冪等補丁。）
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-resize.sh
+```
+
+`npm run aab:internal` 在 cleartext patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
