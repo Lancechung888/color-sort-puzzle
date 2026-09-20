@@ -3780,14 +3780,25 @@
         btn.classList.add('level-star-gap-arm');
         btn.setAttribute('aria-label', 'Replay for 3★ — Level ' + (i + 1));
         badgeHtml = '<span class="level-cell-star-gap" aria-hidden="true">3★</span>';
+      } else if (locked) {
+        btn.setAttribute('aria-label', 'Level ' + (i + 1) + ' — locked');
+      } else if (best >= 3) {
+        btn.setAttribute('aria-label', 'Level ' + (i + 1) + ' — 3 stars');
+      } else if (best > 0) {
+        btn.setAttribute(
+          'aria-label',
+          'Level ' + (i + 1) + ' — ' + best + ' of 3 stars, replay for 3★'
+        );
+      } else {
+        btn.setAttribute('aria-label', 'Level ' + (i + 1) + ' — play');
       }
       const starsHtml = [1, 2, 3]
-        .map((s) => '<span class="' + (s <= best ? 'lit' : 'empty') + '">★</span>')
+        .map((s) => '<span class="' + (s <= best ? 'lit' : 'empty') + '" aria-hidden="true">★</span>')
         .join('');
       btn.innerHTML =
         badgeHtml +
-        '<span class="level-cell-num">' + (i + 1) + '</span>' +
-        '<span class="level-cell-stars">' + starsHtml + '</span>';
+        '<span class="level-cell-num" aria-hidden="true">' + (i + 1) + '</span>' +
+        '<span class="level-cell-stars" aria-hidden="true">' + starsHtml + '</span>';
       if (!locked) {
         btn.addEventListener('click', () => {
           confirmLeaveRunThen(i, {}, function () {
@@ -3830,26 +3841,37 @@
 
   function focusOverlayPrimary(el) {
     if (!el || !el.classList.contains('show')) return;
-    let target = el.querySelector('.modal-close');
-    if (!target) {
-      if (el === winOverlay) {
-        const nextBtn = $('#btn-next');
-        const restartBtn = $('#btn-win-restart');
-        target =
-          (nextBtn && nextBtn.classList.contains('next-unlock-arm') && nextBtn) ||
-          (restartBtn && restartBtn.classList.contains('win-replay-arm') && restartBtn) ||
-          nextBtn ||
-          restartBtn;
-      } else if (el === failPrompt) {
-        target = $('#btn-fail-hint');
-      } else if (el === hintPaywall) {
-        target =
-          el.querySelector('.hint-pay-arm') ||
-          $('#btn-hint-coins') ||
-          $('#btn-hint-ad');
-      } else if (el === shopOverlay) {
-        target = el.querySelector('.shop-buy-arm') || el.querySelector('.modal-close');
-      }
+    let target = null;
+    const levelsOv = $('#levels-overlay');
+    // Levels: land on Continue / star-gap (or first unlocked cell), not Close —
+    // pairs with LEVELS-SCROLL so keyboard/SR users hit the actionable cell.
+    if (el === levelsOv || (el && el.id === 'levels-overlay')) {
+      target =
+        el.querySelector('.level-continue-arm') ||
+        el.querySelector('.level-star-gap-arm') ||
+        el.querySelector('.level-cell:not([disabled])') ||
+        el.querySelector('.modal-close');
+    } else if (el === winOverlay) {
+      const nextBtn = $('#btn-next');
+      const restartBtn = $('#btn-win-restart');
+      target =
+        (nextBtn && nextBtn.classList.contains('next-unlock-arm') && nextBtn) ||
+        (restartBtn && restartBtn.classList.contains('win-replay-arm') && restartBtn) ||
+        nextBtn ||
+        restartBtn ||
+        el.querySelector('.modal-close');
+    } else if (el === failPrompt) {
+      target = $('#btn-fail-hint') || el.querySelector('.modal-close');
+    } else if (el === hintPaywall) {
+      target =
+        el.querySelector('.hint-pay-arm') ||
+        $('#btn-hint-coins') ||
+        $('#btn-hint-ad') ||
+        el.querySelector('.modal-close');
+    } else if (el === shopOverlay) {
+      target = el.querySelector('.shop-buy-arm') || el.querySelector('.modal-close');
+    } else {
+      target = el.querySelector('.modal-close');
     }
     if (!target) {
       const modal = el.querySelector('[role="dialog"]') || el.querySelector('.modal') || el;

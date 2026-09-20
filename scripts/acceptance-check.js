@@ -472,6 +472,27 @@ if (gameRaw) {
     fail('LEVELS-SCROLL', 'missing scrollIntoView for continue/star-gap arm near openLevels/renderLevelsGrid');
   }
 
+  // Levels overlay focus + cell aria-labels (keyboard/SR; no soft-arm)
+  if (
+    /function focusOverlayPrimary/.test(gameRaw) &&
+    /levels-overlay/.test(gameRaw) &&
+    /level-continue-arm/.test(gameRaw) &&
+    /querySelector\(\s*['"]\.level-continue-arm['"]\s*\)/.test(gameRaw) &&
+    /Level ['"]\s*\+\s*\(i\s*\+\s*1\)\s*\+\s*['"] — locked/.test(gameRaw) &&
+    /Level ['"]\s*\+\s*\(i\s*\+\s*1\)\s*\+\s*['"] — play/.test(gameRaw) &&
+    /aria-hidden="true"/.test(gameRaw)
+  ) {
+    pass(
+      'LEVELS-FOCUS',
+      'focusOverlayPrimary prefers Continue/star-gap over Close; level cells have locked/play/stars aria-labels'
+    );
+  } else {
+    fail(
+      'LEVELS-FOCUS',
+      'missing levels focus prefer continue/star-gap and/or full level-cell aria-labels'
+    );
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&
