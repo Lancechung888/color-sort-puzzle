@@ -30,6 +30,8 @@
   const DAILY_FIRST_CLEAR_BONUS = 40;
   /** Every CHAPTER_SIZE main levels all-3★ → chest (coins + free hint). */
   const CHAPTER_SIZE = 10;
+  /** Must match CSS `.levels-grid { grid-template-columns: repeat(5, 1fr); }`. */
+  const LEVELS_GRID_COLS = 5;
   const CHAPTER_CHEST = { coins: 80, hints: 1 };
   /** Login streak milestones — soft Day1 (no harsh loss), real return reason. */
   const STREAK_MILESTONES = [
@@ -3754,7 +3756,8 @@
     }, 300);
   }
 
-  function shiftLevelsChapter(delta) {
+  function shiftLevelsChapter(delta, focusMode) {
+    const mode = focusMode || 'primary';
     const cur = levelsViewChapter != null ? levelsViewChapter : focusChapter();
     const next = clampLevelsViewChapter(cur + delta);
     if (next === cur) return;
@@ -3762,19 +3765,123 @@
     clearLevelsContinueArm();
     renderLevelsGrid();
     requestAnimationFrame(function () {
+      const scrollBehavior = prefersReducedMotion() ? 'auto' : 'smooth';
+      if (mode === 'first' || mode === 'last') {
+        const unlocked = Array.prototype.slice.call(
+          document.querySelectorAll('#levels-grid .level-cell:not([disabled])')
+        );
+        const target = mode === 'first' ? unlocked[0] : unlocked[unlocked.length - 1];
+        if (target) {
+          if (typeof target.scrollIntoView === 'function') {
+            target.scrollIntoView({
+              block: 'nearest',
+              inline: 'nearest',
+              behavior: scrollBehavior,
+            });
+          }
+          safeFocus(target);
+        }
+        return;
+      }
       const arm =
         $('.level-continue-arm') ||
         $('.level-star-gap-arm') ||
         $('#levels-grid .level-cell');
-      if (!arm || typeof arm.scrollIntoView !== 'function') return;
-      arm.scrollIntoView({
+      if (arm && typeof arm.scrollIntoView === 'function') {
+        arm.scrollIntoView({
+          block: 'nearest',
+          inline: 'nearest',
+          behavior: scrollBehavior,
+        });
+      }
+      const ov = $('#levels-overlay');
+      if (ov && ov.classList.contains('show')) focusOverlayPrimary(ov);
+    });
+  }
+
+  /** Levels grid arrow / Home / End nav; chapter-edge Left/Right shifts chapter. */
+  function handleLevelsGridKeydown(e) {
+    const ov = $('#levels-overlay');
+    if (!ov || !ov.classList.contains('show')) return;
+    const grid = $('#levels-grid');
+    if (!grid || !grid.contains(e.target)) return;
+    const key = e.key;
+    if (
+      key !== 'ArrowLeft' &&
+      key !== 'ArrowRight' &&
+      key !== 'ArrowUp' &&
+      key !== 'ArrowDown' &&
+      key !== 'Home' &&
+      key !== 'End'
+    ) {
+      return;
+    }
+    e.preventDefault();
+    const cells = Array.prototype.slice.call(grid.querySelectorAll('.level-cell'));
+    if (!cells.length) return;
+    const cell =
+      e.target && e.target.closest
+        ? e.target.closest('.level-cell')
+        : e.target;
+    let idx = cell ? cells.indexOf(cell) : -1;
+    if (idx < 0) return;
+    const last = cells.length - 1;
+    const ch = levelsViewChapter != null ? levelsViewChapter : focusChapter();
+
+    if (key === 'ArrowLeft' && idx === 0) {
+      if (ch > 1) shiftLevelsChapter(-1, 'last');
+      return;
+    }
+    if (key === 'ArrowRight' && idx === last) {
+      if (ch < maxBrowsableChapter()) shiftLevelsChapter(1, 'first');
+      return;
+    }
+
+    let step = 0;
+    let start = idx;
+    if (key === 'ArrowLeft') {
+      step = -1;
+      start = idx - 1;
+    } else if (key === 'ArrowRight') {
+      step = 1;
+      start = idx + 1;
+    } else if (key === 'ArrowUp') {
+      step = -LEVELS_GRID_COLS;
+      start = idx - LEVELS_GRID_COLS;
+    } else if (key === 'ArrowDown') {
+      step = LEVELS_GRID_COLS;
+      start = idx + LEVELS_GRID_COLS;
+    } else if (key === 'Home') {
+      step = 1;
+      start = 0;
+    } else if (key === 'End') {
+      step = -1;
+      start = last;
+    }
+
+    let nextIdx = -1;
+    for (let i = start; i >= 0 && i < cells.length; i += step) {
+      if (!cells[i].disabled) {
+        nextIdx = i;
+        break;
+      }
+      if (key === 'Home' || key === 'End') {
+        /* keep scanning */
+      } else if (step === 0) {
+        break;
+      }
+    }
+    if (nextIdx < 0) return;
+    const landing = cells[nextIdx];
+    if (!landing || landing.disabled) return;
+    safeFocus(landing);
+    if (typeof landing.scrollIntoView === 'function') {
+      landing.scrollIntoView({
         block: 'nearest',
         inline: 'nearest',
         behavior: prefersReducedMotion() ? 'auto' : 'smooth',
       });
-      const ov = $('#levels-overlay');
-      if (ov && ov.classList.contains('show')) focusOverlayPrimary(ov);
-    });
+    }
   }
 
   function closeLevels() {
@@ -4989,6 +5096,10 @@
       btnLevelsNext.addEventListener('click', function () {
         shiftLevelsChapter(1);
       });
+    }
+    const levelsGridEl = $('#levels-grid');
+    if (levelsGridEl) {
+      levelsGridEl.addEventListener('keydown', handleLevelsGridKeydown);
     }
     if (levelLabel) {
       levelLabel.addEventListener('click', tryOpenLevelsFromHud);
