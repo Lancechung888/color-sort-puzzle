@@ -1037,6 +1037,18 @@
     if (isRunActive()) persistRunDraft();
   });
 
+  // LEAVE-TAB-GUARD: warn on accidental tab close/refresh when mid-run draft has progress
+  // (same predicate as leave-run confirm). Browsers ignore custom returnValue strings.
+  window.addEventListener('beforeunload', function (event) {
+    const draft = activeOrStoredProgressDraft();
+    if (!draft) return;
+    try {
+      if (isRunActive()) persistRunDraft();
+    } catch (_) { /* ignore */ }
+    event.preventDefault();
+    event.returnValue = '';
+  });
+
   /** WAKE-LOCK: Screen Wake Lock while off the start screen (active play / overlays). */
   let screenWakeLock = null;
   function wantsScreenWakeLock() {
