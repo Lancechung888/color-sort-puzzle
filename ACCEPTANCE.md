@@ -23,7 +23,7 @@
 | 項目 | 狀態 |
 |------|------|
 | 指令 | `npm run accept`（`scripts/acceptance-check.js`；內含 `native:check`） |
-| 可自動項 | 關卡密度／教學弧／顏色可解／**L-SOLVE** 倒水路徑可解、Day1 經濟常數、P0① 商店不白送、測 ID 廣告／Billing 配線、倒水中不插頁（源碼護欄） |
+| 可自動項 | 關卡密度／教學弧／顏色可解／**L-SOLVE** 倒水路徑可解／**L-PAR** 顯式 par≥BFS opt、Day1 經濟常數、P0① 商店不白送、測 ID 廣告／Billing 配線、倒水中不插頁（源碼護欄） |
 | 仍 Blocked | **P0②③**、真 `remove_ads` Billing／StoreKit（等 Play 帳號＋正式單元）— 套件標 **BLOCKED**，**不標 Pass** |
 | 本輪結果 | 自動化檢查 **全綠**；閘門仍 **不過**（變現未解） |
 
@@ -68,6 +68,10 @@
 （已補）**Share play URL（SHARE-PLAY-URL）**已上 — 通關 Share／clipboard／`navigator.share` url 指向 `…/color-sort-puzzle/play/` 可玩 demo（非 brand landing 根）；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#6 維持 Pass（有機分享落地可玩）；#1／#3／#9 仍 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。
 
 （已補）**Share play OG（SHARE-PLAY-OG）**已上 — 可玩 `index.html`／`docs/play/` Open Graph＋Twitter（`og:url` → `/play/`、`og:image` → `og.png`）；通關 Share 社群預覽；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；P0②③ 仍 Blocked。**未**把 #1／#3／#7／#9 標新 Pass。
+
+
+（已補）**L-PAR**已上 — 全關顯式 `par`；Day1 BFS `par≥opt`；L79／L80 深度≥12（實測 30／29）；修早期 3★ 不可能；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#4 維持 Pass；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 
 重跑：清乾淨 tree 後執行 `npm run accept`，exit 0 = 可自動項 Pass + Blocked 項如實列出。
