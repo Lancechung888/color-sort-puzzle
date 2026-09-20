@@ -262,6 +262,23 @@ bash scripts/patch-android-config-changes.sh
 
 `npm run aab:internal` 在 force-dark patch **之後**自動跑。`android/` 仍 gitignore。
 
+## 2m. Display cutout shortEdges（ANDROID-CUTOUT）
+
+Stock Capacitor themes omit `android:windowLayoutInDisplayCutoutMode` — WebView letterboxes around notches and CSS `env(safe-area-inset-*)` (SAFE-AREA-LR/TB) stays zero. Set **shortEdges** so the WebView can draw into the cutout and safe-area insets work.
+
+```xml
+<!-- styles.xml AppTheme / AppTheme.NoActionBar / AppTheme.NoActionBarLaunch -->
+<item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+```
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-cutout.sh
+```
+
+`npm run aab:internal` 在 config-changes patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
