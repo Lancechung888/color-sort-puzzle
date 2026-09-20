@@ -792,41 +792,44 @@ if (gameRaw) {
     );
   }
 
-  // Start-screen keys: Enter Play, d Daily, s Shop; no soft-arm
+  // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
     /handleStartKeys\s*\(/.test(gameRaw) &&
     (/btn-start|#btn-start/.test(gameRaw)) &&
     (/btn-start-daily|#btn-start-daily/.test(gameRaw)) &&
+    (/btn-start-levels|#btn-start-levels/.test(gameRaw)) &&
     /openShop\s*\(/.test(gameRaw) &&
     !/start-keys-arm|startKeysArm|\.start-keys-arm/.test(gameRaw)
   ) {
     const skIdx = gameRaw.indexOf('function handleStartKeys');
-    const skSlice = skIdx >= 0 ? gameRaw.slice(skIdx, skIdx + 1600) : '';
+    const skSlice = skIdx >= 0 ? gameRaw.slice(skIdx, skIdx + 2000) : '';
     const wired =
       /Enter/.test(skSlice) &&
       /['"]d['"]/.test(skSlice) &&
       /['"]s['"]/.test(skSlice) &&
+      /['"]l['"]/.test(skSlice) &&
       (/btn-start|#btn-start/.test(skSlice)) &&
       (/btn-start-daily|#btn-start-daily/.test(skSlice)) &&
+      (/btn-start-levels|#btn-start-levels/.test(skSlice)) &&
       /\bopenShop\s*\(/.test(skSlice) &&
       (/startScreen|start-screen/.test(skSlice)) &&
       (/isContentEditable|contentEditable|tagName/.test(skSlice) || /textarea/.test(skSlice));
     if (wired) {
       pass(
         'START-KEYS',
-        'Start Enter Play + d Daily + s Shop (+guards); no soft-arm'
+        'Start Enter Play + d Daily + s Shop + l Levels (+guards); no soft-arm'
       );
     } else {
       fail(
         'START-KEYS',
-        'handleStartKeys present but Enter/d/s wiring or start/input guards missing inside handler'
+        'handleStartKeys present but Enter/d/s/l Levels wiring or start/input guards missing inside handler'
       );
     }
   } else {
     fail(
       'START-KEYS',
-      'missing start-screen keys (handleStartKeys / Enter|d|s / btn-start|daily|openShop) or soft-arm slipped in'
+      'missing start-screen keys (handleStartKeys / Enter|d|s|l / btn-start|daily|levels|openShop) or soft-arm slipped in'
     );
   }
 
@@ -1056,6 +1059,31 @@ block(
   'M-IAP',
   'Live remove_ads Play Billing / StoreKit — shop stays Coming soon until store account + real product.'
 );
+
+
+// --- Brand favicon (ICON A derivatives; head + files) ---
+{
+  const indexRaw = read('index.html') || '';
+  const hasLinks =
+    /rel=["']icon["'][^>]*href=["']assets\/icons\/favicon-32\.png["']/.test(indexRaw) ||
+    /href=["']assets\/icons\/favicon-32\.png["'][^>]*rel=["']icon["']/.test(indexRaw);
+  const hasApple =
+    /rel=["']apple-touch-icon["'][^>]*href=["']assets\/icons\/apple-touch-icon\.png["']/.test(indexRaw) ||
+    /href=["']assets\/icons\/apple-touch-icon\.png["'][^>]*rel=["']apple-touch-icon["']/.test(indexRaw);
+  const favOk = fs.existsSync(path.join(root, 'assets/icons/favicon-32.png'));
+  const appleOk = fs.existsSync(path.join(root, 'assets/icons/apple-touch-icon.png'));
+  if (hasLinks && hasApple && favOk && appleOk) {
+    pass(
+      'BRAND-FAVICON',
+      'index.html icon + apple-touch-icon links; assets/icons/favicon-32.png + apple-touch-icon.png present'
+    );
+  } else {
+    fail(
+      'BRAND-FAVICON',
+      `missing favicon wiring (links fav32=${!!hasLinks} apple=${!!hasApple}; files fav32=${favOk} apple=${appleOk})`
+    );
+  }
+}
 
 // --- 5) Delegate native wiring ---
 const native = spawnSync('node', [path.join(root, 'scripts/native-wiring-check.js')], {
