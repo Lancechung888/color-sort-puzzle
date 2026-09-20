@@ -877,24 +877,56 @@
   }
 
   /**
+   * Mid-run mainline draft level index for start CTA / startGame, or -1.
+   * Peek only — static resume cue (no soft-arm).
+   */
+  function mainlineResumeTargetIndex() {
+    const draft = readRunDraft();
+    if (!draft || !draftHasProgress(draft) || draft.daily) return -1;
+    const di = Math.floor(Number(draft.levelIndex));
+    if (!Number.isFinite(di) || di < 0 || di >= LEVELS.length) return -1;
+    return di;
+  }
+
+  /**
    * Start-screen Daily CTA: sky/cyan Ready pulse when not yet cleared today;
-   * quiet Done when dailyDoneDate === todayStr(). Optional once-per-session arm cue.
+   * quiet Done when dailyDoneDate === todayStr(); mid-run today draft → static On.
+   * Optional once-per-session arm cue (Ready only — never for in-progress).
    */
   function refreshDailyCta(opts) {
     opts = opts || {};
     const btn = $('#btn-start-daily');
     const badge = $('#daily-cta-badge');
     if (!btn) return;
-    const ready = save.dailyDoneDate !== todayStr();
+    const done = save.dailyDoneDate === todayStr();
+    let inProgress = false;
+    if (!done) {
+      const draft = readRunDraft();
+      inProgress = !!(
+        draft &&
+        draft.daily &&
+        draft.dailyKey === todayStr() &&
+        draftHasProgress(draft)
+      );
+    }
+    // Done wins over any stale today draft
+    const ready = !done && !inProgress;
     btn.classList.toggle('daily-ready', ready);
-    btn.classList.toggle('daily-done', !ready);
+    btn.classList.toggle('daily-done', done);
+    btn.classList.toggle('daily-in-progress', inProgress);
     if (badge) {
       badge.hidden = false;
-      badge.textContent = ready ? 'Ready' : 'Done ✓';
+      if (done) badge.textContent = 'Done ✓';
+      else if (inProgress) badge.textContent = 'On';
+      else badge.textContent = 'Ready';
     }
-    btn.setAttribute('aria-label', ready
-      ? 'Daily Challenge — Ready'
-      : 'Daily Challenge — Done today');
+    if (done) {
+      btn.setAttribute('aria-label', 'Daily Challenge — Done today');
+    } else if (inProgress) {
+      btn.setAttribute('aria-label', 'Daily Challenge — in progress');
+    } else {
+      btn.setAttribute('aria-label', 'Daily Challenge — Ready');
+    }
     if (
       opts.cue &&
       ready &&
@@ -912,17 +944,32 @@
 
   /**
    * Start-screen primary Play CTA: fresh install stays "Play";
-   * returning players get "Continue · Level N" + soft warm gold/peach arm.
+   * mid-run mainline draft → "Resume · Level N" + static cyan (no soft-arm);
+   * else returning players get "Continue · Level N" + soft warm gold/peach arm.
    */
   function refreshStartPlayCta(opts) {
     opts = opts || {};
     const btn = $('#btn-start');
     if (!btn) return;
-    const targetIndex = Math.min(Math.max(save.level || 0, 0), LEVELS.length - 1);
-    const isFresh = (save.maxUnlocked || 0) === 0 && (save.level || 0) === 0;
+    const resumeIdx = mainlineResumeTargetIndex();
+    const targetIndex =
+      resumeIdx >= 0
+        ? resumeIdx
+        : Math.min(Math.max(save.level || 0, 0), LEVELS.length - 1);
+    const isFresh =
+      resumeIdx < 0 &&
+      (save.maxUnlocked || 0) === 0 &&
+      (save.level || 0) === 0;
+    btn.classList.remove('play-continue', 'play-in-progress');
+    if (resumeIdx >= 0) {
+      const n = resumeIdx + 1;
+      btn.textContent = 'Resume · Level ' + n;
+      btn.classList.add('play-in-progress');
+      btn.setAttribute('aria-label', 'Resume — Level ' + n + ' — in progress');
+      return; // no soft-arm cue for static resume
+    }
     if (isFresh) {
       btn.textContent = 'Play';
-      btn.classList.remove('play-continue');
       btn.setAttribute('aria-label', 'Play');
     } else {
       const n = targetIndex + 1;
@@ -5073,8 +5120,12 @@
   function startGame() {
     resumeAudio();
     clearStreakMilestoneClaim();
-    // Match Continue · Level N label (same target as refreshStartPlayCta)
-    const targetIdx = Math.min(Math.max(save.level || 0, 0), LEVELS.length - 1);
+    // Match Play/Continue/Resume label (same target as refreshStartPlayCta)
+    const resumeIdx = mainlineResumeTargetIndex();
+    const targetIdx =
+      resumeIdx >= 0
+        ? resumeIdx
+        : Math.min(Math.max(save.level || 0, 0), LEVELS.length - 1);
     confirmLeaveRunThen(targetIdx, {}, function () {
       // Prevent click-through from start CTA into tubes underneath
       app.classList.add('input-gate');
