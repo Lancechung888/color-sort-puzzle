@@ -542,6 +542,28 @@ if (gameRaw) {
     );
   }
 
+
+  // In-play tube board Arrow/Home/End focus nav (flex-wrap geometric; no soft-arm)
+  if (
+    /function handleTubesBoardKeydown/.test(gameRaw) &&
+    /tubesWrap\.addEventListener\(\s*['"]keydown['"]\s*,\s*handleTubesBoardKeydown/.test(gameRaw) &&
+    /getBoundingClientRect/.test(gameRaw) &&
+    /key\s*===\s*['"]Home['"]/.test(gameRaw) &&
+    /key\s*===\s*['"]End['"]/.test(gameRaw) &&
+    /closest\(\s*['"]\.tube['"]\s*\)/.test(gameRaw) &&
+    !/board-keys-arm|tube-keys-arm|\.board-keys-arm/.test(gameRaw)
+  ) {
+    pass(
+      'BOARD-KEYS',
+      'In-play tube board Arrow/Home/End geometric focus nav; no soft-arm'
+    );
+  } else {
+    fail(
+      'BOARD-KEYS',
+      'missing tube board keyboard nav (handleTubesBoardKeydown / tubesWrap keydown / geometric) or soft-arm slipped in'
+    );
+  }
+
   // Overlay Tab focus trap (keyboard cannot escape to HUD behind modals; no soft-arm)
   if (
     /function overlayFocusables/.test(gameRaw) &&
