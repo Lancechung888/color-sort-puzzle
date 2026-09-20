@@ -3884,7 +3884,7 @@
     if (best) safeFocus(best);
   }
 
-  /** In-play HUD keyboard: u/U Undo, h/H Hint, r/R Restart, l/L Levels. No soft-arm. */
+  /** In-play HUD keyboard: u/U Undo, h/H Hint, r/R Restart, l/L Levels, s/S Shop. No soft-arm. */
   function handleHudKeys(e) {
     const t = e.target;
     if (t) {
@@ -3915,6 +3915,11 @@
     if (key === 'l' || key === 'L') {
       e.preventDefault();
       tryOpenLevelsFromHud();
+      return;
+    }
+    if (key === 's' || key === 'S') {
+      e.preventDefault();
+      openShop();
       return;
     }
   }
@@ -3966,6 +3971,100 @@
     }
 
     return false;
+  }
+
+  /** Start-screen keys: Enter Play, d/D Daily, s/S Shop. Only when start shows and no modal. */
+  function handleStartKeys(e) {
+    const t = e.target;
+    if (t) {
+      const tag = (t.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return false;
+      if (t.isContentEditable) return false;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return false;
+    if (!startScreen || !startScreen.classList.contains('show')) return false;
+    const levelsOv = $('#levels-overlay');
+    if (levelsOv && levelsOv.classList.contains('show')) return false;
+    if (hintPaywall && hintPaywall.classList.contains('show')) return false;
+    if (shopOverlay && shopOverlay.classList.contains('show')) return false;
+    if (failPrompt && failPrompt.classList.contains('show')) return false;
+    if (winOverlay && winOverlay.classList.contains('show')) return false;
+
+    const key = e.key;
+    if (key === 'Enter') {
+      const btn = $('#btn-start');
+      if (!btn || btn.disabled || btn.hidden) return false;
+      e.preventDefault();
+      btn.click();
+      return true;
+    }
+    if (key === 'd' || key === 'D') {
+      const btn = $('#btn-start-daily');
+      if (!btn || btn.disabled || btn.hidden) return false;
+      e.preventDefault();
+      btn.click();
+      return true;
+    }
+    if (key === 's' || key === 'S') {
+      e.preventDefault();
+      openShop();
+      return true;
+    }
+    return false;
+  }
+
+  /** Hint-paywall keys: Enter primary CTA (arm → coins → ad). Never pack. Escape left alone. */
+  function handleHintPaywallKeys(e) {
+    const t = e.target;
+    if (t) {
+      const tag = (t.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return false;
+      if (t.isContentEditable) return false;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return false;
+    if (!hintPaywall || !hintPaywall.classList.contains('show')) return false;
+    if (e.key !== 'Enter') return false;
+
+    const arm = hintPaywall.querySelector('.hint-pay-arm');
+    let target = null;
+    if (arm && !arm.disabled && !arm.hidden) {
+      target = arm;
+    } else {
+      const coinsBtn = $('#btn-hint-coins');
+      if (coinsBtn && !coinsBtn.disabled && !coinsBtn.hidden) {
+        target = coinsBtn;
+      } else {
+        const adBtn = $('#btn-hint-ad');
+        if (adBtn && !adBtn.disabled && !adBtn.hidden) target = adBtn;
+      }
+    }
+    if (!target) return false;
+    e.preventDefault();
+    target.click();
+    return true;
+  }
+
+  /** Shop keys: Enter armed buy CTA. Escape left alone. SHOP-SPEND-CONFIRM via click path. */
+  function handleShopKeys(e) {
+    const t = e.target;
+    if (t) {
+      const tag = (t.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return false;
+      if (t.isContentEditable) return false;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return false;
+    if (!shopOverlay || !shopOverlay.classList.contains('show')) return false;
+    if (e.key !== 'Enter') return false;
+
+    const arm = shopOverlay.querySelector('.shop-buy-arm');
+    if (!arm || arm.disabled || arm.hidden) return false;
+    const style = window.getComputedStyle(arm);
+    if (!style || style.display === 'none' || style.visibility === 'hidden') return false;
+    const rects = arm.getClientRects();
+    if (!rects || !rects.length) return false;
+    e.preventDefault();
+    arm.click();
+    return true;
   }
 
   /** Levels grid arrow / Home / End nav; chapter-edge Left/Right shifts chapter. */
@@ -5216,6 +5315,18 @@
         }
         return;
       }
+      // HINT-PAYWALL-KEYS: Enter primary hint CTA (arm → coins → ad; never pack)
+      if (hintPaywall && hintPaywall.classList.contains('show')) {
+        if (handleHintPaywallKeys(e)) return;
+      }
+      // SHOP-KEYS: Enter armed shop buy CTA (SHOP-SPEND-CONFIRM via click)
+      if (shopOverlay && shopOverlay.classList.contains('show')) {
+        if (handleShopKeys(e)) return;
+      }
+      // START-KEYS: Enter Play, d Daily, s Shop (only when start shows and no modal)
+      if (startScreen && startScreen.classList.contains('show')) {
+        if (handleStartKeys(e)) return;
+      }
       // WIN-FAIL-KEYS: win Enter/n Next, r Restart; fail Enter/h Hint (Escape left alone)
       if (
         (winOverlay && winOverlay.classList.contains('show')) ||
@@ -5223,7 +5334,7 @@
       ) {
         if (handleWinFailKeys(e)) return;
       }
-      // HUD-KEYS: in-play u/h/r/(l) — Undo / Hint / Restart / Levels
+      // HUD-KEYS: in-play u/h/r/(l)/s — Undo / Hint / Restart / Levels / Shop
       handleHudKeys(e);
     });
     btnUndo.addEventListener('click', undo);
