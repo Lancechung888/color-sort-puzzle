@@ -2719,6 +2719,7 @@
   }
 
   function startDailyChallenge() {
+    if (pouring) return;
     const key = todayStr();
     if (save.dailyDoneDate === key) {
       toast('Daily already done! Streak ' + (save.streak || 0) + ' days');
@@ -4685,6 +4686,7 @@
   }
 
   function openShop() {
+    if (pouring) return;
     clearThemeUnlockClaim();
     clearHintsPackClaim();
     clearUndoPackClaim();
