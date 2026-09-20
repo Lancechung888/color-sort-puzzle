@@ -105,6 +105,8 @@
 
 （已補）**ANDROID-FORCE-DARK**已上 — `<application>`＋themes `android:forceDarkAllowed="false"`（拒絕 Force Dark 改寫 brand-dark UI；`android/` gitignore）；`scripts/patch-android-force-dark.sh`＋`aab:internal` hook；accept `ANDROID-FORCE-DARK`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-CONFIG-CHANGES**已上 — MainActivity `configChanges` 補 **density**／**fontScale**／**layoutDirection**／**colorMode**（避免顯示大小／字級／RTL／色彩模式中途重建 WebView、丟局中倒水狀態；`android/` 仍 gitignore）；`scripts/patch-android-config-changes.sh`＋`aab:internal` hook（force-dark 之後）＋`native-templates/android/README.md` §2l；accept `ANDROID-CONFIG-CHANGES`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 重跑：清乾淨 tree 後執行 `npm run accept`，exit 0 = 可自動項 Pass + Blocked 項如實列出。
 

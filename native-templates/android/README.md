@@ -242,6 +242,26 @@ bash scripts/patch-android-force-dark.sh
 
 `npm run aab:internal` 在 is-game patch **之後**自動跑。`android/` 仍 gitignore。
 
+
+
+## 2l. Keep WebView across display / font / RTL / colorMode（ANDROID-CONFIG-CHANGES）
+
+Stock Capacitor MainActivity `configChanges` often omits **density** / **fontScale** / **layoutDirection** / **colorMode**. Those recreate the WebView mid-run when the player changes display size, font scale, RTL, or dark/light — risking in-memory pour / board state even with run-draft flush.
+
+Ensure MainActivity:
+
+```xml
+android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|density|fontScale|layoutDirection|colorMode"
+```
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-config-changes.sh
+```
+
+`npm run aab:internal` 在 force-dark patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

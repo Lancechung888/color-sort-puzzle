@@ -2864,6 +2864,57 @@ block(
   }
 }
 
+
+
+// --- ANDROID-CONFIG-CHANGES: density|fontScale|layoutDirection|colorMode; no soft-arm ---
+{
+  const manifestPath = path.join(root, 'android/app/src/main/AndroidManifest.xml');
+  const manifestRaw = fs.existsSync(manifestPath) ? fs.readFileSync(manifestPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-config-changes.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /density/.test(patchRaw) &&
+    /fontScale/.test(patchRaw) &&
+    /layoutDirection/.test(patchRaw) &&
+    /colorMode/.test(patchRaw);
+  const forceIdx = aabRaw.search(/patch-android-force-dark\.sh/);
+  const cfgIdx = aabRaw.search(/patch-android-config-changes\.sh/);
+  const aabHookOk = cfgIdx >= 0 && forceIdx >= 0 && cfgIdx > forceIdx;
+  const readmeOk = /ANDROID-CONFIG-CHANGES/.test(readmeRaw) && /2l/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require the four tokens.
+  let localOk = !manifestRaw;
+  if (manifestRaw) {
+    const actM = [...manifestRaw.matchAll(/<activity\b([\s\S]*?)>/gi)].find((m) =>
+      /MainActivity/i.test(m[1])
+    );
+    const attrs = actM ? actM[1] : '';
+    const cm = /android:configChanges\s*=\s*["']([^"']*)["']/i.exec(attrs);
+    const have = new Set(
+      (cm ? cm[1] : '')
+        .split('|')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean)
+    );
+    localOk = ['density', 'fontscale', 'layoutdirection', 'colormode'].every((t) =>
+      have.has(t)
+    );
+  }
+  const noSoft =
+    !/config-changes-arm|soft-arm|claim-juice|hud-pulse/.test(patchRaw + manifestRaw);
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-CONFIG-CHANGES',
+      'MainActivity configChanges includes density|fontScale|layoutDirection|colorMode + patch-android-config-changes.sh + aab:internal after force-dark + README §2l; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-CONFIG-CHANGES',
+      `missing density/fontScale/layoutDirection/colorMode / patch / aab hook-after-force-dark / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
