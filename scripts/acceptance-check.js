@@ -2168,6 +2168,38 @@ block(
   }
 }
 
+
+// --- COLOR-ASSIST-KEY: c/C toggles Color assist (CVD) + Settings aria + cheatsheet; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const gameSrc = read('assets/js/game.js') || '';
+  const htmlOk =
+    /id=["']btn-toggle-color-assist["']/.test(htmlRaw) &&
+    (/id=["']btn-toggle-color-assist["'][^>]*aria-keyshortcuts=["']c["']/.test(htmlRaw) ||
+      /aria-keyshortcuts=["']c["'][^>]*id=["']btn-toggle-color-assist["']/.test(htmlRaw));
+  const jsOk =
+    /function toggleColorAssistKey\s*\(/.test(gameSrc) &&
+    /function applyColorAssistOn\s*\(/.test(gameSrc) &&
+    (/e\.key\s*===\s*['"]c['"]/.test(gameSrc) || /key\s*===\s*['"]c['"]/.test(gameSrc)) &&
+    /Color assist on/.test(gameSrc) &&
+    /Color assist off/.test(gameSrc) &&
+    /Color assist c/.test(gameSrc) &&
+    !/color-assist-arm|assist-arm|cvd-arm/.test(
+      (gameSrc.match(/function toggleColorAssistKey[\s\S]{0,800}/) || [''])[0]
+    );
+  if (htmlOk && jsOk) {
+    pass(
+      'COLOR-ASSIST-KEY',
+      'c/C → toggleColorAssistKey (colorAssist + toast Color assist on/off) + #btn-toggle-color-assist aria-keyshortcuts=c + Color assist c in ? cheatsheet; no soft-arm'
+    );
+  } else {
+    fail(
+      'COLOR-ASSIST-KEY',
+      `missing color-assist key / applyColorAssistOn|toggleColorAssistKey / aria-keyshortcuts=c / Color assist c cheatsheet (htmlOk=${htmlOk} jsOk=${jsOk})`
+    );
+  }
+}
+
 // --- Brand favicon (ICON A derivatives; head + files) ---
 {
   const indexRaw = read('index.html') || '';

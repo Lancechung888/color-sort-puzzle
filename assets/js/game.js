@@ -5192,6 +5192,22 @@
     toast(next ? 'Haptics on' : 'Haptics off', 2000);
   }
 
+  /** Persist Color assist; re-render glyphs. Shared by Settings + COLOR-ASSIST-KEY. */
+  function applyColorAssistOn(next) {
+    save.colorAssist = !!next;
+    persist();
+    refreshSettingsToggles();
+    render();
+    if (next) SFX.tap();
+  }
+
+  /** COLOR-ASSIST-KEY: toggle Color assist (CVD) from keyboard; toast only. No soft-arm. */
+  function toggleColorAssistKey() {
+    const next = save.colorAssist !== true;
+    applyColorAssistOn(next);
+    toast(next ? 'Color assist on' : 'Color assist off', 2000);
+  }
+
   function refreshSettingsToggles() {
     const sfxBtn = $('#btn-toggle-sfx');
     const hapBtn = $('#btn-toggle-haptics');
@@ -5812,12 +5828,7 @@
     const btnToggleColorAssist = $('#btn-toggle-color-assist');
     if (btnToggleColorAssist) {
       btnToggleColorAssist.addEventListener('click', () => {
-        const next = save.colorAssist !== true;
-        save.colorAssist = next;
-        persist();
-        refreshSettingsToggles();
-        render();
-        if (next) SFX.tap();
+        applyColorAssistOn(save.colorAssist !== true);
       });
     }
     const btnToggleReducedMotion = $('#btn-toggle-reduced-motion');
@@ -6059,7 +6070,7 @@
         if (isHelp && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
           e.preventDefault();
           toast(
-            'Play Enter · Daily d · Shop s · Levels l · Mute m · Haptics v · Undo u · Hint h · Restart r · Home Esc · Win n/r/h/s/o · Fail h/b/r · Levels arrows/[ ]',
+            'Play Enter · Daily d · Shop s · Levels l · Mute m · Haptics v · Color assist c · Undo u · Hint h · Restart r · Home Esc · Win n/r/h/s/o · Fail h/b/r · Levels arrows/[ ]',
             4800
           );
           return;
@@ -6104,6 +6115,27 @@
         ) {
           e.preventDefault();
           toggleHapticsKey();
+          return;
+        }
+      }
+      // COLOR-ASSIST-KEY: c/C toggles Color assist (CVD glyphs); reachable from start/play/overlays; no soft-arm
+      {
+        const t = e.target;
+        let typing = false;
+        if (t) {
+          const tag = (t.tagName || '').toLowerCase();
+          if (tag === 'input' || tag === 'textarea' || tag === 'select') typing = true;
+          if (t.isContentEditable) typing = true;
+        }
+        if (
+          (e.key === 'c' || e.key === 'C') &&
+          !typing &&
+          !e.ctrlKey &&
+          !e.metaKey &&
+          !e.altKey
+        ) {
+          e.preventDefault();
+          toggleColorAssistKey();
           return;
         }
       }
