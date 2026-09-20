@@ -3531,6 +3531,61 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-FILE-ACCESS-OFF: deny WebView file:// / file-URL access ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-file-access-off.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk =
+    /setAllowFileAccess\s*\(\s*false\s*\)/.test(patchRaw) &&
+    /setAllowFileAccessFromFileURLs\s*\(\s*false\s*\)/.test(patchRaw) &&
+    /setAllowUniversalAccessFromFileURLs\s*\(\s*false\s*\)/.test(patchRaw);
+  const geoIdx = aabRaw.search(/patch-android-webview-geolocation-off\.sh/);
+  const fileIdx = aabRaw.search(/patch-android-webview-file-access-off\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    geoIdx >= 0 &&
+    fileIdx >= 0 &&
+    iconsIdx >= 0 &&
+    geoIdx < fileIdx &&
+    fileIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-FILE-ACCESS-OFF/.test(readmeRaw) && /2z/.test(readmeRaw);
+  const keepOk =
+    /setAllowFileAccess\s*\(\s*false\s*\)/.test(keepRaw) &&
+    /setAllowFileAccessFromFileURLs\s*\(\s*false\s*\)/.test(keepRaw) &&
+    /setAllowUniversalAccessFromFileURLs\s*\(\s*false\s*\)/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk =
+      /setAllowFileAccess\s*\(\s*false\s*\)/.test(mainRaw) &&
+      /setAllowFileAccessFromFileURLs\s*\(\s*false\s*\)/.test(mainRaw) &&
+      /setAllowUniversalAccessFromFileURLs\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-file-access-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-FILE-ACCESS-OFF',
+      'setAllowFileAccess/FromFileURLs/UniversalAccess(false) + patch/aab after geolocation before icons + README §2z + keep-awake; no file://; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-FILE-ACCESS-OFF',
+      `missing file-access-off / patch / aab hook-after-geolocation-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

@@ -109,6 +109,8 @@ bash "$ROOT/scripts/patch-android-webview-media-gesture.sh"
 bash "$ROOT/scripts/patch-android-webview-mixed-content.sh"
 # Deny WebView geolocation (no location collected; privacy / Data Safety).
 bash "$ROOT/scripts/patch-android-webview-geolocation-off.sh"
+# Deny WebView file:// / file-URL access (Capacitor serves https://localhost).
+bash "$ROOT/scripts/patch-android-webview-file-access-off.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

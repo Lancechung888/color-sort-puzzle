@@ -49,7 +49,7 @@ import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT:
+ * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT + ANDROID-WEBVIEW-GEOLOCATION-OFF + ANDROID-WEBVIEW-FILE-ACCESS-OFF:
  * FLAG_KEEP_SCREEN_ON while playing; SplashScreen.installSplashScreen before
  * super.onCreate (API 31+); webView.setOverScrollMode(OVER_SCROLL_NEVER) so
  * native glow/rubber-band cannot kill mid-run play (pairs CSS overscroll-behavior:none);
@@ -71,6 +71,9 @@ import com.getcapacitor.BridgeActivity;
  * cleartext HTTP subresources (complements ANDROID-CLEARTEXT Manifest denial).
  * setGeolocationEnabled(false) so WebView cannot request GPS mid-run (no location collected;
  * complements Play Data Safety / privacy — distinct from CLEARTEXT / MIXED-CONTENT).
+ * setAllowFileAccess/FromFileURLs/UniversalAccessFromFileURLs(false) so mid-run cannot
+ * open file:// or escalate via file URLs (Capacitor serves https://localhost; leave
+ * setAllowContentAccess alone for Cap plugins — distinct from GEOLOCATION-OFF).
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -105,6 +108,9 @@ public class MainActivity extends BridgeActivity {
       webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
       webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
       webView.getSettings().setGeolocationEnabled(false);
+      webView.getSettings().setAllowFileAccess(false);
+      webView.getSettings().setAllowFileAccessFromFileURLs(false);
+      webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.
