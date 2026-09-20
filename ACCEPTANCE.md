@@ -91,6 +91,9 @@
 
 （已補）**ANDROID-KEEP-AWAKE**已上 — Capacitor WebView 常缺 `navigator.wakeLock`；`scripts/patch-android-keep-awake.sh` 冪等寫入 MainActivity `FLAG_KEEP_SCREEN_ON`＋`ColorTubeNative.setKeepScreenOn`；`aab:internal` hook；JS `syncNativeKeepScreenOn` 對齊 Settings Keep screen on；accept `ANDROID-KEEP-AWAKE`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-SYSTEM-BARS**已上 — Capacitor indigo 系統列改 brand dark `#1a1a2e`；`scripts/patch-android-system-bars.sh`＋`aab:internal`；accept `ANDROID-SYSTEM-BARS`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
+
 重跑：清乾淨 tree 後執行 `npm run accept`，exit 0 = 可自動項 Pass + Blocked 項如實列出。
 
 ---

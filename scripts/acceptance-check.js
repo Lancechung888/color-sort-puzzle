@@ -2497,6 +2497,45 @@ block(
   }
 }
 
+
+// --- ANDROID-SYSTEM-BARS: brand-dark status/nav/window; no soft-arm ---
+{
+  const colorsPath = path.join(root, 'android/app/src/main/res/values/colors.xml');
+  const stylesPath = path.join(root, 'android/app/src/main/res/values/styles.xml');
+  const colorsRaw = fs.existsSync(colorsPath) ? fs.readFileSync(colorsPath, 'utf8') : '';
+  const stylesRaw = fs.existsSync(stylesPath) ? fs.readFileSync(stylesPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-system-bars.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const patchOk =
+    /#1a1a2e/.test(patchRaw) &&
+    /statusBarColor/.test(patchRaw) &&
+    /navigationBarColor/.test(patchRaw) &&
+    /patch-android-system-bars/.test(patchRaw);
+  const aabHookOk = /patch-android-system-bars\.sh/.test(aabRaw);
+  // android/ is gitignored — allow missing; when present, require brand bars + colorPrimary.
+  const localOk =
+    (!colorsRaw && !stylesRaw) ||
+    (/colorPrimary[^>]*>\s*#1a1a2e/.test(colorsRaw) &&
+      /statusBarColor[^>]*>\s*#1a1a2e/.test(stylesRaw) &&
+      /navigationBarColor[^>]*>\s*#1a1a2e/.test(stylesRaw) &&
+      /windowBackground[^>]*>\s*#1a1a2e/.test(stylesRaw));
+  const noSoft =
+    !/system-bars-arm|statusBar-arm|claim-juice|hud-pulse/.test(
+      colorsRaw + stylesRaw + patchRaw
+    );
+  if (patchOk && aabHookOk && localOk && noSoft) {
+    pass(
+      'ANDROID-SYSTEM-BARS',
+      'brand #1a1a2e statusBarColor/navigationBarColor/windowBackground + colors.xml colorPrimary + patch-android-system-bars.sh + aab:internal hook; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-SYSTEM-BARS',
+      `missing brand system bars / patch / aab hook, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
