@@ -401,6 +401,25 @@ bash scripts/patch-android-webview-long-click.sh
 
 `npm run aab:internal` 在 webview-zoom-lock patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2t. Deny native WebView system haptic（ANDROID-WEBVIEW-HAPTIC-OFF）
+
+After **ANDROID-WEBVIEW-LONG-CLICK**, a long-press can still fire Android View **system haptic** (`View.performHapticFeedback`) even when the ActionMode menu is consumed. That buzz fights the game's intentional Capacitor／vibrate vocabulary mid-run. Disable native View haptic once the bridge WebView is ready (prefer after `setLongClickable(false)` in `onStart`):
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after setLongClickable)
+webView.setHapticFeedbackEnabled(false);
+```
+
+Distinct from **ANDROID-WEBVIEW-LONG-CLICK** (ActionMode／context menu) and from game `haptic()`／`@capacitor/haptics` (still on via JS／Settings Haptics toggle). This only denies the **system** View haptic channel.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-haptic-off.sh
+```
+
+`npm run aab:internal` 在 webview-long-click patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
