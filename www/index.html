@@ -22,7 +22,7 @@
     <header class="header">
       <div class="brand-row">
         <div class="brand">ColorTube Sort</div>
-        <button type="button" class="btn-icon btn-home" id="btn-home" title="Home" aria-label="Home">🏠</button>
+        <button type="button" class="btn-icon btn-home" id="btn-home" title="Home" aria-label="Home" aria-keyshortcuts="Escape">🏠</button>
       </div>
       <div class="header-right">
         <button type="button" class="chip chip-coins" id="coin-display" title="Coins" aria-label="Coins — open shop">
@@ -50,7 +50,7 @@
       <button type="button" class="btn" id="btn-undo" disabled title="Undo" aria-label="Undo last pour" aria-keyshortcuts="u">Undo</button>
       <button type="button" class="btn btn-danger" id="btn-restart" title="Restart" aria-label="Restart level" aria-keyshortcuts="r">Restart</button>
       <button type="button" class="btn btn-hint" id="btn-hint" title="Hint" aria-label="Get a hint" aria-keyshortcuts="h">Hint</button>
-      <button type="button" class="btn btn-ghost" id="btn-daily" title="Daily Challenge" aria-label="Daily Challenge">Daily</button>
+      <button type="button" class="btn btn-ghost" id="btn-daily" title="Daily Challenge" aria-label="Daily Challenge" aria-keyshortcuts="d">Daily</button>
     </div>
 
     <main class="playfield" id="playfield">
@@ -168,7 +168,7 @@
     <!-- Shop modal -->
     <div class="overlay" id="shop-overlay">
       <div class="modal modal-premium modal-shop" role="dialog" aria-modal="true" aria-labelledby="shop-title">
-        <button type="button" class="modal-close" id="btn-shop-close" aria-label="Close">×</button>
+        <button type="button" class="modal-close" id="btn-shop-close" aria-label="Close" aria-keyshortcuts="Escape">×</button>
         <h2 id="shop-title">Shop</h2>
         <p class="shop-balance">Coins: <strong id="shop-coins">120</strong> 🪙</p>
         <p class="shop-theme-claim" id="shop-theme-claim" hidden></p>
@@ -297,7 +297,7 @@
     <!-- Hint paywall -->
     <div class="overlay" id="hint-paywall">
       <div class="modal modal-premium" role="dialog" aria-modal="true" aria-labelledby="hint-paywall-title">
-        <button type="button" class="modal-close" id="btn-hint-close" aria-label="Close">×</button>
+        <button type="button" class="modal-close" id="btn-hint-close" aria-label="Close" aria-keyshortcuts="Escape">×</button>
         <h2 id="hint-paywall-title">Get a hint</h2>
         <p>No free hints left. Choose a way to continue:</p>
         <div class="modal-actions stacked">
@@ -326,7 +326,7 @@
     <!-- Level select / ★ mastery -->
     <div class="overlay" id="levels-overlay">
       <div class="modal modal-premium modal-levels" role="dialog" aria-modal="true" aria-labelledby="levels-title">
-        <button type="button" class="modal-close" id="btn-levels-close" aria-label="Close">×</button>
+        <button type="button" class="modal-close" id="btn-levels-close" aria-label="Close" aria-keyshortcuts="Escape">×</button>
         <h2 id="levels-title">Levels · ★ mastery</h2>
         <div class="levels-chapter-nav" role="group" aria-label="Chapter">
           <button type="button" class="btn btn-sm levels-chapter-btn" id="btn-levels-prev" aria-label="Previous chapter" aria-keyshortcuts="PageUp [">‹</button>

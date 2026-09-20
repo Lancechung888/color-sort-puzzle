@@ -1624,6 +1624,108 @@ if (gameRaw) {
     }
   }
 
+  // TOUCH-44: .btn-icon / .btn-home / .modal-close ≥44×44 CSS px; no soft-arm
+  {
+    function ruleDims(sel) {
+      const esc = sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp('(?:^|\\n)' + esc + '\\s*\\{([^}]+)\\}');
+      const m = cssRaw.match(re);
+      if (!m) return null;
+      const body = m[1];
+      const w = body.match(/width:\s*(\d+(?:\.\d+)?)px/);
+      const h = body.match(/height:\s*(\d+(?:\.\d+)?)px/);
+      if (!w || !h) return null;
+      return { w: Number(w[1]), h: Number(h[1]) };
+    }
+    const icon = ruleDims('.btn-icon');
+    const home = ruleDims('.btn-home');
+    const close = ruleDims('.modal-close');
+    const ok =
+      icon &&
+      icon.w >= 44 &&
+      icon.h >= 44 &&
+      home &&
+      home.w >= 44 &&
+      home.h >= 44 &&
+      close &&
+      close.w >= 44 &&
+      close.h >= 44;
+    const armSlip = /touch-44-arm|touch44Arm|\.touch-44-arm/.test(cssRaw);
+    if (ok && !armSlip) {
+      pass(
+        'TOUCH-44',
+        '.btn-icon/.btn-home/.modal-close ≥44×44 CSS px; no soft-arm'
+      );
+    } else {
+      fail(
+        'TOUCH-44',
+        'touch targets <44px or soft-arm' +
+          ` (icon=${icon && icon.w + 'x' + icon.h} home=${home && home.w + 'x' + home.h} close=${close && close.w + 'x' + close.h} armSlip=${armSlip})`
+      );
+    }
+  }
+
+  // HUD-DAILY-KEY: handleHudKeys d/D → #btn-daily.click (LEAVE-RUN / POUR guards); aria-keyshortcuts=d; no soft-arm
+  {
+    const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    const hudIdx = gameRaw.indexOf('function handleHudKeys');
+    const hudSlice = hudIdx >= 0 ? gameRaw.slice(hudIdx, hudIdx + 1600) : '';
+    const wired =
+      /['"]d['"]/.test(hudSlice) &&
+      ((/btn-daily|#btn-daily/.test(hudSlice) && /\.click\s*\(/.test(hudSlice)) ||
+        /startDailyChallenge\s*\(/.test(hudSlice)) &&
+      /playfieldOverlayBlocking/.test(hudSlice) &&
+      (/isContentEditable|contentEditable|tagName/.test(hudSlice) || /textarea/.test(hudSlice));
+    const ariaKey =
+      /id=["']btn-daily["'][^>]*aria-keyshortcuts=["']d["']/.test(indexHtml) ||
+      /aria-keyshortcuts=["']d["'][^>]*id=["']btn-daily["']/.test(indexHtml);
+    const armSlip = /hud-daily-key-arm|hudDailyKeyArm|\.hud-daily-key-arm/.test(
+      gameRaw + indexHtml
+    );
+    if (wired && ariaKey && !armSlip) {
+      pass(
+        'HUD-DAILY-KEY',
+        'In-play d/D → #btn-daily.click (+guards) + aria-keyshortcuts=d; no soft-arm'
+      );
+    } else {
+      fail(
+        'HUD-DAILY-KEY',
+        'missing handleHudKeys d/D → btn-daily click (or startDailyChallenge) / aria / guards or soft-arm' +
+          ` (wired=${!!wired} aria=${ariaKey} armSlip=${armSlip})`
+      );
+    }
+  }
+
+  // CLOSE-ESC-MARKUP: aria-keyshortcuts=Escape on Home + shop/hint/levels close; no soft-arm
+  {
+    const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    function hasAriaEsc(id) {
+      const escId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const reIdFirst = new RegExp(
+        'id=["\']' + escId + '["\'][^>]*aria-keyshortcuts=["\']Escape["\']'
+      );
+      const reAriaFirst = new RegExp(
+        'aria-keyshortcuts=["\']Escape["\'][^>]*id=["\']' + escId + '["\']'
+      );
+      return reIdFirst.test(indexHtml) || reAriaFirst.test(indexHtml);
+    }
+    const ids = ['btn-home', 'btn-shop-close', 'btn-hint-close', 'btn-levels-close'];
+    const missing = ids.filter((id) => !hasAriaEsc(id));
+    const armSlip = /close-esc-arm|closeEscArm|\.close-esc-arm/.test(indexHtml);
+    if (missing.length === 0 && !armSlip) {
+      pass(
+        'CLOSE-ESC-MARKUP',
+        'aria-keyshortcuts=Escape on #btn-home + shop/hint/levels close; no soft-arm'
+      );
+    } else {
+      fail(
+        'CLOSE-ESC-MARKUP',
+        'missing Escape aria-keyshortcuts or soft-arm' +
+          ` (missing=${missing.join(',') || 'none'} armSlip=${armSlip})`
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&

@@ -144,8 +144,8 @@ html, body {
 
 .btn-home {
   flex-shrink: 0;
-  width: 34px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   font-size: 0.95rem;
   opacity: 0.85;
 }
@@ -370,8 +370,8 @@ html, body {
   border: 1px solid rgba(255,255,255,0.14);
   background: var(--panel);
   border-radius: 12px;
-  width: 40px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   font-size: 1.1rem;
   cursor: pointer;
   display: grid;
@@ -1804,8 +1804,8 @@ html, body {
   border: none;
   background: var(--panel);
   color: var(--text);
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   font-size: 1.25rem;
   line-height: 1;

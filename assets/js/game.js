@@ -4171,7 +4171,7 @@
     if (best) safeFocus(best);
   }
 
-  /** In-play HUD keyboard: u/U Undo, h/H Hint, r/R Restart, l/L Levels, s/S Shop. No soft-arm. */
+  /** In-play HUD keyboard: u/U Undo, h/H Hint, r/R Restart, l/L Levels, s/S Shop, d/D Daily. No soft-arm. */
   function handleHudKeys(e) {
     const t = e.target;
     if (t) {
@@ -4207,6 +4207,12 @@
     if (key === 's' || key === 'S') {
       e.preventDefault();
       openShop();
+      return;
+    }
+    if (key === 'd' || key === 'D') {
+      e.preventDefault();
+      const dailyBtn = $('#btn-daily');
+      if (dailyBtn) dailyBtn.click();
       return;
     }
   }
@@ -5801,7 +5807,7 @@
       ) {
         if (handleWinFailKeys(e)) return;
       }
-      // HUD-KEYS: in-play u/h/r/(l)/s — Undo / Hint / Restart / Levels / Shop
+      // HUD-KEYS: in-play u/h/r/(l)/s/d — Undo / Hint / Restart / Levels / Shop / Daily
       handleHudKeys(e);
     });
     btnUndo.addEventListener('click', undo);
