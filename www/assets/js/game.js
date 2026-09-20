@@ -4239,6 +4239,13 @@
         goHome();
         return true;
       }
+      if (key === 's' || key === 'S') {
+        const shareBtn = $('#btn-win-share');
+        if (!shareBtn || shareBtn.disabled || shareBtn.hidden) return false;
+        e.preventDefault();
+        shareWinResult();
+        return true;
+      }
       return false;
     }
 

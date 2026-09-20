@@ -1103,6 +1103,37 @@ if (gameRaw) {
     }
   }
 
+  // WIN-SHARE-KEY: win overlay s/S → Share (keyboard parity with SHARE-WIN); no soft-arm
+  {
+    const indexHtml = read('index.html') || '';
+    const wfIdx = gameRaw.indexOf('function handleWinFailKeys');
+    const wfSlice = wfIdx >= 0 ? gameRaw.slice(wfIdx, wfIdx + 2200) : '';
+    const keyShare =
+      /function handleWinFailKeys/.test(gameRaw) &&
+      (/btn-win-share|#btn-win-share/.test(wfSlice)) &&
+      /['"]s['"]/.test(wfSlice) &&
+      (/\bshareWinResult\s*\(/.test(wfSlice) || /btn-win-share|#btn-win-share/.test(wfSlice));
+    const ariaKey =
+      /id=["']btn-win-share["'][^>]*aria-keyshortcuts=["']s["']/.test(indexHtml) ||
+      /aria-keyshortcuts=["']s["'][^>]*id=["']btn-win-share["']/.test(indexHtml);
+    const noSoft =
+      !/win-share-arm|shareWinArm|\.win-share-arm|btn-win-share-arm/.test(gameRaw + indexHtml) &&
+      !/soft-arm/.test(wfSlice);
+    if (keyShare && noSoft) {
+      pass(
+        'WIN-SHARE-KEY',
+        'Win overlay s/S → shareWinResult (#btn-win-share)' +
+          (ariaKey ? ' + aria-keyshortcuts=s' : '') +
+          '; no soft-arm'
+      );
+    } else {
+      fail(
+        'WIN-SHARE-KEY',
+        'missing handleWinFailKeys s/S → shareWinResult / #btn-win-share, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
