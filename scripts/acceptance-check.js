@@ -2634,6 +2634,47 @@ block(
   }
 }
 
+// --- ANDROID-CLEARTEXT: deny cleartext HTTP + networkSecurityConfig; no soft-arm ---
+{
+  const manifestPath = path.join(root, 'android/app/src/main/AndroidManifest.xml');
+  const nscPath = path.join(root, 'android/app/src/main/res/xml/network_security_config.xml');
+  const manifestRaw = fs.existsSync(manifestPath) ? fs.readFileSync(manifestPath, 'utf8') : '';
+  const nscRaw = fs.existsSync(nscPath) ? fs.readFileSync(nscPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-cleartext.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /usesCleartextTraffic/.test(patchRaw) &&
+    /["']false["']/.test(patchRaw) &&
+    /network_security_config/.test(patchRaw) &&
+    /cleartextTrafficPermitted/.test(patchRaw) &&
+    (/cleartextTrafficPermitted=["']false["']/.test(patchRaw) ||
+      /cleartextTrafficPermitted=\\"false\\"/.test(patchRaw));
+  const aabHookOk = /patch-android-cleartext\.sh/.test(aabRaw);
+  const readmeOk = /ANDROID-CLEARTEXT/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require deny attrs + xml.
+  const localOk =
+    !manifestRaw ||
+    (/android:usesCleartextTraffic\s*=\s*["']false["']/.test(manifestRaw) &&
+      /android:networkSecurityConfig\s*=\s*["']@xml\/network_security_config["']/.test(manifestRaw) &&
+      /cleartextTrafficPermitted\s*=\s*["']false["']/.test(nscRaw));
+  const noSoft =
+    !/cleartext-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + manifestRaw + nscRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-CLEARTEXT',
+      'usesCleartextTraffic=false + networkSecurityConfig/@xml/network_security_config + cleartextTrafficPermitted=false + patch-android-cleartext.sh + aab:internal hook + README; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-CLEARTEXT',
+      `missing cleartext deny wiring / patch / aab hook / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');

@@ -145,6 +145,25 @@ bash scripts/patch-android-no-backup.sh
 
 `npm run aab:internal` 在 splash-theme patch **之後**自動跑。`android/` 仍 gitignore。
 
+## 2g. Deny cleartext（ANDROID-CLEARTEXT）
+
+Stock Capacitor / WebView may leave cleartext HTTP permitted. AdMob, Play Billing, and Capacitor loads should be HTTPS-only — deny cleartext at Manifest + `networkSecurityConfig`.
+
+Patch ensures `<application>`:
+
+- `android:usesCleartextTraffic="false"`
+- `android:networkSecurityConfig="@xml/network_security_config"`
+
+Writes `res/xml/network_security_config.xml` with `<base-config cleartextTrafficPermitted="false" />`.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-cleartext.sh
+```
+
+`npm run aab:internal` 在 no-backup patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

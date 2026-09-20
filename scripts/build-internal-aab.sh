@@ -71,6 +71,8 @@ bash "$ROOT/scripts/patch-android-system-bars.sh"
 bash "$ROOT/scripts/patch-android-splash-theme.sh"
 # Disable Auto Backup / cloud data extraction (in-app SAVE-BACKUP is the supported path).
 bash "$ROOT/scripts/patch-android-no-backup.sh"
+# Deny cleartext HTTP (HTTPS-only; AdMob/Billing/Capacitor https scheme).
+bash "$ROOT/scripts/patch-android-cleartext.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
