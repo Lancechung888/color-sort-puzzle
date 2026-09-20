@@ -2157,8 +2157,13 @@
       const d = getDailyDef();
       const twist = (d && d._dailyTwist) ? d._dailyTwist : 'Remix';
       levelLabel.textContent = 'Daily · ' + twist;
+      levelLabel.setAttribute('aria-label', 'Daily · ' + twist + ' — open levels');
     } else {
       levelLabel.textContent = `Level ${levelIndex + 1} / ${LEVELS.length}`;
+      levelLabel.setAttribute(
+        'aria-label',
+        'Level ' + (levelIndex + 1) + ' — open levels'
+      );
     }
     const def = isDailyMode ? getDailyDef() : LEVELS[levelIndex];
     const par = estimatePar(def);
@@ -3042,6 +3047,31 @@
     return Math.min(Math.max(maxU, 0), LEVELS.length - 1);
   }
 
+  /** In-play HUD: level badge → Levels (gated like other mid-play HUD actions). */
+  function tryOpenLevelsFromHud() {
+    if (pouring) return;
+    if (playfieldOverlayBlocking()) return;
+    openLevels();
+  }
+
+  /**
+   * Return to start screen without wiping save.
+   * Clears mid-play selection / pending uncap; refreshes start CTAs + HUD.
+   */
+  function goHome() {
+    if (pouring) return;
+    clearPendingUncap();
+    selected = -1;
+    const levelsOv = $('#levels-overlay');
+    if (levelsOv && levelsOv.classList.contains('show')) closeLevels();
+    if (startScreen) startScreen.classList.add('show');
+    if (typeof refreshDailyCta === 'function') refreshDailyCta();
+    if (typeof refreshStartPlayCta === 'function') refreshStartPlayCta();
+    refreshHud();
+    updateChrome();
+    render();
+  }
+
   function openLevels() {
     clearLevelsContinueArm();
     renderLevelsGrid();
@@ -3850,7 +3880,7 @@
 
   function bindShop() {
     // Soft UI tap on primary chrome (not every shop SKU click — keeps ads clean)
-    ['btn-undo', 'btn-restart', 'btn-hint', 'btn-shop', 'btn-next', 'btn-start'].forEach((id) => {
+    ['btn-undo', 'btn-restart', 'btn-hint', 'btn-shop', 'btn-home', 'btn-next', 'btn-start'].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.addEventListener('click', () => SFX.tap(), { capture: true });
     });
@@ -4121,6 +4151,18 @@
     if (btnStartLevels) btnStartLevels.addEventListener('click', openLevels);
     const btnLevelsClose = $('#btn-levels-close');
     if (btnLevelsClose) btnLevelsClose.addEventListener('click', closeLevels);
+    if (levelLabel) {
+      levelLabel.addEventListener('click', tryOpenLevelsFromHud);
+    }
+    const btnHome = $('#btn-home');
+    if (btnHome) btnHome.addEventListener('click', goHome);
+    const btnLevelsHome = $('#btn-levels-home');
+    if (btnLevelsHome) {
+      btnLevelsHome.addEventListener('click', () => {
+        closeLevels();
+        goHome();
+      });
+    }
 
     bindShop();
 

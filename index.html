@@ -14,7 +14,10 @@
 <body data-theme="classic">
   <div id="app">
     <header class="header">
-      <div class="brand">ColorTube Sort</div>
+      <div class="brand-row">
+        <div class="brand">ColorTube Sort</div>
+        <button type="button" class="btn-icon btn-home" id="btn-home" title="Home" aria-label="Home">🏠</button>
+      </div>
       <div class="header-right">
         <button type="button" class="chip chip-coins" id="coin-display" title="Coins" aria-label="Coins — open shop">
           <span class="chip-icon">🪙</span>
@@ -33,7 +36,7 @@
     </header>
 
     <div class="meta-row">
-      <div class="level-badge" id="level-label">Level 1</div>
+      <button type="button" class="level-badge" id="level-label" aria-label="Level 1 — open levels">Level 1</button>
       <div class="stars-preview" id="level-stars" title="Best stars this level"></div>
     </div>
 
@@ -298,6 +301,9 @@
         <p class="levels-teaser" id="levels-teaser">First 3★ bonus · every 10 perfect → chapter chest</p>
         <div class="levels-grid" id="levels-grid" role="list"></div>
         <p class="levels-footnote" id="levels-footnote"></p>
+        <p class="levels-home-row">
+          <button type="button" class="levels-home-link" id="btn-levels-home" aria-label="Home">Home</button>
+        </p>
       </div>
     </div>
 
