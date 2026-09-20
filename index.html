@@ -16,15 +16,15 @@
     <header class="header">
       <div class="brand">ColorTube Sort</div>
       <div class="header-right">
-        <button type="button" class="chip chip-coins" id="coin-display" title="Coins">
+        <button type="button" class="chip chip-coins" id="coin-display" title="Coins" aria-label="Coins — open shop">
           <span class="chip-icon">🪙</span>
           <span id="coin-count">70</span>
         </button>
-        <button type="button" class="chip chip-hints" id="hint-display" title="Free hints">
+        <button type="button" class="chip chip-hints" id="hint-display" title="Free hints" aria-label="Free hints — request hint">
           <span class="chip-icon">💡</span>
           <span id="hint-count">3</span>
         </button>
-        <button type="button" class="chip chip-streak" id="streak-display" title="Login streak">
+        <button type="button" class="chip chip-streak" id="streak-display" title="Login streak" aria-label="Login streak">
           <span class="chip-icon">🔥</span>
           <span id="streak-count">0</span>
         </button>
@@ -38,10 +38,10 @@
     </div>
 
     <div class="toolbar">
-      <button type="button" class="btn" id="btn-undo" disabled title="Undo">Undo</button>
-      <button type="button" class="btn btn-danger" id="btn-restart" title="Restart">Restart</button>
-      <button type="button" class="btn btn-hint" id="btn-hint" title="Hint">Hint</button>
-      <button type="button" class="btn btn-ghost" id="btn-daily" title="Daily Challenge">Daily</button>
+      <button type="button" class="btn" id="btn-undo" disabled title="Undo" aria-label="Undo last pour">Undo</button>
+      <button type="button" class="btn btn-danger" id="btn-restart" title="Restart" aria-label="Restart level">Restart</button>
+      <button type="button" class="btn btn-hint" id="btn-hint" title="Hint" aria-label="Get a hint">Hint</button>
+      <button type="button" class="btn btn-ghost" id="btn-daily" title="Daily Challenge" aria-label="Daily Challenge">Daily</button>
     </div>
 
     <main class="playfield" id="playfield">
@@ -302,7 +302,7 @@
     </div>
 
     <!-- Toast -->
-    <div class="toast" id="toast" hidden></div>
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   </div>
 
   <!-- Native pack wiring: ads.js + billing.js MUST load before game.js (see docs/NATIVE_PACK_READY.md) -->

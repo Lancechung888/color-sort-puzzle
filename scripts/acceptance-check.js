@@ -258,6 +258,39 @@ if (gameRaw) {
     fail('A11Y-DIALOG', 'missing aria-labelledby on win/shop/hint/fail/levels dialogs');
   }
 
+  // Toast polite live region (no [hidden] — stays announceable)
+  if (
+    /id="toast"/.test(htmlRaw) &&
+    /role="status"/.test(htmlRaw) &&
+    /aria-live="polite"/.test(htmlRaw) &&
+    /aria-atomic="true"/.test(htmlRaw) &&
+    /function toast\(/.test(gameRaw) &&
+    !/toastEl\.hidden\s*=/.test(gameRaw)
+  ) {
+    pass('A11Y-TOAST', 'toast role=status aria-live=polite; no toastEl.hidden gate');
+  } else {
+    fail('A11Y-TOAST', 'missing toast live region and/or still uses toastEl.hidden');
+  }
+
+  // HUD / chip keyboard names + focus-visible rings (no soft-arm)
+  const cssRaw = read('assets/css/style.css') || '';
+  if (
+    /aria-label="Undo last pour"/.test(htmlRaw) &&
+    /aria-label="Restart level"/.test(htmlRaw) &&
+    /aria-label="Get a hint"/.test(htmlRaw) &&
+    /aria-label="Daily Challenge"/.test(htmlRaw) &&
+    /aria-label="Coins — open shop"/.test(htmlRaw) &&
+    /\.btn:focus-visible/.test(cssRaw) &&
+    /\.chip:focus-visible/.test(cssRaw) &&
+    /\.btn-icon:focus-visible/.test(cssRaw) &&
+    /visibilitychange/.test(gameRaw) &&
+    /clearPendingUncap/.test(gameRaw)
+  ) {
+    pass('A11Y-HUD', 'toolbar/chip aria-labels + focus-visible; uncap arm clears on hide');
+  } else {
+    fail('A11Y-HUD', 'missing HUD aria-labels, focus-visible rings, and/or visibilitychange uncap clear');
+  }
+
   // Save sanitization on load path
   if (
     /function sanitizeSave/.test(gameRaw) &&

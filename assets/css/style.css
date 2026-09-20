@@ -151,6 +151,14 @@ html, body {
   gap: 4px;
   cursor: pointer;
 }
+.chip:focus {
+  outline: none;
+}
+.chip:focus-visible {
+  outline: 2px solid rgba(186, 230, 253, 0.95);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.28);
+}
 
 .chip-icon { font-size: 0.85rem; }
 
@@ -346,6 +354,14 @@ html, body {
   display: grid;
   place-items: center;
 }
+.btn-icon:focus {
+  outline: none;
+}
+.btn-icon:focus-visible {
+  outline: 2px solid rgba(186, 230, 253, 0.95);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.28);
+}
 
 .meta-row {
   display: flex;
@@ -405,6 +421,20 @@ html, body {
   opacity: 0.4;
   cursor: default;
   transform: none;
+  box-shadow: none;
+}
+
+/* Keyboard HUD / start / shop — visible ring only for keyboard (:focus-visible) */
+.btn:focus {
+  outline: none;
+}
+.btn:focus-visible {
+  outline: 2px solid rgba(186, 230, 253, 0.95);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.28), var(--shadow-btn);
+}
+.btn:disabled:focus-visible {
+  outline: none;
   box-shadow: none;
 }
 
@@ -2739,8 +2769,8 @@ html, body {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s, transform 0.2s;
-  white-space: nowrap;
-  max-width: 90%;
+  /* Stay in a11y tree when idle — aria-live needs a non-[hidden] node */
+  visibility: hidden;
 }
 
 [data-theme="cat"] .toast {
@@ -2750,8 +2780,20 @@ html, body {
 
 .toast.show {
   opacity: 1;
+  visibility: visible;
   transform: translateX(-50%) translateY(0);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    transition: opacity 0.15s;
+    transform: translateX(-50%) translateY(0);
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 
 /* Responsive */
 @media (max-width: 360px) {
