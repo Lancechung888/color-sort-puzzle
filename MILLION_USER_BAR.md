@@ -143,6 +143,8 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**L-SOLVE**已上 — accept 倒水路徑可解驗證（free uncap；修 L47／L68／L70 死關補空管）；#4 維持 Pass（無明顯死關）；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**局中 Levels／Home 導航**已上 — 修復進關後無法開 Levels／回 Home 斷 3★ mastery 路徑；#6 維持 Pass。**未**把 #1／#3／#7／#9 標新 Pass。
 
 （已補）**局中 board resume**已上 — kill／refresh／background 後 Continue／Play Level N／Daily 可還原 tubes／caps／moves／undo history（validate 失敗則 discard）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。
