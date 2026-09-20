@@ -2200,6 +2200,38 @@ block(
   }
 }
 
+
+// --- MOTION-KEY: x/X toggles Reduced motion + Settings aria + cheatsheet; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const gameSrc = read('assets/js/game.js') || '';
+  const htmlOk =
+    /id=["']btn-toggle-reduced-motion["']/.test(htmlRaw) &&
+    (/id=["']btn-toggle-reduced-motion["'][^>]*aria-keyshortcuts=["']x["']/.test(htmlRaw) ||
+      /aria-keyshortcuts=["']x["'][^>]*id=["']btn-toggle-reduced-motion["']/.test(htmlRaw));
+  const jsOk =
+    /function toggleReducedMotionKey\s*\(/.test(gameSrc) &&
+    /function applyReducedMotionOn\s*\(/.test(gameSrc) &&
+    (/e\.key\s*===\s*['"]x['"]/.test(gameSrc) || /key\s*===\s*['"]x['"]/.test(gameSrc)) &&
+    /Reduced motion on/.test(gameSrc) &&
+    /Reduced motion off/.test(gameSrc) &&
+    /Reduced motion x/.test(gameSrc) &&
+    !/motion-arm|reduced-arm|rm-arm/.test(
+      (gameSrc.match(/function toggleReducedMotionKey[\s\S]{0,800}/) || [''])[0]
+    );
+  if (htmlOk && jsOk) {
+    pass(
+      'MOTION-KEY',
+      'x/X → toggleReducedMotionKey (reducedMotion + toast Reduced motion on/off) + #btn-toggle-reduced-motion aria-keyshortcuts=x + Reduced motion x in ? cheatsheet; no soft-arm'
+    );
+  } else {
+    fail(
+      'MOTION-KEY',
+      `missing motion key / applyReducedMotionOn|toggleReducedMotionKey / aria-keyshortcuts=x / Reduced motion x cheatsheet (htmlOk=${htmlOk} jsOk=${jsOk})`
+    );
+  }
+}
+
 // --- Brand favicon (ICON A derivatives; head + files) ---
 {
   const indexRaw = read('index.html') || '';
