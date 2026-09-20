@@ -3799,6 +3799,91 @@
     });
   }
 
+
+  /** In-play tube board Arrow/Home/End focus nav (flex-wrap geometric neighbors). No soft-arm. */
+  function handleTubesBoardKeydown(e) {
+    if (pouring) return;
+    if (startScreen && startScreen.classList.contains('show')) return;
+    const blocking = [
+      winOverlay,
+      shopOverlay,
+      hintPaywall,
+      failPrompt,
+      $('#levels-overlay'),
+    ];
+    for (let i = 0; i < blocking.length; i++) {
+      if (blocking[i] && blocking[i].classList.contains('show')) return;
+    }
+    const wrap = tubesWrap;
+    if (!wrap || !wrap.contains(e.target)) return;
+    const tube =
+      e.target && e.target.closest ? e.target.closest('.tube') : null;
+    if (!tube || !wrap.contains(tube)) return;
+    const key = e.key;
+    if (
+      key !== 'ArrowLeft' &&
+      key !== 'ArrowRight' &&
+      key !== 'ArrowUp' &&
+      key !== 'ArrowDown' &&
+      key !== 'Home' &&
+      key !== 'End'
+    ) {
+      return;
+    }
+    e.preventDefault();
+    const list = Array.prototype.slice.call(wrap.querySelectorAll('.tube'));
+    if (!list.length) return;
+    if (key === 'Home') {
+      safeFocus(list[0]);
+      return;
+    }
+    if (key === 'End') {
+      safeFocus(list[list.length - 1]);
+      return;
+    }
+    const cur = tube.getBoundingClientRect();
+    const cx = cur.left + cur.width / 2;
+    const cy = cur.top + cur.height / 2;
+    let best = null;
+    let bestScore = Infinity;
+    for (let i = 0; i < list.length; i++) {
+      const t = list[i];
+      if (t === tube) continue;
+      const r = t.getBoundingClientRect();
+      const tx = r.left + r.width / 2;
+      const ty = r.top + r.height / 2;
+      const dx = tx - cx;
+      const dy = ty - cy;
+      let ok = false;
+      let primary = 0;
+      let secondary = 0;
+      if (key === 'ArrowLeft') {
+        ok = dx < -2;
+        primary = -dx;
+        secondary = Math.abs(dy);
+      } else if (key === 'ArrowRight') {
+        ok = dx > 2;
+        primary = dx;
+        secondary = Math.abs(dy);
+      } else if (key === 'ArrowUp') {
+        ok = dy < -2;
+        primary = -dy;
+        secondary = Math.abs(dx);
+      } else if (key === 'ArrowDown') {
+        ok = dy > 2;
+        primary = dy;
+        secondary = Math.abs(dx);
+      }
+      if (!ok) continue;
+      const score = primary + secondary * 3;
+      if (score < bestScore) {
+        bestScore = score;
+        best = t;
+      }
+    }
+    if (best) safeFocus(best);
+  }
+
   /** Levels grid arrow / Home / End nav; chapter-edge Left/Right shifts chapter. */
   function handleLevelsGridKeydown(e) {
     const ov = $('#levels-overlay');
@@ -5100,6 +5185,9 @@
     const levelsGridEl = $('#levels-grid');
     if (levelsGridEl) {
       levelsGridEl.addEventListener('keydown', handleLevelsGridKeydown);
+    }
+    if (tubesWrap) {
+      tubesWrap.addEventListener('keydown', handleTubesBoardKeydown);
     }
     if (levelLabel) {
       levelLabel.addEventListener('click', tryOpenLevelsFromHud);
