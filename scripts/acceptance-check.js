@@ -604,6 +604,48 @@ if (gameRaw) {
     );
   }
 
+  // Win/Fail overlay keys: Enter/n Next, r Restart on win; Enter/h Hint on fail; no soft-arm
+  if (
+    /function handleWinFailKeys/.test(gameRaw) &&
+    /handleWinFailKeys\s*\(/.test(gameRaw) &&
+    (/win-overlay|#win-overlay|winOverlay/.test(gameRaw)) &&
+    (/fail-prompt|#fail-prompt|failPrompt/.test(gameRaw)) &&
+    (/btn-next|#btn-next/.test(gameRaw)) &&
+    (/btn-win-restart|#btn-win-restart/.test(gameRaw)) &&
+    (/btn-fail-hint|#btn-fail-hint/.test(gameRaw)) &&
+    !/win-fail-keys-arm|winFailKeysArm|\.win-fail-keys-arm/.test(gameRaw)
+  ) {
+    const wfIdx = gameRaw.indexOf('function handleWinFailKeys');
+    const wfSlice = wfIdx >= 0 ? gameRaw.slice(wfIdx, wfIdx + 1800) : '';
+    const wired =
+      /['"]n['"]/.test(wfSlice) &&
+      /['"]r['"]/.test(wfSlice) &&
+      /['"]h['"]/.test(wfSlice) &&
+      (/Enter/.test(wfSlice)) &&
+      (/\bnextLevel\s*\(/.test(wfSlice)) &&
+      (/\bhideWin\s*\(/.test(wfSlice) && /\bdoRestartLevel\s*\(/.test(wfSlice)) &&
+      (/btn-fail-hint|#btn-fail-hint/.test(wfSlice)) &&
+      (/isContentEditable|contentEditable|tagName/.test(wfSlice) || /textarea/.test(wfSlice)) &&
+      (/winOverlay|win-overlay/.test(wfSlice)) &&
+      (/failPrompt|fail-prompt/.test(wfSlice));
+    if (wired) {
+      pass(
+        'WIN-FAIL-KEYS',
+        'Win Enter/n Next + r Restart; Fail Enter/h Hint (+guards); no soft-arm'
+      );
+    } else {
+      fail(
+        'WIN-FAIL-KEYS',
+        'handleWinFailKeys present but n/r/h wiring or win/fail overlay/input guards missing inside handler'
+      );
+    }
+  } else {
+    fail(
+      'WIN-FAIL-KEYS',
+      'missing win/fail overlay keys (handleWinFailKeys / n|r|h / win|fail overlays) or soft-arm slipped in'
+    );
+  }
+
   // Overlay Tab focus trap (keyboard cannot escape to HUD behind modals; no soft-arm)
   if (
     /function overlayFocusables/.test(gameRaw) &&
