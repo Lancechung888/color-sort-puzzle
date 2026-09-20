@@ -11,6 +11,8 @@
   const STORAGE_KEY = 'colorTubeSort_v2';
   const STORAGE_BAK_KEY = 'colorTubeSort_v2_bak';
   const LEGACY_PROGRESS_KEY = 'colorTubeSort_progress';
+  /** Mid-level board draft (tubes/caps/moves/history) — separate from meta save. */
+  const RUN_STORAGE_KEY = 'colorTubeSort_run_v1';
   /** Schema stamp written on every persist — load coerces unknown/missing safely. */
   const SAVE_VERSION = 2;
   const FAIL_LOOP_THRESHOLD_EARLY = 5;
@@ -307,6 +309,9 @@
     // removeAds: only explicit boolean true (never truthy string/number from corruption)
     const removeAds = data.removeAds === true;
     if (data.removeAds != null && data.removeAds !== true && data.removeAds !== false) repaired = true;
+
+    // Mid-level board draft lives in RUN_STORAGE_KEY — never embed on meta save.
+    if (data.run != null) repaired = true;
 
     const out = {
       v: SAVE_VERSION,
@@ -913,8 +918,17 @@
   }
 
   // Drop armed uncap when the tab/app hides — stale double-tap invites mis-taps on return.
-  document.addEventListener('visibilitychange', function () {
-    if (document.hidden) clearPendingUncap();
+  // Also flush mid-level run draft so kill/background can resume the board.
+  function flushRunDraftOnHide() {
+    if (document.hidden || document.visibilityState === 'hidden') {
+      clearPendingUncap();
+      if (isRunActive()) persistRunDraft();
+    }
+  }
+  document.addEventListener('visibilitychange', flushRunDraftOnHide);
+  window.addEventListener('pagehide', function () {
+    clearPendingUncap();
+    if (isRunActive()) persistRunDraft();
   });
 
   // --- Themes ---
@@ -946,6 +960,203 @@
     return (src || []).slice();
   }
 
+  // --- Mid-level run draft (resume after kill/refresh/background) ---
+  function colorMultisetOf(tubesArr) {
+    const m = Object.create(null);
+    if (!Array.isArray(tubesArr)) return m;
+    for (let i = 0; i < tubesArr.length; i++) {
+      const tube = tubesArr[i];
+      if (!Array.isArray(tube)) continue;
+      for (let j = 0; j < tube.length; j++) {
+        const c = tube[j];
+        if (c == null || c === '') continue;
+        m[c] = (m[c] || 0) + 1;
+      }
+    }
+    return m;
+  }
+
+  function colorMultisetsEqual(a, b) {
+    const ka = Object.keys(a);
+    const kb = Object.keys(b);
+    if (ka.length !== kb.length) return false;
+    for (let i = 0; i < ka.length; i++) {
+      const k = ka[i];
+      if (a[k] !== b[k]) return false;
+    }
+    return true;
+  }
+
+  function isRunActive() {
+    if (!tubes || !tubes.length) return false;
+    if (startScreen && startScreen.classList.contains('show')) return false;
+    if (winOverlay && winOverlay.classList.contains('show')) return false;
+    return true;
+  }
+
+  function cloneHistory(src) {
+    if (!Array.isArray(src)) return [];
+    const out = [];
+    const max = 100;
+    const start = Math.max(0, src.length - max);
+    for (let i = start; i < src.length; i++) {
+      const h = src[i];
+      if (!h || typeof h !== 'object') continue;
+      if (!Array.isArray(h.tubes)) continue;
+      out.push({
+        tubes: cloneTubes(h.tubes),
+        caps: cloneCaps(h.caps),
+        moves: Math.max(0, Math.floor(Number(h.moves) || 0)),
+      });
+    }
+    return out;
+  }
+
+  function buildRunDraft() {
+    return {
+      v: 1,
+      stamp: Date.now(),
+      daily: !!isDailyMode,
+      dailyKey: isDailyMode ? (dailySeedKey || '') : '',
+      levelIndex: isDailyMode ? 0 : levelIndex,
+      capacity: capacity,
+      tubes: cloneTubes(tubes),
+      caps: cloneCaps(caps),
+      moves: moves,
+      undosUsed: undosUsed,
+      history: cloneHistory(history),
+      infiniteUndoLevel: !!infiniteUndoLevel,
+    };
+  }
+
+  function clearRunDraft() {
+    try {
+      localStorage.removeItem(RUN_STORAGE_KEY);
+    } catch (_) { /* ignore */ }
+  }
+
+  function persistRunDraft() {
+    if (!isRunActive()) return;
+    // Fresh cold board (no moves, no history, all lids as def) — still OK to write so
+    // refresh mid-level before first pour resumes the same board; restart clears first.
+    try {
+      localStorage.setItem(RUN_STORAGE_KEY, JSON.stringify(buildRunDraft()));
+    } catch (_) {
+      try {
+        localStorage.removeItem(RUN_STORAGE_KEY);
+      } catch (__) { /* ignore */ }
+    }
+  }
+
+  function readRunDraft() {
+    try {
+      const raw = localStorage.getItem(RUN_STORAGE_KEY);
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (!data || typeof data !== 'object' || Array.isArray(data)) return null;
+      return data;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /**
+   * Validate draft against target level def so corruption cannot soft-lock.
+   * Requires capacity, tube count, and color multiset match.
+   */
+  function validateRunDraft(draft, def, opts, idx) {
+    opts = opts || {};
+    if (!draft || typeof draft !== 'object' || !def || !Array.isArray(def.tubes)) return false;
+    const wantDaily = !!opts.daily;
+    if (!!draft.daily !== wantDaily) return false;
+    if (wantDaily) {
+      const key = opts.dailyKey || todayStr();
+      if (typeof draft.dailyKey !== 'string' || draft.dailyKey !== key) return false;
+      if (draft.dailyKey !== todayStr()) return false;
+      if (save.dailyDoneDate === todayStr()) return false;
+    } else {
+      const li = Math.floor(Number(draft.levelIndex));
+      if (!Number.isFinite(li) || li !== idx) return false;
+    }
+    const cap = def.capacity || 4;
+    const dCap = Math.floor(Number(draft.capacity));
+    if (!Number.isFinite(dCap) || dCap !== cap) return false;
+    if (!Array.isArray(draft.tubes) || draft.tubes.length !== def.tubes.length) return false;
+    if (!Array.isArray(draft.caps) || draft.caps.length !== draft.tubes.length) return false;
+    // Each tube must be an array of layers within capacity
+    for (let i = 0; i < draft.tubes.length; i++) {
+      const t = draft.tubes[i];
+      if (!Array.isArray(t) || t.length > cap) return false;
+    }
+    if (!colorMultisetsEqual(colorMultisetOf(draft.tubes), colorMultisetOf(def.tubes))) return false;
+    const mv = Math.floor(Number(draft.moves));
+    if (!Number.isFinite(mv) || mv < 0) return false;
+    const uu = Math.floor(Number(draft.undosUsed));
+    if (!Number.isFinite(uu) || uu < 0) return false;
+    if (draft.history != null && !Array.isArray(draft.history)) return false;
+    return true;
+  }
+
+  function applyRunDraft(draft, idx, opts) {
+    opts = opts || {};
+    isDailyMode = !!opts.daily;
+    dailySeedKey = opts.dailyKey || draft.dailyKey || '';
+    capacity = draft.capacity;
+    tubes = cloneTubes(draft.tubes);
+    caps = cloneCaps(draft.caps);
+    moves = Math.max(0, Math.floor(Number(draft.moves) || 0));
+    undosUsed = Math.max(0, Math.floor(Number(draft.undosUsed) || 0));
+    history = cloneHistory(draft.history);
+    infiniteUndoLevel = !!draft.infiniteUndoLevel;
+    selected = -1;
+    clearPendingUncap();
+    pouring = false;
+    restartFailCount = 0;
+    lastProjectedStars = 3;
+    starDropHapticFired = false;
+    // Mid-resume: do not re-fire first-uncap / first-pour signature juice
+    levelFirstUncapDone = true;
+    clearHudHintArm();
+    clearHudUndoArm();
+    clearStarTrackDropPulse();
+    clearStarTrackRecoverPulse();
+    if (!opts.daily) levelIndex = idx;
+    updateChrome();
+    render();
+    hideWin();
+    toast('Resumed');
+    if (opts.daily) {
+      trackEvent('daily_start', {
+        mode: 'daily',
+        daily_key: dailySeedKey || '',
+        level_id: (opts.def && typeof opts.def._dailyIndex === 'number') ? opts.def._dailyIndex + 1 : analyticsLevelId(),
+        daily_twist: (opts.def && opts.def._dailyTwist) ? opts.def._dailyTwist : '',
+        resumed: true,
+      });
+    } else {
+      trackEvent('level_start', { mode: 'main', level_id: analyticsLevelId(), resumed: true });
+    }
+  }
+
+  /** Try mid-level resume; on mismatch discard draft and cold-load. */
+  function tryResumeOrLoad(idx, opts) {
+    opts = opts || {};
+    const def = opts.def || (opts.daily ? null : LEVELS[idx]);
+    if (!def) {
+      clearRunDraft();
+      loadLevel(idx, opts);
+      return false;
+    }
+    const draft = readRunDraft();
+    if (draft && validateRunDraft(draft, def, opts, idx)) {
+      applyRunDraft(draft, idx, Object.assign({}, opts, { def: def }));
+      return true;
+    }
+    clearRunDraft();
+    loadLevel(idx, opts);
+    return false;
+  }
+
   function hydrateCaps(def, tubeCount) {
     const raw = (def && def.caps) || [];
     const out = [];
@@ -973,6 +1184,8 @@
 
   function loadLevel(idx, opts) {
     opts = opts || {};
+    // Cold load always discards mid-level draft (resume goes through tryResumeOrLoad).
+    clearRunDraft();
     isDailyMode = !!opts.daily;
     dailySeedKey = opts.dailyKey || '';
     const def = opts.def || LEVELS[idx];
@@ -1445,6 +1658,7 @@
     trimHistory();
     caps[idx] = false;
     selected = -1;
+    persistRunDraft();
     const firstUncapOfLevel = !levelFirstUncapDone;
     if (firstUncapOfLevel) levelFirstUncapDone = true;
     SFX.uncap();
@@ -1547,6 +1761,8 @@
       moves++;
       selected = -1;
       pouring = false;
+      if (isWon()) clearRunDraft();
+      else persistRunDraft();
       updateChrome();
       render();
       pulseLandRise(toIdx, amount);
@@ -1584,6 +1800,7 @@
     selected = -1;
     clearPendingUncap();
     if (!infiniteUndoLevel) undosUsed++;
+    persistRunDraft();
     updateChrome();
     render();
     SFX.tap();
@@ -1602,6 +1819,8 @@
   }
 
   function doRestartLevel() {
+    // Restart within level: discard mid-board draft, then cold-load fresh.
+    clearRunDraft();
     if (isDailyMode) {
       loadLevel(levelIndex, { daily: true, dailyKey: dailySeedKey, def: getDailyDef() });
     } else {
@@ -1610,6 +1829,7 @@
   }
 
   function nextLevel() {
+    clearRunDraft();
     if (isDailyMode) {
       hideWin();
       isDailyMode = false;
@@ -2046,9 +2266,11 @@
     }
     hideAllOverlays();
     const def = getDailyDef();
-    loadLevel(0, { daily: true, dailyKey: key, def: def });
-    const twist = (def && def._dailyTwist) ? def._dailyTwist : 'Remix';
-    toast('Daily Challenge · ' + twist + '!');
+    const resumed = tryResumeOrLoad(0, { daily: true, dailyKey: key, def: def });
+    if (!resumed) {
+      const twist = (def && def._dailyTwist) ? def._dailyTwist : 'Remix';
+      toast('Daily Challenge · ' + twist + '!');
+    }
   }
 
   // --- Render ---
@@ -2421,6 +2643,7 @@
 
   // --- Win UI ---
   function showWin() {
+    clearRunDraft();
     SFX.win();
     const stars = calcStars();
     lastWinStars = stars;
@@ -3060,6 +3283,7 @@
    */
   function goHome() {
     if (pouring) return;
+    clearRunDraft();
     clearPendingUncap();
     selected = -1;
     const levelsOv = $('#levels-overlay');
@@ -3153,8 +3377,8 @@
           closeLevels();
           startScreen.classList.remove('show');
           isDailyMode = false;
-          loadLevel(i);
-          if (best < 3) {
+          const resumed = tryResumeOrLoad(i);
+          if (!resumed && best < 3) {
             toast('Aim for 3★ · first time +' + FIRST_THREE_STAR_BONUS + '🪙');
           }
         });
@@ -3874,7 +4098,7 @@
     isDailyMode = false;
     // Match Continue · Level N label (same target as refreshStartPlayCta)
     levelIndex = Math.min(Math.max(save.level || 0, 0), LEVELS.length - 1);
-    loadLevel(levelIndex);
+    tryResumeOrLoad(levelIndex);
     setTimeout(() => app.classList.remove('input-gate'), 280);
   }
 
@@ -3948,6 +4172,7 @@
         return;
       }
       infiniteUndoLevel = true;
+      persistRunDraft();
       clearShopBuyArm();
       refreshShopButtons();
       refreshHud();
@@ -3962,6 +4187,7 @@
       }
       mockIapPurchase('infinite_undo_level', () => {
         infiniteUndoLevel = true;
+        persistRunDraft();
         refreshShopButtons();
         // Banner is the claim shout — no toast duplicate
         showUndoPackClaim('IAP');

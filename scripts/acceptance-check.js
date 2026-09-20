@@ -329,6 +329,25 @@ if (gameRaw) {
     fail('NAV-HOME', 'missing goHome / btn-home / startScreen.show wiring');
   }
 
+  // Mid-level board resume: draft persist + validate-on-restore + clear on win/home
+  if (
+    /RUN_STORAGE_KEY|colorTubeSort_run_v1/.test(gameRaw) &&
+    /function persistRunDraft\s*\(/.test(gameRaw) &&
+    /function validateRunDraft\s*\(/.test(gameRaw) &&
+    /function tryResumeOrLoad\s*\(/.test(gameRaw) &&
+    /function clearRunDraft\s*\(/.test(gameRaw) &&
+    /clearRunDraft\(\)/.test(gameRaw) &&
+    /function showWin\s*\([\s\S]*?clearRunDraft/.test(gameRaw) &&
+    /function goHome\s*\([\s\S]*?clearRunDraft/.test(gameRaw) &&
+    /colorMultisetsEqual|colorMultisetOf/.test(gameRaw) &&
+    /visibilitychange/.test(gameRaw) &&
+    /pagehide/.test(gameRaw)
+  ) {
+    pass('RUN-RESUME', 'mid-level run draft persist + validate-on-restore + clear on win/home');
+  } else {
+    fail('RUN-RESUME', 'missing run draft persist / validateRunDraft / clear on win|home / hide flush');
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&
