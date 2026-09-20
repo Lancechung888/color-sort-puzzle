@@ -5461,6 +5461,14 @@
       restartFailCount = 0;
       doRestartLevel();
     });
+    const btnFailHome = $('#btn-fail-home');
+    if (btnFailHome) {
+      btnFailHome.addEventListener('click', () => {
+        closeOverlay(failPrompt);
+        restartFailCount = 0;
+        goHome();
+      });
+    }
   }
 
   function init() {
