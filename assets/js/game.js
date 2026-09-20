@@ -3620,6 +3620,88 @@
     render();
   }
 
+  /**
+   * System / hardware / browser back — dismiss top overlay, else pause to Home
+   * (keeps mid-level draft). Returns true if consumed (do not exit app).
+   * No soft-arm CSS. Win back → Home (run already cleared on clear).
+   */
+  let backGuardArmed = false;
+  function armBackGuard() {
+    if (backGuardArmed) return;
+    try {
+      history.pushState({ ctsBack: 1 }, '');
+      backGuardArmed = true;
+    } catch (_) { /* ignore private-mode / file:// */ }
+  }
+
+  function handleSystemBack() {
+    const levelsOv = $('#levels-overlay');
+    if (levelsOv && levelsOv.classList.contains('show')) {
+      closeLevels();
+      return true;
+    }
+    if (hintPaywall && hintPaywall.classList.contains('show')) {
+      closeOverlay(hintPaywall);
+      return true;
+    }
+    if (shopOverlay && shopOverlay.classList.contains('show')) {
+      closeOverlay(shopOverlay);
+      return true;
+    }
+    if (failPrompt && failPrompt.classList.contains('show')) {
+      closeOverlay(failPrompt);
+      return true;
+    }
+    if (winOverlay && winOverlay.classList.contains('show')) {
+      hideWin();
+      goHome();
+      return true;
+    }
+    // Playing board (not start)
+    if (startScreen && !startScreen.classList.contains('show')) {
+      if (pouring) return true;
+      if (selected >= 0 || pendingUncapIdx >= 0) {
+        selected = -1;
+        clearPendingUncap();
+        render();
+        return true;
+      }
+      goHome();
+      return true;
+    }
+    // Start screen — allow exit / leave page
+    return false;
+  }
+
+  function onSystemBackPopState() {
+    backGuardArmed = false;
+    if (handleSystemBack()) {
+      armBackGuard();
+    }
+  }
+
+  function bindSystemBack() {
+    window.addEventListener('popstate', onSystemBackPopState);
+    // Optional Capacitor App plugin (if present after cap sync) — same dismiss chain
+    try {
+      const cap = typeof Capacitor !== 'undefined' ? Capacitor : null;
+      const plugins = (cap && cap.Plugins) || {};
+      const App = plugins.App || (typeof CapApp !== 'undefined' ? CapApp : null);
+      if (App && typeof App.addListener === 'function') {
+        App.addListener('backButton', function () {
+          if (handleSystemBack()) {
+            armBackGuard();
+            return;
+          }
+          if (typeof App.exitApp === 'function') {
+            try { App.exitApp(); } catch (_) { /* ignore */ }
+          }
+        });
+      }
+    } catch (_) { /* web / stub */ }
+    armBackGuard();
+  }
+
   function openLevels() {
     clearLevelsContinueArm();
     renderLevelsGrid();
@@ -3784,6 +3866,7 @@
         overlayFocusReturn = document.activeElement;
       }
       overlayFocusDepth++;
+      armBackGuard();
     }
     el.classList.add('show');
     // HUD hint arm is mid-play only — clear when any blocking overlay covers the board
@@ -4769,6 +4852,9 @@
     } catch (_) { /* ignore */ }
 
     // Level skip via dblclick removed (ACCEPTANCE P0).
+
+    // Hardware / browser back: dismiss overlays → pause Home (draft kept); start allows exit
+    bindSystemBack();
 
     window.addEventListener('resize', () => {
       if (!startScreen.classList.contains('show')) render();
