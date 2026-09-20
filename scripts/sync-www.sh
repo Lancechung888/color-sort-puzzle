@@ -13,5 +13,8 @@ cp -R "$ROOT/assets" "$WWW/assets"
 if [[ -f "$ROOT/site.webmanifest" ]]; then
   cp "$ROOT/site.webmanifest" "$WWW/site.webmanifest"
 fi
+if [[ -f "$ROOT/sw.js" ]]; then
+  cp "$ROOT/sw.js" "$WWW/sw.js"
+fi
 
-echo "Synced index.html + assets/ (incl. maskable icons) + site.webmanifest → www/"
+echo "Synced index.html + assets/ (incl. maskable icons) + site.webmanifest + sw.js → www/"
