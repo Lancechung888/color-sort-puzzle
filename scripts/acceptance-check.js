@@ -1331,6 +1331,50 @@ if (gameRaw) {
     }
   }
 
+  // SHARE-LANDING: docs/ Pages brand landing + og.png; share URL still github.io root; no soft-arm
+  {
+    const landingPath = path.join(root, 'docs/index.html');
+    const ogPath = path.join(root, 'docs/og.png');
+    const landingExists = fs.existsSync(landingPath);
+    const ogExists = fs.existsSync(ogPath);
+    const landing = landingExists ? fs.readFileSync(landingPath, 'utf8') : '';
+    const hasTitle = /ColorTube Sort/.test(landing);
+    const hasUsp =
+      /Gold lids block pours/.test(landing) &&
+      (/uncap/.test(landing) || /Uncap/.test(landing));
+    const hasOgImage =
+      /og:image/.test(landing) &&
+      /https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/og\.png/.test(landing);
+    const hasPrivacy =
+      /href=["']privacy\/?["']/.test(landing) || /href=["']\.\/privacy\/?["']/.test(landing);
+    const shareUrlOk =
+      /function buildWinShareText\s*\(/.test(gameRaw) &&
+      /https:\/\/lancechung888\.github\.io\/color-sort-puzzle\//.test(gameRaw);
+    const noSoft =
+      !/soft-arm|claim-juice|hud-.*-pulse|win-share-arm/.test(landing);
+    if (
+      landingExists &&
+      ogExists &&
+      hasTitle &&
+      hasUsp &&
+      hasOgImage &&
+      hasPrivacy &&
+      shareUrlOk &&
+      noSoft
+    ) {
+      pass(
+        'SHARE-LANDING',
+        'docs/index.html brand landing + USP + og:image + privacy link; docs/og.png; buildWinShareText → github.io root; no soft-arm'
+      );
+    } else {
+      fail(
+        'SHARE-LANDING',
+        'missing docs landing/og/USP/og:image/privacy, share URL drift, or soft-arm in new files' +
+          ` (landing=${landingExists} og=${ogExists} title=${hasTitle} usp=${hasUsp} ogImg=${hasOgImage} priv=${hasPrivacy} url=${shareUrlOk} noSoft=${noSoft})`
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
