@@ -962,6 +962,48 @@ if (gameRaw) {
     }
   }
 
+  // A11Y-BURST: complete/uncap sparks + screen-shake + white flash gated under reduced-motion (no soft-arm)
+  {
+    const completeIdx = gameRaw.indexOf('function spawnCompleteBurst');
+    const completeSlice = completeIdx >= 0 ? gameRaw.slice(completeIdx, completeIdx + 320) : '';
+    const completeGuard =
+      /function spawnCompleteBurst\s*\(/.test(completeSlice) &&
+      /if\s*\(\s*prefersReducedMotion\s*\(\s*\)\s*\)\s*return\s*;/.test(completeSlice);
+    const uncapIdx = gameRaw.indexOf('function spawnUncapBurst');
+    const uncapSlice = uncapIdx >= 0 ? gameRaw.slice(uncapIdx, uncapIdx + 280) : '';
+    const uncapGuard =
+      /function spawnUncapBurst\s*\(/.test(uncapSlice) &&
+      /if\s*\(\s*prefersReducedMotion\s*\(\s*\)\s*\)\s*return\s*;/.test(uncapSlice);
+    const shakeIdx = gameRaw.indexOf('function lightScreenShake');
+    const shakeSlice = shakeIdx >= 0 ? gameRaw.slice(shakeIdx, shakeIdx + 220) : '';
+    const shakeGuard =
+      /function lightScreenShake\s*\(/.test(shakeSlice) &&
+      /if\s*\(\s*prefersReducedMotion\s*\(\s*\)\s*\)\s*return\s*;/.test(shakeSlice);
+    const flashIdx = gameRaw.indexOf('function flashCompleteWhite');
+    const flashSlice = flashIdx >= 0 ? gameRaw.slice(flashIdx, flashIdx + 220) : '';
+    const flashGuard =
+      /function flashCompleteWhite\s*\(/.test(flashSlice) &&
+      /if\s*\(\s*prefersReducedMotion\s*\(\s*\)\s*\)\s*return\s*;/.test(flashSlice);
+    const cssHas =
+      /prefers-reduced-motion:\s*reduce/.test(cssRaw) &&
+      /\.complete-spark/.test(cssRaw) &&
+      /\.uncap-spark/.test(cssRaw) &&
+      (/#app\.screen-shake/.test(cssRaw) || /\.complete-flash/.test(cssRaw));
+    const noSoft =
+      !/a11y-burst-arm|burst-reduced-arm|complete-burst-arm|\.a11y-burst-arm/.test(gameRaw + cssRaw);
+    if (completeGuard && uncapGuard && shakeGuard && flashGuard && cssHas && noSoft) {
+      pass(
+        'A11Y-BURST',
+        'spawnCompleteBurst/spawnUncapBurst/lightScreenShake/flashCompleteWhite gated; CSS hide sparks; no soft-arm'
+      );
+    } else {
+      fail(
+        'A11Y-BURST',
+        'missing prefersReducedMotion guards on complete/uncap/shake/flash, CSS hide, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&

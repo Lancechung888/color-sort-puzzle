@@ -2118,6 +2118,7 @@
   /** Color-matched rim burst when a tube first fills solid (整管完成). */
   function spawnCompleteBurst(tubeEl, colorId) {
     if (!tubeEl) return;
+    if (prefersReducedMotion()) return;
     const hex = (SOLIDS && SOLIDS[colorId]) || (PALETTE && PALETTE[colorId]) || '#4ecdc4';
     const rect = tubeEl.getBoundingClientRect();
     const appRect = app.getBoundingClientRect();
@@ -2143,6 +2144,7 @@
 
   function spawnUncapBurst(tubeEl, count) {
     if (!tubeEl) return;
+    if (prefersReducedMotion()) return;
     const n = (typeof count === 'number' && count > 0) ? count : 10;
     const rect = tubeEl.getBoundingClientRect();
     const appRect = app.getBoundingClientRect();
@@ -2968,6 +2970,7 @@
   }
 
   function lightScreenShake() {
+    if (prefersReducedMotion()) return;
     app.classList.remove('screen-shake');
     void app.offsetWidth;
     app.classList.add('screen-shake');
@@ -2995,6 +2998,7 @@
   }
 
   function flashCompleteWhite() {
+    if (prefersReducedMotion()) return;
     const flash = document.createElement('div');
     flash.className = 'complete-flash';
     app.appendChild(flash);
