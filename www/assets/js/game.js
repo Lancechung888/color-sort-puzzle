@@ -106,6 +106,10 @@
   let pendingSpendTimer = 0;
   let pendingSpendKey = '';
   const PENDING_SPEND_MS = 2000;
+  /** Two-tap Settings Reset progress confirm — toast only, no soft-arm CSS. */
+  let pendingResetUntil = 0;
+  let pendingResetTimer = 0;
+  const PENDING_RESET_MS = 2000;
   let history = [];
   let moves = 0;
   let pouring = false;
@@ -1723,6 +1727,7 @@
   function armPendingRestart() {
     clearPendingLeave();
     clearPendingSpend();
+    clearPendingReset();
     pendingRestartUntil = Date.now() + PENDING_RESTART_MS;
     clearTimeout(pendingRestartTimer);
     pendingRestartTimer = setTimeout(function () {
@@ -1740,6 +1745,7 @@
   function armPendingLeave(key) {
     clearPendingRestart();
     clearPendingSpend();
+    clearPendingReset();
     pendingLeaveKey = key || '';
     pendingLeaveUntil = Date.now() + PENDING_LEAVE_MS;
     clearTimeout(pendingLeaveTimer);
@@ -1758,6 +1764,7 @@
   function armPendingSpend(key) {
     clearPendingRestart();
     clearPendingLeave();
+    clearPendingReset();
     pendingSpendKey = key || '';
     pendingSpendUntil = Date.now() + PENDING_SPEND_MS;
     clearTimeout(pendingSpendTimer);
@@ -1790,6 +1797,110 @@
     }
     clearPendingSpend();
     proceedFn();
+  }
+
+  function clearPendingReset() {
+    pendingResetUntil = 0;
+    clearTimeout(pendingResetTimer);
+    pendingResetTimer = 0;
+  }
+
+  function armPendingReset() {
+    clearPendingRestart();
+    clearPendingLeave();
+    clearPendingSpend();
+    pendingResetUntil = Date.now() + PENDING_RESET_MS;
+    clearTimeout(pendingResetTimer);
+    pendingResetTimer = setTimeout(function () {
+      clearPendingReset();
+    }, PENDING_RESET_MS + 30);
+  }
+
+  /**
+   * Two-tap confirm before wiping meta progress + run draft.
+   * Toast only — no soft-arm CSS. Keeps Sound / Haptics / Color assist.
+   */
+  function confirmResetProgressThen(proceedFn) {
+    const now = Date.now();
+    if (!(pendingResetUntil > 0 && now <= pendingResetUntil)) {
+      armPendingReset();
+      toast('Tap again to reset all progress');
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+      try { haptic('select'); } catch (_) { /* ignore */ }
+      trackEvent('progress_reset_confirm_arm', {
+        coins: save.coins || 0,
+        max_unlocked: save.maxUnlocked || 0,
+        streak: save.streak || 0,
+      });
+      return;
+    }
+    clearPendingReset();
+    proceedFn();
+  }
+
+  function doResetProgress() {
+    pouring = false;
+    const keepSfx = save.sfxOn !== false;
+    const keepHap = save.hapticsOn !== false;
+    const keepCa = save.colorAssist === true;
+
+    clearRunDraft();
+    try { localStorage.removeItem(STORAGE_BAK_KEY); } catch (_) { /* ignore */ }
+    try { localStorage.removeItem(LEGACY_PROGRESS_KEY); } catch (_) { /* ignore */ }
+
+    save = defaultSave();
+    save.sfxOn = keepSfx;
+    save.hapticsOn = keepHap;
+    save.colorAssist = keepCa;
+    persist();
+
+    clearPendingUncap();
+    clearPendingRestart();
+    clearPendingLeave();
+    clearPendingSpend();
+    clearPendingReset();
+    selected = -1;
+    history = [];
+    moves = 0;
+    undosUsed = 0;
+    infiniteUndoLevel = false;
+    restartFailCount = 0;
+    isDailyMode = false;
+    dailySeedKey = '';
+    levelIndex = 0;
+    capacity = 4;
+    tubes = [];
+    caps = [];
+
+    try { clearShopBuyArm(); } catch (_) { /* ignore */ }
+    try { clearThemeUnlockClaim(); } catch (_) { /* ignore */ }
+    try { clearHintsPackClaim(); } catch (_) { /* ignore */ }
+    try { clearUndoPackClaim(); } catch (_) { /* ignore */ }
+    try { clearFailHintArm(); } catch (_) { /* ignore */ }
+    try { clearHintPayArm(); } catch (_) { /* ignore */ }
+    try { clearWinReplayArm(); } catch (_) { /* ignore */ }
+    try { clearLevelsContinueArm(); } catch (_) { /* ignore */ }
+    try { clearHudHintArm(); } catch (_) { /* ignore */ }
+    try { clearHudUndoArm(); } catch (_) { /* ignore */ }
+
+    // Close modals but keep start screen visible (fresh Home).
+    [winOverlay, shopOverlay, hintPaywall, failPrompt, $('#levels-overlay')].forEach(function (el) {
+      if (el) el.classList.remove('show');
+    });
+    if (startScreen) startScreen.classList.add('show');
+    overlayFocusDepth = 0;
+    overlayFocusReturn = null;
+
+    document.body.setAttribute('data-theme', 'classic');
+    refreshShopButtons();
+    if (typeof refreshDailyCta === 'function') refreshDailyCta();
+    if (typeof refreshStartPlayCta === 'function') refreshStartPlayCta();
+    refreshHud();
+    updateChrome();
+    render();
+    toast('Progress reset');
+    trackEvent('progress_reset', {});
+    try { SFX.tap(); } catch (_) { /* ignore */ }
   }
 
   function draftHasProgress(draft) {
@@ -3680,6 +3791,7 @@
     clearPendingUncap();
     clearPendingRestart();
     clearPendingLeave();
+    clearPendingReset();
     selected = -1;
     const levelsOv = $('#levels-overlay');
     if (levelsOv && levelsOv.classList.contains('show')) closeLevels();
@@ -4507,6 +4619,7 @@
       clearUndoPackClaim();
       clearShopBuyArm();
       clearPendingSpend();
+      clearPendingReset();
     }
     if (el === failPrompt) clearFailHintArm();
     if (el === hintPaywall) clearHintPayArm();
@@ -4541,6 +4654,7 @@
         clearUndoPackClaim();
         clearShopBuyArm();
         clearPendingSpend();
+        clearPendingReset();
       }
       if (el === failPrompt) clearFailHintArm();
       if (el === hintPaywall) clearHintPayArm();
@@ -4560,6 +4674,7 @@
     clearHintsPackClaim();
     clearUndoPackClaim();
     clearShopBuyArm();
+    clearPendingReset();
     refreshShopButtons();
     armShopAffordablePrimary();
     openOverlay(shopOverlay);
@@ -5179,6 +5294,12 @@
         refreshSettingsToggles();
         render();
         if (next) SFX.tap();
+      });
+    }
+    const btnResetProgress = $('#btn-reset-progress');
+    if (btnResetProgress) {
+      btnResetProgress.addEventListener('click', () => {
+        confirmResetProgressThen(doResetProgress);
       });
     }
     $('#coin-display').addEventListener('click', openShop);
