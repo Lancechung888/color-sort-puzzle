@@ -4083,7 +4083,7 @@
     }
   }
 
-  /** Win/Fail overlay keys: Next/restart on win; hint on fail. Escape left alone. */
+  /** Win/Fail overlay keys: Next/restart/Home on win; hint on fail. Escape left alone. */
   function handleWinFailKeys(e) {
     const t = e.target;
     if (t) {
@@ -4113,6 +4113,14 @@
         e.preventDefault();
         hideWin();
         doRestartLevel();
+        return true;
+      }
+      if (key === 'h' || key === 'H') {
+        const homeBtn = $('#btn-win-home');
+        if (!homeBtn || homeBtn.disabled || homeBtn.hidden) return false;
+        e.preventDefault();
+        hideWin();
+        goHome();
         return true;
       }
       return false;
@@ -5271,6 +5279,10 @@
       openShop();
     });
     $('#btn-win-shop').addEventListener('click', openShop);
+    $('#btn-win-home').addEventListener('click', () => {
+      hideWin();
+      goHome();
+    });
     $('#btn-shop-close').addEventListener('click', () => closeOverlay(shopOverlay));
     const btnToggleSfx = $('#btn-toggle-sfx');
     if (btnToggleSfx) {
