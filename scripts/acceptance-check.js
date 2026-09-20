@@ -493,6 +493,32 @@ if (gameRaw) {
     );
   }
 
+  // Levels chapter prev/next browse (★ mastery for earlier packs; no soft-arm)
+  if (
+    /levelsViewChapter/.test(gameRaw) &&
+    /function shiftLevelsChapter/.test(gameRaw) &&
+    /function maxBrowsableChapter/.test(gameRaw) &&
+    /setLevelsViewChapter/.test(gameRaw) &&
+    /btn-levels-prev/.test(gameRaw) &&
+    /btn-levels-next/.test(gameRaw) &&
+    /btn-levels-prev/.test(htmlRaw) &&
+    /btn-levels-next/.test(htmlRaw) &&
+    /aria-label="Previous chapter"/.test(htmlRaw) &&
+    /aria-label="Next chapter"/.test(htmlRaw) &&
+    /prog\.start/.test(gameRaw) &&
+    /prog\.end/.test(gameRaw)
+  ) {
+    pass(
+      'LEVELS-CHAPTER',
+      'Levels chapter prev/next + levelsViewChapter; grid scoped to viewed chapter'
+    );
+  } else {
+    fail(
+      'LEVELS-CHAPTER',
+      'missing Levels chapter browse (prev/next, levelsViewChapter, chapter-scoped grid)'
+    );
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&

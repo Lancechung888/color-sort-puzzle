@@ -2470,6 +2470,33 @@ html, body {
   flex-direction: column;
 }
 
+.levels-chapter-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 8px;
+}
+.levels-chapter-btn {
+  min-width: 36px;
+  padding: 6px 10px;
+  font-size: 1.1rem;
+  line-height: 1;
+  font-weight: 700;
+}
+.levels-chapter-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.levels-chapter-label {
+  margin: 0;
+  min-width: 7.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 650;
+  color: var(--text, #fff);
+}
+
 .levels-teaser {
   margin: 0 0 12px;
   font-size: 0.78rem;
