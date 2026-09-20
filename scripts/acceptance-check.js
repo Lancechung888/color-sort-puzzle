@@ -3011,6 +3011,45 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-OVERSCROLL: setOverScrollMode(OVER_SCROLL_NEVER); no soft-arm ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-overscroll.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /OVER_SCROLL_NEVER/.test(patchRaw) && /setOverScrollMode/.test(patchRaw);
+  const targetIdx = aabRaw.search(/patch-android-target-sdk\.sh/);
+  const overIdx = aabRaw.search(/patch-android-webview-overscroll\.sh/);
+  const aabHookOk = overIdx >= 0 && targetIdx >= 0 && overIdx > targetIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-OVERSCROLL/.test(readmeRaw) && /2o/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk =
+      /OVER_SCROLL_NEVER/.test(mainRaw) &&
+      /import\s+android\.view\.View\s*;/.test(mainRaw);
+  }
+  const noSoft =
+    !/overscroll-arm|soft-arm|claim-juice|hud-pulse/.test(patchRaw + mainRaw);
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-OVERSCROLL',
+      'webView.setOverScrollMode(OVER_SCROLL_NEVER) + patch-android-webview-overscroll.sh + aab:internal after target-sdk + README §2o; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-OVERSCROLL',
+      `missing OVER_SCROLL_NEVER / patch / aab hook-after-target-sdk / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

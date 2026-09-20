@@ -303,6 +303,23 @@ bash scripts/patch-android-target-sdk.sh
 
 `npm run aab:internal` 在 cutout patch **之後**自動跑。需要本機已安裝 `platforms;android-36`（＋匹配 build-tools）。`android/` 仍 gitignore。
 
+## 2o. Deny WebView overscroll（ANDROID-WEBVIEW-OVERSCROLL）
+
+CSS `overscroll-behavior: none` on html/body blocks browser rubber-band, but Capacitor’s Android WebView still shows the system glow/edge effect and can steal mid-run gestures. Call `webView.setOverScrollMode(View.OVER_SCROLL_NEVER)` once the bridge WebView is ready (next to ColorTubeNative setup in `onStart`).
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check
+webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+```
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-overscroll.sh
+```
+
+`npm run aab:internal` 在 target-sdk patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
