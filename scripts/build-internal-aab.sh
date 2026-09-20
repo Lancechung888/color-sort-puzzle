@@ -119,6 +119,8 @@ bash "$ROOT/scripts/patch-android-webview-safe-browsing.sh"
 bash "$ROOT/scripts/patch-android-webview-database-off.sh"
 # Deny WebView algorithmic darkening on API 33+ (distinct from ANDROID-FORCE-DARK).
 bash "$ROOT/scripts/patch-android-webview-algorithmic-dark-off.sh"
+# Deny Chrome remote WebView debugging (chrome://inspect) on production devices.
+bash "$ROOT/scripts/patch-android-webview-debug-off.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
