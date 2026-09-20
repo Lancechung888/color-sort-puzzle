@@ -460,6 +460,26 @@ bash scripts/patch-android-webview-sound-effects-off.sh
 
 `npm run aab:internal` 在 webview-scrollbars patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+
+## 2w. Allow HTML media without sticky gesture（ANDROID-WEBVIEW-MEDIA-GESTURE）
+
+After **ANDROID-WEBVIEW-SOUND-EFFECTS-OFF**, Android WebView default `mediaPlaybackRequiresUserGesture=true` can still block／silence mid-run HTML media. Game SFX uses `HTMLAudioElement` via `new Audio()` in `assets/js/game.js` (`playSfx`). Allow intentional HTML media／SFX once the bridge WebView is ready (prefer after sound-effects-off in `onStart`):
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after sound-effects-off)
+webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+```
+
+Distinct from **ANDROID-WEBVIEW-SOUND-EFFECTS-OFF** (`setSoundEffectsEnabled(false)` = deny Android View system click sounds). This *allows* intentional HTML media／SFX without sticky gesture gates; Settings Sound toggle still gates `playSfx()` in JS.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-media-gesture.sh
+```
+
+`npm run aab:internal` 在 webview-sound-effects-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

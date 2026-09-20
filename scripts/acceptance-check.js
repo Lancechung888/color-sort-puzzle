@@ -3387,6 +3387,53 @@ block(
   }
 }
 
+
+// --- ANDROID-WEBVIEW-MEDIA-GESTURE: allow HTML media without sticky gesture; SFX remains gated by JS ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-media-gesture.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk = /setMediaPlaybackRequiresUserGesture\s*\(\s*false\s*\)/.test(patchRaw);
+  const soundIdx = aabRaw.search(/patch-android-webview-sound-effects-off\.sh/);
+  const mediaIdx = aabRaw.search(/patch-android-webview-media-gesture\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    soundIdx >= 0 &&
+    mediaIdx >= 0 &&
+    iconsIdx >= 0 &&
+    soundIdx < mediaIdx &&
+    mediaIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-MEDIA-GESTURE/.test(readmeRaw) && /2w/.test(readmeRaw);
+  const keepOk = /setMediaPlaybackRequiresUserGesture\s*\(\s*false\s*\)/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /setMediaPlaybackRequiresUserGesture\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-media-gesture-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-MEDIA-GESTURE',
+      'setMediaPlaybackRequiresUserGesture(false) + patch/aab after sound-effects-off before icons + README §2w + keep-awake; HTML SFX allowed; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-MEDIA-GESTURE',
+      `missing media-gesture / patch / aab hook-after-sound-effects-off-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

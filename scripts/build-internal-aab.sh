@@ -103,6 +103,8 @@ bash "$ROOT/scripts/patch-android-webview-haptic-off.sh"
 bash "$ROOT/scripts/patch-android-webview-scrollbars.sh"
 # Deny WebView system click sounds so WebAudio SFX stays intentional.
 bash "$ROOT/scripts/patch-android-webview-sound-effects-off.sh"
+# Allow HTML media / SFX without sticky user-gesture gate (HTMLAudioElement playSfx).
+bash "$ROOT/scripts/patch-android-webview-media-gesture.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

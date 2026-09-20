@@ -132,6 +132,8 @@
 
 （已補）**ANDROID-WEBVIEW-SOUND-EFFECTS-OFF**已上 — `MainActivity` `webView.setSoundEffectsEnabled(false)`（拒絕 Android View 系統 click sound／`View.playSoundEffect` 搶中局；異於 HAPTIC-OFF 的系統震動，遊戲 `playSfx()`／WebAudio 仍經 JS／Settings Sound 開啟；`android/` 仍 gitignore）；`scripts/patch-android-webview-sound-effects-off.sh`＋`aab:internal` hook（scrollbars 之後、icons 之前）＋`native-templates/android/README.md` §2v；accept `ANDROID-WEBVIEW-SOUND-EFFECTS-OFF`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-WEBVIEW-MEDIA-GESTURE**已上 — `MainActivity` `webView.getSettings().setMediaPlaybackRequiresUserGesture(false)`（允許 HTMLAudioElement／`playSfx` 中局 SFX 不被 WebView 預設 sticky gesture 閘住；異於 SOUND-EFFECTS-OFF 的系統 click sound 拒絕，此項是 *允許* 意圖性 HTML media；`android/` 仍 gitignore）；`scripts/patch-android-webview-media-gesture.sh`＋`aab:internal` hook（sound-effects-off 之後、icons 之前）＋`native-templates/android/README.md` §2w；accept `ANDROID-WEBVIEW-MEDIA-GESTURE`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 
 
