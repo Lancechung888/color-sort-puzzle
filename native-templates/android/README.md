@@ -499,6 +499,26 @@ bash scripts/patch-android-webview-mixed-content.sh
 
 `npm run aab:internal` 在 webview-media-gesture patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+
+## 2y. Deny WebView geolocation（ANDROID-WEBVIEW-GEOLOCATION-OFF）
+
+After **ANDROID-WEBVIEW-MIXED-CONTENT**, stock WebView may still leave geolocation enabled. ColorTube Sort collects **no location** (Play Data Safety / privacy). Deny at `WebSettings` so Capacitor cannot prompt for GPS mid-run:
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after mixed-content)
+webView.getSettings().setGeolocationEnabled(false);
+```
+
+Distinct from **ANDROID-CLEARTEXT** / **ANDROID-WEBVIEW-MIXED-CONTENT** (network/cleartext) — this only denies the geolocation channel.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-geolocation-off.sh
+```
+
+`npm run aab:internal` 在 webview-mixed-content patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
