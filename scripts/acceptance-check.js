@@ -1246,6 +1246,91 @@ if (gameRaw) {
     }
   }
 
+
+  // LEVELS-HOME-KEY: levels overlay h/H → #btn-levels-home.click; aria-keyshortcuts=h; no soft-arm
+  {
+    const indexHtml = read('index.html') || '';
+    const lvIdx = gameRaw.indexOf('function handleLevelsOverlayKeys');
+    const lvSlice = lvIdx >= 0 ? gameRaw.slice(lvIdx, lvIdx + 2200) : '';
+    const homeIdx = lvSlice.search(/btn-levels-home|#btn-levels-home/);
+    const aroundHome = homeIdx >= 0 ? lvSlice.slice(Math.max(0, homeIdx - 220), homeIdx + 280) : '';
+    const keyHome =
+      /function handleLevelsOverlayKeys/.test(gameRaw) &&
+      /handleLevelsOverlayKeys\s*\(/.test(gameRaw) &&
+      homeIdx >= 0 &&
+      /['"]h['"]/.test(aroundHome) &&
+      /\.click\s*\(/.test(aroundHome);
+    const ariaKey =
+      /id=["']btn-levels-home["'][^>]*aria-keyshortcuts=["']h["']/.test(indexHtml) ||
+      /aria-keyshortcuts=["']h["'][^>]*id=["']btn-levels-home["']/.test(indexHtml);
+    const ariaWinHome =
+      /id=["']btn-win-home["'][^>]*aria-keyshortcuts=["']h["']/.test(indexHtml) ||
+      /aria-keyshortcuts=["']h["'][^>]*id=["']btn-win-home["']/.test(indexHtml);
+    const ariaFailHome =
+      /id=["']btn-fail-home["'][^>]*aria-keyshortcuts=["']b["']/.test(indexHtml) ||
+      /aria-keyshortcuts=["']b["'][^>]*id=["']btn-fail-home["']/.test(indexHtml);
+    const noSoft =
+      !/levels-home-arm|levelsHomeArm|\.levels-home-arm|btn-levels-home-arm/.test(gameRaw + indexHtml) &&
+      !/soft-arm/.test(aroundHome);
+    if (keyHome && noSoft) {
+      pass(
+        'LEVELS-HOME-KEY',
+        'Levels overlay h/H → #btn-levels-home.click' +
+          (ariaKey ? ' + aria-keyshortcuts=h' : '') +
+          (ariaWinHome && ariaFailHome ? ' + win/fail home aria parity' : '') +
+          '; no soft-arm'
+      );
+    } else {
+      fail(
+        'LEVELS-HOME-KEY',
+        'missing handleLevelsOverlayKeys h/H → #btn-levels-home, or soft-arm slipped in'
+      );
+    }
+  }
+
+  // LEVELS-CHAPTER-KEYS: PageUp/[ → shiftLevelsChapter(-1); PageDown/] → (+1); aria on prev/next; no soft-arm
+  {
+    const indexHtml = read('index.html') || '';
+    const lvIdx = gameRaw.indexOf('function handleLevelsOverlayKeys');
+    const lvSlice = lvIdx >= 0 ? gameRaw.slice(lvIdx, lvIdx + 2200) : '';
+    const hasPageUp = /PageUp/.test(lvSlice);
+    const hasPageDown = /PageDown/.test(lvSlice);
+    const hasBracketPrev = /key === '\['/.test(lvSlice) || /key === "\["/.test(lvSlice);
+    const hasBracketNext = /key === '\]'/.test(lvSlice) || /key === "\]"/.test(lvSlice);
+    const shifts =
+      /shiftLevelsChapter\s*\(\s*-1\s*\)/.test(lvSlice) &&
+      /shiftLevelsChapter\s*\(\s*1\s*\)/.test(lvSlice);
+    const keyChapter =
+      /function handleLevelsOverlayKeys/.test(gameRaw) &&
+      hasPageUp &&
+      hasPageDown &&
+      hasBracketPrev &&
+      hasBracketNext &&
+      shifts;
+    const ariaPrev =
+      /id=["']btn-levels-prev["'][^>]*aria-keyshortcuts=["']PageUp \[["']/.test(indexHtml) ||
+      /aria-keyshortcuts=["']PageUp \[["'][^>]*id=["']btn-levels-prev["']/.test(indexHtml);
+    const ariaNext =
+      /id=["']btn-levels-next["'][^>]*aria-keyshortcuts=["']PageDown \]["']/.test(indexHtml) ||
+      /aria-keyshortcuts=["']PageDown \]["'][^>]*id=["']btn-levels-next["']/.test(indexHtml);
+    const noSoft =
+      !/levels-chapter-arm|levelsChapterArm|\.levels-chapter-arm/.test(gameRaw + indexHtml) &&
+      !/soft-arm/.test(lvSlice);
+    if (keyChapter && noSoft) {
+      pass(
+        'LEVELS-CHAPTER-KEYS',
+        'Levels PageUp/[ → shiftLevelsChapter(-1); PageDown/] → (+1)' +
+          (ariaPrev && ariaNext ? ' + aria-keyshortcuts on prev/next' : '') +
+          '; no soft-arm'
+      );
+    } else {
+      fail(
+        'LEVELS-CHAPTER-KEYS',
+        'missing handleLevelsOverlayKeys PageUp|[/PageDown|] → shiftLevelsChapter, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&

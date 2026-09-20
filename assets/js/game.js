@@ -4296,6 +4296,46 @@
     return false;
   }
 
+
+  /** Levels overlay keys: h Home; PageUp/[ prev chapter; PageDown/] next. Grid Arrow/Home/End stay on cells. */
+  function handleLevelsOverlayKeys(e) {
+    const t = e.target;
+    if (t) {
+      const tag = (t.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return false;
+      if (t.isContentEditable) return false;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return false;
+
+    const levelsOv = $('#levels-overlay');
+    if (!levelsOv || !levelsOv.classList.contains('show')) return false;
+
+    const key = e.key;
+
+    if (key === 'h' || key === 'H') {
+      const homeBtn = $('#btn-levels-home');
+      if (!homeBtn || homeBtn.disabled || homeBtn.hidden) return false;
+      e.preventDefault();
+      homeBtn.click();
+      return true;
+    }
+    if (key === 'PageUp' || key === '[') {
+      const prevBtn = $('#btn-levels-prev');
+      if (!prevBtn || prevBtn.disabled || prevBtn.hidden) return false;
+      e.preventDefault();
+      shiftLevelsChapter(-1);
+      return true;
+    }
+    if (key === 'PageDown' || key === ']') {
+      const nextBtn = $('#btn-levels-next');
+      if (!nextBtn || nextBtn.disabled || nextBtn.hidden) return false;
+      e.preventDefault();
+      shiftLevelsChapter(1);
+      return true;
+    }
+    return false;
+  }
+
   /** Start-screen keys: Enter Play, d/D Daily, s/S Shop. Only when start shows and no modal. */
   function handleStartKeys(e) {
     const t = e.target;
@@ -5734,6 +5774,13 @@
           render();
         }
         return;
+      }
+      // LEVELS-HOME-KEY / LEVELS-CHAPTER-KEYS: h Home; PageUp/[ prev; PageDown/] next (before HUD; after Escape)
+      {
+        const levelsOvKeys = $('#levels-overlay');
+        if (levelsOvKeys && levelsOvKeys.classList.contains('show')) {
+          if (handleLevelsOverlayKeys(e)) return;
+        }
       }
       // HINT-PAYWALL-KEYS: Enter primary hint CTA (arm → coins → ad; never pack)
       if (hintPaywall && hintPaywall.classList.contains('show')) {
