@@ -87,6 +87,8 @@ bash "$ROOT/scripts/patch-android-config-changes.sh"
 bash "$ROOT/scripts/patch-android-cutout.sh"
 # Play target API 36 + predictive back (enableOnBackInvokedCallback).
 bash "$ROOT/scripts/patch-android-target-sdk.sh"
+# Deny WebView glow/rubber-band overscroll (pairs CSS overscroll-behavior:none).
+bash "$ROOT/scripts/patch-android-webview-overscroll.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

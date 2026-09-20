@@ -300,6 +300,8 @@
 
 （已補）**ANDROID-TARGET-36**已上 — `variables.gradle` `compileSdkVersion`／`targetSdkVersion` 34→**36**（Play 2026-08-31 起新 app／更新須 target API 36；minSdk 仍 22）＋`<application>` `android:enableOnBackInvokedCallback="true"`（predictive back；搭配 CAP-APP-BACK；`android/` 仍 gitignore）；`scripts/patch-android-target-sdk.sh`＋`aab:internal` hook（cutout 之後）＋`native-templates/android/README.md` §2n；accept `ANDROID-TARGET-36`／`ANDROID-BACK-INVOKED`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-WEBVIEW-OVERSCROLL**已上 — `MainActivity` `webView.setOverScrollMode(View.OVER_SCROLL_NEVER)`（拒絕 Android WebView glow／rubber-band 搶中局手勢；搭配 CSS `overscroll-behavior: none`；`android/` 仍 gitignore）；`scripts/patch-android-webview-overscroll.sh`＋`aab:internal` hook（target-sdk 之後）＋`native-templates/android/README.md` §2o；accept `ANDROID-WEBVIEW-OVERSCROLL`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 
 1. **真變現** — Play 過審後換正式 AdMob／Billing 單元；`remove_ads` 真接線（維持不打斷倒水）。勿把測 ID／Coming soon 標 Done。  
