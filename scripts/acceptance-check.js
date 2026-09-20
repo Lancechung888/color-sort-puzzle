@@ -3050,6 +3050,49 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-TEXT-ZOOM: setTextZoom(100); no soft-arm ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-text-zoom.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /setTextZoom\s*\(\s*100\s*\)/.test(patchRaw) && /getSettings/.test(patchRaw);
+  const overIdx = aabRaw.search(/patch-android-webview-overscroll\.sh/);
+  const zoomIdx = aabRaw.search(/patch-android-webview-text-zoom\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    zoomIdx >= 0 &&
+    overIdx >= 0 &&
+    iconsIdx >= 0 &&
+    zoomIdx > overIdx &&
+    iconsIdx > zoomIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-TEXT-ZOOM/.test(readmeRaw) && /2p/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /setTextZoom\s*\(\s*100\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/text-zoom-arm|soft-arm|claim-juice|hud-pulse/.test(patchRaw + mainRaw);
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-TEXT-ZOOM',
+      'webView.getSettings().setTextZoom(100) + patch-android-webview-text-zoom.sh + aab:internal after overscroll before icons + README §2p; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-TEXT-ZOOM',
+      `missing setTextZoom(100) / patch / aab hook-after-overscroll-before-icons / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

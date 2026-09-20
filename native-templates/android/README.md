@@ -320,6 +320,23 @@ bash scripts/patch-android-webview-overscroll.sh
 
 `npm run aab:internal` 在 target-sdk patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2p. Lock WebView textZoom（ANDROID-WEBVIEW-TEXT-ZOOM）
+
+Android system **Font size** / **Display size** still scales Capacitor WebView text via `WebSettings` `textZoom` even when `configChanges` includes `fontScale` (that only prevents Activity recreate). Tube board / HUD CSS breaks when `textZoom ≠ 100`. Lock once the bridge WebView is ready (next to overscroll / ColorTubeNative in `onStart`):
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (near setOverScrollMode)
+webView.getSettings().setTextZoom(100);
+```
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-text-zoom.sh
+```
+
+`npm run aab:internal` 在 webview-overscroll patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

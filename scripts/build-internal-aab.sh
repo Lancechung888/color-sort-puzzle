@@ -89,6 +89,8 @@ bash "$ROOT/scripts/patch-android-cutout.sh"
 bash "$ROOT/scripts/patch-android-target-sdk.sh"
 # Deny WebView glow/rubber-band overscroll (pairs CSS overscroll-behavior:none).
 bash "$ROOT/scripts/patch-android-webview-overscroll.sh"
+# Lock WebView textZoom=100 (system Font/Display size must not scale tube/HUD CSS).
+bash "$ROOT/scripts/patch-android-webview-text-zoom.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
