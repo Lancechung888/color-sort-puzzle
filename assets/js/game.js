@@ -117,6 +117,8 @@
   let lastHintSource = 'unknown';
   /** Once-per-stuck-state toast arm; clears when board gains a pour/uncap path */
   let stuckToastArmed = false;
+  /** Levels overlay: which chapter (1-based) the grid is browsing; null until openLevels. */
+  let levelsViewChapter = null;
 
   function trackEvent(name, params) {
     if (window.ColorTubeAnalytics && typeof ColorTubeAnalytics.track === 'function') {
@@ -592,6 +594,26 @@
   function focusChapter() {
     const unlocked = Math.max(save.maxUnlocked || 0, save.level || 0, levelIndex || 0);
     return chapterOfIndex(Math.min(unlocked, LEVELS.length - 1));
+  }
+
+  function maxChapter() {
+    return Math.max(1, Math.ceil(LEVELS.length / CHAPTER_SIZE));
+  }
+
+  /** Highest chapter the player may browse (frontier chapter, not past last pack). */
+  function maxBrowsableChapter() {
+    return Math.min(maxChapter(), focusChapter());
+  }
+
+  function clampLevelsViewChapter(ch) {
+    const maxB = maxBrowsableChapter();
+    const n = typeof ch === 'number' && isFinite(ch) ? Math.floor(ch) : focusChapter();
+    return Math.max(1, Math.min(maxB, n));
+  }
+
+  function setLevelsViewChapter(ch) {
+    levelsViewChapter = clampLevelsViewChapter(ch);
+    return levelsViewChapter;
   }
 
   function refreshMetaTeasers() {
@@ -3704,11 +3726,17 @@
 
   function openLevels() {
     clearLevelsContinueArm();
+    // Default browse chapter to Continue / frontier so mastery path stays one tap away
+    const maxU = Math.max(save.maxUnlocked || 0, 0);
+    setLevelsViewChapter(chapterOfIndex(continueLevelIndex(maxU)));
     renderLevelsGrid();
     openOverlay($('#levels-overlay'));
-    // Scroll Continue / star-gap cell into view after overlay shown
+    // Scroll Continue / star-gap (else first cell) into view after overlay shown
     requestAnimationFrame(function () {
-      const arm = $('.level-continue-arm') || $('.level-star-gap-arm');
+      const arm =
+        $('.level-continue-arm') ||
+        $('.level-star-gap-arm') ||
+        $('#levels-grid .level-cell');
       if (!arm || typeof arm.scrollIntoView !== 'function') return;
       arm.scrollIntoView({
         block: 'nearest',
@@ -3726,6 +3754,29 @@
     }, 300);
   }
 
+  function shiftLevelsChapter(delta) {
+    const cur = levelsViewChapter != null ? levelsViewChapter : focusChapter();
+    const next = clampLevelsViewChapter(cur + delta);
+    if (next === cur) return;
+    setLevelsViewChapter(next);
+    clearLevelsContinueArm();
+    renderLevelsGrid();
+    requestAnimationFrame(function () {
+      const arm =
+        $('.level-continue-arm') ||
+        $('.level-star-gap-arm') ||
+        $('#levels-grid .level-cell');
+      if (!arm || typeof arm.scrollIntoView !== 'function') return;
+      arm.scrollIntoView({
+        block: 'nearest',
+        inline: 'nearest',
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      });
+      const ov = $('#levels-overlay');
+      if (ov && ov.classList.contains('show')) focusOverlayPrimary(ov);
+    });
+  }
+
   function closeLevels() {
     closeOverlay($('#levels-overlay'));
   }
@@ -3734,22 +3785,39 @@
     const grid = $('#levels-grid');
     const teaser = $('#levels-teaser');
     const foot = $('#levels-footnote');
+    const chLabel = $('#levels-chapter-label');
+    const btnPrev = $('#btn-levels-prev');
+    const btnNext = $('#btn-levels-next');
     if (!grid) return;
     ensureMetaSaveArrays();
     const maxU = Math.max(save.maxUnlocked || 0, 0);
     const continueIdx = continueLevelIndex(maxU);
-    const ch = focusChapter();
+    const ch = setLevelsViewChapter(
+      levelsViewChapter != null ? levelsViewChapter : chapterOfIndex(continueIdx)
+    );
     const prog = countPerfectInChapter(ch);
     const claimed = save.chapterChestsClaimed.indexOf(ch) >= 0;
-    // Focus-chapter unlocked cells still missing 3★ (never locked / perfect)
+    const maxB = maxBrowsableChapter();
+    if (chLabel) {
+      chLabel.textContent = 'Chapter ' + ch + ' / ' + maxB;
+    }
+    if (btnPrev) {
+      btnPrev.disabled = ch <= 1;
+    }
+    if (btnNext) {
+      btnNext.disabled = ch >= maxB;
+    }
+    // Viewed-chapter unlocked cells still missing 3★ (never locked / perfect)
     const missingStarIdx = [];
     for (let i = prog.start; i < prog.end; i++) {
       if (i <= maxU && (save.stars[i] || 0) < 3) missingStarIdx.push(i);
     }
-    // Exactly one soft-arm: Continue if continue cell is incomplete OR no star gaps;
-    // else pull into chapter-chest grind via first missing-★ cell.
+    // Exactly one soft-arm: Continue if continue cell is in this chapter and incomplete OR no star gaps;
+    // else pull into chapter-chest grind via first missing-★ cell in the viewed chapter.
+    const continueInView = continueIdx >= prog.start && continueIdx < prog.end;
     const continueStars = save.stars[continueIdx] || 0;
-    const useStarGapArm = continueStars >= 3 && missingStarIdx.length > 0;
+    const useStarGapArm =
+      (!continueInView || continueStars >= 3) && missingStarIdx.length > 0;
     const starGapIdx = useStarGapArm ? missingStarIdx[0] : -1;
     if (teaser) {
       teaser.textContent =
@@ -3758,8 +3826,8 @@
         (claimed ? ' (claimed)' : '');
     }
     grid.innerHTML = '';
-    const showUntil = Math.min(LEVELS.length, Math.max(maxU + 1, 1));
-    for (let i = 0; i < showUntil; i++) {
+    // One chapter at a time (CHAPTER_SIZE cells) — browse earlier packs for ★ mastery
+    for (let i = prog.start; i < prog.end; i++) {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'level-cell';
@@ -4853,6 +4921,18 @@
     if (btnStartLevels) btnStartLevels.addEventListener('click', openLevels);
     const btnLevelsClose = $('#btn-levels-close');
     if (btnLevelsClose) btnLevelsClose.addEventListener('click', closeLevels);
+    const btnLevelsPrev = $('#btn-levels-prev');
+    if (btnLevelsPrev) {
+      btnLevelsPrev.addEventListener('click', function () {
+        shiftLevelsChapter(-1);
+      });
+    }
+    const btnLevelsNext = $('#btn-levels-next');
+    if (btnLevelsNext) {
+      btnLevelsNext.addEventListener('click', function () {
+        shiftLevelsChapter(1);
+      });
+    }
     if (levelLabel) {
       levelLabel.addEventListener('click', tryOpenLevelsFromHud);
     }
