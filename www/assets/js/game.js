@@ -99,6 +99,11 @@
   let pendingLeaveTimer = 0;
   let pendingLeaveKey = '';
   const PENDING_LEAVE_MS = 2000;
+  /** Two-tap shop coin-spend confirm for big spends (≥80) — toast only, no soft-arm CSS. */
+  let pendingSpendUntil = 0;
+  let pendingSpendTimer = 0;
+  let pendingSpendKey = '';
+  const PENDING_SPEND_MS = 2000;
   let history = [];
   let moves = 0;
   let pouring = false;
@@ -1125,6 +1130,7 @@
     clearPendingUncap();
     clearPendingRestart();
     clearPendingLeave();
+    clearPendingSpend();
     pouring = false;
     restartFailCount = 0;
     lastProjectedStars = 3;
@@ -1212,6 +1218,7 @@
     clearPendingUncap();
     clearPendingRestart();
     clearPendingLeave();
+    clearPendingSpend();
     history = [];
     moves = 0;
     pouring = false;
@@ -1644,6 +1651,7 @@
 
   function armPendingRestart() {
     clearPendingLeave();
+    clearPendingSpend();
     pendingRestartUntil = Date.now() + PENDING_RESTART_MS;
     clearTimeout(pendingRestartTimer);
     pendingRestartTimer = setTimeout(function () {
@@ -1659,12 +1667,58 @@
   }
 
   function armPendingLeave(key) {
+    clearPendingRestart();
+    clearPendingSpend();
     pendingLeaveKey = key || '';
     pendingLeaveUntil = Date.now() + PENDING_LEAVE_MS;
     clearTimeout(pendingLeaveTimer);
     pendingLeaveTimer = setTimeout(function () {
       clearPendingLeave();
     }, PENDING_LEAVE_MS + 30);
+  }
+
+  function clearPendingSpend() {
+    pendingSpendUntil = 0;
+    pendingSpendKey = '';
+    clearTimeout(pendingSpendTimer);
+    pendingSpendTimer = 0;
+  }
+
+  function armPendingSpend(key) {
+    clearPendingRestart();
+    clearPendingLeave();
+    pendingSpendKey = key || '';
+    pendingSpendUntil = Date.now() + PENDING_SPEND_MS;
+    clearTimeout(pendingSpendTimer);
+    pendingSpendTimer = setTimeout(function () {
+      clearPendingSpend();
+    }, PENDING_SPEND_MS + 30);
+  }
+
+  /**
+   * Two-tap confirm before big shop coin spends (hints pack / undo / theme).
+   * Same key armed within window → proceed; else arm + toast (no soft-arm CSS).
+   */
+  function confirmShopSpendThen(key, cost, proceedFn) {
+    const now = Date.now();
+    const armed =
+      pendingSpendUntil > 0 &&
+      now <= pendingSpendUntil &&
+      pendingSpendKey === key;
+    if (!armed) {
+      armPendingSpend(key);
+      toast('Tap again to spend ' + cost + '🪙');
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+      try { haptic('select'); } catch (_) { /* ignore */ }
+      trackEvent('shop_spend_confirm_arm', {
+        spend_key: key,
+        cost: cost,
+        coins: save.coins || 0,
+      });
+      return;
+    }
+    clearPendingSpend();
+    proceedFn();
   }
 
   function draftHasProgress(draft) {
@@ -3761,6 +3815,7 @@
       clearHintsPackClaim();
       clearUndoPackClaim();
       clearShopBuyArm();
+      clearPendingSpend();
     }
     if (el === failPrompt) clearFailHintArm();
     if (el === hintPaywall) clearHintPayArm();
@@ -3794,6 +3849,7 @@
         clearHintsPackClaim();
         clearUndoPackClaim();
         clearShopBuyArm();
+        clearPendingSpend();
       }
       if (el === failPrompt) clearFailHintArm();
       if (el === hintPaywall) clearHintPayArm();
@@ -3967,11 +4023,13 @@
       applyTheme(id);
       return;
     }
-    if (!spendCoins(THEME_COIN_COST)) {
-      toast('Not enough coins');
-      return;
-    }
-    unlockTheme(id, 'coins');
+    confirmShopSpendThen('theme:' + id, THEME_COIN_COST, function () {
+      if (!spendCoins(THEME_COIN_COST)) {
+        toast('Not enough coins');
+        return;
+      }
+      unlockTheme(id, 'coins');
+    });
   }
 
   function playfieldOverlayBlocking() {
@@ -4437,14 +4495,16 @@
     });
 
     $('#btn-buy-hints-coins').addEventListener('click', () => {
-      if (!spendCoins(HINT_PACK_COIN_COST)) {
-        toast('Not enough coins');
-        return;
-      }
-      clearShopBuyArm();
-      addFreeHints(HINT_PACK_SIZE);
-      // Banner is the claim shout — no toast duplicate
-      showHintsPackClaim('coins');
+      confirmShopSpendThen('hints-pack', HINT_PACK_COIN_COST, function () {
+        if (!spendCoins(HINT_PACK_COIN_COST)) {
+          toast('Not enough coins');
+          return;
+        }
+        clearShopBuyArm();
+        addFreeHints(HINT_PACK_SIZE);
+        // Banner is the claim shout — no toast duplicate
+        showHintsPackClaim('coins');
+      });
     });
 
     $('#btn-buy-hints-iap').addEventListener('click', () => {
@@ -4460,17 +4520,19 @@
         toast('Already active this level');
         return;
       }
-      if (!spendCoins(UNDO_LEVEL_COIN_COST)) {
-        toast('Not enough coins');
-        return;
-      }
-      infiniteUndoLevel = true;
-      persistRunDraft();
-      clearShopBuyArm();
-      refreshShopButtons();
-      refreshHud();
-      // Banner is the claim shout — no toast duplicate
-      showUndoPackClaim('coins');
+      confirmShopSpendThen('undo-level', UNDO_LEVEL_COIN_COST, function () {
+        if (!spendCoins(UNDO_LEVEL_COIN_COST)) {
+          toast('Not enough coins');
+          return;
+        }
+        infiniteUndoLevel = true;
+        persistRunDraft();
+        clearShopBuyArm();
+        refreshShopButtons();
+        refreshHud();
+        // Banner is the claim shout — no toast duplicate
+        showUndoPackClaim('coins');
+      });
     });
 
     $('#btn-buy-infinite-undo').addEventListener('click', () => {
