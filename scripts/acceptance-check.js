@@ -13,6 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const { spawnSync } = require('child_process');
+const { solveAllLevels } = require('./solve-levels');
 
 const root = path.resolve(__dirname, '..');
 const rows = [];
@@ -147,6 +148,24 @@ if (levels) {
 
   if (unsolvable === 0) pass('L-COLOR', 'every level: each color count divisible by capacity');
   else fail('L-COLOR', `${unsolvable} levels fail color-count ÷ capacity (likely unsolvable)`);
+
+  // L-SOLVE: real pour-path search (free uncap). Strengthens L-COLOR for MILLION_USER_BAR #4.
+  const solve = solveAllLevels(levels);
+  if (solve.ok) {
+    pass(
+      'L-SOLVE',
+      `pour-path solvable (free uncap); ${solve.count} levels; maxNodes=L${solve.maxLevel}/${solve.maxNodes}; no soft-arm`
+    );
+  } else {
+    const sample = solve.fails
+      .slice(0, 5)
+      .map((f) => `L${f.level}:${f.reason}@${f.nodes}`)
+      .join(', ');
+    fail(
+      'L-SOLVE',
+      `${solve.fails.length}/${solve.count} unsolvable or over budget (≤${solve.nodeBudget}/level): ${sample}`
+    );
+  }
 }
 
 // --- 2) Day1 economy constants (source) ---
