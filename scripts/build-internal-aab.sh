@@ -115,6 +115,8 @@ bash "$ROOT/scripts/patch-android-webview-file-access-off.sh"
 bash "$ROOT/scripts/patch-android-webview-js-windows-off.sh"
 # Enable WebView Safe Browsing (block phishing / known-bad URLs; API 26+).
 bash "$ROOT/scripts/patch-android-webview-safe-browsing.sh"
+# Deny deprecated Web SQL / WebDatabase (DomStorage/localStorage stays enabled).
+bash "$ROOT/scripts/patch-android-webview-database-off.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

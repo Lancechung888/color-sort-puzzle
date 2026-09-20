@@ -585,6 +585,27 @@ bash scripts/patch-android-webview-safe-browsing.sh
 
 `npm run aab:internal` 在 webview-js-windows-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2ac. Deny WebView WebDatabase / Web SQL（ANDROID-WEBVIEW-DATABASE-OFF）
+
+After **ANDROID-WEBVIEW-SAFE-BROWSING**, stock WebView may leave `setDatabaseEnabled` true/default. ColorTube Sort is a **single-WebView** hybrid-casual game; deny deprecated **Web SQL / WebDatabase**. Game progress uses **DomStorage / localStorage** — leave DomStorage **ENABLED**:
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after safe-browsing)
+webView.getSettings().setDatabaseEnabled(false);
+```
+
+Do **not** disable DomStorage. Do **not** touch cookies / `setAllowContentAccess` / JavaScript.
+
+Distinct from **ANDROID-WEBVIEW-SAFE-BROWSING** (threat blocking) — this only denies WebDatabase/Web SQL.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-database-off.sh
+```
+
+`npm run aab:internal` 在 webview-safe-browsing patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

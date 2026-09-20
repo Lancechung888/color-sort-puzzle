@@ -49,7 +49,7 @@ import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT + ANDROID-WEBVIEW-GEOLOCATION-OFF + ANDROID-WEBVIEW-FILE-ACCESS-OFF + ANDROID-WEBVIEW-JS-WINDOWS-OFF + ANDROID-WEBVIEW-SAFE-BROWSING:
+ * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT + ANDROID-WEBVIEW-GEOLOCATION-OFF + ANDROID-WEBVIEW-FILE-ACCESS-OFF + ANDROID-WEBVIEW-JS-WINDOWS-OFF + ANDROID-WEBVIEW-SAFE-BROWSING + ANDROID-WEBVIEW-DATABASE-OFF:
  * FLAG_KEEP_SCREEN_ON while playing; SplashScreen.installSplashScreen before
  * super.onCreate (API 31+); webView.setOverScrollMode(OVER_SCROLL_NEVER) so
  * native glow/rubber-band cannot kill mid-run play (pairs CSS overscroll-behavior:none);
@@ -80,6 +80,9 @@ import com.getcapacitor.BridgeActivity;
  * — distinct from FILE-ACCESS-OFF.
  * setSafeBrowsingEnabled(true) so Android WebView Safe Browsing blocks phishing /
  * known-bad URLs (API 26+ WebSettings; distinct from JS-WINDOWS-OFF).
+ * setDatabaseEnabled(false) so deprecated Web SQL / WebDatabase is denied (game progress
+ * uses DomStorage / localStorage — leave DomStorage ENABLED; do not touch cookies /
+ * setAllowContentAccess / JavaScript; distinct from SAFE-BROWSING).
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -121,6 +124,8 @@ public class MainActivity extends BridgeActivity {
       webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
       // ANDROID-WEBVIEW-SAFE-BROWSING: block phishing / known-bad URLs (API 26+).
       webView.getSettings().setSafeBrowsingEnabled(true);
+      // ANDROID-WEBVIEW-DATABASE-OFF: deny deprecated Web SQL / WebDatabase (DomStorage stays).
+      webView.getSettings().setDatabaseEnabled(false);
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.
