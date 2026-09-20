@@ -76,6 +76,7 @@
       hapticsOn: true,
       colorAssist: false,
       reducedMotion: false,
+      keepAwake: true,
     };
   }
   let save = defaultSave();
@@ -371,6 +372,7 @@
       hapticsOn: data.hapticsOn !== false,
       colorAssist: data.colorAssist === true,
       reducedMotion: data.reducedMotion === true,
+      keepAwake: data.keepAwake !== false,
     };
     if (data.v !== SAVE_VERSION) repaired = true;
     return { save: out, repaired: repaired, fatal: false };
@@ -1035,6 +1037,66 @@
     if (isRunActive()) persistRunDraft();
   });
 
+  /** WAKE-LOCK: Screen Wake Lock while off the start screen (active play / overlays). */
+  let screenWakeLock = null;
+  function wantsScreenWakeLock() {
+    if (save.keepAwake === false) return false;
+    if (!startScreen || startScreen.classList.contains('show')) return false;
+    return true;
+  }
+  function releaseScreenWakeLock() {
+    const cur = screenWakeLock;
+    screenWakeLock = null;
+    if (!cur) return;
+    try {
+      const p = cur.release();
+      if (p && typeof p.then === 'function') p.catch(function () { /* ignore */ });
+    } catch (_) { /* ignore */ }
+  }
+  function requestScreenWakeLock() {
+    if (!wantsScreenWakeLock()) {
+      releaseScreenWakeLock();
+      return;
+    }
+    if (typeof navigator === 'undefined' || !navigator.wakeLock || typeof navigator.wakeLock.request !== 'function') {
+      return;
+    }
+    if (screenWakeLock) return;
+    try {
+      const req = navigator.wakeLock.request('screen');
+      if (!req || typeof req.then !== 'function') return;
+      req
+        .then(function (lock) {
+          if (!wantsScreenWakeLock()) {
+            try {
+              const rp = lock.release();
+              if (rp && typeof rp.then === 'function') rp.catch(function () { /* ignore */ });
+            } catch (_) { /* ignore */ }
+            return;
+          }
+          screenWakeLock = lock;
+          try {
+            lock.addEventListener('release', function () {
+              if (screenWakeLock === lock) screenWakeLock = null;
+            });
+          } catch (_) { /* ignore */ }
+        })
+        .catch(function () { /* NotAllowedError / unsupported — silent */ });
+    } catch (_) { /* ignore */ }
+  }
+  function syncScreenWakeLock() {
+    if (wantsScreenWakeLock()) requestScreenWakeLock();
+    else releaseScreenWakeLock();
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden || document.visibilityState === 'hidden') {
+      // Browser releases wake lock on hide; drop our sentinel.
+      screenWakeLock = null;
+      return;
+    }
+    syncScreenWakeLock();
+  });
+
   // --- Themes ---
   function applyTheme(id) {
     if (!THEMES[id] || !save.themes[id]) id = 'classic';
@@ -1244,6 +1306,7 @@
     } else {
       trackEvent('level_start', { mode: 'main', level_id: analyticsLevelId(), resumed: true });
     }
+    syncScreenWakeLock();
   }
 
   /** Try mid-level resume; on mismatch discard draft and cold-load. */
@@ -1323,6 +1386,7 @@
     hideWin();
     maybeShowOnboarding();
     maybeShowCapTeach(def);
+    syncScreenWakeLock();
     if (opts.daily) {
       trackEvent('daily_start', {
         mode: 'daily',
@@ -1856,6 +1920,7 @@
     const keepHap = save.hapticsOn !== false;
     const keepCa = save.colorAssist === true;
     const keepRm = save.reducedMotion === true;
+    const keepAwake = save.keepAwake !== false;
 
     clearRunDraft();
     try { localStorage.removeItem(STORAGE_BAK_KEY); } catch (_) { /* ignore */ }
@@ -1866,8 +1931,10 @@
     save.hapticsOn = keepHap;
     save.colorAssist = keepCa;
     save.reducedMotion = keepRm;
+    save.keepAwake = keepAwake;
     persist();
     applyReducedMotionClass();
+    syncScreenWakeLock();
 
     clearPendingUncap();
     clearPendingRestart();
@@ -4164,6 +4231,7 @@
     const levelsOv = $('#levels-overlay');
     if (levelsOv && levelsOv.classList.contains('show')) closeLevels();
     if (startScreen) startScreen.classList.add('show');
+    releaseScreenWakeLock();
     if (typeof refreshDailyCta === 'function') refreshDailyCta();
     if (typeof refreshStartPlayCta === 'function') refreshStartPlayCta();
     refreshHud();
@@ -5218,6 +5286,15 @@
     if (next) SFX.tap();
   }
 
+  /** Persist Keep screen on (WAKE-LOCK); sync Screen Wake Lock. Settings only — no soft-arm. */
+  function applyKeepAwakeOn(next) {
+    save.keepAwake = !!next;
+    persist();
+    refreshSettingsToggles();
+    syncScreenWakeLock();
+    if (next) SFX.tap();
+  }
+
   /** MOTION-KEY: toggle Reduced motion from keyboard; toast only. No soft-arm. */
   function toggleReducedMotionKey() {
     const next = save.reducedMotion !== true;
@@ -5230,10 +5307,12 @@
     const hapBtn = $('#btn-toggle-haptics');
     const caBtn = $('#btn-toggle-color-assist');
     const rmBtn = $('#btn-toggle-reduced-motion');
+    const kaBtn = $('#btn-toggle-keep-awake');
     const sfxOn = save.sfxOn !== false;
     const hapOn = save.hapticsOn !== false;
     const caOn = save.colorAssist === true;
     const rmOn = save.reducedMotion === true;
+    const kaOn = save.keepAwake !== false;
     if (sfxBtn) {
       sfxBtn.textContent = sfxOn ? 'On' : 'Off';
       sfxBtn.setAttribute('aria-pressed', sfxOn ? 'true' : 'false');
@@ -5253,6 +5332,11 @@
       rmBtn.textContent = rmOn ? 'On' : 'Off';
       rmBtn.setAttribute('aria-pressed', rmOn ? 'true' : 'false');
       rmBtn.classList.toggle('is-off', !rmOn);
+    }
+    if (kaBtn) {
+      kaBtn.textContent = kaOn ? 'On' : 'Off';
+      kaBtn.setAttribute('aria-pressed', kaOn ? 'true' : 'false');
+      kaBtn.classList.toggle('is-off', !kaOn);
     }
   }
 
@@ -5852,6 +5936,12 @@
     if (btnToggleReducedMotion) {
       btnToggleReducedMotion.addEventListener('click', () => {
         applyReducedMotionOn(save.reducedMotion !== true);
+      });
+    }
+    const btnToggleKeepAwake = $('#btn-toggle-keep-awake');
+    if (btnToggleKeepAwake) {
+      btnToggleKeepAwake.addEventListener('click', () => {
+        applyKeepAwakeOn(save.keepAwake === false);
       });
     }
     const btnExportProgress = $('#btn-export-progress');

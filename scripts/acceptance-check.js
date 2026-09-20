@@ -569,15 +569,17 @@ if (gameRaw) {
       /colorAssist/.test(gameRaw) &&
       /reducedMotion/.test(gameRaw) &&
       /keepRm/.test(gameRaw) &&
+      /keepAwake/.test(gameRaw) &&
       /btn-reset-progress/.test(gameRaw) &&
       !/reset-arm|resetArm|\.reset-arm|progress-reset-arm/.test(gameRaw);
     const htmlOk =
       /id=["']btn-reset-progress["']/.test(htmlRaw) &&
-      /Reset progress/.test(htmlRaw);
+      /Reset progress/.test(htmlRaw) &&
+      /Keep screen on/.test(htmlRaw);
     if (jsOk && htmlOk) {
       pass(
         'RESET-PROGRESS',
-        'Settings Reset progress two-tap confirm (toast); keeps Sound/Haptics/Color assist/Reduced motion; clears draft+bak; no soft-arm CSS'
+        'Settings Reset progress two-tap confirm (toast); keeps Sound/Haptics/Color assist/Reduced motion/Keep screen on; clears draft+bak; no soft-arm CSS'
       );
     } else {
       fail(
@@ -2527,6 +2529,48 @@ block(
       'SHARE-PLAY-DEMO',
       'missing play demo CTA/sync/files or soft-arm/SW on brand' +
         ` (cta=${ctaOk} soon=${comingSoonOk} priv=${privacyOk} noSw=${brandNoSw} sync=${syncPlayOk} files=${playFilesOk} start=${manifestStartOk} playGame=${playHasGame} noSoft=${noSoft})`
+    );
+  }
+}
+
+
+// --- WAKE-LOCK (Screen Wake Lock during play; Settings Keep screen on) ---
+{
+  const htmlRaw = read('index.html') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const jsOk =
+    /keepAwake:\s*true/.test(gameRaw) &&
+    /keepAwake:\s*data\.keepAwake\s*!==\s*false/.test(gameRaw) &&
+    /function requestScreenWakeLock\s*\(/.test(gameRaw) &&
+    /function releaseScreenWakeLock\s*\(/.test(gameRaw) &&
+    /function syncScreenWakeLock\s*\(/.test(gameRaw) &&
+    /function applyKeepAwakeOn\s*\(/.test(gameRaw) &&
+    /navigator\.wakeLock\.request\s*\(\s*['"]screen['"]\s*\)/.test(gameRaw) &&
+    /releaseScreenWakeLock\s*\(/.test(gameRaw) &&
+    /syncScreenWakeLock\s*\(/.test(gameRaw) &&
+    /visibilitychange/.test(gameRaw) &&
+    /keepAwake\s*=\s*save\.keepAwake\s*!==\s*false/.test(gameRaw) &&
+    /save\.keepAwake\s*=\s*keepAwake/.test(gameRaw) &&
+    /btn-toggle-keep-awake/.test(gameRaw);
+  const htmlOk =
+    /id=["']btn-toggle-keep-awake["']/.test(htmlRaw) &&
+    /data-setting=["']keep-awake["']/.test(htmlRaw) &&
+    /Keep screen on/.test(htmlRaw) &&
+    /Wake Lock/.test(htmlRaw) &&
+    /Keep screen on/.test(htmlRaw);
+  const noSoft =
+    !/keep-awake-arm|wake-lock-arm|wakeLock-arm|\.keep-awake-arm|claim-juice|hud-pulse/.test(
+      gameRaw + cssRaw + htmlRaw
+    );
+  if (jsOk && htmlOk && noSoft) {
+    pass(
+      'WAKE-LOCK',
+      'Screen Wake Lock during play + Settings Keep screen on (default on); RESET keeps; goHome release; visibility re-acquire; no soft-arm'
+    );
+  } else {
+    fail(
+      'WAKE-LOCK',
+      'missing keepAwake / wakeLock request-release-sync / Settings toggle / RESET keep, or soft-arm slipped in'
     );
   }
 }
