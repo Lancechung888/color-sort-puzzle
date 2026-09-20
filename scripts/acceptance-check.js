@@ -188,6 +188,23 @@ if (gameRaw) {
     fail('P0-1', 'missing Coming soon toast, colorTubeSort_devIap gate, and/or P0① comment');
   }
 
+  // Save corruption recovery / migration robustness (P0 stability)
+  if (
+    /function sanitizeSave/.test(gameRaw) &&
+    /STORAGE_BAK_KEY/.test(gameRaw) &&
+    /function tryLoadKey/.test(gameRaw) &&
+    /Progress reset — save was damaged/.test(gameRaw) &&
+    /removeAds === true/.test(gameRaw) &&
+    /SAVE_VERSION/.test(gameRaw)
+  ) {
+    pass(
+      'SAVE-RECOVER',
+      'sanitizeSave + bak/legacy fallback + quota retry; removeAds strict true; SAVE_VERSION stamp'
+    );
+  } else {
+    fail('SAVE-RECOVER', 'missing sanitizeSave / STORAGE_BAK_KEY / reset toast / strict removeAds / SAVE_VERSION');
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&
