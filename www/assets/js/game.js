@@ -3706,6 +3706,16 @@
     clearLevelsContinueArm();
     renderLevelsGrid();
     openOverlay($('#levels-overlay'));
+    // Scroll Continue / star-gap cell into view after overlay shown
+    requestAnimationFrame(function () {
+      const arm = $('.level-continue-arm') || $('.level-star-gap-arm');
+      if (!arm || typeof arm.scrollIntoView !== 'function') return;
+      arm.scrollIntoView({
+        block: 'nearest',
+        inline: 'nearest',
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      });
+    });
     // Once-per-open soft arm — guides eyes to Continue cell
     levelsContinueArmTimer = setTimeout(function () {
       levelsContinueArmTimer = 0;
@@ -4762,14 +4772,20 @@
         closeOverlay(failPrompt);
         return;
       }
-      // Playing: Escape clears selection / pending uncap (does not dismiss win/start)
+      // Win: Escape → Home (parity with handleSystemBack / BACK-NAV; does not dismiss start)
+      if (winOverlay && winOverlay.classList.contains('show')) {
+        e.preventDefault();
+        hideWin();
+        goHome();
+        return;
+      }
+      // Playing: Escape clears selection / pending uncap (does not dismiss start)
       if (
         selected >= 0 ||
         pendingUncapIdx >= 0
       ) {
         if (pouring) return;
         if (startScreen && startScreen.classList.contains('show')) return;
-        if (winOverlay && winOverlay.classList.contains('show')) return;
         e.preventDefault();
         selected = -1;
         clearPendingUncap();

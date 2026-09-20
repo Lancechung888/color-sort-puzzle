@@ -218,17 +218,18 @@ if (gameRaw) {
     fail('A11Y-TUBE', 'missing tube tabIndex and/or Enter/Space keydown activation');
   }
 
-  // Escape dismisses topmost dismissible overlay (not start/win)
+  // Escape dismisses overlays incl. win→Home (parity with BACK-NAV; not start)
   if (
     /e\.key\s*!==\s*['"]Escape['"]|e\.key\s*===\s*['"]Escape['"]/.test(gameRaw) &&
     /closeLevels\(\)/.test(gameRaw) &&
     /closeOverlay\(hintPaywall\)/.test(gameRaw) &&
     /closeOverlay\(shopOverlay\)/.test(gameRaw) &&
-    /closeOverlay\(failPrompt\)/.test(gameRaw)
+    /closeOverlay\(failPrompt\)/.test(gameRaw) &&
+    /winOverlay[\s\S]{0,120}classList\.contains\(\s*['"]show['"]\s*\)[\s\S]{0,160}preventDefault\(\)[\s\S]{0,120}hideWin\(\)[\s\S]{0,80}goHome\(\)/.test(gameRaw)
   ) {
-    pass('A11Y-ESC', 'Escape closes levels → hint-paywall → shop → fail-prompt');
+    pass('A11Y-ESC', 'Escape closes levels → hint-paywall → shop → fail-prompt; win→Home');
   } else {
-    fail('A11Y-ESC', 'missing Escape dismiss handler for dismissible overlays');
+    fail('A11Y-ESC', 'missing Escape dismiss handler for dismissible overlays (incl. win→Home)');
   }
 
   // Overlay focus: move into dialog on open, restore on last close (no soft-arm)
@@ -458,6 +459,18 @@ if (gameRaw) {
     fail('BACK-NAV', 'missing handleSystemBack / armBackGuard / bindSystemBack / popstate wiring, or soft-arm CSS slipped in');
   }
 
+  // Levels overlay: scroll Continue / star-gap cell into view (no soft-arm)
+  if (
+    /function openLevels\s*\(/.test(gameRaw) &&
+    /function renderLevelsGrid\s*\(/.test(gameRaw) &&
+    /scrollIntoView/.test(gameRaw) &&
+    /level-continue-arm/.test(gameRaw) &&
+    /level-star-gap-arm/.test(gameRaw)
+  ) {
+    pass('LEVELS-SCROLL', 'openLevels scrolls .level-continue-arm / .level-star-gap-arm into view');
+  } else {
+    fail('LEVELS-SCROLL', 'missing scrollIntoView for continue/star-gap arm near openLevels/renderLevelsGrid');
+  }
 
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
