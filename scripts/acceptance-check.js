@@ -370,6 +370,23 @@ if (gameRaw) {
     fail('RUN-RESUME', 'missing run draft persist / validateRunDraft / clear on win|restart / Home persist / hide flush');
   }
 
+  // Deadlock toast: no legal pours + no lids left → Undo/Restart cue (no soft-arm)
+  if (
+    /function isBoardStuck\s*\(/.test(gameRaw) &&
+    /function hasAnyLegalPour\s*\(/.test(gameRaw) &&
+    /function hasActionableCap\s*\(/.test(gameRaw) &&
+    /function maybeNotifyStuck\s*\(/.test(gameRaw) &&
+    /stuckToastArmed/.test(gameRaw) &&
+    /No moves left — Undo/.test(gameRaw) &&
+    /No moves left — Restart/.test(gameRaw) &&
+    /board_stuck/.test(gameRaw) &&
+    /setTimeout\(maybeNotifyStuck/.test(gameRaw)
+  ) {
+    pass('STUCK-DETECT', 'deadlock toast (no pours + no lids) → Undo/Restart; once-per-stuck; no soft-arm');
+  } else {
+    fail('STUCK-DETECT', 'missing isBoardStuck / maybeNotifyStuck / Undo|Restart toast / board_stuck event');
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&
