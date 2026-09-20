@@ -807,7 +807,7 @@ if (gameRaw) {
     !/win-fail-keys-arm|winFailKeysArm|\.win-fail-keys-arm/.test(gameRaw)
   ) {
     const wfIdx = gameRaw.indexOf('function handleWinFailKeys');
-    const wfSlice = wfIdx >= 0 ? gameRaw.slice(wfIdx, wfIdx + 1800) : '';
+    const wfSlice = wfIdx >= 0 ? gameRaw.slice(wfIdx, wfIdx + 3200) : '';
     const wired =
       /['"]n['"]/.test(wfSlice) &&
       /['"]r['"]/.test(wfSlice) &&
@@ -1209,6 +1209,39 @@ if (gameRaw) {
       fail(
         'FAIL-RESTART-KEY',
         'missing handleWinFailKeys fail r/R → #btn-fail-skip.click, or soft-arm slipped in'
+      );
+    }
+  }
+
+  // WIN-SHOP-KEY: win overlay o/O → openShop (#btn-win-shop); do not hideWin first; no soft-arm
+  {
+    const indexHtml = read('index.html') || '';
+    const wfIdx = gameRaw.indexOf('function handleWinFailKeys');
+    const wfSlice = wfIdx >= 0 ? gameRaw.slice(wfIdx, wfIdx + 2800) : '';
+    const shopIdx = wfSlice.search(/btn-win-shop|#btn-win-shop/);
+    const aroundShop = shopIdx >= 0 ? wfSlice.slice(Math.max(0, shopIdx - 220), shopIdx + 280) : '';
+    const keyShop =
+      /function handleWinFailKeys/.test(gameRaw) &&
+      shopIdx >= 0 &&
+      /['"]o['"]/.test(aroundShop) &&
+      /\bopenShop\s*\(/.test(aroundShop);
+    const ariaKey =
+      /id=["']btn-win-shop["'][^>]*aria-keyshortcuts=["']o["']/.test(indexHtml) ||
+      /aria-keyshortcuts=["']o["'][^>]*id=["']btn-win-shop["']/.test(indexHtml);
+    const noSoft =
+      !/win-shop-arm|winShopArm|\.win-shop-arm|btn-win-shop-arm/.test(gameRaw + indexHtml) &&
+      !/soft-arm/.test(aroundShop);
+    if (keyShop && noSoft) {
+      pass(
+        'WIN-SHOP-KEY',
+        'Win overlay o/O → openShop (#btn-win-shop)' +
+          (ariaKey ? ' + aria-keyshortcuts=o' : '') +
+          '; no soft-arm'
+      );
+    } else {
+      fail(
+        'WIN-SHOP-KEY',
+        'missing handleWinFailKeys o/O → openShop / #btn-win-shop, or soft-arm slipped in'
       );
     }
   }
