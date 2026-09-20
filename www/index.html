@@ -272,6 +272,17 @@
             </div>
             <button type="button" class="btn btn-sm btn-toggle" id="btn-toggle-reduced-motion" aria-pressed="false">Off</button>
           </div>
+          <div class="shop-card" data-setting="backup-progress">
+            <div class="shop-card-info">
+              <strong>Backup progress</strong>
+              <span class="shop-desc">Download or restore a progress file (levels, coins, streak, settings)</span>
+            </div>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-sm" id="btn-export-progress" aria-label="Export progress backup">Export</button>
+              <button type="button" class="btn btn-sm" id="btn-import-progress" aria-label="Import progress backup">Import</button>
+            </div>
+            <input type="file" id="input-import-progress" accept="application/json,.json" hidden>
+          </div>
           <div class="shop-card" data-setting="reset-progress">
             <div class="shop-card-info">
               <strong>Reset progress</strong>

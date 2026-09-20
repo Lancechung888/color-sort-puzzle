@@ -523,6 +523,46 @@ if (gameRaw) {
     }
   }
 
+  // Settings Backup progress export/import (toast confirm — no soft-arm CSS)
+  {
+    const htmlRaw = read('index.html') || '';
+    const jsOk =
+      /function exportProgressBackup\s*\(/.test(gameRaw) &&
+      /function importProgressBackup\s*\(/.test(gameRaw) &&
+      /function confirmImportProgressThen\s*\(/.test(gameRaw) &&
+      /PENDING_IMPORT_MS/.test(gameRaw) &&
+      /pendingImportUntil/.test(gameRaw) &&
+      /Tap again to restore/.test(gameRaw) &&
+      /trackEvent\(\s*['"]progress_export['"]/.test(gameRaw) &&
+      /trackEvent\(\s*['"]progress_import['"]/.test(gameRaw) &&
+      /Backup downloaded/.test(gameRaw) &&
+      /Progress restored/.test(gameRaw) &&
+      /Invalid backup file/.test(gameRaw) &&
+      /btn-export-progress/.test(gameRaw) &&
+      /btn-import-progress/.test(gameRaw) &&
+      /input-import-progress/.test(gameRaw) &&
+      /sanitizeSave/.test(gameRaw) &&
+      !/backup-arm|import-arm|export-arm|\.backup-arm|progress-import-arm|soft-arm/.test(
+        (gameRaw.match(/function exportProgressBackup[\s\S]*?function draftHasProgress/) || [''])[0]
+      );
+    const htmlOk =
+      /id=["']btn-export-progress["']/.test(htmlRaw) &&
+      /id=["']btn-import-progress["']/.test(htmlRaw) &&
+      /id=["']input-import-progress["']/.test(htmlRaw) &&
+      /Backup progress/.test(htmlRaw);
+    if (jsOk && htmlOk) {
+      pass(
+        'SAVE-BACKUP',
+        'Settings Backup export/import; two-tap Import confirm toast; sanitizeSave; progress_export/import; no soft-arm CSS'
+      );
+    } else {
+      fail(
+        'SAVE-BACKUP',
+        'missing export/import backup UI or confirmImport / progress_export|import, or soft-arm CSS slipped in'
+      );
+    }
+  }
+
   // System / hardware / browser back — dismiss overlays then pause Home (no soft-arm)
   if (
     /function handleSystemBack\s*\(/.test(gameRaw) &&

@@ -111,6 +111,11 @@
   let pendingResetUntil = 0;
   let pendingResetTimer = 0;
   const PENDING_RESET_MS = 2000;
+  /** Two-tap Settings Import backup confirm — toast only, no soft-arm CSS. */
+  let pendingImportUntil = 0;
+  let pendingImportTimer = 0;
+  let pendingImportPayload = null;
+  const PENDING_IMPORT_MS = 2000;
   let history = [];
   let moves = 0;
   let pouring = false;
@@ -1815,6 +1820,7 @@
     clearPendingRestart();
     clearPendingLeave();
     clearPendingSpend();
+    clearPendingImport();
     pendingResetUntil = Date.now() + PENDING_RESET_MS;
     clearTimeout(pendingResetTimer);
     pendingResetTimer = setTimeout(function () {
@@ -1868,6 +1874,7 @@
     clearPendingLeave();
     clearPendingSpend();
     clearPendingReset();
+    clearPendingImport();
     selected = -1;
     history = [];
     moves = 0;
@@ -1910,6 +1917,238 @@
     toast('Progress reset');
     trackEvent('progress_reset', {});
     try { SFX.tap(); } catch (_) { /* ignore */ }
+  }
+
+  function clearPendingImport() {
+    pendingImportUntil = 0;
+    clearTimeout(pendingImportTimer);
+    pendingImportTimer = 0;
+    pendingImportPayload = null;
+  }
+
+  function armPendingImport(payload) {
+    clearPendingRestart();
+    clearPendingLeave();
+    clearPendingSpend();
+    clearPendingReset();
+    pendingImportPayload = payload;
+    pendingImportUntil = Date.now() + PENDING_IMPORT_MS;
+    clearTimeout(pendingImportTimer);
+    pendingImportTimer = setTimeout(function () {
+      clearPendingImport();
+    }, PENDING_IMPORT_MS + 30);
+  }
+
+  /**
+   * Two-tap confirm before restoring a parsed backup.
+   * Toast only — no soft-arm CSS. Payload must already be armed via file parse.
+   */
+  function confirmImportProgressThen(proceedFn) {
+    const now = Date.now();
+    if (!(pendingImportUntil > 0 && now <= pendingImportUntil && pendingImportPayload)) {
+      return false;
+    }
+    const payload = pendingImportPayload;
+    clearPendingImport();
+    proceedFn(payload);
+    return true;
+  }
+
+  function backupFilenameDate() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return '' + y + m + day;
+  }
+
+  function exportProgressBackup() {
+    const sanitized = sanitizeSave(save);
+    const payload = {
+      v: 1,
+      app: "ColorTube Sort",
+      exportedAt: new Date().toISOString(),
+      save: sanitized.save,
+    };
+    let draft = null;
+    try {
+      if (typeof isRunActive === "function" && isRunActive() && (moves > 0 || history.length > 0)) {
+        draft = buildRunDraft();
+      } else {
+        draft = readRunDraft();
+      }
+    } catch (_) {
+      draft = readRunDraft();
+    }
+    if (draft && typeof draft === "object" && !Array.isArray(draft) && Array.isArray(draft.tubes)) {
+      let runOk = false;
+      try {
+        if (draft.daily) {
+          const def = typeof getDailyDef === "function" ? getDailyDef() : null;
+          if (def && validateRunDraft(draft, def, { daily: true, dailyKey: draft.dailyKey || todayStr() }, 0)) {
+            runOk = true;
+          }
+        } else {
+          const idx = Math.floor(Number(draft.levelIndex));
+          const def = (LEVELS && Number.isFinite(idx) && idx >= 0) ? LEVELS[idx] : null;
+          if (def && validateRunDraft(draft, def, {}, idx)) {
+            runOk = true;
+          }
+        }
+      } catch (_) { /* ignore */ }
+      if (runOk) payload.run = draft;
+    }
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "colortube-sort-backup-" + backupFilenameDate() + ".json";
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      try { URL.revokeObjectURL(url); } catch (_) { /* ignore */ }
+      try { a.remove(); } catch (_) { /* ignore */ }
+    }, 0);
+    trackEvent("progress_export", {});
+    toast("Backup downloaded");
+    try { SFX.tap(); } catch (_) { /* ignore */ }
+  }
+
+  function tryPersistImportedRun(draft) {
+    if (!draft || typeof draft !== "object" || Array.isArray(draft)) {
+      clearRunDraft();
+      return false;
+    }
+    try {
+      if (draft.daily) {
+        const def = typeof getDailyDef === "function" ? getDailyDef() : null;
+        const key = typeof draft.dailyKey === "string" ? draft.dailyKey : todayStr();
+        if (def && validateRunDraft(draft, def, { daily: true, dailyKey: key }, 0)) {
+          localStorage.setItem(RUN_STORAGE_KEY, JSON.stringify(draft));
+          return true;
+        }
+      } else {
+        const idx = Math.floor(Number(draft.levelIndex));
+        const def = (LEVELS && Number.isFinite(idx) && idx >= 0) ? LEVELS[idx] : null;
+        if (def && validateRunDraft(draft, def, {}, idx)) {
+          localStorage.setItem(RUN_STORAGE_KEY, JSON.stringify(draft));
+          return true;
+        }
+      }
+    } catch (_) { /* ignore */ }
+    clearRunDraft();
+    return false;
+  }
+
+  function applyImportedProgress(payload) {
+    pouring = false;
+    const result = sanitizeSave(payload && payload.save);
+    save = result.save;
+    persist();
+    applyReducedMotionClass();
+    applyTheme(save.activeTheme || "classic");
+
+    if (payload && payload.run) {
+      tryPersistImportedRun(payload.run);
+    } else {
+      clearRunDraft();
+    }
+
+    clearPendingUncap();
+    clearPendingRestart();
+    clearPendingLeave();
+    clearPendingSpend();
+    clearPendingReset();
+    clearPendingImport();
+    selected = -1;
+    history = [];
+    moves = 0;
+    undosUsed = 0;
+    infiniteUndoLevel = false;
+    restartFailCount = 0;
+    isDailyMode = false;
+    dailySeedKey = "";
+    levelIndex = Math.min(save.level || 0, LEVELS.length - 1);
+    capacity = 4;
+    tubes = [];
+    caps = [];
+
+    try { clearShopBuyArm(); } catch (_) { /* ignore */ }
+    try { clearThemeUnlockClaim(); } catch (_) { /* ignore */ }
+    try { clearHintsPackClaim(); } catch (_) { /* ignore */ }
+    try { clearUndoPackClaim(); } catch (_) { /* ignore */ }
+    try { clearFailHintArm(); } catch (_) { /* ignore */ }
+    try { clearHintPayArm(); } catch (_) { /* ignore */ }
+    try { clearWinReplayArm(); } catch (_) { /* ignore */ }
+    try { clearLevelsContinueArm(); } catch (_) { /* ignore */ }
+    try { clearHudHintArm(); } catch (_) { /* ignore */ }
+    try { clearHudUndoArm(); } catch (_) { /* ignore */ }
+
+    // Close modals but keep start screen visible (fresh Home).
+    [winOverlay, shopOverlay, hintPaywall, failPrompt, $('#levels-overlay')].forEach(function (el) {
+      if (el) el.classList.remove('show');
+    });
+    if (startScreen) startScreen.classList.add('show');
+    overlayFocusDepth = 0;
+    overlayFocusReturn = null;
+
+    refreshShopButtons();
+    refreshSettingsToggles();
+    if (typeof refreshDailyCta === 'function') refreshDailyCta();
+    if (typeof refreshStartPlayCta === 'function') refreshStartPlayCta();
+    refreshHud();
+    updateChrome();
+    render();
+    toast('Progress restored');
+    trackEvent('progress_import', {});
+    try { SFX.tap(); } catch (_) { /* ignore */ }
+  }
+
+  /**
+   * Parse a backup file; on success arm two-tap confirm (does not apply yet).
+   */
+  function importProgressBackup(file) {
+    if (!file) {
+      toast("Invalid backup file");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function () {
+      let data = null;
+      try {
+        data = JSON.parse(String(reader.result || ""));
+      } catch (_) {
+        toast("Invalid backup file");
+        return;
+      }
+      if (!data || typeof data !== "object" || Array.isArray(data) || data.v !== 1 || !data.save || typeof data.save !== "object" || Array.isArray(data.save)) {
+        toast("Invalid backup file");
+        return;
+      }
+      const result = sanitizeSave(data.save);
+      if (!result || !result.save || result.fatal) {
+        toast("Invalid backup file");
+        return;
+      }
+      const payload = { save: result.save };
+      if (data.run && typeof data.run === "object" && !Array.isArray(data.run)) {
+        payload.run = data.run;
+      }
+      armPendingImport(payload);
+      toast("Tap again to restore backup");
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+      try { haptic("select"); } catch (_) { /* ignore */ }
+    };
+    reader.onerror = function () {
+      toast("Invalid backup file");
+    };
+    try {
+      reader.readAsText(file);
+    } catch (_) {
+      toast("Invalid backup file");
+    }
   }
 
   function draftHasProgress(draft) {
@@ -5546,6 +5785,28 @@
         refreshSettingsToggles();
         applyReducedMotionClass();
         if (next) SFX.tap();
+      });
+    }
+    const btnExportProgress = $('#btn-export-progress');
+    if (btnExportProgress) {
+      btnExportProgress.addEventListener('click', () => {
+        exportProgressBackup();
+      });
+    }
+    const inputImportProgress = $('#input-import-progress');
+    const btnImportProgress = $('#btn-import-progress');
+    if (btnImportProgress) {
+      btnImportProgress.addEventListener('click', () => {
+        if (confirmImportProgressThen(applyImportedProgress)) return;
+        if (inputImportProgress) inputImportProgress.click();
+      });
+    }
+    if (inputImportProgress) {
+      inputImportProgress.addEventListener('change', () => {
+        const file = inputImportProgress.files && inputImportProgress.files[0];
+        try { inputImportProgress.value = ''; } catch (_) { /* ignore */ }
+        if (!file) return;
+        importProgressBackup(file);
       });
     }
     const btnResetProgress = $('#btn-reset-progress');
