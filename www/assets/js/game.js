@@ -4342,6 +4342,33 @@
     armBackGuard();
   }
 
+  /**
+   * CAP-APP-STATE: native background/foreground via Capacitor App.appStateChange.
+   * visibilitychange alone is flaky on some Android WebViews — flush mid-run draft,
+   * clear pending uncap, and re-sync wake lock / native keep-screen-on on resume.
+   * Same App plugin resolution as bindSystemBack.
+   */
+  function bindAppState() {
+    try {
+      const cap = typeof Capacitor !== 'undefined' ? Capacitor : null;
+      const plugins = (cap && cap.Plugins) || {};
+      const App = plugins.App || (typeof CapApp !== 'undefined' ? CapApp : null);
+      if (!App || typeof App.addListener !== 'function') return;
+      App.addListener('appStateChange', function (state) {
+        if (!state || !state.isActive) {
+          clearPendingUncap();
+          if (isRunActive()) persistRunDraft();
+          try { persist(); } catch (_) { /* ignore */ }
+          releaseScreenWakeLock();
+          syncNativeKeepScreenOn(false);
+          return;
+        }
+        requestScreenWakeLock();
+        syncNativeKeepScreenOn(save.keepAwake !== false);
+      });
+    } catch (_) { /* web / stub */ }
+  }
+
   function openLevels() {
     clearLevelsContinueArm();
     // Default browse chapter to Continue / frontier so mastery path stays one tap away
@@ -6483,6 +6510,8 @@
 
     // Hardware / browser back: dismiss overlays → pause Home (draft kept); start allows exit
     bindSystemBack();
+    // Native appStateChange: flush draft + clear pending uncap on background; wake sync on resume
+    bindAppState();
 
     window.addEventListener('resize', () => {
       if (!startScreen.classList.contains('show')) render();

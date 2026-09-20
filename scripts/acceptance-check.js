@@ -2993,6 +2993,42 @@ block(
   }
 }
 
+// --- CAP-APP-STATE: App.addListener(appStateChange) flush draft + wake sync; no soft-arm ---
+{
+  const pkgRaw = read('package.json') || '';
+  let pkgDeps = {};
+  try {
+    pkgDeps = (JSON.parse(pkgRaw).dependencies) || {};
+  } catch (_) {
+    pkgDeps = {};
+  }
+  const depOk =
+    typeof pkgDeps['@capacitor/app'] === 'string' &&
+    /^[\^~]?6\./.test(pkgDeps['@capacitor/app']);
+  const binder =
+    (gameRaw.match(/function bindAppState[\s\S]{0,1200}/) || [''])[0];
+  const gameOk =
+    /function bindAppState\s*\(/.test(gameRaw) &&
+    /App\.addListener\s*\(\s*['"]appStateChange['"]/.test(gameRaw) &&
+    /bindAppState\s*\(\)/.test(gameRaw) &&
+    /clearPendingUncap/.test(binder) &&
+    /persistRunDraft/.test(binder) &&
+    (/requestScreenWakeLock/.test(binder) || /syncNativeKeepScreenOn/.test(binder));
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse|back-arm|cap-app-arm|app-state-arm/.test(binder);
+  if (depOk && gameOk && noSoft) {
+    pass(
+      'CAP-APP-STATE',
+      '@capacitor/app ^6 + bindAppState App.addListener(appStateChange) flush draft/clearPendingUncap/wake sync; no soft-arm'
+    );
+  } else {
+    fail(
+      'CAP-APP-STATE',
+      `missing @capacitor/app / bindAppState appStateChange flush+wake, or soft-arm slipped in (depOk=${depOk} gameOk=${gameOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
