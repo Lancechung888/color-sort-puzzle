@@ -629,6 +629,30 @@ bash scripts/patch-android-webview-algorithmic-dark-off.sh
 
 `npm run aab:internal` 在 webview-database-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2ae. Deny WebView remote debugging（ANDROID-WEBVIEW-DEBUG-OFF）
+
+After **ANDROID-WEBVIEW-ALGORITHMIC-DARK-OFF**, Capacitor / Chromium WebView may still allow **Chrome remote debugging** (`chrome://inspect`) on devices. Deny at the **static** `WebView` class so production installs cannot be inspected:
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after algorithmic-dark)
+// ANDROID-WEBVIEW-DEBUG-OFF: deny Chrome remote WebView debugging.
+WebView.setWebContentsDebuggingEnabled(false);
+```
+
+Always `false` for a predictable hybrid-casual ship path (simpler than `BuildConfig.DEBUG` gating). Static class call — **not** an instance method.
+
+Distinct from **ANDROID-WEBVIEW-SAFE-BROWSING** (phishing / known-bad URL block) and **ANDROID-WEBVIEW-ALGORITHMIC-DARK-OFF** (API 33+ algorithmic darkening).
+
+Do **not** disable JavaScript. Do **not** touch DomStorage / cookies / `setAllowContentAccess` / AdMob.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-debug-off.sh
+```
+
+`npm run aab:internal` 在 webview-algorithmic-dark-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

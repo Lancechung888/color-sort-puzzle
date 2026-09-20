@@ -3784,6 +3784,59 @@ block(
   }
 }
 
+
+// --- ANDROID-WEBVIEW-DEBUG-OFF: deny Chrome remote WebView debugging ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-debug-off.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk = /WebView\s*\.\s*setWebContentsDebuggingEnabled\s*\(\s*false\s*\)/.test(
+    patchRaw
+  );
+  const algoIdx = aabRaw.search(/patch-android-webview-algorithmic-dark-off\.sh/);
+  const debugIdx = aabRaw.search(/patch-android-webview-debug-off\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    algoIdx >= 0 &&
+    debugIdx >= 0 &&
+    iconsIdx >= 0 &&
+    algoIdx < debugIdx &&
+    debugIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-DEBUG-OFF/.test(readmeRaw) && /2ae/.test(readmeRaw);
+  const keepOk =
+    /WebView\s*\.\s*setWebContentsDebuggingEnabled\s*\(\s*false\s*\)/.test(keepRaw) &&
+    /ANDROID-WEBVIEW-DEBUG-OFF/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /WebView\s*\.\s*setWebContentsDebuggingEnabled\s*\(\s*false\s*\)/.test(
+      mainRaw
+    );
+  }
+  const noSoft =
+    !/webview-debug-off-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-DEBUG-OFF',
+      'setWebContentsDebuggingEnabled(false) + patch/aab after algorithmic-dark before icons + README §2ae + keep-awake; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-DEBUG-OFF',
+      `missing debug-off / patch / aab hook-after-algorithmic-dark-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';
