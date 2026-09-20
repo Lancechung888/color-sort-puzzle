@@ -3639,6 +3639,55 @@ block(
   }
 }
 
+
+// --- ANDROID-WEBVIEW-SAFE-BROWSING: enable WebView Safe Browsing (phishing / known-bad) ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-safe-browsing.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk = /setSafeBrowsingEnabled\s*\(\s*true\s*\)/.test(patchRaw);
+  const jsWinIdx = aabRaw.search(/patch-android-webview-js-windows-off\.sh/);
+  const safeIdx = aabRaw.search(/patch-android-webview-safe-browsing\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    jsWinIdx >= 0 &&
+    safeIdx >= 0 &&
+    iconsIdx >= 0 &&
+    jsWinIdx < safeIdx &&
+    safeIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-SAFE-BROWSING/.test(readmeRaw) && /2ab/.test(readmeRaw);
+  const keepOk =
+    /setSafeBrowsingEnabled\s*\(\s*true\s*\)/.test(keepRaw) &&
+    /ANDROID-WEBVIEW-SAFE-BROWSING/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /setSafeBrowsingEnabled\s*\(\s*true\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-safe-browsing-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-SAFE-BROWSING',
+      'setSafeBrowsingEnabled(true) + patch/aab after js-windows-off before icons + README §2ab + keep-awake; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-SAFE-BROWSING',
+      `missing safe-browsing / patch / aab hook-after-js-windows-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

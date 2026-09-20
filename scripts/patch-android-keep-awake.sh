@@ -49,7 +49,7 @@ import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT + ANDROID-WEBVIEW-GEOLOCATION-OFF + ANDROID-WEBVIEW-FILE-ACCESS-OFF + ANDROID-WEBVIEW-JS-WINDOWS-OFF:
+ * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT + ANDROID-WEBVIEW-GEOLOCATION-OFF + ANDROID-WEBVIEW-FILE-ACCESS-OFF + ANDROID-WEBVIEW-JS-WINDOWS-OFF + ANDROID-WEBVIEW-SAFE-BROWSING:
  * FLAG_KEEP_SCREEN_ON while playing; SplashScreen.installSplashScreen before
  * super.onCreate (API 31+); webView.setOverScrollMode(OVER_SCROLL_NEVER) so
  * native glow/rubber-band cannot kill mid-run play (pairs CSS overscroll-behavior:none);
@@ -78,6 +78,8 @@ import com.getcapacitor.BridgeActivity;
  * mid-run cannot spawn popup / secondary windows (focus steal, phishing surface); do NOT
  * disable JavaScript itself; leave DomStorage / content access / cookies alone (AdMob later)
  * — distinct from FILE-ACCESS-OFF.
+ * setSafeBrowsingEnabled(true) so Android WebView Safe Browsing blocks phishing /
+ * known-bad URLs (API 26+ WebSettings; distinct from JS-WINDOWS-OFF).
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -117,6 +119,8 @@ public class MainActivity extends BridgeActivity {
       webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
       webView.getSettings().setSupportMultipleWindows(false);
       webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+      // ANDROID-WEBVIEW-SAFE-BROWSING: block phishing / known-bad URLs (API 26+).
+      webView.getSettings().setSafeBrowsingEnabled(true);
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.

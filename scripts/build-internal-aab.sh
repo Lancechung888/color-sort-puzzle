@@ -113,6 +113,8 @@ bash "$ROOT/scripts/patch-android-webview-geolocation-off.sh"
 bash "$ROOT/scripts/patch-android-webview-file-access-off.sh"
 # Deny WebView multi-window / JS window.open (single-WebView game; no popups).
 bash "$ROOT/scripts/patch-android-webview-js-windows-off.sh"
+# Enable WebView Safe Browsing (block phishing / known-bad URLs; API 26+).
+bash "$ROOT/scripts/patch-android-webview-safe-browsing.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

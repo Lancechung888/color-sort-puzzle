@@ -564,6 +564,27 @@ bash scripts/patch-android-webview-js-windows-off.sh
 
 `npm run aab:internal` 在 webview-file-access-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2ab. Enable WebView Safe Browsing（ANDROID-WEBVIEW-SAFE-BROWSING）
+
+After **ANDROID-WEBVIEW-JS-WINDOWS-OFF**, stock WebView may leave `setSafeBrowsingEnabled` unset/off. ColorTube Sort is a **single-WebView** hybrid-casual game (Capacitor **https://localhost**); enable Android WebView Safe Browsing so phishing / known-bad URLs are blocked at `WebSettings` (API 26+ method; minSdk 22 — fine on modern WebView):
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after js-windows-off)
+webView.getSettings().setSafeBrowsingEnabled(true);
+```
+
+Do **not** disable JavaScript. Do **not** touch DomStorage / content access / cookies (AdMob later).
+
+Distinct from **ANDROID-WEBVIEW-JS-WINDOWS-OFF** (multi-window / `window.open`) — this only enables Safe Browsing threat blocking.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-safe-browsing.sh
+```
+
+`npm run aab:internal` 在 webview-js-windows-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
