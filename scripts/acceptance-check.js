@@ -3190,6 +3190,54 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-LONG-CLICK: setOnLongClickListener consume + setLongClickable false; no soft-arm ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-long-click.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /setOnLongClickListener\s*\(\s*v\s*->\s*true\s*\)/.test(patchRaw) &&
+    /setLongClickable\s*\(\s*false\s*\)/.test(patchRaw);
+  const zoomLockIdx = aabRaw.search(/patch-android-webview-zoom-lock\.sh/);
+  const longClickIdx = aabRaw.search(/patch-android-webview-long-click\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    longClickIdx >= 0 &&
+    zoomLockIdx >= 0 &&
+    iconsIdx >= 0 &&
+    longClickIdx > zoomLockIdx &&
+    iconsIdx > longClickIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-LONG-CLICK/.test(readmeRaw) && /2s/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk =
+      /setOnLongClickListener\s*\(\s*v\s*->\s*true\s*\)/.test(mainRaw) &&
+      /setLongClickable\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-long-click-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-LONG-CLICK',
+      'setOnLongClickListener(v -> true) + setLongClickable(false) + patch-android-webview-long-click.sh + aab:internal after zoom-lock before icons + README §2s; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-LONG-CLICK',
+      `missing long-click / patch / aab hook-after-zoom-lock-before-icons / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

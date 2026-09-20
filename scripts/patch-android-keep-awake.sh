@@ -48,14 +48,16 @@ import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK:
+ * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK:
  * FLAG_KEEP_SCREEN_ON while playing; SplashScreen.installSplashScreen before
  * super.onCreate (API 31+); webView.setOverScrollMode(OVER_SCROLL_NEVER) so
  * native glow/rubber-band cannot kill mid-run play (pairs CSS overscroll-behavior:none);
  * webView.getSettings().setTextZoom(100) so system Font/Display size cannot scale tube/HUD CSS;
  * webView.setBackgroundColor(#1a1a2e) so cold start / splash handoff does not flash white;
  * setSupportZoom/setBuiltInZoomControls/setDisplayZoomControls(false) so native pinch zoom
- * cannot break the fixed portrait tube board (browser/PWA A11Y-ZOOM unchanged).
+ * cannot break the fixed portrait tube board (browser/PWA A11Y-ZOOM unchanged);
+ * setOnLongClickListener(v -> true) + setLongClickable(false) so ActionMode / context menu
+ * (Copy/Share/Web Search) cannot overlay mid-run despite CSS user-select:none.
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -81,6 +83,8 @@ public class MainActivity extends BridgeActivity {
       webView.getSettings().setSupportZoom(false);
       webView.getSettings().setBuiltInZoomControls(false);
       webView.getSettings().setDisplayZoomControls(false);
+      webView.setOnLongClickListener(v -> true); // consume long-press
+      webView.setLongClickable(false);
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.

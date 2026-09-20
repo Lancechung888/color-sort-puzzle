@@ -95,6 +95,8 @@ bash "$ROOT/scripts/patch-android-webview-text-zoom.sh"
 bash "$ROOT/scripts/patch-android-webview-bg.sh"
 # Lock native WebView pinch/built-in zoom (fixed portrait tube board; A11Y-ZOOM browser unchanged).
 bash "$ROOT/scripts/patch-android-webview-zoom-lock.sh"
+# Deny WebView long-press ActionMode / context menu (Copy/Share/Web Search) mid-run.
+bash "$ROOT/scripts/patch-android-webview-long-click.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
