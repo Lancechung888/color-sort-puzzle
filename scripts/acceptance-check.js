@@ -1179,6 +1179,40 @@ if (gameRaw) {
     }
   }
 
+  // FAIL-RESTART-KEY: fail overlay r/R → Keep restarting (#btn-fail-skip); parity win r; no soft-arm
+  {
+    const indexHtml = read('index.html') || '';
+    const wfIdx = gameRaw.indexOf('function handleWinFailKeys');
+    const wfSlice = wfIdx >= 0 ? gameRaw.slice(wfIdx, wfIdx + 2800) : '';
+    // Anchor on #btn-fail-skip inside handler so win-overlay r → Restart is not confused
+    const skipIdx = wfSlice.search(/btn-fail-skip|#btn-fail-skip/);
+    const aroundSkip = skipIdx >= 0 ? wfSlice.slice(Math.max(0, skipIdx - 220), skipIdx + 280) : '';
+    const keyRestart =
+      /function handleWinFailKeys/.test(gameRaw) &&
+      skipIdx >= 0 &&
+      /['"]r['"]/.test(aroundSkip) &&
+      /\.click\s*\(/.test(aroundSkip);
+    const ariaKey =
+      /id=["']btn-fail-skip["'][^>]*aria-keyshortcuts=["']r["']/.test(indexHtml) ||
+      /aria-keyshortcuts=["']r["'][^>]*id=["']btn-fail-skip["']/.test(indexHtml);
+    const noSoft =
+      !/fail-restart-arm|failRestartArm|\.fail-restart-arm|btn-fail-skip-arm/.test(gameRaw + indexHtml) &&
+      !/soft-arm/.test(aroundSkip);
+    if (keyRestart && noSoft) {
+      pass(
+        'FAIL-RESTART-KEY',
+        'Fail overlay r/R → #btn-fail-skip Keep restarting' +
+          (ariaKey ? ' + aria-keyshortcuts=r' : '') +
+          '; no soft-arm'
+      );
+    } else {
+      fail(
+        'FAIL-RESTART-KEY',
+        'missing handleWinFailKeys fail r/R → #btn-fail-skip.click, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
