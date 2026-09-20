@@ -2304,6 +2304,84 @@ block(
   }
 }
 
+// --- SHARE-PLAY-DEMO: docs/play browser demo + landing CTA; sync from root; no soft-arm ---
+{
+  const landingPath = path.join(root, 'docs/index.html');
+  const landing = fs.existsSync(landingPath) ? fs.readFileSync(landingPath, 'utf8') : '';
+  const syncWww = fs.existsSync(path.join(root, 'scripts/sync-www.sh'))
+    ? fs.readFileSync(path.join(root, 'scripts/sync-www.sh'), 'utf8')
+    : '';
+  const playIndex = path.join(root, 'docs/play/index.html');
+  const playGame = path.join(root, 'docs/play/assets/js/game.js');
+  const playCss = path.join(root, 'docs/play/assets/css/style.css');
+  const playManifest = path.join(root, 'docs/play/site.webmanifest');
+  const playSw = path.join(root, 'docs/play/sw.js');
+
+  const ctaOk =
+    /Play free in browser/.test(landing) &&
+    (/href=["']play\/["']/.test(landing) ||
+      /href=["']\.\/play\/["']/.test(landing) ||
+      /href=["']play["']/.test(landing));
+  const comingSoonOk = /Coming soon on Google Play/.test(landing);
+  const privacyOk =
+    /href=["']privacy\/?["']/.test(landing) || /href=["']\.\/privacy\/?["']/.test(landing);
+  const brandNoSw = !/serviceWorker\.register/.test(landing);
+  const syncPlayOk =
+    (/docs\/play/.test(syncWww) || /\$PLAY/.test(syncWww)) &&
+    /cp\s+"\$ROOT\/index\.html"/.test(syncWww) &&
+    (/cp\s+-R\s+"\$ROOT\/assets"/.test(syncWww) || /cp\s+-R\s+"\$ROOT\/assets"\s+"\$dest\/assets"/.test(syncWww));
+  const playFilesOk =
+    fs.existsSync(playIndex) &&
+    fs.existsSync(playGame) &&
+    fs.existsSync(playCss) &&
+    fs.existsSync(playManifest) &&
+    fs.existsSync(playSw);
+  let manifestStartOk = false;
+  if (fs.existsSync(playManifest)) {
+    try {
+      const m = JSON.parse(fs.readFileSync(playManifest, 'utf8'));
+      manifestStartOk = m.start_url === './' || m.start_url === '.' || m.start_url === '/color-sort-puzzle/play/';
+    } catch (_) {
+      manifestStartOk = false;
+    }
+  }
+  const playHasGame =
+    fs.existsSync(playIndex) &&
+    /assets\/js\/game\.js/.test(fs.readFileSync(playIndex, 'utf8')) &&
+    (/navigator\.serviceWorker\.register\s*\(\s*['"]\.\/sw\.js['"]/.test(
+      fs.readFileSync(playIndex, 'utf8')
+    ) ||
+      /navigator\.serviceWorker\.register\s*\(\s*['"]sw\.js['"]/.test(
+        fs.readFileSync(playIndex, 'utf8')
+      ));
+  const noSoft =
+    !/soft-arm|claim-juice|hud-.*-pulse|play-demo-arm|cta-pulse|share-play-arm/.test(landing) &&
+    !/soft-arm|claim-juice|hud-.*-pulse|play-demo-arm/.test(syncWww);
+
+  if (
+    ctaOk &&
+    comingSoonOk &&
+    privacyOk &&
+    brandNoSw &&
+    syncPlayOk &&
+    playFilesOk &&
+    manifestStartOk &&
+    playHasGame &&
+    noSoft
+  ) {
+    pass(
+      'SHARE-PLAY-DEMO',
+      'docs landing Play free in browser → play/; docs/play synced from root (index+assets+sw+manifest start_url ./); brand landing no SW; no soft-arm'
+    );
+  } else {
+    fail(
+      'SHARE-PLAY-DEMO',
+      'missing play demo CTA/sync/files or soft-arm/SW on brand' +
+        ` (cta=${ctaOk} soon=${comingSoonOk} priv=${privacyOk} noSw=${brandNoSw} sync=${syncPlayOk} files=${playFilesOk} start=${manifestStartOk} playGame=${playHasGame} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- Brand favicon (ICON A derivatives; head + files) ---
 {
   const indexRaw = read('index.html') || '';

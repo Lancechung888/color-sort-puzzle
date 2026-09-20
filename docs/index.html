@@ -97,10 +97,29 @@
       color: var(--muted);
     }
     .note strong { color: var(--accent-soft); font-weight: 600; }
-    nav {
-      font-size: 0.9rem;
-    }
     a { color: var(--link); }
+    .cta {
+      display: block;
+      width: 100%;
+      margin: 0 0 1.25rem;
+      padding: 0.9rem 1.25rem;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f0c75e 0%, #d4a84b 100%);
+      color: #1a1a2e;
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-decoration: none;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(240, 199, 94, 0.28);
+    }
+    .cta:hover, .cta:focus-visible {
+      filter: brightness(1.05);
+      outline: 2px solid var(--accent-soft);
+      outline-offset: 2px;
+    }
+    .cta:active { filter: brightness(0.97); }
+    nav { margin-top: 0.25rem; font-size: 0.9rem; }
     footer {
       margin-top: 1.5rem;
       font-size: 0.8rem;
@@ -119,6 +138,7 @@
       then sort every tube to clear the level. Daily challenges, star mastery,
       and chapter chests keep you coming back.
     </p>
+    <a class="cta" href="play/">Play free in browser</a>
     <p class="note"><strong>Coming soon on Google Play</strong> — store listing in progress.</p>
     <nav>
       <a href="privacy/">Privacy Policy</a>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="description" content="ColorTube Sort: Lid Puzzle — gold lids block pours until you uncap. Pour matching colors into the same tube. Uncap, pour, sort." />
+  <title>ColorTube Sort: Lid Puzzle</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="ColorTube Sort" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body data-theme="classic">
+  <div id="app">
+    <header class="header">
+      <div class="brand-row">
+        <div class="brand">ColorTube Sort</div>
+        <button type="button" class="btn-icon btn-home" id="btn-home" title="Home" aria-label="Home" aria-keyshortcuts="Escape">🏠</button>
+      </div>
+      <div class="header-right">
+        <button type="button" class="chip chip-coins" id="coin-display" title="Coins" aria-label="Coins — open shop">
+          <span class="chip-icon">🪙</span>
+          <span id="coin-count">120</span>
+        </button>
+        <button type="button" class="chip chip-hints" id="hint-display" title="Free hints" aria-label="Free hints — request hint">
+          <span class="chip-icon">💡</span>
+          <span id="hint-count">3</span>
+        </button>
+        <button type="button" class="chip chip-streak" id="streak-display" title="Login streak" aria-label="Login streak">
+          <span class="chip-icon">🔥</span>
+          <span id="streak-count">0</span>
+        </button>
+        <button type="button" class="btn-icon" id="btn-shop" title="Shop" aria-label="Shop" aria-keyshortcuts="s">🛒</button>
+      </div>
+    </header>
+
+    <div class="meta-row">
+      <button type="button" class="level-badge" id="level-label" aria-label="Level 1 — open levels" aria-keyshortcuts="l">Level 1</button>
+      <div class="stars-preview" id="level-stars" title="Best stars this level"></div>
+    </div>
+
+    <div class="toolbar">
+      <button type="button" class="btn" id="btn-undo" disabled title="Undo" aria-label="Undo last pour" aria-keyshortcuts="u">Undo</button>
+      <button type="button" class="btn btn-danger" id="btn-restart" title="Restart" aria-label="Restart level" aria-keyshortcuts="r">Restart</button>
+      <button type="button" class="btn btn-hint" id="btn-hint" title="Hint" aria-label="Get a hint" aria-keyshortcuts="h">Hint</button>
+      <button type="button" class="btn btn-ghost" id="btn-daily" title="Daily Challenge" aria-label="Daily Challenge" aria-keyshortcuts="d">Daily</button>
+    </div>
+
+    <main class="playfield" id="playfield">
+      <div class="tubes-wrap" id="tubes-wrap" aria-label="Tubes"></div>
+      <div class="onboarding-tip" id="onboarding-tip" hidden>
+        <p>👆 Tap a colored tube to lift, then tap another to pour.<br />Goal: every tube is one solid color (or empty).</p>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-dismiss-tip">Got it</button>
+      </div>
+    </main>
+
+    <div class="status-bar" id="moves-label">Moves 0</div>
+
+    <!-- Start screen -->
+    <div class="overlay show" id="start-screen">
+      <div class="modal modal-premium">
+        <p class="subtitle">Uncap · Pour · Sort</p>
+        <h2>ColorTube Sort</h2>
+        <div class="start-hook" aria-hidden="true">
+          <div class="start-hook-row">
+            <!-- Source: capped → uncap → pour -->
+            <div class="tube start-hook-tube start-hook-src">
+              <div class="tube-rim"></div>
+              <div class="tube-glass">
+                <div class="tube-layers">
+                  <div class="layer start-hook-l1" style="background:linear-gradient(180deg,#ff8a95 0%,#e74c3c 55%,#c0392b 100%)"></div>
+                  <div class="layer start-hook-l2" style="background:linear-gradient(180deg,#7ec8ff 0%,#3498db 55%,#1a6fa8 100%)"></div>
+                  <div class="layer start-hook-l3" style="background:linear-gradient(180deg,#ff8a95 0%,#e74c3c 55%,#c0392b 100%)"></div>
+                </div>
+              </div>
+              <div class="tube-lid"></div>
+            </div>
+            <!-- Dest: empty → receive red → sorted -->
+            <div class="tube start-hook-tube start-hook-dst">
+              <div class="tube-rim"></div>
+              <div class="tube-glass">
+                <div class="tube-layers">
+                  <div class="layer start-hook-d1" style="background:linear-gradient(180deg,#ff8a95 0%,#e74c3c 55%,#c0392b 100%)"></div>
+                  <div class="layer start-hook-d2" style="background:linear-gradient(180deg,#ff8a95 0%,#e74c3c 55%,#c0392b 100%)"></div>
+                </div>
+              </div>
+            </div>
+            <!-- Already sorted green (goal clarity) -->
+            <div class="tube start-hook-tube start-hook-done complete">
+              <div class="tube-rim"></div>
+              <div class="tube-glass">
+                <div class="tube-layers">
+                  <div class="layer" style="height:25%;background:linear-gradient(180deg,#7dffa3 0%,#2ecc71 55%,#1e8f4e 100%)"></div>
+                  <div class="layer" style="height:25%;background:linear-gradient(180deg,#7dffa3 0%,#2ecc71 55%,#1e8f4e 100%)"></div>
+                  <div class="layer" style="height:25%;background:linear-gradient(180deg,#7dffa3 0%,#2ecc71 55%,#1e8f4e 100%)"></div>
+                  <div class="layer" style="height:25%;background:linear-gradient(180deg,#7dffa3 0%,#2ecc71 55%,#1e8f4e 100%)"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="start-hook-stream" aria-hidden="true"></div>
+          <div class="start-hook-block" aria-hidden="true">Blocked</div>
+        </div>
+        <p class="modal-lead">Gold lids block pours — uncap, then sort.</p>
+        <div class="start-stats" id="start-stats">
+          <span>🪙 <span id="start-coins">120</span></span>
+          <span>🔥 Streak <span id="start-streak">0</span> days</span>
+        </div>
+        <p class="start-streak-claim" id="start-streak-claim" hidden></p>
+        <p class="meta-teaser" id="start-meta-teaser">Login daily for milestone chests · Replay for ★ mastery</p>
+        <div class="modal-actions stacked">
+          <button type="button" class="btn btn-primary btn-lg" id="btn-start" aria-label="Play" aria-keyshortcuts="Enter">Play</button>
+          <button type="button" class="btn btn-daily-cta" id="btn-start-daily" aria-label="Daily Challenge" aria-keyshortcuts="d" aria-describedby="daily-cta-badge">
+            <span class="daily-cta-label">Daily Challenge</span>
+            <span class="daily-cta-badge" id="daily-cta-badge" hidden></span>
+          </button>
+          <button type="button" class="btn" id="btn-start-levels" aria-label="Levels" aria-keyshortcuts="l">Levels · ★ mastery</button>
+          <button type="button" class="btn" id="btn-start-shop" aria-label="Shop" aria-keyshortcuts="s">Shop</button>
+        </div>
+        <p class="privacy-row">
+          <a
+            class="privacy-link"
+            id="link-privacy"
+            href="https://lancechung888.github.io/color-sort-puzzle/privacy/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Privacy Policy</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Win overlay -->
+    <div class="overlay" id="win-overlay">
+      <div class="modal modal-premium modal-win" role="dialog" aria-modal="true" aria-labelledby="win-title">
+        <h2 id="win-title">You win!</h2>
+        <div class="win-stars" id="win-stars" aria-label="Star rating">
+          <span class="star" data-i="1">★</span>
+          <span class="star" data-i="2">★</span>
+          <span class="star" data-i="3">★</span>
+        </div>
+        <p class="win-reward" id="win-reward">+0 coins</p>
+        <p class="win-detail" id="win-detail">Level complete</p>
+        <p class="win-chest" id="win-chest" hidden></p>
+        <p class="win-mastery" id="win-mastery" hidden></p>
+        <p class="win-new-best" id="win-new-best" hidden></p>
+        <p class="win-unlock" id="win-unlock" hidden></p>
+        <p class="win-daily" id="win-daily" hidden></p>
+        <p class="win-meta" id="win-meta" hidden></p>
+        <div class="modal-actions stacked">
+          <button type="button" class="btn btn-primary btn-lg" id="btn-next" aria-label="Next" aria-keyshortcuts="Enter n">Next</button>
+          <div class="row-actions">
+            <button type="button" class="btn" id="btn-win-restart" aria-label="Restart" aria-keyshortcuts="r">Restart</button>
+            <button type="button" class="btn btn-ghost" id="btn-win-shop" aria-label="Shop" aria-keyshortcuts="o">Shop</button>
+            <button type="button" class="btn btn-ghost" id="btn-win-share" aria-label="Share result" aria-keyshortcuts="s">Share</button>
+            <button type="button" class="btn btn-ghost" id="btn-win-home" aria-label="Home" aria-keyshortcuts="h">Home</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Shop modal -->
+    <div class="overlay" id="shop-overlay">
+      <div class="modal modal-premium modal-shop" role="dialog" aria-modal="true" aria-labelledby="shop-title">
+        <button type="button" class="modal-close" id="btn-shop-close" aria-label="Close" aria-keyshortcuts="Escape">×</button>
+        <h2 id="shop-title">Shop</h2>
+        <p class="shop-balance">Coins: <strong id="shop-coins">120</strong> 🪙</p>
+        <p class="shop-theme-claim" id="shop-theme-claim" hidden></p>
+        <p class="shop-hints-claim" id="shop-hints-claim" hidden></p>
+        <p class="shop-undo-claim" id="shop-undo-claim" hidden></p>
+
+        <section class="shop-section">
+          <h3>Remove ads</h3>
+          <div class="shop-card" id="shop-remove-ads">
+            <div class="shop-card-info">
+              <strong>Remove interstitial ads forever</strong>
+              <span class="shop-desc">Needs a store account; unlock not simulated yet</span>
+            </div>
+            <button type="button" class="btn btn-iap" id="btn-buy-remove-ads">Coming soon</button>
+          </div>
+        </section>
+
+        <section class="shop-section">
+          <h3>Themes</h3>
+          <div class="shop-card" data-theme-id="classic">
+            <div class="shop-card-info">
+              <strong>Classic Glass</strong>
+              <span class="shop-desc">Default free theme</span>
+            </div>
+            <button type="button" class="btn btn-sm" id="btn-theme-classic">In use</button>
+          </div>
+          <div class="shop-card" data-theme-id="neon">
+            <div class="shop-card-info">
+              <strong>Neon Club</strong>
+              <span class="shop-desc">Glow borders · dark stage</span>
+            </div>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-sm btn-coins" id="btn-buy-neon-coins">280 🪙</button>
+              <button type="button" class="btn btn-sm btn-iap" id="btn-buy-neon-iap">Unlock with cash</button>
+            </div>
+          </div>
+          <div class="shop-card" data-theme-id="cat">
+            <div class="shop-card-info">
+              <strong>Cozy Cat</strong>
+              <span class="shop-desc">Soft pastels · cozy palette</span>
+            </div>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-sm btn-coins" id="btn-buy-cat-coins">280 🪙</button>
+              <button type="button" class="btn btn-sm btn-iap" id="btn-buy-cat-iap">Unlock with cash</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="shop-section">
+          <h3>Items</h3>
+          <div class="shop-card" data-item-id="hint-pack">
+            <div class="shop-card-info">
+              <strong>Hint pack ×5</strong>
+              <span class="shop-desc">Free hints left: <span id="shop-hints">0</span></span>
+            </div>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-sm btn-coins" id="btn-buy-hints-coins">120 🪙</button>
+              <button type="button" class="btn btn-sm btn-iap" id="btn-buy-hints-iap">Buy hint pack</button>
+            </div>
+          </div>
+          <div class="shop-card" data-item-id="undo-level">
+            <div class="shop-card-info">
+              <strong>Unlimited undo (this level)</strong>
+              <span class="shop-desc">Undo freely this level without losing stars</span>
+            </div>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-sm btn-coins" id="btn-buy-undo-coins">80 🪙</button>
+              <button type="button" class="btn btn-sm btn-iap" id="btn-buy-infinite-undo">Unlock with cash</button>
+            </div>
+          </div>
+        </section>
+
+
+        <section class="shop-section">
+          <h3>Settings</h3>
+          <div class="shop-card" data-setting="sfx">
+            <div class="shop-card-info">
+              <strong>Sound</strong>
+              <span class="shop-desc">Pour / win SFX</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-toggle" id="btn-toggle-sfx" aria-pressed="true" aria-keyshortcuts="m" aria-label="Sound">On</button>
+          </div>
+          <div class="shop-card" data-setting="haptics">
+            <div class="shop-card-info">
+              <strong>Haptics</strong>
+              <span class="shop-desc">Vibration feedback</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-toggle" id="btn-toggle-haptics" aria-pressed="true" aria-keyshortcuts="v" aria-label="Haptics">On</button>
+          </div>
+          <div class="shop-card" data-setting="how-to-play">
+            <div class="shop-card-info">
+              <strong>How to play</strong>
+              <span class="shop-desc">Pour basics + gold lids (re-open teach)</span>
+            </div>
+            <button type="button" class="btn btn-sm" id="btn-how-to-play" aria-label="How to play" aria-keyshortcuts="?">How to play</button>
+          </div>
+          <div class="shop-card" data-setting="color-assist">
+            <div class="shop-card-info">
+              <strong>Color assist</strong>
+              <span class="shop-desc">Patterns on colors (colorblind-friendly)</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-toggle" id="btn-toggle-color-assist" aria-pressed="false" aria-keyshortcuts="c" aria-label="Color assist">Off</button>
+          </div>
+          <div class="shop-card" data-setting="reduced-motion">
+            <div class="shop-card-info">
+              <strong>Reduced motion</strong>
+              <span class="shop-desc">Less animation · calmer pours</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-toggle" id="btn-toggle-reduced-motion" aria-pressed="false" aria-keyshortcuts="x" aria-label="Reduced motion">Off</button>
+          </div>
+          <div class="shop-card" data-setting="backup-progress">
+            <div class="shop-card-info">
+              <strong>Backup progress</strong>
+              <span class="shop-desc">Download or restore a progress file (levels, coins, streak, settings)</span>
+            </div>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-sm" id="btn-export-progress" aria-label="Export progress backup">Export</button>
+              <button type="button" class="btn btn-sm" id="btn-import-progress" aria-label="Import progress backup">Import</button>
+            </div>
+            <input type="file" id="input-import-progress" accept="application/json,.json" hidden>
+          </div>
+          <div class="shop-card" data-setting="reset-progress">
+            <div class="shop-card-info">
+              <strong>Reset progress</strong>
+              <span class="shop-desc">Clear levels, coins, streak &amp; drafts (keeps Sound / Haptics / Color assist / Reduced motion)</span>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger" id="btn-reset-progress" aria-label="Reset all progress">Reset</button>
+          </div>
+        </section>
+
+        <p class="shop-footnote">Cash unlocks need a store account — Coming soon. Coin purchases work now.</p>
+        <p class="privacy-row shop-privacy">
+          <a
+            class="privacy-link"
+            id="btn-privacy"
+            href="https://lancechung888.github.io/color-sort-puzzle/privacy/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Privacy Policy</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Hint paywall -->
+    <div class="overlay" id="hint-paywall">
+      <div class="modal modal-premium" role="dialog" aria-modal="true" aria-labelledby="hint-paywall-title">
+        <button type="button" class="modal-close" id="btn-hint-close" aria-label="Close" aria-keyshortcuts="Escape">×</button>
+        <h2 id="hint-paywall-title">Get a hint</h2>
+        <p>No free hints left. Choose a way to continue:</p>
+        <div class="modal-actions stacked">
+          <button type="button" class="btn btn-primary" id="btn-hint-ad">📺 Watch ad for a hint</button>
+          <button type="button" class="btn btn-coins" id="btn-hint-coins">Spend 25 coins</button>
+          <button type="button" class="btn btn-iap" id="btn-hint-pack">Buy hint pack ×5</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fail-loop soft prompt — hint-first (keeps board) -->
+    <div class="overlay" id="fail-prompt">
+      <div class="modal modal-premium modal-fail" role="dialog" aria-modal="true" aria-labelledby="fail-title">
+        <h2 id="fail-title">Stuck?</h2>
+        <p>Need a nudge? A hint keeps this board — no restart required.</p>
+        <div class="modal-actions stacked">
+          <button type="button" class="btn btn-primary" id="btn-fail-hint" aria-label="Get a hint" aria-keyshortcuts="Enter h">💡 Get a hint</button>
+          <button type="button" class="btn" id="btn-fail-ad">📺 Watch ad &amp; restart fresh</button>
+          <button type="button" class="btn btn-iap" id="btn-fail-remove-ads">Remove ads (coming soon)</button>
+          <button type="button" class="btn btn-ghost" id="btn-fail-skip" aria-label="Keep restarting" aria-keyshortcuts="r">Keep restarting</button>
+          <button type="button" class="btn btn-ghost" id="btn-fail-home" aria-label="Home" aria-keyshortcuts="b">Home</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Level select / ★ mastery -->
+    <div class="overlay" id="levels-overlay">
+      <div class="modal modal-premium modal-levels" role="dialog" aria-modal="true" aria-labelledby="levels-title">
+        <button type="button" class="modal-close" id="btn-levels-close" aria-label="Close" aria-keyshortcuts="Escape">×</button>
+        <h2 id="levels-title">Levels · ★ mastery</h2>
+        <div class="levels-chapter-nav" role="group" aria-label="Chapter">
+          <button type="button" class="btn btn-sm levels-chapter-btn" id="btn-levels-prev" aria-label="Previous chapter" aria-keyshortcuts="PageUp [">‹</button>
+          <p class="levels-chapter-label" id="levels-chapter-label" aria-live="polite">Chapter 1</p>
+          <button type="button" class="btn btn-sm levels-chapter-btn" id="btn-levels-next" aria-label="Next chapter" aria-keyshortcuts="PageDown ]">›</button>
+        </div>
+        <p class="levels-teaser" id="levels-teaser">First 3★ bonus · every 10 perfect → chapter chest</p>
+        <div class="levels-grid" id="levels-grid" role="list"></div>
+        <p class="levels-footnote" id="levels-footnote"></p>
+        <p class="levels-home-row">
+          <button type="button" class="levels-home-link" id="btn-levels-home" aria-label="Home" aria-keyshortcuts="h">Home</button>
+        </p>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  </div>
+
+  <!-- Native pack wiring: ads.js + billing.js MUST load before game.js (see docs/NATIVE_PACK_READY.md) -->
+  <script src="assets/js/levels.js"></script>
+  <script src="assets/js/ads.js"></script>
+  <script src="assets/js/billing.js"></script>
+  <script src="assets/js/analytics.js"></script>
+  <script src="assets/js/analytics-config.js"></script>
+  <script src="assets/js/analytics-ga4.js"></script>
+  <script src="assets/js/game.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        var hadController = !!navigator.serviceWorker.controller;
+        navigator.serviceWorker.register('./sw.js').then(function (registration) {
+          function showUpdateToast() {
+            var el = document.getElementById('toast');
+            if (!el) return;
+            el.textContent = 'Update ready — tap to refresh';
+            el.classList.add('show');
+            clearTimeout(showUpdateToast._t);
+            showUpdateToast._t = setTimeout(function () {
+              el.classList.remove('show');
+              if (el.textContent === 'Update ready — tap to refresh') el.textContent = '';
+            }, 10000);
+            function onTap() {
+              el.removeEventListener('click', onTap);
+              try {
+                if (registration.waiting) {
+                  registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                }
+              } catch (_) {}
+              location.reload();
+            }
+            el.addEventListener('click', onTap);
+          }
+          registration.addEventListener('updatefound', function () {
+            var installing = registration.installing;
+            if (!installing) return;
+            installing.addEventListener('statechange', function () {
+              if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                showUpdateToast();
+              }
+            });
+          });
+          navigator.serviceWorker.addEventListener('controllerchange', function onControllerChange() {
+            navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
+            if (hadController) showUpdateToast();
+          });
+        }).catch(function () {});
+      });
+    }
+  </script>
+</body>
+</html>
