@@ -75,6 +75,8 @@ bash "$ROOT/scripts/patch-android-no-backup.sh"
 bash "$ROOT/scripts/patch-android-cleartext.sh"
 # Disable multi-window / freeform resize (portrait tube layout breaks in freeform).
 bash "$ROOT/scripts/patch-android-resize.sh"
+# Keep the portrait WebView frame fixed while the soft keyboard opens.
+bash "$ROOT/scripts/patch-android-soft-input.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

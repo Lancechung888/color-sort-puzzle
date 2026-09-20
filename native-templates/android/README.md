@@ -183,6 +183,22 @@ bash scripts/patch-android-resize.sh
 
 `npm run aab:internal` 在 cleartext patch **之後**自動跑。`android/` 仍 gitignore。
 
+## 2i. Keep soft keyboard from resizing the board（ANDROID-SOFT-INPUT）
+
+The portrait hybrid-casual tube WebView must keep its board frame when the soft keyboard opens. Set MainActivity:
+
+```xml
+android:windowSoftInputMode="adjustNothing"
+```
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-soft-input.sh
+```
+
+`npm run aab:internal` 在 resize patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

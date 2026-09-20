@@ -284,6 +284,7 @@
 （已補）**ANDROID-CLEARTEXT**已上 — 拒絕 cleartext HTTP：`usesCleartextTraffic=false`＋`networkSecurityConfig=@xml/network_security_config`（`cleartextTrafficPermitted=false`；AdMob／Billing／Capacitor HTTPS）；`scripts/patch-android-cleartext.sh`＋`aab:internal`；accept `ANDROID-CLEARTEXT`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**ANDROID-RESIZE**已上 — MainActivity `android:resizeableActivity="false"`（鎖 multi-window／freeform；直立 tube 版面在分屏會破）；`android/` 仍 gitignore — `scripts/patch-android-resize.sh`＋`aab:internal` hook＋`native-templates/android/README.md` §2h；accept `ANDROID-RESIZE`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+（已補）**ANDROID-SOFT-INPUT**已上 — MainActivity `android:windowSoftInputMode="adjustNothing"`（軟鍵盤開啟時不壓縮直立 tube WebView；`android/` 仍 gitignore）；`scripts/patch-android-soft-input.sh`＋`aab:internal` hook＋`native-templates/android/README.md` §2i；accept `ANDROID-SOFT-INPUT`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 
 1. **真變現** — Play 過審後換正式 AdMob／Billing 單元；`remove_ads` 真接線（維持不打斷倒水）。勿把測 ID／Coming soon 標 Done。  
