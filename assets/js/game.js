@@ -3042,6 +3042,20 @@
       return;
     }
 
+    // A11Y-POUR / POUR-REDUCED: skip stream/tilt/splash; keep SFX + haptic; finish quickly
+    if (prefersReducedMotion()) {
+      SFX.pour();
+      setTimeout(() => {
+        SFX.land();
+        if (willWinLevel) haptic('winPour');
+        else if (willComplete) haptic('landComplete');
+        else if (firstPour) haptic('firstPour');
+        else haptic('land');
+        done();
+      }, 60);
+      return;
+    }
+
     const fromRect = fromEl.getBoundingClientRect();
     const toRect = toEl.getBoundingClientRect();
     const appRect = app.getBoundingClientRect();
@@ -3107,6 +3121,7 @@
 
   /** Short gold rim sparkle for level-clearing pour — tasteful, not confetti (confetti stays in showWin). */
   function spawnWinPourSparkle(x, y) {
+    if (prefersReducedMotion()) return;
     const golds = ['#ffd78a', '#ffe6a0', '#ffc850', '#fff0c0'];
     const n = 8;
     for (let i = 0; i < n; i++) {
@@ -3125,6 +3140,7 @@
   }
 
   function spawnSplash(x, y, color, count) {
+    if (prefersReducedMotion()) return;
     const n = count || (16 + Math.floor(Math.random() * 5)); // 16–20 default
     for (let i = 0; i < n; i++) {
       const p = document.createElement('div');

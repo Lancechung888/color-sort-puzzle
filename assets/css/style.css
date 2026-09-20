@@ -1119,6 +1119,12 @@ html, body {
 .tube.pouring-tilt {
   transition: none;
 }
+@media (prefers-reduced-motion: reduce) {
+  .tube.pouring-tilt {
+    transform: none !important;
+    transition: none;
+  }
+}
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
@@ -1594,6 +1600,14 @@ html, body {
     opacity: 0;
   }
 }
+@media (prefers-reduced-motion: reduce) {
+  .pour-stream,
+  .splash-particle {
+    display: none !important;
+    animation: none !important;
+  }
+}
+
 
 /* Status — live ★ budget track (Moves · Par · ★) */
 
