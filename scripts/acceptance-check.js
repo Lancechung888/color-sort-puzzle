@@ -2136,6 +2136,38 @@ block(
   }
 }
 
+
+// --- HAPTICS-KEY: v/V toggles Haptics (hapticsOn) + Settings aria + cheatsheet; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const gameSrc = read('assets/js/game.js') || '';
+  const htmlOk =
+    /id=["']btn-toggle-haptics["']/.test(htmlRaw) &&
+    (/id=["']btn-toggle-haptics["'][^>]*aria-keyshortcuts=["']v["']/.test(htmlRaw) ||
+      /aria-keyshortcuts=["']v["'][^>]*id=["']btn-toggle-haptics["']/.test(htmlRaw));
+  const jsOk =
+    /function toggleHapticsKey\s*\(/.test(gameSrc) &&
+    /function applyHapticsOn\s*\(/.test(gameSrc) &&
+    (/e\.key\s*===\s*['"]v['"]/.test(gameSrc) || /key\s*===\s*['"]v['"]/.test(gameSrc)) &&
+    /Haptics on/.test(gameSrc) &&
+    /Haptics off/.test(gameSrc) &&
+    /Haptics v/.test(gameSrc) &&
+    !/haptic-arm|haptics-arm|vibrate-arm/.test(
+      (gameSrc.match(/function toggleHapticsKey[\s\S]{0,800}/) || [''])[0]
+    );
+  if (htmlOk && jsOk) {
+    pass(
+      'HAPTICS-KEY',
+      'v/V → toggleHapticsKey (hapticsOn + toast Haptics on/off) + #btn-toggle-haptics aria-keyshortcuts=v + Haptics v in ? cheatsheet; no soft-arm'
+    );
+  } else {
+    fail(
+      'HAPTICS-KEY',
+      `missing haptics key / applyHapticsOn|toggleHapticsKey / aria-keyshortcuts=v / Haptics v cheatsheet (htmlOk=${htmlOk} jsOk=${jsOk})`
+    );
+  }
+}
+
 // --- Brand favicon (ICON A derivatives; head + files) ---
 {
   const indexRaw = read('index.html') || '';

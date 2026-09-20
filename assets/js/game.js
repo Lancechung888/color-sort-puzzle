@@ -5170,11 +5170,26 @@
     if (next) SFX.tap();
   }
 
+  /** Persist Haptics preference; optional pulse when enabling. Shared by Settings + HAPTICS-KEY. */
+  function applyHapticsOn(next) {
+    save.hapticsOn = !!next;
+    persist();
+    refreshSettingsToggles();
+    if (next) haptic('arm');
+  }
+
   /** MUTE-KEY: toggle Sound from keyboard; toast only (Settings button shows On/Off). No soft-arm. */
   function toggleSfxKey() {
     const next = save.sfxOn === false;
     applySfxOn(next);
     toast(next ? 'Sound on' : 'Sound off', 2000);
+  }
+
+  /** HAPTICS-KEY: toggle Haptics from keyboard; toast only (Settings button shows On/Off). No soft-arm. */
+  function toggleHapticsKey() {
+    const next = save.hapticsOn === false;
+    applyHapticsOn(next);
+    toast(next ? 'Haptics on' : 'Haptics off', 2000);
   }
 
   function refreshSettingsToggles() {
@@ -5785,11 +5800,7 @@
     const btnToggleHaptics = $('#btn-toggle-haptics');
     if (btnToggleHaptics) {
       btnToggleHaptics.addEventListener('click', () => {
-        const next = save.hapticsOn === false;
-        save.hapticsOn = next;
-        persist();
-        refreshSettingsToggles();
-        if (next) haptic('arm');
+        applyHapticsOn(save.hapticsOn === false);
       });
     }
     const btnHowToPlay = $('#btn-how-to-play');
@@ -6048,7 +6059,7 @@
         if (isHelp && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
           e.preventDefault();
           toast(
-            'Play Enter · Daily d · Shop s · Levels l · Mute m · Undo u · Hint h · Restart r · Home Esc · Win n/r/h/s/o · Fail h/b/r · Levels arrows/[ ]',
+            'Play Enter · Daily d · Shop s · Levels l · Mute m · Haptics v · Undo u · Hint h · Restart r · Home Esc · Win n/r/h/s/o · Fail h/b/r · Levels arrows/[ ]',
             4800
           );
           return;
@@ -6072,6 +6083,27 @@
         ) {
           e.preventDefault();
           toggleSfxKey();
+          return;
+        }
+      }
+      // HAPTICS-KEY: v/V toggles Haptics (hapticsOn); reachable from start/play/overlays; no soft-arm
+      {
+        const t = e.target;
+        let typing = false;
+        if (t) {
+          const tag = (t.tagName || '').toLowerCase();
+          if (tag === 'input' || tag === 'textarea' || tag === 'select') typing = true;
+          if (t.isContentEditable) typing = true;
+        }
+        if (
+          (e.key === 'v' || e.key === 'V') &&
+          !typing &&
+          !e.ctrlKey &&
+          !e.metaKey &&
+          !e.altKey
+        ) {
+          e.preventDefault();
+          toggleHapticsKey();
           return;
         }
       }
