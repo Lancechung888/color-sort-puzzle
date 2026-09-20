@@ -900,15 +900,22 @@
 
   function toast(msg, ms) {
     if (!toastEl) return;
-    toastEl.textContent = msg;
-    toastEl.hidden = false;
+    // Visible before text write so aria-live polite can announce (not while visibility:hidden).
     toastEl.classList.add('show');
+    toastEl.textContent = '';
+    void toastEl.offsetWidth; // re-announce identical strings
+    toastEl.textContent = msg;
     clearTimeout(toast._t);
     toast._t = setTimeout(() => {
       toastEl.classList.remove('show');
-      setTimeout(() => { toastEl.hidden = true; }, 200);
+      toastEl.textContent = '';
     }, ms || 1800);
   }
+
+  // Drop armed uncap when the tab/app hides — stale double-tap invites mis-taps on return.
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) clearPendingUncap();
+  });
 
   // --- Themes ---
   function applyTheme(id) {
