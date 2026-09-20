@@ -81,6 +81,8 @@ bash "$ROOT/scripts/patch-android-soft-input.sh"
 bash "$ROOT/scripts/patch-android-is-game.sh"
 # Deny Android 10+ Force Dark rewriting brand-dark tubes/juice/HUD.
 bash "$ROOT/scripts/patch-android-force-dark.sh"
+# Keep WebView across density/fontScale/layoutDirection/colorMode (no mid-run recreate).
+bash "$ROOT/scripts/patch-android-config-changes.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
