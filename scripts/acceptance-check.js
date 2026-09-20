@@ -646,6 +646,115 @@ if (gameRaw) {
     );
   }
 
+  // Start-screen keys: Enter Play, d Daily, s Shop; no soft-arm
+  if (
+    /function handleStartKeys/.test(gameRaw) &&
+    /handleStartKeys\s*\(/.test(gameRaw) &&
+    (/btn-start|#btn-start/.test(gameRaw)) &&
+    (/btn-start-daily|#btn-start-daily/.test(gameRaw)) &&
+    /openShop\s*\(/.test(gameRaw) &&
+    !/start-keys-arm|startKeysArm|\.start-keys-arm/.test(gameRaw)
+  ) {
+    const skIdx = gameRaw.indexOf('function handleStartKeys');
+    const skSlice = skIdx >= 0 ? gameRaw.slice(skIdx, skIdx + 1600) : '';
+    const wired =
+      /Enter/.test(skSlice) &&
+      /['"]d['"]/.test(skSlice) &&
+      /['"]s['"]/.test(skSlice) &&
+      (/btn-start|#btn-start/.test(skSlice)) &&
+      (/btn-start-daily|#btn-start-daily/.test(skSlice)) &&
+      /\bopenShop\s*\(/.test(skSlice) &&
+      (/startScreen|start-screen/.test(skSlice)) &&
+      (/isContentEditable|contentEditable|tagName/.test(skSlice) || /textarea/.test(skSlice));
+    if (wired) {
+      pass(
+        'START-KEYS',
+        'Start Enter Play + d Daily + s Shop (+guards); no soft-arm'
+      );
+    } else {
+      fail(
+        'START-KEYS',
+        'handleStartKeys present but Enter/d/s wiring or start/input guards missing inside handler'
+      );
+    }
+  } else {
+    fail(
+      'START-KEYS',
+      'missing start-screen keys (handleStartKeys / Enter|d|s / btn-start|daily|openShop) or soft-arm slipped in'
+    );
+  }
+
+  // Hint-paywall keys: Enter arm → coins → ad; never pack; no soft-arm
+  if (
+    /function handleHintPaywallKeys/.test(gameRaw) &&
+    /handleHintPaywallKeys\s*\(/.test(gameRaw) &&
+    (/hint-pay-arm|hintPaywall/.test(gameRaw)) &&
+    (/btn-hint-coins|#btn-hint-coins/.test(gameRaw)) &&
+    (/btn-hint-ad|#btn-hint-ad/.test(gameRaw)) &&
+    !/hint-paywall-keys-arm|hintPaywallKeysArm|\.hint-paywall-keys-arm/.test(gameRaw)
+  ) {
+    const hpIdx = gameRaw.indexOf('function handleHintPaywallKeys');
+    const hpSlice = hpIdx >= 0 ? gameRaw.slice(hpIdx, hpIdx + 1400) : '';
+    const wired =
+      /Enter/.test(hpSlice) &&
+      /hint-pay-arm/.test(hpSlice) &&
+      (/btn-hint-coins|#btn-hint-coins/.test(hpSlice)) &&
+      (/btn-hint-ad|#btn-hint-ad/.test(hpSlice)) &&
+      !/btn-hint-pack|#btn-hint-pack/.test(hpSlice) &&
+      (/hintPaywall|hint-paywall/.test(hpSlice)) &&
+      (/isContentEditable|contentEditable|tagName/.test(hpSlice) || /textarea/.test(hpSlice));
+    if (wired) {
+      pass(
+        'HINT-PAYWALL-KEYS',
+        'Hint paywall Enter arm→coins→ad (never pack); no soft-arm'
+      );
+    } else {
+      fail(
+        'HINT-PAYWALL-KEYS',
+        'handleHintPaywallKeys present but Enter/arm/coins/ad wiring or guards missing (or pack auto-clicked)'
+      );
+    }
+  } else {
+    fail(
+      'HINT-PAYWALL-KEYS',
+      'missing hint-paywall keys (handleHintPaywallKeys / arm|coins|ad) or soft-arm slipped in'
+    );
+  }
+
+  // Shop keys: Enter armed .shop-buy-arm; Escape unchanged; no soft-arm
+  if (
+    /function handleShopKeys/.test(gameRaw) &&
+    /handleShopKeys\s*\(/.test(gameRaw) &&
+    /shop-buy-arm/.test(gameRaw) &&
+    (/shopOverlay|shop-overlay/.test(gameRaw)) &&
+    !/shop-keys-arm|shopKeysArm|\.shop-keys-arm/.test(gameRaw)
+  ) {
+    const shIdx = gameRaw.indexOf('function handleShopKeys');
+    const shSlice = shIdx >= 0 ? gameRaw.slice(shIdx, shIdx + 1200) : '';
+    const wired =
+      /Enter/.test(shSlice) &&
+      /shop-buy-arm/.test(shSlice) &&
+      (/shopOverlay|shop-overlay/.test(shSlice)) &&
+      (/getComputedStyle|getClientRects/.test(shSlice)) &&
+      (/isContentEditable|contentEditable|tagName/.test(shSlice) || /textarea/.test(shSlice));
+    if (wired) {
+      pass(
+        'SHOP-KEYS',
+        'Shop Enter .shop-buy-arm (+visible guards); Escape left alone; no soft-arm'
+      );
+    } else {
+      fail(
+        'SHOP-KEYS',
+        'handleShopKeys present but Enter/shop-buy-arm visibility or input guards missing inside handler'
+      );
+    }
+  } else {
+    fail(
+      'SHOP-KEYS',
+      'missing shop keys (handleShopKeys / shop-buy-arm) or soft-arm slipped in'
+    );
+  }
+
   // Overlay Tab focus trap (keyboard cannot escape to HUD behind modals; no soft-arm)
   if (
     /function overlayFocusables/.test(gameRaw) &&
