@@ -111,6 +111,10 @@ html, body {
   80% { transform: translate(2px, 1px); }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  #app.screen-shake { animation: none; }
+}
+
 /* Header */
 .header {
   display: flex;
@@ -1104,6 +1108,10 @@ html, body {
   100% { transform: scale(1); }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .tube.completePop { animation: none; }
+}
+
 .tube.complete .tube-glass {
   box-shadow:
     inset 0 0 16px rgba(255,255,255,0.15),
@@ -1479,6 +1487,11 @@ html, body {
 @keyframes uncapSpark {
   0% { transform: translate(0, 0) scale(1); opacity: 1; }
   100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .complete-spark,
+  .uncap-spark { display: none; }
 }
 
 /* Block click-through right after dismissing start/overlays */
@@ -3041,6 +3054,10 @@ html, body {
 @keyframes completeFlash {
   from { opacity: 1; }
   to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .complete-flash { display: none; }
 }
 
 /* Ad creative capture — hide chrome, scale playfield */
