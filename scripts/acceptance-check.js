@@ -2336,6 +2336,59 @@ block(
   }
 }
 
+// --- SHARE-PLAY-OG: playable index (synced → docs/play) has OG/Twitter for /play/ share target; no soft-arm ---
+{
+  const indexRaw = read('index.html') || '';
+  const playIndexPath = path.join(root, 'docs/play/index.html');
+  const playRaw = fs.existsSync(playIndexPath) ? fs.readFileSync(playIndexPath, 'utf8') : '';
+  const ogUrl =
+    /property=["']og:url["'][^>]*content=["']https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/play\/["']/.test(
+      indexRaw
+    ) ||
+    /content=["']https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/play\/["'][^>]*property=["']og:url["']/.test(
+      indexRaw
+    );
+  const ogImage =
+    /property=["']og:image["'][^>]*content=["']https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/og\.png["']/.test(
+      indexRaw
+    ) ||
+    /content=["']https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/og\.png["'][^>]*property=["']og:image["']/.test(
+      indexRaw
+    );
+  const ogTitle =
+    /property=["']og:title["'][^>]*content=["']ColorTube Sort: Lid Puzzle["']/.test(indexRaw) ||
+    /content=["']ColorTube Sort: Lid Puzzle["'][^>]*property=["']og:title["']/.test(indexRaw);
+  const twCard =
+    /name=["']twitter:card["'][^>]*content=["']summary_large_image["']/.test(indexRaw) ||
+    /content=["']summary_large_image["'][^>]*name=["']twitter:card["']/.test(indexRaw);
+  const twImage =
+    /name=["']twitter:image["'][^>]*content=["']https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/og\.png["']/.test(
+      indexRaw
+    ) ||
+    /content=["']https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/og\.png["'][^>]*name=["']twitter:image["']/.test(
+      indexRaw
+    );
+  const playSynced =
+    !!playRaw &&
+    (/property=["']og:url["'][^>]*\/play\//.test(playRaw) ||
+      /content=["']https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/play\/["']/.test(playRaw)) &&
+    /og\.png/.test(playRaw) &&
+    /twitter:card/.test(playRaw);
+  const noSoft = !/soft-arm|claim-juice|hud-.*-pulse|share-play-arm|og-arm/.test(indexRaw);
+  if (ogUrl && ogImage && ogTitle && twCard && twImage && playSynced && noSoft) {
+    pass(
+      'SHARE-PLAY-OG',
+      'playable index + docs/play OG/Twitter → /play/ + og.png; no soft-arm'
+    );
+  } else {
+    fail(
+      'SHARE-PLAY-OG',
+      'missing play OG/Twitter on index or docs/play sync' +
+        ` (url=${ogUrl} img=${ogImage} title=${ogTitle} tw=${twCard} twImg=${twImage} play=${playSynced} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- SHARE-PLAY-DEMO: docs/play browser demo + landing CTA; sync from root; no soft-arm ---
 {
   const landingPath = path.join(root, 'docs/index.html');
