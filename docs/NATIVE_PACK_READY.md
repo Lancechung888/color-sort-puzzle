@@ -33,6 +33,7 @@
 
 - [x] **Capacitor deps** in `package.json`:
   - `@capacitor/core` ^6.2.0
+  - `@capacitor/app` ^6.0.3 (hardware/gesture back → BACK-NAV)
   - `@capacitor/cli` / `@capacitor/android` ^6.2.0 (dev)
   - `@capacitor-community/admob` ^6.2.0
   - `@capgo/native-purchases` ^6.0.42
@@ -70,7 +71,7 @@
 ### DONE this packaging box — signed internal AAB (2026-09-19 Asia/Taipei)
 
 - [x] `npm install` + `npm run aab:internal` (build:www → `cap sync` → AdMob Manifest patch → `bundleRelease`)
-- [x] Plugins on sync: AdMob 6.2.0, Haptics 6.0.3, NativePurchases 6.0.42
+- [x] Plugins on sync: AdMob 6.2.0, App 6.0.3, Haptics 6.0.3, NativePurchases 6.0.42
 - [x] `validateSigningRelease` / `signReleaseBundle` succeeded (upload keystore via local `android/keystore.properties`)
 - [x] Artifact: `android/app/build/outputs/bundle/release/app-release.aab` (~6.1 MB) + durable copy under `/workspace/colortube-artifacts/`
 - [ ] **Not** uploaded to Play (account still in review). Test AdMob IDs only — do **not** mark MILLION_USER_BAR #7 Pass.

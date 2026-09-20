@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@capacitor-community/admob": "^6.2.0",
+    "@capacitor/app": "^6.0.3",
     "@capacitor/core": "^6.2.0",
     "@capacitor/haptics": "^6.0.3",
     "@capgo/native-purchases": "^6.0.42"
