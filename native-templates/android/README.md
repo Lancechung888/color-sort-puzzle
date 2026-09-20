@@ -20,7 +20,7 @@ bash scripts/patch-android-admob.sh
 3. `<uses-permission android:name="com.android.vending.BILLING" />`
 
 已存在則略過；無 `android/` 時安全 exit 0。  
-`npm run aab:internal`（`scripts/build-internal-aab.sh`）在 `npx cap sync` **之後**會自動再跑一次本腳本。
+`npm run aab:internal`（`scripts/build-internal-aab.sh`）在 `npx cap sync` **之後**會自動再跑本腳本，並接著跑 `scripts/patch-android-portrait.sh`（MainActivity `android:screenOrientation="portrait"`）。
 
 ## 1. AdMob Application ID（不是廣告單元 ID）
 
@@ -49,6 +49,26 @@ bash scripts/patch-android-admob.sh
 
 （`@capgo/native-purchases` + Play Billing 函式庫通常會合併進 Manifest；若缺失請手動補上或跑 §0 腳本。）
 
+
+## 2b. MainActivity portrait lock（ANDROID-PORTRAIT）
+
+Hybrid-casual tube board breaks in landscape. Web already has `orientation: portrait-primary` in `site.webmanifest`. Lock the native activity too:
+
+`android/app/src/main/AndroidManifest.xml` 的 `.MainActivity` `<activity>`：
+
+```xml
+android:screenOrientation="portrait"
+```
+
+（`sensorPortrait`／`userPortrait` 亦可接受；prefer exact `portrait`。）
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-portrait.sh
+```
+
+`npm run aab:internal` 在 AdMob Manifest patch **之後**自動跑。`android/` 仍 gitignore；勿強制提交完整工程樹。
 
 ## 4. Launcher icon + splash (finals ICON A)
 
