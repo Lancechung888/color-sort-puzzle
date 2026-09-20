@@ -10,5 +10,8 @@ find "$WWW" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 
 cp "$ROOT/index.html" "$WWW/index.html"
 cp -R "$ROOT/assets" "$WWW/assets"
+if [[ -f "$ROOT/site.webmanifest" ]]; then
+  cp "$ROOT/site.webmanifest" "$WWW/site.webmanifest"
+fi
 
-echo "Synced index.html + assets/ → www/"
+echo "Synced index.html + assets/ + site.webmanifest → www/"

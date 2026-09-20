@@ -1410,6 +1410,114 @@ if (gameRaw) {
     }
   }
 
+
+  // WEB-MANIFEST: Add-to-Home-Screen / install metadata; icons from ICON A; no soft-arm
+  {
+    const rootManifest = path.join(root, 'site.webmanifest');
+    const wwwManifest = path.join(root, 'www/site.webmanifest');
+    const docsManifest = path.join(root, 'docs/site.webmanifest');
+    const icon192 = path.join(root, 'assets/icons/icon-192.png');
+    const icon512 = path.join(root, 'assets/icons/icon-512.png');
+    const docsIcon192 = path.join(root, 'docs/icons/icon-192.png');
+    const docsIcon512 = path.join(root, 'docs/icons/icon-512.png');
+    const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    const docsHtml = fs.existsSync(path.join(root, 'docs/index.html'))
+      ? fs.readFileSync(path.join(root, 'docs/index.html'), 'utf8')
+      : '';
+    const syncWww = fs.existsSync(path.join(root, 'scripts/sync-www.sh'))
+      ? fs.readFileSync(path.join(root, 'scripts/sync-www.sh'), 'utf8')
+      : '';
+    const manifestExists = fs.existsSync(rootManifest);
+    const manifestJson = manifestExists ? fs.readFileSync(rootManifest, 'utf8') : '';
+    let nameOk = false;
+    try {
+      const m = JSON.parse(manifestJson);
+      nameOk =
+        typeof m.name === 'string' &&
+        m.name.includes('ColorTube Sort: Lid Puzzle') &&
+        m.short_name === 'ColorTube Sort' &&
+        m.display === 'standalone' &&
+        m.theme_color === '#1a1a2e' &&
+        m.background_color === '#1a1a2e' &&
+        m.lang === 'en';
+    } catch (_) {
+      nameOk = false;
+    }
+    const iconsOk =
+      fs.existsSync(icon192) &&
+      fs.existsSync(icon512) &&
+      fs.existsSync(docsIcon192) &&
+      fs.existsSync(docsIcon512);
+    const indexLink =
+      /rel=["']manifest["']/.test(indexHtml) &&
+      /href=["']site\.webmanifest["']/.test(indexHtml);
+    const docsLink =
+      /rel=["']manifest["']/.test(docsHtml) &&
+      /href=["']site\.webmanifest["']/.test(docsHtml) &&
+      fs.existsSync(docsManifest);
+    const syncCopies =
+      /site\.webmanifest/.test(syncWww) || fs.existsSync(wwwManifest);
+    const noSoft =
+      !/soft-arm|claim-juice|hud-.*-pulse|web-manifest-arm/.test(indexHtml) &&
+      !/web-manifest-arm/.test(manifestJson);
+    if (manifestExists && nameOk && iconsOk && indexLink && docsLink && syncCopies && noSoft) {
+      pass(
+        'WEB-MANIFEST',
+        'site.webmanifest name ColorTube Sort: Lid Puzzle + icons 192/512 + index/docs link + sync-www; no soft-arm'
+      );
+    } else {
+      fail(
+        'WEB-MANIFEST',
+        'missing manifest/name/icons/link/sync, or soft-arm' +
+          ` (root=${manifestExists} name=${nameOk} icons=${iconsOk} index=${indexLink} docs=${docsLink} sync=${syncCopies} noSoft=${noSoft})`
+      );
+    }
+  }
+
+  // KEYSHORTCUTS-MARKUP: aria-keyshortcuts on controls whose handlers already exist; no soft-arm
+  {
+    const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    function hasAria(id, shortcuts) {
+      const escId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escKeys = shortcuts.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const reIdFirst = new RegExp(
+        'id=["\']' + escId + '["\'][^>]*aria-keyshortcuts=["\']' + escKeys + '["\']'
+      );
+      const reAriaFirst = new RegExp(
+        'aria-keyshortcuts=["\']' + escKeys + '["\'][^>]*id=["\']' + escId + '["\']'
+      );
+      return reIdFirst.test(indexHtml) || reAriaFirst.test(indexHtml);
+    }
+    const checks = [
+      ['btn-start', 'Enter'],
+      ['btn-start-daily', 'd'],
+      ['btn-start-levels', 'l'],
+      ['btn-start-shop', 's'],
+      ['btn-undo', 'u'],
+      ['btn-hint', 'h'],
+      ['btn-restart', 'r'],
+      ['level-label', 'l'],
+      ['btn-shop', 's'],
+      ['btn-next', 'Enter n'],
+      ['btn-win-restart', 'r'],
+      ['btn-fail-hint', 'Enter h'],
+    ];
+    const missing = checks.filter(([id, keys]) => !hasAria(id, keys)).map(([id]) => id);
+    const armSlip = /keyshortcuts-arm/.test(indexHtml);
+    if (missing.length === 0 && !armSlip) {
+      pass(
+        'KEYSHORTCUTS-MARKUP',
+        'aria-keyshortcuts on start/HUD/win-fail controls (Enter/d/l/s/u/h/r/Enter n/Enter h); no soft-arm'
+      );
+    } else {
+      fail(
+        'KEYSHORTCUTS-MARKUP',
+        'missing aria-keyshortcuts or soft-arm slipped in' +
+          ` (missing=${missing.join(',') || 'none'} armSlip=${armSlip})`
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&

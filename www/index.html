@@ -4,10 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#1a1a2e" />
-  <meta name="description" content="ColorTube Sort — pour matching colors into the same tube. Uncap, pour, sort." />
-  <title>ColorTube Sort</title>
+  <meta name="description" content="ColorTube Sort: Lid Puzzle — gold lids block pours until you uncap. Pour matching colors into the same tube. Uncap, pour, sort." />
+  <title>ColorTube Sort: Lid Puzzle</title>
   <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
   <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="ColorTube Sort" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
@@ -33,19 +36,19 @@
           <span class="chip-icon">🔥</span>
           <span id="streak-count">0</span>
         </button>
-        <button type="button" class="btn-icon" id="btn-shop" title="Shop" aria-label="Shop">🛒</button>
+        <button type="button" class="btn-icon" id="btn-shop" title="Shop" aria-label="Shop" aria-keyshortcuts="s">🛒</button>
       </div>
     </header>
 
     <div class="meta-row">
-      <button type="button" class="level-badge" id="level-label" aria-label="Level 1 — open levels">Level 1</button>
+      <button type="button" class="level-badge" id="level-label" aria-label="Level 1 — open levels" aria-keyshortcuts="l">Level 1</button>
       <div class="stars-preview" id="level-stars" title="Best stars this level"></div>
     </div>
 
     <div class="toolbar">
-      <button type="button" class="btn" id="btn-undo" disabled title="Undo" aria-label="Undo last pour">Undo</button>
-      <button type="button" class="btn btn-danger" id="btn-restart" title="Restart" aria-label="Restart level">Restart</button>
-      <button type="button" class="btn btn-hint" id="btn-hint" title="Hint" aria-label="Get a hint">Hint</button>
+      <button type="button" class="btn" id="btn-undo" disabled title="Undo" aria-label="Undo last pour" aria-keyshortcuts="u">Undo</button>
+      <button type="button" class="btn btn-danger" id="btn-restart" title="Restart" aria-label="Restart level" aria-keyshortcuts="r">Restart</button>
+      <button type="button" class="btn btn-hint" id="btn-hint" title="Hint" aria-label="Get a hint" aria-keyshortcuts="h">Hint</button>
       <button type="button" class="btn btn-ghost" id="btn-daily" title="Daily Challenge" aria-label="Daily Challenge">Daily</button>
     </div>
 
@@ -112,13 +115,13 @@
         <p class="start-streak-claim" id="start-streak-claim" hidden></p>
         <p class="meta-teaser" id="start-meta-teaser">Login daily for milestone chests · Replay for ★ mastery</p>
         <div class="modal-actions stacked">
-          <button type="button" class="btn btn-primary btn-lg" id="btn-start">Play</button>
-          <button type="button" class="btn btn-daily-cta" id="btn-start-daily" aria-describedby="daily-cta-badge">
+          <button type="button" class="btn btn-primary btn-lg" id="btn-start" aria-label="Play" aria-keyshortcuts="Enter">Play</button>
+          <button type="button" class="btn btn-daily-cta" id="btn-start-daily" aria-label="Daily Challenge" aria-keyshortcuts="d" aria-describedby="daily-cta-badge">
             <span class="daily-cta-label">Daily Challenge</span>
             <span class="daily-cta-badge" id="daily-cta-badge" hidden></span>
           </button>
-          <button type="button" class="btn" id="btn-start-levels">Levels · ★ mastery</button>
-          <button type="button" class="btn" id="btn-start-shop">Shop</button>
+          <button type="button" class="btn" id="btn-start-levels" aria-label="Levels" aria-keyshortcuts="l">Levels · ★ mastery</button>
+          <button type="button" class="btn" id="btn-start-shop" aria-label="Shop" aria-keyshortcuts="s">Shop</button>
         </div>
         <p class="privacy-row">
           <a
@@ -150,9 +153,9 @@
         <p class="win-daily" id="win-daily" hidden></p>
         <p class="win-meta" id="win-meta" hidden></p>
         <div class="modal-actions stacked">
-          <button type="button" class="btn btn-primary btn-lg" id="btn-next">Next</button>
+          <button type="button" class="btn btn-primary btn-lg" id="btn-next" aria-label="Next" aria-keyshortcuts="Enter n">Next</button>
           <div class="row-actions">
-            <button type="button" class="btn" id="btn-win-restart">Restart</button>
+            <button type="button" class="btn" id="btn-win-restart" aria-label="Restart" aria-keyshortcuts="r">Restart</button>
             <button type="button" class="btn btn-ghost" id="btn-win-shop" aria-label="Shop" aria-keyshortcuts="o">Shop</button>
             <button type="button" class="btn btn-ghost" id="btn-win-share" aria-label="Share result" aria-keyshortcuts="s">Share</button>
             <button type="button" class="btn btn-ghost" id="btn-win-home" aria-label="Home" aria-keyshortcuts="h">Home</button>
@@ -310,7 +313,7 @@
         <h2 id="fail-title">Stuck?</h2>
         <p>Need a nudge? A hint keeps this board — no restart required.</p>
         <div class="modal-actions stacked">
-          <button type="button" class="btn btn-primary" id="btn-fail-hint">💡 Get a hint</button>
+          <button type="button" class="btn btn-primary" id="btn-fail-hint" aria-label="Get a hint" aria-keyshortcuts="Enter h">💡 Get a hint</button>
           <button type="button" class="btn" id="btn-fail-ad">📺 Watch ad &amp; restart fresh</button>
           <button type="button" class="btn btn-iap" id="btn-fail-remove-ads">Remove ads (coming soon)</button>
           <button type="button" class="btn btn-ghost" id="btn-fail-skip" aria-label="Keep restarting" aria-keyshortcuts="r">Keep restarting</button>
