@@ -542,6 +542,40 @@ if (gameRaw) {
     );
   }
 
+  // Levels overlay: mid-run draft badge on unlocked mainline cell (static; no soft-arm)
+  {
+    const gridIdx = gameRaw.indexOf('function renderLevelsGrid');
+    const gridEnd = gameRaw.indexOf('function overlayFocusables', gridIdx);
+    const gridSlice =
+      gridIdx >= 0
+        ? gameRaw.slice(gridIdx, gridEnd > gridIdx ? gridEnd : gridIdx + 8000)
+        : '';
+    // Single-rule bodies only (no cross-rule animation false positive)
+    const cssOk =
+      /\.level-cell\.level-in-progress/.test(cssRaw) &&
+      /level-cell-on/.test(cssRaw) &&
+      !/@keyframes\s+levelInProgress/.test(cssRaw) &&
+      !/\.level-cell\.level-in-progress[^{]*\{[^}]*animation\s*:/.test(cssRaw) &&
+      !/\.level-cell\.level-in-progress:not\([^)]*\)[^{]*\{[^}]*animation\s*:/.test(cssRaw);
+    const jsOk =
+      /level-in-progress/.test(gridSlice) &&
+      /readRunDraft\s*\(/.test(gridSlice) &&
+      /draftHasProgress\s*\(/.test(gridSlice) &&
+      /level-cell-on/.test(gridSlice) &&
+      /in progress/.test(gridSlice) &&
+      !/level-in-progress-arm|in-progress-arm|\.level-in-progress-arm/.test(gameRaw);
+    if (jsOk && cssOk) {
+      pass(
+        'LEVELS-RUN-BADGE',
+        'renderLevelsGrid marks mid-run draft .level-in-progress + On badge via readRunDraft/draftHasProgress; static cyan, no soft-arm'
+      );
+    } else {
+      fail(
+        'LEVELS-RUN-BADGE',
+        'missing level-in-progress draft peek in renderLevelsGrid and/or static CSS, or soft-arm slipped in'
+      );
+    }
+  }
 
   // In-play tube board Arrow/Home/End focus nav (flex-wrap geometric; no soft-arm)
   if (
