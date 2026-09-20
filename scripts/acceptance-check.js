@@ -519,6 +519,29 @@ if (gameRaw) {
     );
   }
 
+  // Levels grid keyboard arrow / Home / End + chapter-edge browse (no soft-arm)
+  if (
+    /LEVELS_GRID_COLS/.test(gameRaw) &&
+    /function handleLevelsGridKeydown/.test(gameRaw) &&
+    /ArrowLeft/.test(gameRaw) &&
+    /ArrowRight/.test(gameRaw) &&
+    /ArrowUp/.test(gameRaw) &&
+    /ArrowDown/.test(gameRaw) &&
+    /shiftLevelsChapter\([^)]*['"]first['"]/.test(gameRaw) &&
+    /shiftLevelsChapter\([^)]*['"]last['"]/.test(gameRaw) &&
+    !/levels-keys-arm|grid-keys-arm|\.levels-keys-arm/.test(gameRaw)
+  ) {
+    pass(
+      'LEVELS-KEYS',
+      'Levels grid Arrow/Home/End nav; chapter-edge shiftLevelsChapter first/last; no soft-arm'
+    );
+  } else {
+    fail(
+      'LEVELS-KEYS',
+      'missing Levels grid keyboard nav (LEVELS_GRID_COLS / handleLevelsGridKeydown / chapter-edge first|last) or soft-arm slipped in'
+    );
+  }
+
   // Overlay Tab focus trap (keyboard cannot escape to HUD behind modals; no soft-arm)
   if (
     /function overlayFocusables/.test(gameRaw) &&
