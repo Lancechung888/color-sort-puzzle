@@ -90,6 +90,10 @@
   let pendingUncapUntil = 0;
   let pendingUncapTimer = 0;
   const PENDING_UNCAP_MS = 2000;
+  /** Two-tap Restart confirm when board has progress (toast only — no soft-arm CSS). */
+  let pendingRestartUntil = 0;
+  let pendingRestartTimer = 0;
+  const PENDING_RESTART_MS = 2000;
   let history = [];
   let moves = 0;
   let pouring = false;
@@ -1199,6 +1203,7 @@
     caps = hydrateCaps(def, tubes.length);
     selected = -1;
     clearPendingUncap();
+    clearPendingRestart();
     history = [];
     moves = 0;
     pouring = false;
@@ -1623,6 +1628,20 @@
     pendingUncapTimer = 0;
   }
 
+  function clearPendingRestart() {
+    pendingRestartUntil = 0;
+    clearTimeout(pendingRestartTimer);
+    pendingRestartTimer = 0;
+  }
+
+  function armPendingRestart() {
+    pendingRestartUntil = Date.now() + PENDING_RESTART_MS;
+    clearTimeout(pendingRestartTimer);
+    pendingRestartTimer = setTimeout(function () {
+      clearPendingRestart();
+    }, PENDING_RESTART_MS + 30);
+  }
+
   function armPendingUncap(idx) {
     pendingUncapIdx = idx;
     pendingUncapUntil = Date.now() + PENDING_UNCAP_MS;
@@ -1801,6 +1820,7 @@
     history.push({ tubes: cloneTubes(tubes), caps: cloneCaps(caps), moves });
     trimHistory();
 
+    clearPendingRestart();
     pouring = true;
     const color = topColor(tubes[fromIdx]);
     const wasCompleteBefore = tubes.map(isFilledComplete);
@@ -1856,6 +1876,7 @@
 
   function undo() {
     if (pouring || !history.length) return;
+    clearPendingRestart();
     clearHudUndoArm();
     const prev = history.pop();
     tubes = prev.tubes;
@@ -1874,6 +1895,25 @@
 
   function restart() {
     if (pouring) return;
+    // Mid-level progress: require a second tap within ~2s (toast only — no soft-arm).
+    // Empty board (moves===0 && no history): one-tap so fail-loop mash stays snappy.
+    const hasProgress = moves > 0 || history.length > 0;
+    if (hasProgress) {
+      const now = Date.now();
+      if (!(pendingRestartUntil > 0 && now <= pendingRestartUntil)) {
+        armPendingRestart();
+        toast('Tap Restart again to confirm');
+        try { SFX.tap(); } catch (_) { /* ignore */ }
+        try { haptic('select'); } catch (_) { /* ignore */ }
+        trackEvent('restart_confirm_arm', {
+          level_id: analyticsLevelId(),
+          mode: analyticsMode(),
+          moves: moves,
+        });
+        return;
+      }
+    }
+    clearPendingRestart();
     restartFailCount++;
     if (restartFailCount >= failLoopThreshold()) {
       pendingFailRestart = true;
@@ -1885,6 +1925,7 @@
 
   function doRestartLevel() {
     // Restart within level: discard mid-board draft, then cold-load fresh.
+    clearPendingRestart();
     clearRunDraft();
     if (isDailyMode) {
       loadLevel(levelIndex, { daily: true, dailyKey: dailySeedKey, def: getDailyDef() });
@@ -3391,6 +3432,7 @@
     // Flush before showing start screen (isRunActive() becomes false once shown).
     if (isRunActive()) persistRunDraft();
     clearPendingUncap();
+    clearPendingRestart();
     selected = -1;
     const levelsOv = $('#levels-overlay');
     if (levelsOv && levelsOv.classList.contains('show')) closeLevels();
