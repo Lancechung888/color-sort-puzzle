@@ -58,6 +58,8 @@
 
 （已補）**Reduced motion 快捷鍵（MOTION-KEY）**已上 — 全域 `x`／`X` → `toggleReducedMotionKey`（`reducedMotion`＋toast Reduced motion on／off）＋`#btn-toggle-reduced-motion` `aria-keyshortcuts=x`；`?` 表含 Reduced motion x；Settings 點擊改走 `applyReducedMotionOn`；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；P0②③ 仍 Blocked。**未**把 #1／#3／#7／#9 標新 Pass。
 
+（已補）**PWA offline（PWA-OFFLINE）**已上 — 根 `sw.js`（`colortube-offline-v1`；precache index／manifest／css／game scripts／icons／audio）＋playable `index.html` `serviceWorker.register`；`sync-www.sh` 複製 `sw.js`→`www/`（docs 為 brand landing，不註冊）；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；P0②③ 仍 Blocked。**未**把 #1／#3／#7／#9 標新 Pass。
+
 
 重跑：清乾淨 tree 後執行 `npm run accept`，exit 0 = 可自動項 Pass + Blocked 項如實列出。
 

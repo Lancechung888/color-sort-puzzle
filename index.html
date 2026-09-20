@@ -372,5 +372,13 @@
   <script src="assets/js/analytics-config.js"></script>
   <script src="assets/js/analytics-ga4.js"></script>
   <script src="assets/js/game.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {});
+      });
+    }
+  </script>
 </body>
 </html>

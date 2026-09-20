@@ -2232,6 +2232,43 @@ block(
   }
 }
 
+
+// --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
+{
+  const swPath = path.join(root, 'sw.js');
+  const swRaw = fs.existsSync(swPath) ? fs.readFileSync(swPath, 'utf8') : '';
+  const htmlRaw = read('index.html') || '';
+  const syncWww = fs.existsSync(path.join(root, 'scripts/sync-www.sh'))
+    ? fs.readFileSync(path.join(root, 'scripts/sync-www.sh'), 'utf8')
+    : '';
+  const swExists = fs.existsSync(swPath);
+  const cacheNameOk = /colortube-offline-v1/.test(swRaw);
+  const precacheOk =
+    /game\.js/.test(swRaw) &&
+    /style\.css/.test(swRaw) &&
+    (/index\.html/.test(swRaw) || /['"]\.\/['"]/.test(swRaw) || /['"]\/['"]/.test(swRaw));
+  const registerOk =
+    /navigator\.serviceWorker\.register\s*\(\s*['"]\.\/sw\.js['"]/.test(htmlRaw) ||
+    /navigator\.serviceWorker\.register\s*\(\s*['"]sw\.js['"]/.test(htmlRaw);
+  const syncOk = /sw\.js/.test(syncWww) && /cp\s+"\$ROOT\/sw\.js"/.test(syncWww);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse|pwa-arm|offline-arm/.test(swRaw) &&
+    !/soft-arm|claim-juice|hud-pulse|pwa-arm|offline-arm/.test(
+      (htmlRaw.match(/serviceWorker[\s\S]{0,400}/) || [''])[0]
+    );
+  if (swExists && cacheNameOk && precacheOk && registerOk && syncOk && noSoft) {
+    pass(
+      'PWA-OFFLINE',
+      'sw.js colortube-offline-v1 precache (game.js/style) + index serviceWorker.register + sync-www copies sw.js; no soft-arm'
+    );
+  } else {
+    fail(
+      'PWA-OFFLINE',
+      `missing sw/precache/register/sync or soft-arm (exists=${swExists} cache=${cacheNameOk} precache=${precacheOk} register=${registerOk} sync=${syncOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- Brand favicon (ICON A derivatives; head + files) ---
 {
   const indexRaw = read('index.html') || '';
