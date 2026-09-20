@@ -91,6 +91,8 @@ bash "$ROOT/scripts/patch-android-target-sdk.sh"
 bash "$ROOT/scripts/patch-android-webview-overscroll.sh"
 # Lock WebView textZoom=100 (system Font/Display size must not scale tube/HUD CSS).
 bash "$ROOT/scripts/patch-android-webview-text-zoom.sh"
+# Lock WebView background to brand #1a1a2e (no white flash on cold start / splash handoff).
+bash "$ROOT/scripts/patch-android-webview-bg.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

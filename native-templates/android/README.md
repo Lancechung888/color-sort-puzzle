@@ -337,6 +337,26 @@ bash scripts/patch-android-webview-text-zoom.sh
 
 `npm run aab:internal` 在 webview-overscroll patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2q. Lock WebView background（ANDROID-WEBVIEW-BG）
+
+Cold start／splash 交接前，Capacitor Android WebView 預設白底會閃一下。與 ANDROID-SPLASH-THEME／ANDROID-SYSTEM-BARS 搭配，把 bridge WebView 背景鎖成品牌 `#1a1a2e`（在 `onStart`、`setTextZoom` 之後）：
+
+```java
+import android.graphics.Color;
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after setTextZoom)
+webView.setBackgroundColor(Color.parseColor("#1a1a2e"));
+```
+
+`capacitor.config.json` 可設 root `backgroundColor: "#1a1a2e"` 作輔助，但部分裝置仍不足——**MainActivity `setBackgroundColor` 才是 source of truth**。
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-bg.sh
+```
+
+`npm run aab:internal` 在 webview-text-zoom patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

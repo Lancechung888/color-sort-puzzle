@@ -3093,6 +3093,52 @@ block(
   }
 }
 
+
+// --- ANDROID-WEBVIEW-BG: setBackgroundColor(#1a1a2e); no soft-arm ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-bg.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /setBackgroundColor/.test(patchRaw) &&
+    /#1a1a2e/.test(patchRaw) &&
+    /Color\.parseColor/.test(patchRaw);
+  const zoomIdx = aabRaw.search(/patch-android-webview-text-zoom\.sh/);
+  const bgIdx = aabRaw.search(/patch-android-webview-bg\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    bgIdx >= 0 &&
+    zoomIdx >= 0 &&
+    iconsIdx >= 0 &&
+    bgIdx > zoomIdx &&
+    iconsIdx > bgIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-BG/.test(readmeRaw) && /2q/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /setBackgroundColor/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-bg-arm|soft-arm|claim-juice|hud-pulse/.test(patchRaw + mainRaw);
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-BG',
+      'webView.setBackgroundColor(#1a1a2e) + patch-android-webview-bg.sh + aab:internal after text-zoom before icons + README §2q; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-BG',
+      `missing setBackgroundColor(#1a1a2e) / patch / aab hook-after-text-zoom-before-icons / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';
