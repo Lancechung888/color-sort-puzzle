@@ -2961,6 +2961,12 @@
   function shakeTube(idx) {
     const el = tubesWrap.children[idx];
     if (!el) return;
+    // A11Y-SHAKE: keep illegal SFX/haptic; skip shake class under reduced-motion
+    if (prefersReducedMotion()) {
+      SFX.illegal();
+      haptic('illegal');
+      return;
+    }
     el.classList.remove('invalid-shake');
     void el.offsetWidth; // restart shake if retriggered mid-animation
     el.classList.add('invalid-shake');

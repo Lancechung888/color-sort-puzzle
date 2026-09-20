@@ -1048,6 +1048,35 @@ if (gameRaw) {
     }
   }
 
+  // A11Y-SHAKE: illegal-pour tube shake gated under reduced-motion (keep SFX + haptic; no soft-arm)
+  {
+    const shakeIdx = gameRaw.indexOf('function shakeTube');
+    const shakeSlice = shakeIdx >= 0 ? gameRaw.slice(shakeIdx, shakeIdx + 520) : '';
+    const early =
+      /function shakeTube\s*\(/.test(shakeSlice) &&
+      /if\s*\(\s*prefersReducedMotion\s*\(\s*\)\s*\)/.test(shakeSlice) &&
+      /SFX\.illegal\s*\(/.test(shakeSlice) &&
+      /haptic\s*\(\s*['"]illegal['"]\s*\)/.test(shakeSlice) &&
+      /return\s*;/.test(shakeSlice);
+    const cssShake =
+      /@media\s*\(\s*prefers-reduced-motion:\s*reduce\s*\)\s*\{[\s\S]*?\.tube\.invalid-shake\s*\{[^}]*animation:\s*none/.test(
+        cssRaw
+      );
+    const noSoft =
+      !/a11y-shake-arm|shake-reduced-arm|\.a11y-shake-arm/.test(gameRaw + cssRaw);
+    if (early && cssShake && noSoft) {
+      pass(
+        'A11Y-SHAKE',
+        'shakeTube prefersReducedMotion keeps SFX+haptic, skips invalid-shake; CSS animation none; no soft-arm'
+      );
+    } else {
+      fail(
+        'A11Y-SHAKE',
+        'missing shakeTube reduced-motion early path / CSS .invalid-shake animation none, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
