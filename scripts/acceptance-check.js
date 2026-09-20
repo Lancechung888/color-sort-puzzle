@@ -387,6 +387,23 @@ if (gameRaw) {
     fail('STUCK-DETECT', 'missing isBoardStuck / maybeNotifyStuck / Undo|Restart toast / board_stuck event');
   }
 
+  // Mid-level Restart two-tap confirm (toast only — no soft-arm CSS)
+  if (
+    /function clearPendingRestart\s*\(/.test(gameRaw) &&
+    /function armPendingRestart\s*\(/.test(gameRaw) &&
+    /PENDING_RESTART_MS/.test(gameRaw) &&
+    /pendingRestartUntil/.test(gameRaw) &&
+    /Tap Restart again to confirm/.test(gameRaw) &&
+    /hasProgress/.test(gameRaw) &&
+    /moves\s*>\s*0\s*\|\|\s*history\.length\s*>\s*0/.test(gameRaw) &&
+    /restart_confirm_arm/.test(gameRaw) &&
+    !/restart-arm|restartArm|\.restart-arm/.test(gameRaw)
+  ) {
+    pass('RESTART-CONFIRM', 'mid-level Restart two-tap confirm (toast); empty board one-tap; no soft-arm CSS');
+  } else {
+    fail('RESTART-CONFIRM', 'missing pendingRestart / Tap Restart again toast / hasProgress gate, or soft-arm CSS slipped in');
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&
