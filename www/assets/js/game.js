@@ -3318,12 +3318,15 @@
   }
 
   /**
-   * Return to start screen without wiping save.
+   * Return to start screen without wiping meta save OR mid-level run draft.
+   * Home acts as pause: flush draft so Continue / Play Level N / Daily can resume
+   * via tryResumeOrLoad. Restart / win / cold load still clearRunDraft.
    * Clears mid-play selection / pending uncap; refreshes start CTAs + HUD.
    */
   function goHome() {
     if (pouring) return;
-    clearRunDraft();
+    // Flush before showing start screen (isRunActive() becomes false once shown).
+    if (isRunActive()) persistRunDraft();
     clearPendingUncap();
     selected = -1;
     const levelsOv = $('#levels-overlay');
