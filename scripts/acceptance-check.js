@@ -3434,6 +3434,57 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-MIXED-CONTENT: deny mixed HTTP/HTTPS in WebView; complements CLEARTEXT ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-mixed-content.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk =
+    /setMixedContentMode\s*\(\s*WebSettings\.MIXED_CONTENT_NEVER_ALLOW\s*\)/.test(patchRaw);
+  const mediaIdx = aabRaw.search(/patch-android-webview-media-gesture\.sh/);
+  const mixedIdx = aabRaw.search(/patch-android-webview-mixed-content\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    mediaIdx >= 0 &&
+    mixedIdx >= 0 &&
+    iconsIdx >= 0 &&
+    mediaIdx < mixedIdx &&
+    mixedIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-MIXED-CONTENT/.test(readmeRaw) && /2x/.test(readmeRaw);
+  const keepOk =
+    /setMixedContentMode\s*\(\s*WebSettings\.MIXED_CONTENT_NEVER_ALLOW\s*\)/.test(keepRaw) &&
+    /import\s+android\.webkit\.WebSettings\s*;/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk =
+      /setMixedContentMode\s*\(\s*WebSettings\.MIXED_CONTENT_NEVER_ALLOW\s*\)/.test(mainRaw) &&
+      /import\s+android\.webkit\.WebSettings\s*;/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-mixed-content-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-MIXED-CONTENT',
+      'setMixedContentMode(MIXED_CONTENT_NEVER_ALLOW) + patch/aab after media-gesture before icons + README §2x + keep-awake; complements CLEARTEXT; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-MIXED-CONTENT',
+      `missing mixed-content / patch / aab hook-after-media-gesture-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';
