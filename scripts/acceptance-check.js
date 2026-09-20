@@ -923,6 +923,45 @@ if (gameRaw) {
     }
   }
 
+  // A11Y-POUR / POUR-REDUCED: prefers-reduced-motion skips stream/tilt/splash (no soft-arm)
+  {
+    const pourIdx = gameRaw.indexOf('function animatePour');
+    const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 2200) : '';
+    const pourUsesReduced =
+      /function animatePour\s*\(/.test(pourSlice) &&
+      /prefersReducedMotion\s*\(/.test(pourSlice);
+    const reducedSkipsMotion =
+      /if\s*\(\s*prefersReducedMotion\s*\(\s*\)\s*\)/.test(pourSlice) &&
+      (/SFX\.pour/.test(pourSlice) && /SFX\.land/.test(pourSlice));
+    const splashIdx = gameRaw.indexOf('function spawnSplash');
+    const splashSlice = splashIdx >= 0 ? gameRaw.slice(splashIdx, splashIdx + 280) : '';
+    const splashGuard =
+      /function spawnSplash\s*\(/.test(splashSlice) &&
+      /if\s*\(\s*prefersReducedMotion\s*\(\s*\)\s*\)\s*return\s*;/.test(splashSlice);
+    const sparkIdx = gameRaw.indexOf('function spawnWinPourSparkle');
+    const sparkSlice = sparkIdx >= 0 ? gameRaw.slice(sparkIdx, sparkIdx + 280) : '';
+    const sparkGuard =
+      /function spawnWinPourSparkle\s*\(/.test(sparkSlice) &&
+      /if\s*\(\s*prefersReducedMotion\s*\(\s*\)\s*\)\s*return\s*;/.test(sparkSlice);
+    const cssHas =
+      /prefers-reduced-motion:\s*reduce/.test(cssRaw) &&
+      /\.pour-stream/.test(cssRaw) &&
+      /\.splash-particle/.test(cssRaw);
+    const noSoft =
+      !/a11y-pour-arm|pour-reduced-arm|pourReducedArm|\.a11y-pour-arm/.test(gameRaw + cssRaw);
+    if (pourUsesReduced && reducedSkipsMotion && splashGuard && sparkGuard && cssHas && noSoft) {
+      pass(
+        'A11Y-POUR',
+        'animatePour prefersReducedMotion skips stream/tilt/splash; spawnSplash/sparkle gated; CSS hide; no soft-arm'
+      );
+    } else {
+      fail(
+        'A11Y-POUR',
+        'missing prefersReducedMotion pour path / splash|sparkle guards / CSS hide, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
