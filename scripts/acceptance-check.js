@@ -347,7 +347,9 @@ if (gameRaw) {
     fail('NAV-HOME', 'missing goHome / btn-home / startScreen.show wiring');
   }
 
-  // Mid-level board resume: draft persist + validate-on-restore + clear on win/home
+  // Mid-level board resume: draft persist + validate-on-restore + clear on win/restart; Home persists (pause)
+  const goHomeFn = (gameRaw.match(/function goHome\s*\([^)]*\)\s*\{[\s\S]*?\n  function /) || [])[0] || '';
+  const showWinFn = (gameRaw.match(/function showWin\s*\([^)]*\)\s*\{[\s\S]*?\n  function /) || [])[0] || '';
   if (
     /RUN_STORAGE_KEY|colorTubeSort_run_v1/.test(gameRaw) &&
     /function persistRunDraft\s*\(/.test(gameRaw) &&
@@ -355,15 +357,17 @@ if (gameRaw) {
     /function tryResumeOrLoad\s*\(/.test(gameRaw) &&
     /function clearRunDraft\s*\(/.test(gameRaw) &&
     /clearRunDraft\(\)/.test(gameRaw) &&
-    /function showWin\s*\([\s\S]*?clearRunDraft/.test(gameRaw) &&
-    /function goHome\s*\([\s\S]*?clearRunDraft/.test(gameRaw) &&
+    /clearRunDraft/.test(showWinFn) &&
+    /persistRunDraft/.test(goHomeFn) &&
+    !/clearRunDraft/.test(goHomeFn) &&
+    /doRestartLevel[\s\S]*?clearRunDraft|function doRestartLevel[\s\S]*?clearRunDraft|loadLevel[\s\S]*?clearRunDraft/.test(gameRaw) &&
     /colorMultisetsEqual|colorMultisetOf/.test(gameRaw) &&
     /visibilitychange/.test(gameRaw) &&
     /pagehide/.test(gameRaw)
   ) {
-    pass('RUN-RESUME', 'mid-level run draft persist + validate-on-restore + clear on win/home');
+    pass('RUN-RESUME', 'mid-level run draft persist + validate-on-restore + clear on win/restart; Home persists draft (pause)');
   } else {
-    fail('RUN-RESUME', 'missing run draft persist / validateRunDraft / clear on win|home / hide flush');
+    fail('RUN-RESUME', 'missing run draft persist / validateRunDraft / clear on win|restart / Home persist / hide flush');
   }
 
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
