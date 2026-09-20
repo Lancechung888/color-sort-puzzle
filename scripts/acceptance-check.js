@@ -310,6 +310,49 @@ if (gameRaw) {
     fail('A11Y-COLOR', 'missing colorAssist save/toggle, layer-mark glyphs, and/or CSS');
   }
 
+  // In-app Reduced motion preference (Settings) — force calm juice without OS media query
+  {
+    const htmlRawRm = read('index.html') || '';
+    const prmIdx = gameRaw.indexOf('function prefersReducedMotion');
+    const prmSlice = prmIdx >= 0 ? gameRaw.slice(prmIdx, prmIdx + 420) : '';
+    const orOs =
+      /function prefersReducedMotion\s*\(/.test(prmSlice) &&
+      /save\.reducedMotion\s*===\s*true/.test(prmSlice) &&
+      /matchMedia\s*\(\s*['"]\(prefers-reduced-motion:\s*reduce\)['"]\s*\)/.test(prmSlice);
+    const jsOk =
+      /reducedMotion:\s*false/.test(gameRaw) &&
+      /reducedMotion:\s*data\.reducedMotion\s*===\s*true/.test(gameRaw) &&
+      orOs &&
+      /classList\.toggle\(\s*['"]reduced-motion['"]\s*,\s*save\.reducedMotion\s*===\s*true\s*\)/.test(gameRaw) &&
+      /btn-toggle-reduced-motion/.test(gameRaw) &&
+      /keepRm\s*=\s*save\.reducedMotion\s*===\s*true/.test(gameRaw) &&
+      /save\.reducedMotion\s*=\s*keepRm/.test(gameRaw);
+    const noSoft =
+      !/motion-pref-arm|reduced-motion-arm|a11y-motion-arm|\.motion-pref-arm|claim-juice|hud-pulse/.test(
+        gameRaw + cssRaw
+      );
+    const htmlOk =
+      /id=["']btn-toggle-reduced-motion["']/.test(htmlRawRm) &&
+      /data-setting=["']reduced-motion["']/.test(htmlRawRm) &&
+      /Reduced motion/.test(htmlRawRm) &&
+      /Less animation/.test(htmlRawRm);
+    const cssOk =
+      /html\.reduced-motion/.test(cssRaw) &&
+      /html\.reduced-motion\s+\.pour-stream/.test(cssRaw) &&
+      /html\.reduced-motion\s+\.confetti/.test(cssRaw);
+    if (jsOk && htmlOk && cssOk && noSoft) {
+      pass(
+        'A11Y-MOTION-PREF',
+        'Settings Reduced motion toggle + persist; prefersReducedMotion ORs save; html.reduced-motion class; RESET keeps; no soft-arm'
+      );
+    } else {
+      fail(
+        'A11Y-MOTION-PREF',
+        'missing reducedMotion save/toggle / prefersReducedMotion OR / html class / RESET keep, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Save sanitization on load path
   if (
     /function sanitizeSave/.test(gameRaw) &&
@@ -460,6 +503,8 @@ if (gameRaw) {
       /sfxOn/.test(gameRaw) &&
       /hapticsOn/.test(gameRaw) &&
       /colorAssist/.test(gameRaw) &&
+      /reducedMotion/.test(gameRaw) &&
+      /keepRm/.test(gameRaw) &&
       /btn-reset-progress/.test(gameRaw) &&
       !/reset-arm|resetArm|\.reset-arm|progress-reset-arm/.test(gameRaw);
     const htmlOk =
@@ -468,7 +513,7 @@ if (gameRaw) {
     if (jsOk && htmlOk) {
       pass(
         'RESET-PROGRESS',
-        'Settings Reset progress two-tap confirm (toast); keeps Sound/Haptics/Color assist; clears draft+bak; no soft-arm CSS'
+        'Settings Reset progress two-tap confirm (toast); keeps Sound/Haptics/Color assist/Reduced motion; clears draft+bak; no soft-arm CSS'
       );
     } else {
       fail(
