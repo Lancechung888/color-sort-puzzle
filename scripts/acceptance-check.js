@@ -2389,6 +2389,31 @@ block(
   }
 }
 
+// --- SAFE-AREA-TB: vertical safe-area insets on .overlay; no soft-arm ---
+{
+  const cssRaw = read('assets/css/style.css') || '';
+  const topVar =
+    /--safe-top\s*:\s*env\(\s*safe-area-inset-top/.test(cssRaw);
+  const botVar =
+    /--safe-bot\s*:\s*env\(\s*safe-area-inset-bottom/.test(cssRaw);
+  const overlayPad =
+    /\.overlay\s*\{[\s\S]*?padding\s*:[^;]*var\(--safe-top\)[^;]*;/.test(cssRaw) &&
+    /\.overlay\s*\{[\s\S]*?padding\s*:[^;]*var\(--safe-bot\)[^;]*;/.test(cssRaw);
+  const noSoft =
+    !/safe-area-arm|safeArea-arm|safe-tb-arm|claim-juice|hud-pulse/.test(cssRaw);
+  if (topVar && botVar && overlayPad && noSoft) {
+    pass(
+      'SAFE-AREA-TB',
+      '.overlay padding uses --safe-top/--safe-bot via env(safe-area-inset-top/bottom); no soft-arm'
+    );
+  } else {
+    fail(
+      'SAFE-AREA-TB',
+      `missing --safe-top/--safe-bot env() and/or .overlay padding var(--safe-top/bot), or soft-arm slipped in (topVar=${topVar} botVar=${botVar} overlayPad=${overlayPad} noSoft=${noSoft})`
+    );
+  }
+}
+
 
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {

@@ -1760,8 +1760,8 @@ html, body {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
-  /* Absolute inset:0 covers #app padding box — keep horizontal safe insets here */
-  padding: 16px calc(16px + var(--safe-right)) 16px calc(16px + var(--safe-left));
+  /* Absolute inset:0 covers #app padding box — all four sides get safe insets here */
+  padding: calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(16px + var(--safe-bot)) calc(16px + var(--safe-left));
 }
 
 [data-theme="cat"] .overlay {
