@@ -69,6 +69,8 @@ bash "$ROOT/scripts/patch-android-keep-awake.sh"
 bash "$ROOT/scripts/patch-android-system-bars.sh"
 # Android 12+ SplashScreen install + postSplashScreenTheme (brand cold-start handoff).
 bash "$ROOT/scripts/patch-android-splash-theme.sh"
+# Disable Auto Backup / cloud data extraction (in-app SAVE-BACKUP is the supported path).
+bash "$ROOT/scripts/patch-android-no-backup.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
