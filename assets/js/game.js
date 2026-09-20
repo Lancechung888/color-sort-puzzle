@@ -3898,6 +3898,59 @@
   }
 
   // --- Overlays ---
+  /** Focusable controls inside an overlay (visible + enabled). */
+  function overlayFocusables(root) {
+    if (!root) return [];
+    const sel =
+      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const nodes = Array.prototype.slice.call(root.querySelectorAll(sel));
+    return nodes.filter(function (el) {
+      if (!el || el.disabled) return false;
+      if (el.getAttribute('aria-hidden') === 'true') return false;
+      if (typeof el.tabIndex === 'number' && el.tabIndex < 0) return false;
+      const style = window.getComputedStyle(el);
+      if (!style || style.display === 'none' || style.visibility === 'hidden') return false;
+      const rects = el.getClientRects();
+      if (!rects || !rects.length) return false;
+      return true;
+    });
+  }
+
+  /**
+   * Trap Tab / Shift+Tab inside the top modal overlay (hint/shop/fail/levels/win).
+   * Start screen is not trapped — it is the home surface. No soft-arm CSS.
+   */
+  function trapOverlayTab(e) {
+    if (!e || e.key !== 'Tab') return;
+    const ov = topFocusOverlay();
+    if (!ov || !ov.classList.contains('show')) return;
+    const list = overlayFocusables(ov);
+    if (!list.length) {
+      e.preventDefault();
+      focusOverlayPrimary(ov);
+      return;
+    }
+    const first = list[0];
+    const last = list[list.length - 1];
+    const active = document.activeElement;
+    const inside = !!(active && ov.contains(active));
+    const idx = inside ? list.indexOf(active) : -1;
+    if (!inside || idx < 0) {
+      e.preventDefault();
+      safeFocus(e.shiftKey ? last : first);
+      return;
+    }
+    if (e.shiftKey) {
+      if (idx <= 0) {
+        e.preventDefault();
+        safeFocus(last);
+      }
+    } else if (idx >= list.length - 1) {
+      e.preventDefault();
+      safeFocus(first);
+    }
+  }
+
   function safeFocus(el) {
     if (!el || typeof el.focus !== 'function') return;
     try {
@@ -4840,6 +4893,10 @@
 
     document.addEventListener('pointerdown', resumeAudio, { once: true });
     document.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        trapOverlayTab(e);
+        return;
+      }
       if (e.key !== 'Escape') return;
       const levelsOv = $('#levels-overlay');
       if (levelsOv && levelsOv.classList.contains('show')) {
