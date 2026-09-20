@@ -70,6 +70,24 @@ bash scripts/patch-android-portrait.sh
 
 `npm run aab:internal` 在 AdMob Manifest patch **之後**自動跑。`android/` 仍 gitignore；勿強制提交完整工程樹。
 
+
+## 2c. MainActivity keep-awake（ANDROID-KEEP-AWAKE）
+
+Capacitor WebView often lacks `navigator.wakeLock`. Native mid-game play should keep the screen on via `WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON`.
+
+`MainActivity` (after patch):
+
+- `onCreate`: default `FLAG_KEEP_SCREEN_ON` (matches Settings default On)
+- `ColorTubeNative.setKeepScreenOn(boolean)` JS bridge — game Settings「Keep screen on」syncs on/off
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-keep-awake.sh
+```
+
+`npm run aab:internal` 在 portrait patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

@@ -63,6 +63,8 @@ npx cap sync
 bash "$ROOT/scripts/patch-android-admob.sh"
 # Lock MainActivity to portrait (hybrid-casual; web already portrait-primary).
 bash "$ROOT/scripts/patch-android-portrait.sh"
+# Native keep-awake (WebView often lacks navigator.wakeLock; Settings syncs via ColorTubeNative).
+bash "$ROOT/scripts/patch-android-keep-awake.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
