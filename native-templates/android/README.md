@@ -673,6 +673,30 @@ bash scripts/patch-android-webview-dom-storage-on.sh
 
 `npm run aab:internal` 在 webview-debug-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2ag. Deny WebView Autofill overlays（ANDROID-WEBVIEW-AUTOFILL-OFF）
+
+After **ANDROID-WEBVIEW-DOM-STORAGE-ON**, Android **Autofill Framework** (API 26+) can draw banners / steal focus over the Capacitor WebView mid-run. ColorTube Sort has **no forms** — deny Autofill on the bridge WebView:
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after dom-storage-on)
+// ANDROID-WEBVIEW-AUTOFILL-OFF: deny Autofill overlays mid-run (API 26+).
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+  webView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
+}
+```
+
+Requires `import android.os.Build;` and `import android.view.View;` (already present for OVER_SCROLL_NEVER / algorithmic-dark).
+
+Distinct from **ANDROID-WEBVIEW-LONG-CLICK** (ActionMode / context menu) and **ANDROID-WEBVIEW-HAPTIC-OFF** (View system haptic). Do **not** touch DomStorage / cookies / `setAllowContentAccess` / JavaScript / AdMob.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-autofill-off.sh
+```
+
+`npm run aab:internal` 在 webview-dom-storage-on patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

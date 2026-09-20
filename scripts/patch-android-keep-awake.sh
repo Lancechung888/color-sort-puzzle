@@ -90,6 +90,8 @@ import com.getcapacitor.BridgeActivity;
  * production WebView (static class call; distinct from SAFE-BROWSING / ALGORITHMIC-DARK-OFF).
  * setDomStorageEnabled(true) so OEM WebView defaults cannot silently break
  * localStorage / save progress (distinct from DATABASE-OFF which denies Web SQL).
+ * setImportantForAutofill(IMPORTANT_FOR_AUTOFILL_NO) on API 26+ so Autofill banners
+ * cannot overlay mid-run tube taps (distinct from LONG-CLICK / HAPTIC-OFF).
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -141,6 +143,10 @@ public class MainActivity extends BridgeActivity {
       WebView.setWebContentsDebuggingEnabled(false);
       // ANDROID-WEBVIEW-DOM-STORAGE-ON: ensure DomStorage/localStorage for save progress.
       webView.getSettings().setDomStorageEnabled(true);
+      // ANDROID-WEBVIEW-AUTOFILL-OFF: deny Autofill overlays mid-run (API 26+).
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        webView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);
+      }
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.

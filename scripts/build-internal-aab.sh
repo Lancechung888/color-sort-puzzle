@@ -123,6 +123,8 @@ bash "$ROOT/scripts/patch-android-webview-algorithmic-dark-off.sh"
 bash "$ROOT/scripts/patch-android-webview-debug-off.sh"
 # Ensure DomStorage / localStorage for save progress (distinct from DATABASE-OFF).
 bash "$ROOT/scripts/patch-android-webview-dom-storage-on.sh"
+# Deny Autofill Framework overlays mid-run (API 26+ IMPORTANT_FOR_AUTOFILL_NO).
+bash "$ROOT/scripts/patch-android-webview-autofill-off.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
