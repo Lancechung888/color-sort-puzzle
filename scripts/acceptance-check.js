@@ -856,6 +856,33 @@ if (gameRaw) {
     }
   }
 
+  // Pour UI guard: Shop + Daily must not open/start mid-pour (no soft-arm)
+  {
+    const shopIdx = gameRaw.indexOf('function openShop');
+    const shopSlice = shopIdx >= 0 ? gameRaw.slice(shopIdx, shopIdx + 400) : '';
+    const shopGuard =
+      /function openShop\s*\(/.test(shopSlice) &&
+      /if\s*\(\s*pouring\s*\)\s*return\s*;/.test(shopSlice);
+    const dailyIdx = gameRaw.indexOf('function startDailyChallenge');
+    const dailySlice = dailyIdx >= 0 ? gameRaw.slice(dailyIdx, dailyIdx + 400) : '';
+    const dailyGuard =
+      /function startDailyChallenge\s*\(/.test(dailySlice) &&
+      /if\s*\(\s*pouring\s*\)\s*return\s*;/.test(dailySlice);
+    const noSoft =
+      !/pour-ui-arm|pourUiArm|\.pour-ui-arm/.test(gameRaw);
+    if (shopGuard && dailyGuard && noSoft) {
+      pass(
+        'POUR-UI-GUARD',
+        'openShop + startDailyChallenge early-return when pouring; no soft-arm'
+      );
+    } else {
+      fail(
+        'POUR-UI-GUARD',
+        'missing pouring early-return in openShop and/or startDailyChallenge, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
