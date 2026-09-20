@@ -421,6 +421,25 @@ if (gameRaw) {
     fail('LEAVE-RUN-CONFIRM', 'missing pendingLeave / Tap again to leave / draftHasProgress / confirmLeaveRunThen, or soft-arm CSS slipped in');
   }
 
+  // Shop big coin-spend two-tap confirm (toast only — no soft-arm CSS)
+  if (
+    /function clearPendingSpend\s*\(/.test(gameRaw) &&
+    /function armPendingSpend\s*\(/.test(gameRaw) &&
+    /PENDING_SPEND_MS/.test(gameRaw) &&
+    /pendingSpendUntil/.test(gameRaw) &&
+    /function confirmShopSpendThen\s*\(/.test(gameRaw) &&
+    /Tap again to spend/.test(gameRaw) &&
+    (/theme:'\s*\+|theme:\s*'\s*\+|['"]theme:/.test(gameRaw) || /THEME_COIN_COST/.test(gameRaw)) &&
+    (/hints-pack/.test(gameRaw) || /HINT_PACK_COIN_COST/.test(gameRaw)) &&
+    (/undo-level/.test(gameRaw) || /UNDO_LEVEL_COIN_COST/.test(gameRaw)) &&
+    /shop_spend_confirm_arm/.test(gameRaw) &&
+    !/spend-arm|spendArm|\.spend-arm|shop-spend-arm/.test(gameRaw)
+  ) {
+    pass('SHOP-SPEND-CONFIRM', 'shop coin spend ≥80 two-tap confirm (toast); theme/hints-pack/undo; no soft-arm CSS');
+  } else {
+    fail('SHOP-SPEND-CONFIRM', 'missing confirmShopSpendThen / pendingSpend / Tap again to spend / theme|hints-pack|undo wiring, or soft-arm CSS slipped in');
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&
