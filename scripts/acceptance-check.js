@@ -3284,6 +3284,62 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-SCROLLBARS: deny native chrome; scrolling remains enabled ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-scrollbars.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const styleRaw = read('assets/css/style.css') || '';
+  const patchOk =
+    /setVerticalScrollBarEnabled\s*\(\s*false\s*\)/.test(patchRaw) &&
+    /setHorizontalScrollBarEnabled\s*\(\s*false\s*\)/.test(patchRaw);
+  const hapticIdx = aabRaw.search(/patch-android-webview-haptic-off\.sh/);
+  const scrollbarsIdx = aabRaw.search(/patch-android-webview-scrollbars\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    hapticIdx >= 0 &&
+    scrollbarsIdx >= 0 &&
+    iconsIdx >= 0 &&
+    hapticIdx < scrollbarsIdx &&
+    scrollbarsIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-SCROLLBARS/.test(readmeRaw) && /2u/.test(readmeRaw);
+  const keepOk =
+    /setVerticalScrollBarEnabled\s*\(\s*false\s*\)/.test(keepRaw) &&
+    /setHorizontalScrollBarEnabled\s*\(\s*false\s*\)/.test(keepRaw);
+  const cssOk =
+    /\.levels-grid,\s*\.modal-shop\s*\{[\s\S]*?scrollbar-width\s*:\s*none/.test(styleRaw) &&
+    /\.levels-grid::-webkit-scrollbar,\s*\.modal-shop::-webkit-scrollbar/.test(styleRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk =
+      /setVerticalScrollBarEnabled\s*\(\s*false\s*\)/.test(mainRaw) &&
+      /setHorizontalScrollBarEnabled\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-scrollbars-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && cssOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-SCROLLBARS',
+      'setVerticalScrollBarEnabled(false) + setHorizontalScrollBarEnabled(false) + patch/aab after haptic-off before icons + README §2u + keep-awake + CSS scrollbar hide; scrolling remains enabled; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-SCROLLBARS',
+      `missing scrollbar setters / patch / aab hook-after-haptic-before-icons / README / keep-awake / CSS, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} cssOk=${cssOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

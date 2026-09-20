@@ -420,6 +420,26 @@ bash scripts/patch-android-webview-haptic-off.sh
 
 `npm run aab:internal` 在 webview-long-click patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2u. Deny native WebView scrollbars（ANDROID-WEBVIEW-SCROLLBARS）
+
+Stock Capacitor WebView scrollbars can flash OS chrome over the scrollable Levels grid and Shop modal. After **ANDROID-WEBVIEW-HAPTIC-OFF**, deny both native scrollbar directions while leaving container scrolling enabled (CSS hides the web/PWA chrome too):
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (after haptic-off)
+webView.setVerticalScrollBarEnabled(false);
+webView.setHorizontalScrollBarEnabled(false);
+```
+
+Distinct from **ANDROID-WEBVIEW-OVERSCROLL** (glow／rubber-band); this only hides scrollbar chrome, so scrolling still works. CSS `scrollbar-width: none`／`::-webkit-scrollbar` covers `.levels-grid` and `.modal-shop`.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-scrollbars.sh
+```
+
+`npm run aab:internal` 在 haptic-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

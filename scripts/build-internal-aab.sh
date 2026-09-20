@@ -99,6 +99,8 @@ bash "$ROOT/scripts/patch-android-webview-zoom-lock.sh"
 bash "$ROOT/scripts/patch-android-webview-long-click.sh"
 # Deny WebView system haptic (View.performHapticFeedback) so Capacitor/vibrate stays intentional.
 bash "$ROOT/scripts/patch-android-webview-haptic-off.sh"
+# Deny WebView native scrollbars while Levels / Shop containers remain scrollable.
+bash "$ROOT/scripts/patch-android-webview-scrollbars.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
