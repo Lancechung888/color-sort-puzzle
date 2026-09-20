@@ -94,6 +94,11 @@
   let pendingRestartUntil = 0;
   let pendingRestartTimer = 0;
   const PENDING_RESTART_MS = 2000;
+  /** Two-tap leave-run confirm when abandoning mid-level draft for another target (toast only). */
+  let pendingLeaveUntil = 0;
+  let pendingLeaveTimer = 0;
+  let pendingLeaveKey = '';
+  const PENDING_LEAVE_MS = 2000;
   let history = [];
   let moves = 0;
   let pouring = false;
@@ -1118,6 +1123,8 @@
     infiniteUndoLevel = !!draft.infiniteUndoLevel;
     selected = -1;
     clearPendingUncap();
+    clearPendingRestart();
+    clearPendingLeave();
     pouring = false;
     restartFailCount = 0;
     lastProjectedStars = 3;
@@ -1204,6 +1211,7 @@
     selected = -1;
     clearPendingUncap();
     clearPendingRestart();
+    clearPendingLeave();
     history = [];
     moves = 0;
     pouring = false;
@@ -1635,11 +1643,115 @@
   }
 
   function armPendingRestart() {
+    clearPendingLeave();
     pendingRestartUntil = Date.now() + PENDING_RESTART_MS;
     clearTimeout(pendingRestartTimer);
     pendingRestartTimer = setTimeout(function () {
       clearPendingRestart();
     }, PENDING_RESTART_MS + 30);
+  }
+
+  function clearPendingLeave() {
+    pendingLeaveUntil = 0;
+    pendingLeaveKey = '';
+    clearTimeout(pendingLeaveTimer);
+    pendingLeaveTimer = 0;
+  }
+
+  function armPendingLeave(key) {
+    pendingLeaveKey = key || '';
+    pendingLeaveUntil = Date.now() + PENDING_LEAVE_MS;
+    clearTimeout(pendingLeaveTimer);
+    pendingLeaveTimer = setTimeout(function () {
+      clearPendingLeave();
+    }, PENDING_LEAVE_MS + 30);
+  }
+
+  function draftHasProgress(draft) {
+    if (!draft || typeof draft !== 'object') return false;
+    const mv = Math.floor(Number(draft.moves) || 0);
+    const histLen = Array.isArray(draft.history) ? draft.history.length : 0;
+    return mv > 0 || histLen > 0;
+  }
+
+  function activeOrStoredProgressDraft() {
+    if (isRunActive() && (moves > 0 || history.length > 0)) {
+      return buildRunDraft();
+    }
+    const stored = readRunDraft();
+    if (stored && draftHasProgress(stored)) return stored;
+    return null;
+  }
+
+  function draftMatchesTarget(draft, idx, opts) {
+    opts = opts || {};
+    if (!draft || typeof draft !== 'object') return false;
+    const wantDaily = !!opts.daily;
+    if (!!draft.daily !== wantDaily) return false;
+    if (wantDaily) {
+      const key = opts.dailyKey || todayStr();
+      if (typeof draft.dailyKey !== 'string' || draft.dailyKey !== key) return false;
+    } else {
+      const li = Math.floor(Number(draft.levelIndex));
+      if (!Number.isFinite(li) || li !== idx) return false;
+    }
+    return true;
+  }
+
+  function leaveRunLabel(draft) {
+    if (!draft) return 'run';
+    if (draft.daily) return 'Daily';
+    const li = Math.floor(Number(draft.levelIndex));
+    if (Number.isFinite(li) && li >= 0) return 'Level ' + (li + 1);
+    return 'run';
+  }
+
+  function leaveTargetKey(idx, opts) {
+    opts = opts || {};
+    if (opts.daily) {
+      return 'daily:' + (opts.dailyKey || todayStr());
+    }
+    return 'main:' + idx;
+  }
+
+  /**
+   * Two-tap confirm before abandoning a mid-level progress draft for a different target.
+   * Empty / no-progress draft and same-target resume: one tap (no confirm).
+   */
+  function confirmLeaveRunThen(idx, opts, proceedFn) {
+    opts = opts || {};
+    const draft = activeOrStoredProgressDraft();
+    const targetKey = leaveTargetKey(idx, opts);
+    if (!draft || draftMatchesTarget(draft, idx, opts)) {
+      clearPendingLeave();
+      proceedFn();
+      return;
+    }
+    const now = Date.now();
+    const armed =
+      pendingLeaveUntil > 0 &&
+      now <= pendingLeaveUntil &&
+      pendingLeaveKey === targetKey;
+    if (!armed) {
+      clearPendingRestart();
+      armPendingLeave(targetKey);
+      const label = leaveRunLabel(draft);
+      toast('Tap again to leave ' + label);
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+      try { haptic('select'); } catch (_) { /* ignore */ }
+      trackEvent('leave_run_confirm_arm', {
+        from_label: label,
+        from_daily: !!draft.daily,
+        from_level: draft.daily ? 0 : (Math.floor(Number(draft.levelIndex)) + 1),
+        from_moves: Math.floor(Number(draft.moves) || 0),
+        to_key: targetKey,
+        to_daily: !!opts.daily,
+        to_level: opts.daily ? 0 : (idx + 1),
+      });
+      return;
+    }
+    clearPendingLeave();
+    proceedFn();
   }
 
   function armPendingUncap(idx) {
@@ -1656,6 +1768,7 @@
 
   function selectTube(idx) {
     if (pouring) return;
+    clearPendingLeave();
 
     // Cap module: destination while holding liquid → never uncap; two-tap self to uncap.
     if (isCapped(idx)) {
@@ -1821,6 +1934,7 @@
     trimHistory();
 
     clearPendingRestart();
+    clearPendingLeave();
     pouring = true;
     const color = topColor(tubes[fromIdx]);
     const wasCompleteBefore = tubes.map(isFilledComplete);
@@ -1877,6 +1991,7 @@
   function undo() {
     if (pouring || !history.length) return;
     clearPendingRestart();
+    clearPendingLeave();
     clearHudUndoArm();
     const prev = history.pop();
     tubes = prev.tubes;
@@ -1914,6 +2029,7 @@
       }
     }
     clearPendingRestart();
+    clearPendingLeave();
     restartFailCount++;
     if (restartFailCount >= failLoopThreshold()) {
       pendingFailRestart = true;
@@ -1926,6 +2042,7 @@
   function doRestartLevel() {
     // Restart within level: discard mid-board draft, then cold-load fresh.
     clearPendingRestart();
+    clearPendingLeave();
     clearRunDraft();
     if (isDailyMode) {
       loadLevel(levelIndex, { daily: true, dailyKey: dailySeedKey, def: getDailyDef() });
@@ -2370,13 +2487,15 @@
     if (save.dailyDoneDate === key) {
       toast('Daily already done! Streak ' + (save.streak || 0) + ' days');
     }
-    hideAllOverlays();
-    const def = getDailyDef();
-    const resumed = tryResumeOrLoad(0, { daily: true, dailyKey: key, def: def });
-    if (!resumed) {
-      const twist = (def && def._dailyTwist) ? def._dailyTwist : 'Remix';
-      toast('Daily Challenge · ' + twist + '!');
-    }
+    confirmLeaveRunThen(0, { daily: true, dailyKey: key }, function () {
+      hideAllOverlays();
+      const def = getDailyDef();
+      const resumed = tryResumeOrLoad(0, { daily: true, dailyKey: key, def: def });
+      if (!resumed) {
+        const twist = (def && def._dailyTwist) ? def._dailyTwist : 'Remix';
+        toast('Daily Challenge · ' + twist + '!');
+      }
+    });
   }
 
   // --- Render ---
@@ -2788,6 +2907,8 @@
   // --- Win UI ---
   function showWin() {
     clearRunDraft();
+    clearPendingRestart();
+    clearPendingLeave();
     SFX.win();
     const stars = calcStars();
     lastWinStars = stars;
@@ -3433,6 +3554,7 @@
     if (isRunActive()) persistRunDraft();
     clearPendingUncap();
     clearPendingRestart();
+    clearPendingLeave();
     selected = -1;
     const levelsOv = $('#levels-overlay');
     if (levelsOv && levelsOv.classList.contains('show')) closeLevels();
@@ -3522,13 +3644,15 @@
         '<span class="level-cell-stars">' + starsHtml + '</span>';
       if (!locked) {
         btn.addEventListener('click', () => {
-          closeLevels();
-          startScreen.classList.remove('show');
-          isDailyMode = false;
-          const resumed = tryResumeOrLoad(i);
-          if (!resumed && best < 3) {
-            toast('Aim for 3★ · first time +' + FIRST_THREE_STAR_BONUS + '🪙');
-          }
+          confirmLeaveRunThen(i, {}, function () {
+            closeLevels();
+            startScreen.classList.remove('show');
+            isDailyMode = false;
+            const resumed = tryResumeOrLoad(i);
+            if (!resumed && best < 3) {
+              toast('Aim for 3★ · first time +' + FIRST_THREE_STAR_BONUS + '🪙');
+            }
+          });
         });
       } else {
         btn.disabled = true;
@@ -4247,14 +4371,17 @@
   function startGame() {
     resumeAudio();
     clearStreakMilestoneClaim();
-    // Prevent click-through from start CTA into tubes underneath
-    app.classList.add('input-gate');
-    startScreen.classList.remove('show');
-    isDailyMode = false;
     // Match Continue · Level N label (same target as refreshStartPlayCta)
-    levelIndex = Math.min(Math.max(save.level || 0, 0), LEVELS.length - 1);
-    tryResumeOrLoad(levelIndex);
-    setTimeout(() => app.classList.remove('input-gate'), 280);
+    const targetIdx = Math.min(Math.max(save.level || 0, 0), LEVELS.length - 1);
+    confirmLeaveRunThen(targetIdx, {}, function () {
+      // Prevent click-through from start CTA into tubes underneath
+      app.classList.add('input-gate');
+      startScreen.classList.remove('show');
+      isDailyMode = false;
+      levelIndex = targetIdx;
+      tryResumeOrLoad(levelIndex);
+      setTimeout(() => app.classList.remove('input-gate'), 280);
+    });
   }
 
   function bindShop() {

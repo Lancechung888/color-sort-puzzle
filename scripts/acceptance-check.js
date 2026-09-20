@@ -404,6 +404,23 @@ if (gameRaw) {
     fail('RESTART-CONFIRM', 'missing pendingRestart / Tap Restart again toast / hasProgress gate, or soft-arm CSS slipped in');
   }
 
+  // Leave-run two-tap confirm when abandoning mid-level draft (toast only — no soft-arm CSS)
+  if (
+    /function clearPendingLeave\s*\(/.test(gameRaw) &&
+    /function armPendingLeave\s*\(/.test(gameRaw) &&
+    /PENDING_LEAVE_MS/.test(gameRaw) &&
+    /pendingLeaveUntil/.test(gameRaw) &&
+    /Tap again to leave/.test(gameRaw) &&
+    /function draftHasProgress\s*\(/.test(gameRaw) &&
+    /function confirmLeaveRunThen\s*\(/.test(gameRaw) &&
+    /leave_run_confirm_arm/.test(gameRaw) &&
+    !/leave-arm|leaveArm|\.leave-arm|leave-run-arm/.test(gameRaw)
+  ) {
+    pass('LEAVE-RUN-CONFIRM', 'leave-run two-tap confirm (toast); empty/same-target one-tap; no soft-arm CSS');
+  } else {
+    fail('LEAVE-RUN-CONFIRM', 'missing pendingLeave / Tap again to leave / draftHasProgress / confirmLeaveRunThen, or soft-arm CSS slipped in');
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&
