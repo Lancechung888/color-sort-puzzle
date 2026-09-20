@@ -1375,6 +1375,41 @@ if (gameRaw) {
     }
   }
 
+  // STORE-TITLE-ALIGN: Play lock title ColorTube Sort: Lid Puzzle on landing + share helpers
+  {
+    const lockTitle = 'ColorTube Sort: Lid Puzzle';
+    const landingPath = path.join(root, 'docs/index.html');
+    const landing = fs.existsSync(landingPath) ? fs.readFileSync(landingPath, 'utf8') : '';
+    const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    const hasLandingTitle =
+      /<title>\s*ColorTube Sort: Lid Puzzle\s*<\/title>/.test(landing) &&
+      /og:title[^>]*content=["']ColorTube Sort: Lid Puzzle["']/.test(landing) &&
+      /twitter:title[^>]*content=["']ColorTube Sort: Lid Puzzle["']/.test(landing) &&
+      /<h1>\s*ColorTube Sort: Lid Puzzle\s*<\/h1>/.test(landing);
+    const shareHelpersOk =
+      /function buildWinShareText\s*\(/.test(gameRaw) &&
+      /on ColorTube Sort: Lid Puzzle!/.test(gameRaw) &&
+      /const title = ['"]ColorTube Sort: Lid Puzzle['"]/.test(gameRaw);
+    const indexMetaOk =
+      /<title>\s*ColorTube Sort: Lid Puzzle\s*<\/title>/.test(indexHtml) &&
+      (/Lid Puzzle/.test(indexHtml) || /lid/.test(indexHtml));
+    const noSoft =
+      !/soft-arm|claim-juice|hud-.*-pulse|store-title-arm/.test(landing) &&
+      !/store-title-arm/.test(gameRaw);
+    if (hasLandingTitle && shareHelpersOk && indexMetaOk && noSoft) {
+      pass(
+        'STORE-TITLE-ALIGN',
+        'docs landing + OG/Twitter + h1 + buildWinShareText/shareWinResult + index meta use ColorTube Sort: Lid Puzzle; no soft-arm'
+      );
+    } else {
+      fail(
+        'STORE-TITLE-ALIGN',
+        'missing Play lock title ColorTube Sort: Lid Puzzle on landing/share/index meta, or soft-arm slipped in' +
+          ` (landingTitle=${hasLandingTitle} share=${shareHelpersOk} indexMeta=${indexMetaOk} noSoft=${noSoft})`
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
