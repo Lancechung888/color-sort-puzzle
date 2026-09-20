@@ -308,6 +308,9 @@
 
 （已補）**ANDROID-WEBVIEW-ZOOM-LOCK**已上 — `MainActivity` `webView.getSettings().setSupportZoom(false)`＋`setBuiltInZoomControls(false)`＋`setDisplayZoomControls(false)`（拒絕原生 WebView 手勢縮放打爆直立管板；瀏覽器／PWA **A11Y-ZOOM** 仍可 pinch；異於 TEXT-ZOOM 的系統字級；`android/` 仍 gitignore）；`scripts/patch-android-webview-zoom-lock.sh`＋`aab:internal` hook（bg 之後、icons 之前）＋`native-templates/android/README.md` §2r；accept `ANDROID-WEBVIEW-ZOOM-LOCK`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-WEBVIEW-LONG-CLICK**已上 — `MainActivity` `webView.setOnLongClickListener(v -> true)`＋`setLongClickable(false)`（拒絕原生 WebView 長按 ActionMode／context menu Copy／Share／Web Search 疊中局；CSS `user-select:none` 不足；`android/` 仍 gitignore）；`scripts/patch-android-webview-long-click.sh`＋`aab:internal` hook（zoom-lock 之後、icons 之前）＋`native-templates/android/README.md` §2s；accept `ANDROID-WEBVIEW-LONG-CLICK`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
+
 
 
 

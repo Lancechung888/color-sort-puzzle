@@ -379,6 +379,28 @@ bash scripts/patch-android-webview-zoom-lock.sh
 
 `npm run aab:internal` 在 webview-bg patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2s. Deny native WebView long-press ActionMode（ANDROID-WEBVIEW-LONG-CLICK）
+
+CSS `user-select: none` is not enough on Capacitor WebView: a long-press on HUD／labels can still open the native ActionMode overlay (Copy／Share／Web Search) mid-run. Consume long-press once the bridge WebView is ready (prefer after zoom-lock in `onStart`):
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after setDisplayZoomControls)
+webView.setOnLongClickListener(v -> true); // consume long-press
+webView.setLongClickable(false);
+```
+
+`import android.view.View;` is already present for OVER_SCROLL；patch adds it if missing.
+
+Distinct from **ANDROID-WEBVIEW-ZOOM-LOCK** (gesture zoom) and **ANDROID-WEBVIEW-TEXT-ZOOM** (system Font／Display). This only denies the long-press context menu.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-long-click.sh
+```
+
+`npm run aab:internal` 在 webview-zoom-lock patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
