@@ -259,6 +259,8 @@
 
 （已補）**WAKE-LOCK**已上 — 局中 Screen Wake Lock（`navigator.wakeLock.request('screen')`）＋Settings「Keep screen on」預設 On／persist；`goHome` release；`visibilitychange` 回前景重拿；Reset 保留；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**KEEP-AWAKE-KEY**已上 — 全域 `k`／`K` 切換 Keep screen on＋toast；Settings `#btn-toggle-keep-awake` `aria-keyshortcuts=k`；`?` 表含 Keep screen on k；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial。**未**把 #1／#3／#7／#9 標新 Pass。
+
 
 
 

@@ -2299,6 +2299,40 @@ block(
 }
 
 
+// --- KEEP-AWAKE-KEY: k/K toggles Keep screen on + Settings aria + cheatsheet; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const gameSrc = read('assets/js/game.js') || '';
+  const htmlOk =
+    /id=["']btn-toggle-keep-awake["']/.test(htmlRaw) &&
+    (/id=["']btn-toggle-keep-awake["'][^>]*aria-keyshortcuts=["']k["']/.test(htmlRaw) ||
+      /aria-keyshortcuts=["']k["'][^>]*id=["']btn-toggle-keep-awake["']/.test(htmlRaw));
+  const jsOk =
+    /function toggleKeepAwakeKey\s*\(/.test(gameSrc) &&
+    /function applyKeepAwakeOn\s*\(/.test(gameSrc) &&
+    (/e\.key\s*===\s*["']k["']/.test(gameSrc) || /key\s*===\s*["']k["']/.test(gameSrc)) &&
+    /Keep screen on/.test(gameSrc) &&
+    /Keep screen off/.test(gameSrc) &&
+    /Keep screen on k/.test(gameSrc);
+  const noSoft =
+    !/keep-awake-arm|wake-lock-arm|wakeLock-arm|\.keep-awake-arm|claim-juice|hud-pulse/.test(
+      gameSrc + cssRaw + htmlRaw
+    );
+  if (htmlOk && jsOk && noSoft) {
+    pass(
+      'KEEP-AWAKE-KEY',
+      'k/K → toggleKeepAwakeKey (keepAwake + toast Keep screen on/off) + #btn-toggle-keep-awake aria-keyshortcuts=k + Keep screen on k in ? cheatsheet; no soft-arm'
+    );
+  } else {
+    fail(
+      'KEEP-AWAKE-KEY',
+      `missing keep-awake key / applyKeepAwakeOn|toggleKeepAwakeKey / aria-keyshortcuts=k / Keep screen on k cheatsheet (htmlOk=${htmlOk} jsOk=${jsOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
