@@ -519,6 +519,27 @@ if (gameRaw) {
     );
   }
 
+  // Overlay Tab focus trap (keyboard cannot escape to HUD behind modals; no soft-arm)
+  if (
+    /function overlayFocusables/.test(gameRaw) &&
+    /function trapOverlayTab/.test(gameRaw) &&
+    /function topFocusOverlay/.test(gameRaw) &&
+    /e\.key\s*===\s*['"]Tab['"]/.test(gameRaw) &&
+    /trapOverlayTab\s*\(/.test(gameRaw) &&
+    /preventDefault\s*\(/.test(gameRaw) &&
+    !/trap-arm|focus-trap-arm|\.trap-arm/.test(gameRaw)
+  ) {
+    pass(
+      'A11Y-TRAP',
+      'Tab/Shift+Tab cycles inside topFocusOverlay via overlayFocusables; no soft-arm'
+    );
+  } else {
+    fail(
+      'A11Y-TRAP',
+      'missing overlay Tab focus trap (overlayFocusables / trapOverlayTab / Tab key) or soft-arm slipped in'
+    );
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&
