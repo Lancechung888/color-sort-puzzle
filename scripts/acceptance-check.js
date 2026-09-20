@@ -2960,6 +2960,39 @@ block(
   }
 }
 
+// --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
+{
+  const pkgRaw = read('package.json') || '';
+  let pkgDeps = {};
+  try {
+    pkgDeps = (JSON.parse(pkgRaw).dependencies) || {};
+  } catch (_) {
+    pkgDeps = {};
+  }
+  const depOk =
+    typeof pkgDeps['@capacitor/app'] === 'string' &&
+    /^[\^~]?6\./.test(pkgDeps['@capacitor/app']);
+  const gameOk =
+    /function bindSystemBack\s*\(/.test(gameRaw) &&
+    /App\.addListener\s*\(\s*['"]backButton['"]/.test(gameRaw) &&
+    /handleSystemBack\s*\(/.test(gameRaw);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse|back-arm|cap-app-arm/.test(
+      (gameRaw.match(/function bindSystemBack[\s\S]{0,800}/) || [''])[0]
+    );
+  if (depOk && gameOk && noSoft) {
+    pass(
+      'CAP-APP-BACK',
+      '@capacitor/app ^6.x in package.json + bindSystemBack App.addListener(backButton); no soft-arm'
+    );
+  } else {
+    fail(
+      'CAP-APP-BACK',
+      `missing @capacitor/app dep / bindSystemBack backButton wiring, or soft-arm slipped in (depOk=${depOk} gameOk=${gameOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
