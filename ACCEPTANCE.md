@@ -73,6 +73,9 @@
 （已補）**L-PAR**已上 — 全關顯式 `par`；Day1 BFS `par≥opt`；L79／L80 深度≥12（實測 30／29）；修早期 3★ 不可能；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#4 維持 Pass；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 
+（已補）**WAKE-LOCK**已上 — Screen Wake Lock 局中防休眠＋Settings Keep screen on（預設 On；Reset 保留）；accept `WAKE-LOCK`；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；P0②③ 仍 Blocked。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
+
 
 重跑：清乾淨 tree 後執行 `npm run accept`，exit 0 = 可自動項 Pass + Blocked 項如實列出。
 
