@@ -5545,6 +5545,22 @@
     onboardingTip.hidden = false;
   }
 
+  /** Re-open pour + lid teach from Settings — does not force tip on level load. */
+  function showHowToPlay() {
+    if (shopOverlay && shopOverlay.classList.contains('show')) {
+      closeOverlay(shopOverlay);
+    }
+    const tipP = onboardingTip.querySelector('p');
+    if (tipP) {
+      tipP.innerHTML =
+        '👆 Tap a colored tube to lift, then tap another to pour.<br />' +
+        'Goal: every tube is one solid color (or empty).<br />' +
+        '🧢 Gold lids block pours — <strong>double-tap</strong> to uncap (free — doesn\'t use a move).';
+    }
+    activeTipKind = 'howto';
+    onboardingTip.hidden = false;
+  }
+
   // --- Boot ---
   function clearThemeUnlockClaim() {
     if (themeClaimClearTimer) {
@@ -5763,6 +5779,12 @@
         persist();
         refreshSettingsToggles();
         if (next) haptic('arm');
+      });
+    }
+    const btnHowToPlay = $('#btn-how-to-play');
+    if (btnHowToPlay) {
+      btnHowToPlay.addEventListener('click', () => {
+        showHowToPlay();
       });
     }
     const btnToggleColorAssist = $('#btn-toggle-color-assist');
@@ -5999,6 +6021,28 @@
         trapOverlayTab(e);
         return;
       }
+      // HOW-TO-PLAY / KEYS-CHEATSHEET: ? or Shift+/ → brief shortcuts toast (no soft-arm)
+      {
+        const t = e.target;
+        let typing = false;
+        if (t) {
+          const tag = (t.tagName || '').toLowerCase();
+          if (tag === 'input' || tag === 'textarea' || tag === 'select') typing = true;
+          if (t.isContentEditable) typing = true;
+        }
+        const isHelp =
+          e.key === '?' ||
+          (e.key === '/' && e.shiftKey) ||
+          (e.code === 'Slash' && e.shiftKey);
+        if (isHelp && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          e.preventDefault();
+          toast(
+            'Play Enter · Daily d · Shop s · Levels l · Undo u · Hint h · Restart r · Home Esc · Win n/r/h/s/o · Fail h/b/r · Levels arrows/[ ]',
+            4800
+          );
+          return;
+        }
+      }
       if (e.key === 'Escape') {
         const levelsOv = $('#levels-overlay');
         if (levelsOv && levelsOv.classList.contains('show')) {
@@ -6089,6 +6133,8 @@
     $('#btn-dismiss-tip').addEventListener('click', () => {
       if (activeTipKind === 'cap') {
         save.capTeachDone = true;
+      } else if (activeTipKind === 'howto') {
+        // How to play re-open: just hide — do not force-clear teach flags
       } else {
         // Default / onboarding: only clear pour teach — keep L3 lid teach for later
         save.onboardingDone = true;
