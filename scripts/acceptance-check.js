@@ -2725,6 +2725,55 @@ block(
   }
 }
 
+// --- ANDROID-SOFT-INPUT: MainActivity adjustNothing; no soft-arm ---
+{
+  const manifestPath = path.join(root, 'android/app/src/main/AndroidManifest.xml');
+  const manifestRaw = fs.existsSync(manifestPath) ? fs.readFileSync(manifestPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-soft-input.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /windowSoftInputMode/.test(patchRaw) &&
+    /adjustNothing/.test(patchRaw) &&
+    /MainActivity/.test(patchRaw);
+  const aabHookOk = /patch-android-soft-input\.sh/.test(aabRaw);
+  const readmeOk = /ANDROID-SOFT-INPUT/.test(readmeRaw) && /2i/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require adjustNothing on MainActivity.
+  let localOk = !manifestRaw;
+  if (manifestRaw) {
+    const actRe = /<activity\b([\s\S]*?)>/gi;
+    let hit = false;
+    let ok = false;
+    let m;
+    while ((m = actRe.exec(manifestRaw))) {
+      const attrs = m[1];
+      if (
+        /android:name\s*=\s*["'](?:\.MainActivity|[^"']*MainActivity)["']/i.test(
+          attrs
+        )
+      ) {
+        hit = true;
+        ok = /android:windowSoftInputMode\s*=\s*["']adjustNothing["']/i.test(attrs);
+        break;
+      }
+    }
+    localOk = hit && ok;
+  }
+  const noSoft =
+    !/soft-input-arm|soft-arm|claim-juice|hud-pulse/.test(patchRaw + manifestRaw);
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-SOFT-INPUT',
+      'MainActivity android:windowSoftInputMode="adjustNothing" + patch-android-soft-input.sh + aab:internal hook + README; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-SOFT-INPUT',
+      `missing adjustNothing / patch / aab hook / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
