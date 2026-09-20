@@ -279,6 +279,30 @@ bash scripts/patch-android-cutout.sh
 
 `npm run aab:internal` 在 config-changes patch **之後**自動跑。`android/` 仍 gitignore。
 
+## 2n. Target SDK 36 + predictive back（ANDROID-TARGET-36）
+
+Google Play (as of 2026-08-31) requires **new apps and updates** to target **API 36**. Stock Capacitor `variables.gradle` still ships compile/target **34**. Also set `android:enableOnBackInvokedCallback="true"` on `<application>` so Android 13+ predictive back works with CAP-APP-BACK (`App.addListener('backButton')`).
+
+```gradle
+// android/variables.gradle
+compileSdkVersion = 36
+targetSdkVersion = 36
+// minSdkVersion stays 22
+```
+
+```xml
+<!-- AndroidManifest.xml <application> -->
+android:enableOnBackInvokedCallback="true"
+```
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-target-sdk.sh
+```
+
+`npm run aab:internal` 在 cutout patch **之後**自動跑。需要本機已安裝 `platforms;android-36`（＋匹配 build-tools）。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
