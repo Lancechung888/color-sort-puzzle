@@ -141,6 +141,10 @@
   }
   let lastWinStars = 0;
   let lastWinCoins = 0;
+  /** Last clear context for win-share text (set in showWin). */
+  let lastWinMode = 'main';
+  let lastWinLevel = 1;
+  let lastWinTwist = '';
   let pendingFailRestart = false;
   /** Toast queued from login streak (shown after HUD ready). Soft/reset only when no milestone. */
   let pendingStreakToast = '';
@@ -3180,6 +3184,14 @@
     SFX.win();
     const stars = calcStars();
     lastWinStars = stars;
+    lastWinMode = isDailyMode ? 'daily' : 'main';
+    lastWinLevel = isDailyMode ? 0 : levelIndex + 1;
+    if (isDailyMode) {
+      const d = getDailyDef();
+      lastWinTwist = (d && d._dailyTwist) ? d._dailyTwist : 'Remix';
+    } else {
+      lastWinTwist = '';
+    }
     // 3★ gets distinct perfect haptic; 1–2★ keep standard win
     haptic(stars === 3 ? 'perfect' : 'win');
     let coins = STAR_REWARDS[stars] || 10;
@@ -3433,6 +3445,71 @@
 
     spawnConfetti(stars === 3);
     refreshMetaTeasers();
+  }
+
+
+  function buildWinShareText() {
+    const stars = lastWinStars || 1;
+    let line;
+    if (lastWinMode === 'daily') {
+      const twist = lastWinTwist || 'Remix';
+      line = "I cleared today's Daily Challenge (" + twist + ') with ' + stars + '★ on ColorTube Sort!';
+    } else {
+      line = 'I cleared Level ' + (lastWinLevel || 1) + ' with ' + stars + '★ on ColorTube Sort!';
+    }
+    return (
+      line +
+      '\nGold lids block pours — uncap, then sort.\n' +
+      'https://lancechung888.github.io/color-sort-puzzle/'
+    );
+  }
+
+  function shareWinResult() {
+    if (pouring) return;
+    if (!winOverlay || !winOverlay.classList.contains('show')) return;
+    const text = buildWinShareText();
+    const title = 'ColorTube Sort';
+    const finishOk = function () {
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+      trackEvent('share_win', {
+        stars: lastWinStars,
+        mode: lastWinMode,
+        level: lastWinLevel,
+      });
+    };
+    const fallbackClipboard = function () {
+      const clip =
+        typeof navigator !== 'undefined' &&
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === 'function'
+          ? navigator.clipboard.writeText(text)
+          : Promise.reject(new Error('no clipboard'));
+      return Promise.resolve(clip)
+        .then(function () {
+          toast('Copied — paste to share');
+          finishOk();
+        })
+        .catch(function () {
+          toast('Share unavailable');
+        });
+    };
+    if (
+      typeof navigator !== 'undefined' &&
+      typeof navigator.share === 'function'
+    ) {
+      Promise.resolve(navigator.share({ title: title, text: text }))
+        .then(function () {
+          finishOk();
+        })
+        .catch(function (err) {
+          if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) {
+            return;
+          }
+          fallbackClipboard();
+        });
+      return;
+    }
+    fallbackClipboard();
   }
 
   function hideWin() {
@@ -5336,6 +5413,12 @@
       hideWin();
       goHome();
     });
+    const btnWinShare = $('#btn-win-share');
+    if (btnWinShare) {
+      btnWinShare.addEventListener('click', () => {
+        shareWinResult();
+      });
+    }
     $('#btn-shop-close').addEventListener('click', () => closeOverlay(shopOverlay));
     const btnToggleSfx = $('#btn-toggle-sfx');
     if (btnToggleSfx) {

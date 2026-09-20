@@ -1077,6 +1077,32 @@ if (gameRaw) {
     }
   }
 
+
+  // SHARE-WIN: win overlay Share CTA — Web Share API + clipboard fallback; no soft-arm
+  {
+    const indexHtml = read('index.html') || '';
+    const htmlHas = /id=["']btn-win-share["']/.test(indexHtml);
+    const sharePath =
+      (/btn-win-share|#btn-win-share/.test(gameRaw)) &&
+      (/function shareWinResult\s*\(/.test(gameRaw)) &&
+      (/navigator\.share/.test(gameRaw)) &&
+      (/clipboard\.writeText/.test(gameRaw));
+    const noSoft =
+      !/win-share-arm|shareWinArm|\.win-share-arm|btn-win-share-arm/.test(gameRaw + indexHtml) &&
+      !/id=["']btn-win-share["'][^>]*(?:soft-arm|win-share-arm|share-arm)/.test(indexHtml);
+    if (htmlHas && sharePath && noSoft) {
+      pass(
+        'SHARE-WIN',
+        'Win Share (#btn-win-share) + navigator.share / clipboard.writeText; no soft-arm'
+      );
+    } else {
+      fail(
+        'SHARE-WIN',
+        'missing #btn-win-share / shareWinResult navigator.share|clipboard path, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
