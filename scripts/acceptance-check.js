@@ -2812,6 +2812,58 @@ block(
   }
 }
 
+
+// --- ANDROID-FORCE-DARK: deny Force Dark on brand UI; no soft-arm ---
+{
+  const manifestPath = path.join(root, 'android/app/src/main/AndroidManifest.xml');
+  const stylesPath = path.join(root, 'android/app/src/main/res/values/styles.xml');
+  const manifestRaw = fs.existsSync(manifestPath) ? fs.readFileSync(manifestPath, 'utf8') : '';
+  const stylesRaw = fs.existsSync(stylesPath) ? fs.readFileSync(stylesPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-force-dark.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk = /forceDarkAllowed/.test(patchRaw);
+  const isGameIdx = aabRaw.search(/patch-android-is-game\.sh/);
+  const forceIdx = aabRaw.search(/patch-android-force-dark\.sh/);
+  const aabHookOk = forceIdx >= 0 && isGameIdx >= 0 && forceIdx > isGameIdx;
+  const readmeOk = /ANDROID-FORCE-DARK/.test(readmeRaw) && /2k/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require forceDarkAllowed=false.
+  let localOk = !manifestRaw;
+  if (manifestRaw) {
+    const appM = /<application\b([\s\S]*?)>/i.exec(manifestRaw);
+    const attrs = appM ? appM[1] : '';
+    localOk = /android:forceDarkAllowed\s*=\s*["']false["']/i.test(attrs);
+  }
+  let stylesOk = !stylesRaw;
+  if (stylesRaw) {
+    const names = ['AppTheme', 'AppTheme.NoActionBar', 'AppTheme.NoActionBarLaunch'];
+    stylesOk = names.every((name) => {
+      const esc = name.replace(/\./g, '\\.');
+      const m = new RegExp(
+        '<style\\b[^>]*\\bname\\s*=\\s*["\']' + esc + '["\'][^>]*>([\\s\\S]*?)</style>',
+        'i'
+      ).exec(stylesRaw);
+      if (!m) return false;
+      return /<item\s+name\s*=\s*["']android:forceDarkAllowed["']\s*>\s*false\s*<\/item>/i.test(
+        m[1]
+      );
+    });
+  }
+  const noSoft =
+    !/force-dark-arm|soft-arm|claim-juice|hud-pulse/.test(patchRaw + manifestRaw + stylesRaw);
+  if (patchOk && aabHookOk && readmeOk && localOk && stylesOk && noSoft) {
+    pass(
+      'ANDROID-FORCE-DARK',
+      'application + themes android:forceDarkAllowed="false" + patch-android-force-dark.sh + aab:internal after is-game + README §2k; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-FORCE-DARK',
+      `missing forceDarkAllowed / patch / aab hook-after-is-game / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} stylesOk=${stylesOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');

@@ -219,6 +219,29 @@ bash scripts/patch-android-is-game.sh
 
 `npm run aab:internal` 在 soft-input patch **之後**自動跑。`android/` 仍 gitignore。
 
+
+## 2k. Deny Force Dark（ANDROID-FORCE-DARK）
+
+Android 10+ **Force Dark** can invert / wash brand-dark hybrid-casual UI (`#1a1a2e` tubes / juice / HUD) when themes parent `DayNight` or OEMs auto-apply Force Dark.
+
+Deny it on `<application>` **and** themes:
+
+```xml
+<!-- AndroidManifest.xml <application> -->
+android:forceDarkAllowed="false"
+
+<!-- styles.xml AppTheme / AppTheme.NoActionBar / AppTheme.NoActionBarLaunch -->
+<item name="android:forceDarkAllowed">false</item>
+```
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-force-dark.sh
+```
+
+`npm run aab:internal` 在 is-game patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
