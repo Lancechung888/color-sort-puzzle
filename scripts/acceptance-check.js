@@ -1389,7 +1389,7 @@ if (gameRaw) {
       /href=["']privacy\/?["']/.test(landing) || /href=["']\.\/privacy\/?["']/.test(landing);
     const shareUrlOk =
       /function buildWinShareText\s*\(/.test(gameRaw) &&
-      /https:\/\/lancechung888\.github\.io\/color-sort-puzzle\//.test(gameRaw);
+      /https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/play\//.test(gameRaw);
     const noSoft =
       !/soft-arm|claim-juice|hud-.*-pulse|win-share-arm/.test(landing);
     if (
@@ -1404,7 +1404,7 @@ if (gameRaw) {
     ) {
       pass(
         'SHARE-LANDING',
-        'docs/index.html brand landing + USP + og:image + privacy link; docs/og.png; buildWinShareText → github.io root; no soft-arm'
+        'docs/index.html brand landing + USP + og:image + privacy link; docs/og.png; buildWinShareText → github.io /play/; no soft-arm'
       );
     } else {
       fail(
@@ -2300,6 +2300,38 @@ block(
     fail(
       'PWA-UPDATE',
       `missing v2/SWR/update UX or soft-arm (v2=${cacheV2} swr=${swrOk} ux=${updateUxOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- SHARE-PLAY-URL: win-share deep-links to playable /play/ demo; no soft-arm ---
+{
+  const hasFn = /function buildWinShareText\s*\(/.test(gameRaw);
+  const playUrl =
+    /https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/play\//.test(gameRaw);
+  // Prefer explicit url field on navigator.share when Web Share is used
+  const shareHasUrl =
+    /navigator\.share\s*\(\s*\{\s*title:\s*title,\s*text:\s*text,\s*url:\s*shareUrl\s*\}\s*\)/.test(
+      gameRaw
+    ) ||
+    /navigator\.share\s*\(\s*\{[^}]*url:\s*shareUrl[^}]*\}\s*\)/.test(gameRaw);
+  const noRootOnly =
+    !/https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/'\s*$/m.test(
+      gameRaw.split('function buildWinShareText')[1]?.slice(0, 600) || ''
+    );
+  const noSoft = !/soft-arm|claim-juice|hud-.*-pulse|share-play-arm/.test(
+    gameRaw.slice(gameRaw.indexOf('function buildWinShareText'), gameRaw.indexOf('function buildWinShareText') + 900)
+  );
+  if (hasFn && playUrl && shareHasUrl && noSoft) {
+    pass(
+      'SHARE-PLAY-URL',
+      'buildWinShareText + navigator.share url → github.io /play/ demo; no soft-arm'
+    );
+  } else {
+    fail(
+      'SHARE-PLAY-URL',
+      'win-share missing /play/ URL or navigator.share url field' +
+        ` (fn=${hasFn} play=${playUrl} urlField=${shareHasUrl} noSoft=${noSoft})`
     );
   }
 }

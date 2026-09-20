@@ -3704,7 +3704,7 @@
     return (
       line +
       '\nGold lids block pours — uncap, then sort.\n' +
-      'https://lancechung888.github.io/color-sort-puzzle/'
+      'https://lancechung888.github.io/color-sort-puzzle/play/'
     );
   }
 
@@ -3741,7 +3741,8 @@
       typeof navigator !== 'undefined' &&
       typeof navigator.share === 'function'
     ) {
-      Promise.resolve(navigator.share({ title: title, text: text }))
+      const shareUrl = 'https://lancechung888.github.io/color-sort-puzzle/play/';
+      Promise.resolve(navigator.share({ title: title, text: text, url: shareUrl }))
         .then(function () {
           finishOk();
         })

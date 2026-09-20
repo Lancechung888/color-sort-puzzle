@@ -64,6 +64,8 @@
 
 （已補）**Share play demo（SHARE-PLAY-DEMO）**已上 — `docs/play/` 由 `sync-www.sh` 從根 playable 同步（index／assets／sw／manifest；`start_url` `./`）；landing 主 CTA **Play free in browser** → `play/`；brand `docs/index.html` 不註冊 SW；Privacy＋Coming soon 保留；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；P0②③ 仍 Blocked。**未**把 #1／#3／#7／#9 標新 Pass。
 
+（已補）**Share play URL（SHARE-PLAY-URL）**已上 — 通關 Share／clipboard／`navigator.share` url 指向 `…/color-sort-puzzle/play/` 可玩 demo（非 brand landing 根）；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#6 維持 Pass（有機分享落地可玩）；#1／#3／#9 仍 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。
+
 
 重跑：清乾淨 tree 後執行 `npm run accept`，exit 0 = 可自動項 Pass + Blocked 項如實列出。
 
