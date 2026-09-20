@@ -9,6 +9,10 @@
   const PALETTE = window.COLOR_PALETTE;
   const SOLIDS = window.COLOR_SOLIDS || window.COLOR_PALETTE;
   const STORAGE_KEY = 'colorTubeSort_v2';
+  const STORAGE_BAK_KEY = 'colorTubeSort_v2_bak';
+  const LEGACY_PROGRESS_KEY = 'colorTubeSort_progress';
+  /** Schema stamp written on every persist — load coerces unknown/missing safely. */
+  const SAVE_VERSION = 2;
   const FAIL_LOOP_THRESHOLD_EARLY = 5;
   const FAIL_LOOP_THRESHOLD_LATE = 2;
   const START_COINS = 120;
@@ -44,27 +48,33 @@
   };
 
   // --- Persistable state ---
-  let save = {
-    level: 0,
-    maxUnlocked: 0,
-    coins: START_COINS,
-    stars: {}, // levelIndex -> 1|2|3
-    removeAds: false,
-    themes: { classic: true, neon: false, cat: false },
-    activeTheme: 'classic',
-    freeHints: 3,
-    streak: 0,
-    lastLoginDate: '',
-    dailyDoneDate: '',
-    streakMilestonesClaimed: [], // day numbers claimed (3/7/14)
-    chapterChestsClaimed: [], // chapter numbers 1..N
-    onboardingDone: false,
-    capTeachDone: false,
-    uncapArmTipDone: false,
-    emptyTapTipDone: false,
-    sfxOn: true,
-    hapticsOn: true,
-  };
+  function defaultSave() {
+    return {
+      v: SAVE_VERSION,
+      level: 0,
+      maxUnlocked: 0,
+      coins: START_COINS,
+      stars: {}, // levelIndex -> 1|2|3
+      removeAds: false,
+      themes: { classic: true, neon: false, cat: false },
+      activeTheme: 'classic',
+      freeHints: 3,
+      streak: 0,
+      lastLoginDate: '',
+      dailyDoneDate: '',
+      streakMilestonesClaimed: [], // day numbers claimed (3/7/14)
+      chapterChestsClaimed: [], // chapter numbers 1..N
+      onboardingDone: false,
+      capTeachDone: false,
+      uncapArmTipDone: false,
+      emptyTapTipDone: false,
+      sfxOn: true,
+      hapticsOn: true,
+    };
+  }
+  let save = defaultSave();
+  /** Set by loadSave when primary blob was unusable / heavily repaired — toasted in init. */
+  let pendingSaveRecoveryToast = '';
 
   // --- Session state ---
   let levelIndex = 0;
@@ -180,31 +190,225 @@
     return `${y}-${m}-${day}`;
   }
 
-  function loadSave() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        save = Object.assign({}, save, data);
-        if (!save.themes) save.themes = { classic: true, neon: false, cat: false };
-        save.themes.classic = true;
-        ensureMetaSaveArrays();
-        save.sfxOn = save.sfxOn !== false;
-        save.hapticsOn = save.hapticsOn !== false;
-      }
-    } catch (_) { /* ignore */ }
+  function clampInt(n, min, max, fallback) {
+    const x = Number(n);
+    if (!Number.isFinite(x)) return fallback;
+    return Math.max(min, Math.min(max, Math.floor(x)));
+  }
 
-    // Migrate old progress key if present
+  function sanitizeStars(raw) {
+    const out = {};
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+    const maxIdx = LEVELS && LEVELS.length ? LEVELS.length - 1 : 999;
+    Object.keys(raw).forEach((k) => {
+      const idx = Number(k);
+      if (!Number.isInteger(idx) || idx < 0 || idx > maxIdx) return;
+      const s = clampInt(raw[k], 1, 3, 0);
+      if (s >= 1 && s <= 3) out[idx] = s;
+    });
+    return out;
+  }
+
+  function sanitizeThemes(raw) {
+    const themes = { classic: true, neon: false, cat: false };
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+      themes.neon = !!raw.neon;
+      themes.cat = !!raw.cat;
+    }
+    themes.classic = true;
+    return themes;
+  }
+
+  function sanitizeIdList(raw, maxVal) {
+    if (!Array.isArray(raw)) return [];
+    const out = [];
+    const seen = Object.create(null);
+    for (let i = 0; i < raw.length; i++) {
+      const n = clampInt(raw[i], 0, maxVal, -1);
+      if (n < 0 || seen[n]) continue;
+      seen[n] = true;
+      out.push(n);
+    }
+    return out;
+  }
+
+  /**
+   * Coerce a parsed blob into a safe save. Never throws.
+   * fatal=true → treat as unusable (try backup / legacy / defaults).
+   * repaired=true → at least one field was clamped/replaced (rewrite clean).
+   */
+  function sanitizeSave(data) {
+    const base = defaultSave();
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return { save: base, repaired: true, fatal: true };
+    }
+    let repaired = false;
+    const levelMax = LEVELS && LEVELS.length ? LEVELS.length - 1 : 0;
+
+    function takeInt(key, min, max, fallback) {
+      if (data[key] === undefined || data[key] === null) return fallback;
+      const v = clampInt(data[key], min, max, fallback);
+      if (v !== data[key] && Number(data[key]) !== v) repaired = true;
+      return v;
+    }
+
+    const level = takeInt('level', 0, levelMax, 0);
+    let maxUnlocked = takeInt('maxUnlocked', 0, levelMax, level);
+    if (maxUnlocked < level) {
+      maxUnlocked = level;
+      repaired = true;
+    }
+
+    let coins = START_COINS;
+    if (data.coins !== undefined && data.coins !== null) {
+      const c = Number(data.coins);
+      if (!Number.isFinite(c)) {
+        coins = START_COINS;
+        repaired = true;
+      } else {
+        coins = Math.max(0, Math.min(1e9, Math.floor(c)));
+        if (coins !== c) repaired = true;
+      }
+    }
+
+    let freeHints = 3;
+    if (data.freeHints !== undefined && data.freeHints !== null) {
+      const h = Number(data.freeHints);
+      if (!Number.isFinite(h)) {
+        freeHints = 3;
+        repaired = true;
+      } else {
+        freeHints = Math.max(0, Math.min(9999, Math.floor(h)));
+        if (freeHints !== h) repaired = true;
+      }
+    }
+
+    const streak = takeInt('streak', 0, 9999, 0);
+    const stars = sanitizeStars(data.stars);
+    if (!data.stars || typeof data.stars !== 'object' || Array.isArray(data.stars)) repaired = true;
+    const themes = sanitizeThemes(data.themes);
+    if (!data.themes || typeof data.themes !== 'object' || Array.isArray(data.themes)) repaired = true;
+
+    let activeTheme = typeof data.activeTheme === 'string' ? data.activeTheme : 'classic';
+    if (!THEMES[activeTheme] || !themes[activeTheme]) {
+      if (data.activeTheme != null && data.activeTheme !== 'classic') repaired = true;
+      activeTheme = 'classic';
+    }
+
+    const milestones = sanitizeIdList(data.streakMilestonesClaimed, 365);
+    if (!Array.isArray(data.streakMilestonesClaimed)) repaired = true;
+    const chests = sanitizeIdList(data.chapterChestsClaimed, 999);
+    if (!Array.isArray(data.chapterChestsClaimed)) repaired = true;
+
+    // removeAds: only explicit boolean true (never truthy string/number from corruption)
+    const removeAds = data.removeAds === true;
+    if (data.removeAds != null && data.removeAds !== true && data.removeAds !== false) repaired = true;
+
+    const out = {
+      v: SAVE_VERSION,
+      level: level,
+      maxUnlocked: maxUnlocked,
+      coins: coins,
+      stars: stars,
+      removeAds: removeAds,
+      themes: themes,
+      activeTheme: activeTheme,
+      freeHints: freeHints,
+      streak: streak,
+      lastLoginDate: typeof data.lastLoginDate === 'string' ? data.lastLoginDate : '',
+      dailyDoneDate: typeof data.dailyDoneDate === 'string' ? data.dailyDoneDate : '',
+      streakMilestonesClaimed: milestones,
+      chapterChestsClaimed: chests,
+      onboardingDone: data.onboardingDone === true,
+      capTeachDone: data.capTeachDone === true,
+      uncapArmTipDone: data.uncapArmTipDone === true,
+      emptyTapTipDone: data.emptyTapTipDone === true,
+      sfxOn: data.sfxOn !== false,
+      hapticsOn: data.hapticsOn !== false,
+    };
+    if (data.v !== SAVE_VERSION) repaired = true;
+    return { save: out, repaired: repaired, fatal: false };
+  }
+
+  function parseStorageRaw(raw) {
+    if (!raw) return null;
     try {
-      const old = localStorage.getItem('colorTubeSort_progress');
-      if (old && !localStorage.getItem(STORAGE_KEY)) {
-        const data = JSON.parse(old);
-        if (typeof data.level === 'number') {
-          save.level = data.level;
-          save.maxUnlocked = data.level;
+      return JSON.parse(raw);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function tryLoadKey(key) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) return null;
+      const data = parseStorageRaw(raw);
+      if (data == null) return { save: defaultSave(), repaired: true, fatal: true, source: key };
+      const result = sanitizeSave(data);
+      result.source = key;
+      return result;
+    } catch (_) {
+      return { save: defaultSave(), repaired: true, fatal: true, source: key };
+    }
+  }
+
+  function migrateLegacyProgress() {
+    try {
+      const old = localStorage.getItem(LEGACY_PROGRESS_KEY);
+      if (!old) return null;
+      const data = parseStorageRaw(old);
+      if (!data || typeof data !== 'object') return null;
+      const levelMax = LEVELS && LEVELS.length ? LEVELS.length - 1 : 0;
+      const level = clampInt(data.level, 0, levelMax, -1);
+      if (level < 0) return null;
+      const base = defaultSave();
+      base.level = level;
+      base.maxUnlocked = level;
+      return { save: base, repaired: true, fatal: false, source: LEGACY_PROGRESS_KEY };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function loadSave() {
+    pendingSaveRecoveryToast = '';
+    let result = tryLoadKey(STORAGE_KEY);
+    let usedFallback = false;
+
+    if (!result || result.fatal) {
+      const bak = tryLoadKey(STORAGE_BAK_KEY);
+      if (bak && !bak.fatal) {
+        result = bak;
+        usedFallback = true;
+      } else {
+        const legacy = migrateLegacyProgress();
+        if (legacy) {
+          result = legacy;
+          usedFallback = true;
+        } else if (result && result.fatal) {
+          // Primary existed but was unusable — hard reset
+          usedFallback = true;
+          result = { save: defaultSave(), repaired: true, fatal: true, source: 'reset' };
+        } else {
+          result = { save: defaultSave(), repaired: false, fatal: false, source: 'fresh' };
         }
       }
-    } catch (_) { /* ignore */ }
+    }
+
+    save = result.save;
+    ensureMetaSaveArrays();
+
+    if (result.source === 'reset' || (usedFallback && result.fatal)) {
+      pendingSaveRecoveryToast = 'Progress reset — save was damaged';
+      persist();
+    } else if (usedFallback) {
+      pendingSaveRecoveryToast = 'Progress restored';
+      persist();
+    } else if (result.repaired && result.source === STORAGE_KEY) {
+      // Quiet rewrite of coerced fields — no toast spam on mild clamps
+      persist();
+    }
 
     updateStreakOnLogin();
     levelIndex = Math.min(save.level || 0, LEVELS.length - 1);
@@ -212,14 +416,32 @@
   }
 
   function persist() {
+    save.v = SAVE_VERSION;
+    ensureMetaSaveArrays();
+    const payload = JSON.stringify(save);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
-    } catch (_) { /* ignore */ }
+      localStorage.setItem(STORAGE_KEY, payload);
+      try {
+        localStorage.setItem(STORAGE_BAK_KEY, payload);
+      } catch (_) { /* bak optional */ }
+    } catch (err) {
+      // Quota / private mode: drop bak + legacy, retry once
+      try {
+        localStorage.removeItem(STORAGE_BAK_KEY);
+        localStorage.removeItem(LEGACY_PROGRESS_KEY);
+        localStorage.setItem(STORAGE_KEY, payload);
+      } catch (_) { /* ignore — session continues in memory */ }
+    }
   }
 
   function ensureMetaSaveArrays() {
     if (!Array.isArray(save.streakMilestonesClaimed)) save.streakMilestonesClaimed = [];
     if (!Array.isArray(save.chapterChestsClaimed)) save.chapterChestsClaimed = [];
+    if (!save.stars || typeof save.stars !== 'object' || Array.isArray(save.stars)) save.stars = {};
+    if (!save.themes || typeof save.themes !== 'object') {
+      save.themes = { classic: true, neon: false, cat: false };
+    }
+    save.themes.classic = true;
   }
 
   function nextStreakMilestone() {
@@ -3696,6 +3918,11 @@
       const msg = pendingStreakToast;
       pendingStreakToast = '';
       setTimeout(() => toast(msg, 3200), 400);
+    }
+    if (pendingSaveRecoveryToast) {
+      const msg = pendingSaveRecoveryToast;
+      pendingSaveRecoveryToast = '';
+      setTimeout(function () { toast(msg, 3600); }, 700);
     }
 
     document.addEventListener('pointerdown', resumeAudio, { once: true });
