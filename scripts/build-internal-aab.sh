@@ -73,6 +73,8 @@ bash "$ROOT/scripts/patch-android-splash-theme.sh"
 bash "$ROOT/scripts/patch-android-no-backup.sh"
 # Deny cleartext HTTP (HTTPS-only; AdMob/Billing/Capacitor https scheme).
 bash "$ROOT/scripts/patch-android-cleartext.sh"
+# Disable multi-window / freeform resize (portrait tube layout breaks in freeform).
+bash "$ROOT/scripts/patch-android-resize.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
