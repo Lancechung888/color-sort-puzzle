@@ -20,6 +20,8 @@
   --modal-bg: linear-gradient(165deg, #2a2a4a 0%, #1a1a2e 55%, #141428 100%);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bot: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
   --font: "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
   --radius-btn: 14px;
   --shadow-btn: 0 4px 14px rgba(0,0,0,0.25);
@@ -95,7 +97,7 @@ html, body {
   height: 100%;
   max-width: 480px;
   margin: 0 auto;
-  padding: calc(12px + var(--safe-top)) 12px calc(12px + var(--safe-bot));
+  padding: calc(12px + var(--safe-top)) calc(12px + var(--safe-right)) calc(12px + var(--safe-bot)) calc(12px + var(--safe-left));
   position: relative;
 }
 
@@ -1758,7 +1760,8 @@ html, body {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
-  padding: 16px;
+  /* Absolute inset:0 covers #app padding box — keep horizontal safe insets here */
+  padding: 16px calc(16px + var(--safe-right)) 16px calc(16px + var(--safe-left));
 }
 
 [data-theme="cat"] .overlay {
@@ -3013,6 +3016,9 @@ html, body {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s, transform 0.2s;
+  /* Absolute vs #app padding box — clamp width so landscape notch/PWA doesn't clip */
+  max-width: calc(100% - 24px - var(--safe-left) - var(--safe-right));
+  box-sizing: border-box;
   /* Stay in a11y tree when idle — aria-live needs a non-[hidden] node */
   visibility: hidden;
 }
