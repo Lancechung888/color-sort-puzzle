@@ -606,6 +606,29 @@ bash scripts/patch-android-webview-database-off.sh
 
 `npm run aab:internal` 在 webview-safe-browsing patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2ad. Deny WebView algorithmic darkening（ANDROID-WEBVIEW-ALGORITHMIC-DARK-OFF）
+
+After **ANDROID-WEBVIEW-DATABASE-OFF**, Android 13+ (API 33) WebView can still **algorithmically darken** HTML even when app theme / `<application>` has `forceDarkAllowed="false"` (**ANDROID-FORCE-DARK**). Deny at **WebSettings** so brand-dark `#1a1a2e` tubes / juice / HUD stay intact:
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after database-off)
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+  webView.getSettings().setAlgorithmicDarkeningAllowed(false);
+}
+```
+
+Distinct from **ANDROID-FORCE-DARK** — that is a **theme / application attribute** (`android:forceDarkAllowed="false"`); this is a **WebSettings** API 33+ call. Both are needed.
+
+Do **not** touch DomStorage / cookies / `setAllowContentAccess` / JavaScript.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-algorithmic-dark-off.sh
+```
+
+`npm run aab:internal` 在 webview-database-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

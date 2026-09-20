@@ -3736,6 +3736,54 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-ALGORITHMIC-DARK-OFF: deny API 33+ algorithmic darkening (≠ FORCE-DARK) ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-algorithmic-dark-off.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk = /setAlgorithmicDarkeningAllowed\s*\(\s*false\s*\)/.test(patchRaw);
+  const dbIdx = aabRaw.search(/patch-android-webview-database-off\.sh/);
+  const algoIdx = aabRaw.search(/patch-android-webview-algorithmic-dark-off\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    dbIdx >= 0 &&
+    algoIdx >= 0 &&
+    iconsIdx >= 0 &&
+    dbIdx < algoIdx &&
+    algoIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-ALGORITHMIC-DARK-OFF/.test(readmeRaw) && /2ad/.test(readmeRaw);
+  const keepOk =
+    /setAlgorithmicDarkeningAllowed\s*\(\s*false\s*\)/.test(keepRaw) &&
+    /ANDROID-WEBVIEW-ALGORITHMIC-DARK-OFF/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /setAlgorithmicDarkeningAllowed\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-algorithmic-dark-off-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-ALGORITHMIC-DARK-OFF',
+      'setAlgorithmicDarkeningAllowed(false) + patch/aab after database-off before icons + README §2ad + keep-awake; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-ALGORITHMIC-DARK-OFF',
+      `missing algorithmic-dark-off / patch / aab hook-after-database-off-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

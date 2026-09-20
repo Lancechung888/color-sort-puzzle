@@ -117,6 +117,8 @@ bash "$ROOT/scripts/patch-android-webview-js-windows-off.sh"
 bash "$ROOT/scripts/patch-android-webview-safe-browsing.sh"
 # Deny deprecated Web SQL / WebDatabase (DomStorage/localStorage stays enabled).
 bash "$ROOT/scripts/patch-android-webview-database-off.sh"
+# Deny WebView algorithmic darkening on API 33+ (distinct from ANDROID-FORCE-DARK).
+bash "$ROOT/scripts/patch-android-webview-algorithmic-dark-off.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
