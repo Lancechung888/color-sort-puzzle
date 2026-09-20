@@ -2074,6 +2074,36 @@ block(
   }
 }
 
+// --- HOW-TO-PLAY: Settings How to play + ? keyboard cheatsheet (no soft-arm) ---
+{
+  const htmlRaw = read('index.html') || '';
+  const gameSrc = read('assets/js/game.js') || '';
+  const htmlOk =
+    /id=["']btn-how-to-play["']/.test(htmlRaw) &&
+    /How to play/.test(htmlRaw) &&
+    /aria-label=["']How to play["']/.test(htmlRaw);
+  const jsOk =
+    /btn-how-to-play/.test(gameSrc) &&
+    (/function showHowToPlay\s*\(/.test(gameSrc) || /activeTipKind\s*=\s*['"]howto['"]/.test(gameSrc)) &&
+    (/e\.key\s*===\s*['"]\?['"]/.test(gameSrc) || /key\s*===\s*['"]\?['"]/.test(gameSrc)) &&
+    /Play Enter/.test(gameSrc) &&
+    /activeTipKind\s*===\s*['"]howto['"]/.test(gameSrc) &&
+    !/howto-arm|how-to-arm|cheatsheet-arm|\bsoft-arm\b/.test(
+      (gameSrc.match(/function showHowToPlay[\s\S]{0,1200}/) || [''])[0]
+    );
+  if (htmlOk && jsOk) {
+    pass(
+      'HOW-TO-PLAY',
+      'Settings #btn-how-to-play + showHowToPlay/howto tip kind + ? cheatsheet toast; dismiss does not force-clear teach; no soft-arm'
+    );
+  } else {
+    fail(
+      'HOW-TO-PLAY',
+      `missing How to play UI / showHowToPlay|howto tip / ? key toast (htmlOk=${htmlOk} jsOk=${jsOk})`
+    );
+  }
+}
+
 // --- Brand favicon (ICON A derivatives; head + files) ---
 {
   const indexRaw = read('index.html') || '';
