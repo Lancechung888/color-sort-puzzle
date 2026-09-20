@@ -121,6 +121,8 @@ bash "$ROOT/scripts/patch-android-webview-database-off.sh"
 bash "$ROOT/scripts/patch-android-webview-algorithmic-dark-off.sh"
 # Deny Chrome remote WebView debugging (chrome://inspect) on production devices.
 bash "$ROOT/scripts/patch-android-webview-debug-off.sh"
+# Ensure DomStorage / localStorage for save progress (distinct from DATABASE-OFF).
+bash "$ROOT/scripts/patch-android-webview-dom-storage-on.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

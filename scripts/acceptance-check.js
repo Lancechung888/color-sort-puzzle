@@ -3837,6 +3837,56 @@ block(
   }
 }
 
+
+// --- ANDROID-WEBVIEW-DOM-STORAGE-ON: ensure DomStorage / localStorage for saves ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-dom-storage-on.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk = /setDomStorageEnabled\s*\(\s*true\s*\)/.test(patchRaw) &&
+    /ANDROID-WEBVIEW-DOM-STORAGE-ON/.test(patchRaw);
+  const debugIdx = aabRaw.search(/patch-android-webview-debug-off\.sh/);
+  const domIdx = aabRaw.search(/patch-android-webview-dom-storage-on\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    debugIdx >= 0 &&
+    domIdx >= 0 &&
+    iconsIdx >= 0 &&
+    debugIdx < domIdx &&
+    domIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-DOM-STORAGE-ON/.test(readmeRaw) && /2af/.test(readmeRaw);
+  const keepOk =
+    /setDomStorageEnabled\s*\(\s*true\s*\)/.test(keepRaw) &&
+    /ANDROID-WEBVIEW-DOM-STORAGE-ON/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /setDomStorageEnabled\s*\(\s*true\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-dom-storage-on-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-DOM-STORAGE-ON',
+      'setDomStorageEnabled(true) + patch/aab after debug-off before icons + README §2af + keep-awake; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-DOM-STORAGE-ON',
+      `missing dom-storage-on / patch / aab hook-after-debug-off-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

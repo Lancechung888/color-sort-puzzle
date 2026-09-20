@@ -653,6 +653,26 @@ bash scripts/patch-android-webview-debug-off.sh
 
 `npm run aab:internal` 在 webview-algorithmic-dark-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2af. Ensure DomStorage / localStorage（ANDROID-WEBVIEW-DOM-STORAGE-ON）
+
+After **ANDROID-WEBVIEW-DEBUG-OFF**, some OEM WebView builds may leave DomStorage off or flip defaults. ColorTube Sort **save progress** uses **localStorage / DomStorage** — explicitly enable so saves cannot silently break:
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after debug-off)
+// ANDROID-WEBVIEW-DOM-STORAGE-ON: ensure DomStorage/localStorage for save progress.
+webView.getSettings().setDomStorageEnabled(true);
+```
+
+Distinct from **ANDROID-WEBVIEW-DATABASE-OFF** — that **denies** deprecated Web SQL / WebDatabase; DomStorage must stay **ON**. Do **not** call `setDatabaseEnabled(true)`. Do **not** touch cookies / `setAllowContentAccess` / JavaScript / AdMob.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-dom-storage-on.sh
+```
+
+`npm run aab:internal` 在 webview-debug-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

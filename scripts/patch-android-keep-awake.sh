@@ -50,7 +50,7 @@ import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT + ANDROID-WEBVIEW-GEOLOCATION-OFF + ANDROID-WEBVIEW-FILE-ACCESS-OFF + ANDROID-WEBVIEW-JS-WINDOWS-OFF + ANDROID-WEBVIEW-SAFE-BROWSING + ANDROID-WEBVIEW-DATABASE-OFF + ANDROID-WEBVIEW-ALGORITHMIC-DARK-OFF + ANDROID-WEBVIEW-DEBUG-OFF:
+ * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS + ANDROID-WEBVIEW-SOUND-EFFECTS-OFF + ANDROID-WEBVIEW-MEDIA-GESTURE + ANDROID-WEBVIEW-MIXED-CONTENT + ANDROID-WEBVIEW-GEOLOCATION-OFF + ANDROID-WEBVIEW-FILE-ACCESS-OFF + ANDROID-WEBVIEW-JS-WINDOWS-OFF + ANDROID-WEBVIEW-SAFE-BROWSING + ANDROID-WEBVIEW-DATABASE-OFF + ANDROID-WEBVIEW-ALGORITHMIC-DARK-OFF + ANDROID-WEBVIEW-DEBUG-OFF + ANDROID-WEBVIEW-DOM-STORAGE-ON:
  * FLAG_KEEP_SCREEN_ON while playing; SplashScreen.installSplashScreen before
  * super.onCreate (API 31+); webView.setOverScrollMode(OVER_SCROLL_NEVER) so
  * native glow/rubber-band cannot kill mid-run play (pairs CSS overscroll-behavior:none);
@@ -88,6 +88,8 @@ import com.getcapacitor.BridgeActivity;
  * darken brand-dark #1a1a2e tubes/juice/HUD (distinct from ANDROID-FORCE-DARK theme attr).
  * WebView.setWebContentsDebuggingEnabled(false) so chrome://inspect cannot attach to
  * production WebView (static class call; distinct from SAFE-BROWSING / ALGORITHMIC-DARK-OFF).
+ * setDomStorageEnabled(true) so OEM WebView defaults cannot silently break
+ * localStorage / save progress (distinct from DATABASE-OFF which denies Web SQL).
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -137,6 +139,8 @@ public class MainActivity extends BridgeActivity {
       }
       // ANDROID-WEBVIEW-DEBUG-OFF: deny Chrome remote WebView debugging.
       WebView.setWebContentsDebuggingEnabled(false);
+      // ANDROID-WEBVIEW-DOM-STORAGE-ON: ensure DomStorage/localStorage for save progress.
+      webView.getSettings().setDomStorageEnabled(true);
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.
