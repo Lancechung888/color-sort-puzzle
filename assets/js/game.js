@@ -4276,6 +4276,13 @@
         homeBtn.click();
         return true;
       }
+      if (key === 'r' || key === 'R') {
+        const skipBtn = $('#btn-fail-skip');
+        if (!skipBtn || skipBtn.disabled || skipBtn.hidden) return false;
+        e.preventDefault();
+        skipBtn.click();
+        return true;
+      }
       return false;
     }
 
@@ -5733,7 +5740,7 @@
       if (startScreen && startScreen.classList.contains('show')) {
         if (handleStartKeys(e)) return;
       }
-      // WIN-FAIL-KEYS: win Enter/n Next, r Restart, h Home; fail Enter/h Hint, b Home (Escape left alone)
+      // WIN-FAIL-KEYS: win Enter/n Next, r Restart, h Home, s Share; fail Enter/h Hint, b Home, r Keep restarting (Escape left alone)
       if (
         (winOverlay && winOverlay.classList.contains('show')) ||
         (failPrompt && failPrompt.classList.contains('show'))
