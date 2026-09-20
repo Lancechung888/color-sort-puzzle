@@ -440,6 +440,25 @@ if (gameRaw) {
     fail('SHOP-SPEND-CONFIRM', 'missing confirmShopSpendThen / pendingSpend / Tap again to spend / theme|hints-pack|undo wiring, or soft-arm CSS slipped in');
   }
 
+  // System / hardware / browser back — dismiss overlays then pause Home (no soft-arm)
+  if (
+    /function handleSystemBack\s*\(/.test(gameRaw) &&
+    /function armBackGuard\s*\(/.test(gameRaw) &&
+    /function bindSystemBack\s*\(/.test(gameRaw) &&
+    /backGuardArmed/.test(gameRaw) &&
+    /ctsBack/.test(gameRaw) &&
+    /popstate/.test(gameRaw) &&
+    /bindSystemBack\s*\(\)/.test(gameRaw) &&
+    /closeLevels\(\)/.test(gameRaw) &&
+    /goHome\(\)/.test(gameRaw) &&
+    !/back-arm|backArm|\.back-arm|system-back-arm/.test(gameRaw)
+  ) {
+    pass('BACK-NAV', 'system back dismisses levels/hint/shop/fail then pauses Home (draft kept); no soft-arm');
+  } else {
+    fail('BACK-NAV', 'missing handleSystemBack / armBackGuard / bindSystemBack / popstate wiring, or soft-arm CSS slipped in');
+  }
+
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&
