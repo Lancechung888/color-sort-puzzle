@@ -88,6 +88,24 @@ bash scripts/patch-android-keep-awake.sh
 
 `npm run aab:internal` 在 portrait patch **之後**自動跑。`android/` 仍 gitignore。
 
+
+## 2d. Brand-dark system bars（ANDROID-SYSTEM-BARS）
+
+Stock Capacitor/`AppCompat` inherits Material indigo (`colorPrimary` `#3F51B5`) for status / nav bars — cold start looks like a template app, not hybrid-casual. Brand is dark `#1a1a2e` (`theme-color` / CSS `--bg-top`) + accent `#4ecdc4` (`--accent`).
+
+Patch writes:
+
+- `android/app/src/main/res/values/colors.xml` — `colorPrimary`/`colorPrimaryDark`/`colorAccent`/`colorBrandBg`
+- `styles.xml` — `AppTheme`, `AppTheme.NoActionBar`, `AppTheme.NoActionBarLaunch` get `android:statusBarColor` / `navigationBarColor` / `windowBackground` = `#1a1a2e` (+ `windowLightStatusBar` false where applicable)
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-system-bars.sh
+```
+
+`npm run aab:internal` 在 keep-awake patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
