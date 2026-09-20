@@ -120,6 +120,13 @@ html, body {
   margin-bottom: 6px;
 }
 
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
 .brand {
   font-size: 1.2rem;
   font-weight: 900;
@@ -128,6 +135,17 @@ html, body {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+.btn-home {
+  flex-shrink: 0;
+  width: 34px;
+  height: 32px;
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+.btn-home:hover {
+  opacity: 1;
 }
 
 .header-right {
@@ -372,12 +390,29 @@ html, body {
 }
 
 .level-badge {
+  appearance: none;
+  font-family: inherit;
+  color: inherit;
   background: var(--panel);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 999px;
   padding: 6px 14px;
   font-size: 0.88rem;
   font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.level-badge:hover {
+  border-color: rgba(255,255,255,0.28);
+  background: rgba(255,255,255,0.06);
+}
+.level-badge:focus {
+  outline: none;
+}
+.level-badge:focus-visible {
+  outline: 2px solid rgba(186, 230, 253, 0.95);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.28);
 }
 
 .stars-preview {
@@ -2559,6 +2594,35 @@ html, body {
   color: var(--muted, rgba(255,255,255,0.6));
   text-align: center;
   line-height: 1.35;
+}
+
+.levels-home-row {
+  margin: 10px 0 0;
+  text-align: center;
+}
+.levels-home-link {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--muted, rgba(255,255,255,0.65));
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: 4px 8px;
+}
+.levels-home-link:hover {
+  color: var(--text, #fff);
+}
+.levels-home-link:focus {
+  outline: none;
+}
+.levels-home-link:focus-visible {
+  outline: 2px solid rgba(186, 230, 253, 0.95);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 .subtitle {

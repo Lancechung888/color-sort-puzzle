@@ -302,6 +302,33 @@ if (gameRaw) {
     fail('SAVE-SANITIZE', 'sanitizeSave missing or not called from load path');
   }
 
+  // In-play Levels: level badge → openLevels (gated; no soft-arm)
+  if (
+    /id="level-label"/.test(htmlRaw) &&
+    /class="level-badge"/.test(htmlRaw) &&
+    /function openLevels\s*\(/.test(gameRaw) &&
+    /function tryOpenLevelsFromHud\s*\(/.test(gameRaw) &&
+    /levelLabel\.addEventListener/.test(gameRaw) &&
+    /open levels/.test(gameRaw)
+  ) {
+    pass('NAV-LEVELS', 'level-label badge → tryOpenLevelsFromHud → openLevels; dynamic aria open levels');
+  } else {
+    fail('NAV-LEVELS', 'missing level-label → openLevels wiring and/or open-levels aria-label');
+  }
+
+  // In-play Home: btn-home → goHome → start-screen show (no save wipe)
+  if (
+    /id="btn-home"/.test(htmlRaw) &&
+    /aria-label="Home"/.test(htmlRaw) &&
+    /function goHome\s*\(/.test(gameRaw) &&
+    /startScreen\.classList\.add\(\s*['"]show['"]\s*\)/.test(gameRaw) &&
+    /btnHome\.addEventListener|btn-home['"]\)\.addEventListener|\$\(['"]#btn-home['"]\)/.test(gameRaw)
+  ) {
+    pass('NAV-HOME', 'btn-home → goHome shows start-screen; aria-label Home; no save wipe');
+  } else {
+    fail('NAV-HOME', 'missing goHome / btn-home / startScreen.show wiring');
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&
