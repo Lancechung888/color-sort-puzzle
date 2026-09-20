@@ -2,6 +2,7 @@
   "appId": "com.lancechung.colortubesort",
   "appName": "ColorTube Sort",
   "webDir": "www",
+  "backgroundColor": "#1a1a2e",
   "server": {
     "androidScheme": "https"
   },

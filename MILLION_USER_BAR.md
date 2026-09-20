@@ -304,6 +304,8 @@
 
 （已補）**ANDROID-WEBVIEW-TEXT-ZOOM**已上 — `MainActivity` `webView.getSettings().setTextZoom(100)`（拒絕系統 Font／Display size 經 `WebSettings` textZoom 縮放管板／HUD CSS；`configChanges` 含 `fontScale` 僅防 Activity recreate；`android/` 仍 gitignore）；`scripts/patch-android-webview-text-zoom.sh`＋`aab:internal` hook（webview-overscroll 之後、icons 之前）＋`native-templates/android/README.md` §2p；accept `ANDROID-WEBVIEW-TEXT-ZOOM`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-WEBVIEW-BG**已上 — `MainActivity` `webView.setBackgroundColor(Color.parseColor("#1a1a2e"))`（冷啟／splash 交接不閃白；搭配 ANDROID-SPLASH-THEME＋ANDROID-SYSTEM-BARS；`android/` 仍 gitignore）；`scripts/patch-android-webview-bg.sh`＋`aab:internal` hook（text-zoom 之後、icons 之前）＋`native-templates/android/README.md` §2q；Capacitor `backgroundColor` 僅輔助、MainActivity 為 source of truth；accept `ANDROID-WEBVIEW-BG`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 
 

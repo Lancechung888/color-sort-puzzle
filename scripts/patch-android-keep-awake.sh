@@ -38,6 +38,7 @@ if all(n in raw for n in NEEDLES):
 
 desired = '''package com.lancechung.colortubesort;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
@@ -47,11 +48,12 @@ import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM:
+ * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG:
  * FLAG_KEEP_SCREEN_ON while playing; SplashScreen.installSplashScreen before
  * super.onCreate (API 31+); webView.setOverScrollMode(OVER_SCROLL_NEVER) so
  * native glow/rubber-band cannot kill mid-run play (pairs CSS overscroll-behavior:none);
- * webView.getSettings().setTextZoom(100) so system Font/Display size cannot scale tube/HUD CSS.
+ * webView.getSettings().setTextZoom(100) so system Font/Display size cannot scale tube/HUD CSS;
+ * webView.setBackgroundColor(#1a1a2e) so cold start / splash handoff does not flash white.
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -73,6 +75,7 @@ public class MainActivity extends BridgeActivity {
       if (webView == null) return;
       webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
       webView.getSettings().setTextZoom(100);
+      webView.setBackgroundColor(Color.parseColor("#1a1a2e"));
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.

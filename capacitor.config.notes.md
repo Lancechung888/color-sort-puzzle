@@ -21,3 +21,9 @@
 - 詳細步驟見 `docs/PLAY_POST_APPROVAL_CHECKLIST.md`。
 
 **勿宣稱已上架**：帳號審核中／未過審前僅能內部測試。
+
+## backgroundColor（ANDROID-WEBVIEW-BG）
+
+Root `backgroundColor: "#1a1a2e"` 與品牌系統列／splash 對齊，可減輕部分裝置冷啟白閃。
+
+**注意：** 單獨設 Capacitor config **不足以**保證所有裝置不閃白——真正 source of truth 是 `MainActivity` `webView.setBackgroundColor(Color.parseColor("#1a1a2e"))`（見 `scripts/patch-android-webview-bg.sh`／`native-templates/android/README.md` §2q）。
