@@ -2960,6 +2960,57 @@ block(
   }
 }
 
+
+// --- ANDROID-TARGET-36: compile/targetSdk 36 + enableOnBackInvokedCallback; no soft-arm ---
+{
+  const varsPath = path.join(root, 'android/variables.gradle');
+  const varsRaw = fs.existsSync(varsPath) ? fs.readFileSync(varsPath, 'utf8') : '';
+  const manPath = path.join(root, 'android/app/src/main/AndroidManifest.xml');
+  const manRaw = fs.existsSync(manPath) ? fs.readFileSync(manPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-target-sdk.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const patchOk =
+    /compileSdkVersion\s*=\s*36/.test(patchRaw) &&
+    /targetSdkVersion\s*=\s*36/.test(patchRaw) &&
+    /enableOnBackInvokedCallback/.test(patchRaw);
+  const cutoutIdx = aabRaw.search(/patch-android-cutout\.sh/);
+  const targetIdx = aabRaw.search(/patch-android-target-sdk\.sh/);
+  const aabHookOk = targetIdx >= 0 && cutoutIdx >= 0 && targetIdx > cutoutIdx;
+  const readmeOk =
+    /ANDROID-TARGET-36/.test(readmeRaw) &&
+    /2n/.test(readmeRaw) &&
+    /enableOnBackInvokedCallback/.test(readmeRaw);
+  // android/ is gitignored — allow missing; when present, require live values.
+  let localOk = !varsRaw && !manRaw;
+  if (varsRaw || manRaw) {
+    const sdkOk =
+      /compileSdkVersion\s*=\s*36\b/.test(varsRaw) &&
+      /targetSdkVersion\s*=\s*36\b/.test(varsRaw);
+    const backOk = /android:enableOnBackInvokedCallback\s*=\s*["']true["']/i.test(
+      manRaw
+    );
+    localOk = sdkOk && backOk;
+  }
+  const noSoft =
+    !/target-arm|soft-arm|claim-juice|hud-pulse/.test(patchRaw + varsRaw + manRaw);
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-TARGET-36',
+      'compile/targetSdkVersion=36 + enableOnBackInvokedCallback + patch-android-target-sdk.sh + aab:internal after cutout + README §2n; no soft-arm'
+    );
+    pass(
+      'ANDROID-BACK-INVOKED',
+      'application android:enableOnBackInvokedCallback=true (predictive back; pairs CAP-APP-BACK); covered by ANDROID-TARGET-36 patch'
+    );
+  } else {
+    fail(
+      'ANDROID-TARGET-36',
+      `missing sdk36 / enableOnBackInvoked / patch / aab hook-after-cutout / README, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';
