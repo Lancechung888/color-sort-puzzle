@@ -3688,6 +3688,54 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-DATABASE-OFF: deny Web SQL / WebDatabase (DomStorage stays) ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-database-off.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk = /setDatabaseEnabled\s*\(\s*false\s*\)/.test(patchRaw);
+  const safeIdx = aabRaw.search(/patch-android-webview-safe-browsing\.sh/);
+  const dbIdx = aabRaw.search(/patch-android-webview-database-off\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    safeIdx >= 0 &&
+    dbIdx >= 0 &&
+    iconsIdx >= 0 &&
+    safeIdx < dbIdx &&
+    dbIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-DATABASE-OFF/.test(readmeRaw) && /2ac/.test(readmeRaw);
+  const keepOk =
+    /setDatabaseEnabled\s*\(\s*false\s*\)/.test(keepRaw) &&
+    /ANDROID-WEBVIEW-DATABASE-OFF/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /setDatabaseEnabled\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-database-off-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-DATABASE-OFF',
+      'setDatabaseEnabled(false) + patch/aab after safe-browsing before icons + README §2ac + keep-awake; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-DATABASE-OFF',
+      `missing database-off / patch / aab hook-after-safe-browsing-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';
