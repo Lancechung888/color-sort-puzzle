@@ -519,6 +519,29 @@ bash scripts/patch-android-webview-geolocation-off.sh
 
 `npm run aab:internal` 在 webview-mixed-content patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+## 2z. Deny WebView file access（ANDROID-WEBVIEW-FILE-ACCESS-OFF）
+
+After **ANDROID-WEBVIEW-GEOLOCATION-OFF**, stock WebView may still allow `file://` / file-URL access. ColorTube Sort serves **https://localhost** via Capacitor and does **not** need WebView filesystem access. Deny at `WebSettings` so mid-run cannot open `file://` or escalate via file URLs (Play Data Safety / privacy):
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after geolocation-off)
+webView.getSettings().setAllowFileAccess(false);
+webView.getSettings().setAllowFileAccessFromFileURLs(false);
+webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
+```
+
+Do **not** set `setAllowContentAccess(false)` — leave content access alone (safer for Cap plugins).
+
+Distinct from **ANDROID-CLEARTEXT** / **ANDROID-WEBVIEW-MIXED-CONTENT** (network/cleartext) and **ANDROID-WEBVIEW-GEOLOCATION-OFF** (GPS) — this only denies the filesystem / file-URL channel.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-file-access-off.sh
+```
+
+`npm run aab:internal` 在 webview-geolocation-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
