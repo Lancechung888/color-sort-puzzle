@@ -5162,6 +5162,21 @@
   }
 
 
+  /** Persist Sound preference; optional tap when enabling. Shared by Settings + MUTE-KEY. */
+  function applySfxOn(next) {
+    save.sfxOn = !!next;
+    persist();
+    refreshSettingsToggles();
+    if (next) SFX.tap();
+  }
+
+  /** MUTE-KEY: toggle Sound from keyboard; toast only (Settings button shows On/Off). No soft-arm. */
+  function toggleSfxKey() {
+    const next = save.sfxOn === false;
+    applySfxOn(next);
+    toast(next ? 'Sound on' : 'Sound off', 2000);
+  }
+
   function refreshSettingsToggles() {
     const sfxBtn = $('#btn-toggle-sfx');
     const hapBtn = $('#btn-toggle-haptics');
@@ -5764,11 +5779,7 @@
     const btnToggleSfx = $('#btn-toggle-sfx');
     if (btnToggleSfx) {
       btnToggleSfx.addEventListener('click', () => {
-        const next = save.sfxOn === false;
-        save.sfxOn = next;
-        persist();
-        refreshSettingsToggles();
-        if (next) SFX.tap();
+        applySfxOn(save.sfxOn === false);
       });
     }
     const btnToggleHaptics = $('#btn-toggle-haptics');
@@ -6037,9 +6048,30 @@
         if (isHelp && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
           e.preventDefault();
           toast(
-            'Play Enter · Daily d · Shop s · Levels l · Undo u · Hint h · Restart r · Home Esc · Win n/r/h/s/o · Fail h/b/r · Levels arrows/[ ]',
+            'Play Enter · Daily d · Shop s · Levels l · Mute m · Undo u · Hint h · Restart r · Home Esc · Win n/r/h/s/o · Fail h/b/r · Levels arrows/[ ]',
             4800
           );
+          return;
+        }
+      }
+      // MUTE-KEY: m/M toggles Sound (sfxOn); reachable from start/play/overlays; no soft-arm
+      {
+        const t = e.target;
+        let typing = false;
+        if (t) {
+          const tag = (t.tagName || '').toLowerCase();
+          if (tag === 'input' || tag === 'textarea' || tag === 'select') typing = true;
+          if (t.isContentEditable) typing = true;
+        }
+        if (
+          (e.key === 'm' || e.key === 'M') &&
+          !typing &&
+          !e.ctrlKey &&
+          !e.metaKey &&
+          !e.altKey
+        ) {
+          e.preventDefault();
+          toggleSfxKey();
           return;
         }
       }

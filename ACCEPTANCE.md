@@ -50,6 +50,9 @@
 
 （已補）**How to play＋? 快捷鍵表（HOW-TO-PLAY）**已上 — Settings「How to play」`#btn-how-to-play` 關商店後重開 `#onboarding-tip`（pour＋gold lids；`activeTipKind='howto'` dismiss 只隱藏、不誤清 teach flags）；鍵盤 `?`／Shift+/ 短 toast 列快捷鍵（~4.8s）；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。
 
+（已補）**Mute 快捷鍵（MUTE-KEY）**已上 — 全域 `m`／`M` → `toggleSfxKey`（`sfxOn`＋toast Sound on／off）＋`#btn-toggle-sfx` `aria-keyshortcuts=m`；`?` 表含 Mute m；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；P0②③ 仍 Blocked。**未**把 #1／#3／#7／#9 標新 Pass。
+
+
 重跑：清乾淨 tree 後執行 `npm run accept`，exit 0 = 可自動項 Pass + Blocked 項如實列出。
 
 ---
