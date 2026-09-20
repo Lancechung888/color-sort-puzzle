@@ -16,7 +16,7 @@
 | Visual juice | Better glass tubes, pour splash, confetti, glow on complete tube, soft shake |
 | Stars | 3★ if under par & no undo; 2★ within 1.5× par; 1★ clear — replay incentive |
 | Coins | +8 / +15 / +28 by stars; persist in localStorage; spend on hints / themes |
-| Daily streak | Login streak counter + soft coin bonus; **今日挑戰** = hard-ish daily pick |
+| Daily streak | Login streak + soft coin bonus; **Daily Challenge** = progress-scaled base + date-seeded color/layout remix + crowded lids + Crowded/Remixed/Pressure par tier (not a mainline skin) |
 | Themes | Free classic glass; neon / cat skins locked behind coins or mock IAP |
 | Onboarding | Soft tip only on level 1 |
 | Premium win modal | Stars animate in, coins earned, clear CTA to next / shop |

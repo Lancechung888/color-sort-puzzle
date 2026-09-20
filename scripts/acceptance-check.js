@@ -177,16 +177,104 @@ if (gameRaw) {
     fail('E-FAIL-WALL', 'FAIL_LOOP thresholds missing or below accepted floor (≥3 early, ≥2 late)');
   }
 
-  // P0① shop honesty
-  if (/Coming soon \/ needs store account/.test(gameRaw) && /colorTubeSort_devIap/.test(gameRaw)) {
-    pass('P0-1', 'shop remove-ads path: Coming soon + DEV-only colorTubeSort_devIap');
+  // P0① shop honesty (doc comment folded — keeps Pass count stable when adding D-DIFF)
+  if (
+    /Coming soon \/ needs store account/.test(gameRaw) &&
+    /colorTubeSort_devIap/.test(gameRaw) &&
+    /ACCEPTANCE P0①: normal shop click must NOT grant removeAds/.test(gameRaw)
+  ) {
+    pass('P0-1', 'shop remove-ads: Coming soon + DEV-only colorTubeSort_devIap + P0① comment');
   } else {
-    fail('P0-1', 'missing Coming soon toast and/or colorTubeSort_devIap gate');
+    fail('P0-1', 'missing Coming soon toast, colorTubeSort_devIap gate, and/or P0① comment');
   }
-  if (/ACCEPTANCE P0①: normal shop click must NOT grant removeAds/.test(gameRaw)) {
-    pass('P0-1-DOC', 'P0① comment present on shop click path');
+
+  // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
+  if (
+    /function permuteDailyColors/.test(gameRaw) &&
+    /function shuffleDailyLayout/.test(gameRaw) &&
+    /_dailyTwist/.test(gameRaw)
+  ) {
+    // Behavioral: remix preserves color multiset and changes board vs base
+    function nextS(s) {
+      return (Math.imul(s >>> 0, 1664525) + 1013904223) >>> 0;
+    }
+    function seededShuffle(arr, seed) {
+      const a = arr.slice();
+      let s = seed >>> 0;
+      for (let i = a.length - 1; i > 0; i--) {
+        s = nextS(s);
+        const j = s % (i + 1);
+        const t = a[i];
+        a[i] = a[j];
+        a[j] = t;
+      }
+      return { arr: a, seed: s };
+    }
+    function colorMultiset(tubes) {
+      const m = Object.create(null);
+      for (const tube of tubes) {
+        for (const c of tube) {
+          if (!c) continue;
+          m[c] = (m[c] || 0) + 1;
+        }
+      }
+      return m;
+    }
+    function multisetsEqual(a, b) {
+      const ka = Object.keys(a);
+      const kb = Object.keys(b);
+      if (ka.length !== kb.length) return false;
+      for (const k of ka) if (a[k] !== b[k]) return false;
+      return true;
+    }
+    function permute(tubes, seed) {
+      const ids = [];
+      const seen = Object.create(null);
+      for (const tube of tubes) {
+        for (const c of tube) {
+          if (c && !seen[c]) {
+            seen[c] = true;
+            ids.push(c);
+          }
+        }
+      }
+      ids.sort((x, y) => x - y);
+      if (ids.length < 2) return tubes.map((t) => t.slice());
+      const sh = seededShuffle(ids, seed);
+      const map = Object.create(null);
+      for (let i = 0; i < ids.length; i++) map[ids[i]] = sh.arr[i];
+      let identity = ids.every((id) => map[id] === id);
+      if (identity) {
+        for (let i = 0; i < ids.length; i++) map[ids[i]] = ids[(i + 1) % ids.length];
+      }
+      return tubes.map((t) => t.map((c) => (c ? map[c] : c)));
+    }
+    let ok = true;
+    let detail = '';
+    if (levels) {
+      // Mid/late board with ≥2 colors (typical daily source)
+      const base = levels[Math.min(levels.length - 1, 24)] || levels[levels.length - 1];
+      const tubes = (base.tubes || []).map((t) => t.slice());
+      const remapped = permute(tubes, 0xc0ffee ^ 0x9e3779b9);
+      const before = colorMultiset(tubes);
+      const after = colorMultiset(remapped);
+      if (!multisetsEqual(before, after)) {
+        ok = false;
+        detail = 'permuteDailyColors broke color multiset';
+      } else if (JSON.stringify(tubes) === JSON.stringify(remapped)) {
+        ok = false;
+        detail = 'permuteDailyColors left board identical to base';
+      } else {
+        detail = 'color remix preserves multiset and differs from base';
+      }
+    } else {
+      ok = false;
+      detail = 'no levels to prove remix';
+    }
+    if (ok) pass('D-DIFF', `Daily remix helpers + twist tier; ${detail}`);
+    else fail('D-DIFF', detail || 'Daily differentiation check failed');
   } else {
-    info('P0-1-DOC', 'P0① comment string not found (logic still checked above)');
+    fail('D-DIFF', 'missing permuteDailyColors / shuffleDailyLayout / _dailyTwist (Daily still a skin)');
   }
 
   // Mid-pour ad guard: interstitial only at fail-loop / natural breaks; pouring gates input

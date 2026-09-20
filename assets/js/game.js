@@ -771,6 +771,7 @@
         mode: 'daily',
         daily_key: dailySeedKey || '',
         level_id: (def && typeof def._dailyIndex === 'number') ? def._dailyIndex + 1 : analyticsLevelId(),
+        daily_twist: (def && def._dailyTwist) ? def._dailyTwist : '',
       });
     } else {
       trackEvent('level_start', { mode: 'main', level_id: analyticsLevelId() });
@@ -1619,6 +1620,103 @@
     return h >>> 0;
   }
 
+  /** LCG step — shared by daily remix helpers (deterministic per calendar day). */
+  function dailyNextSeed(s) {
+    return (Math.imul(s >>> 0, 1664525) + 1013904223) >>> 0;
+  }
+
+  /** Seeded Fisher–Yates; returns { arr, seed }. */
+  function dailySeededShuffle(arr, seed) {
+    const a = arr.slice();
+    let s = seed >>> 0;
+    for (let i = a.length - 1; i > 0; i--) {
+      s = dailyNextSeed(s);
+      const j = s % (i + 1);
+      const tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+    }
+    return { arr: a, seed: s };
+  }
+
+  /**
+   * Date-seeded color remap — preserves color multiset (solvability) but changes
+   * the board vs the mainline source level so Daily is not a skin.
+   */
+  function permuteDailyColors(tubes, seed) {
+    const ids = [];
+    const seen = Object.create(null);
+    for (let t = 0; t < tubes.length; t++) {
+      const tube = tubes[t] || [];
+      for (let i = 0; i < tube.length; i++) {
+        const c = tube[i];
+        if (c && !seen[c]) {
+          seen[c] = true;
+          ids.push(c);
+        }
+      }
+    }
+    ids.sort(function (a, b) { return a - b; });
+    if (ids.length < 2) {
+      return { tubes: cloneTubes(tubes), seed: seed >>> 0 };
+    }
+    const sh = dailySeededShuffle(ids, seed);
+    const map = Object.create(null);
+    for (let i = 0; i < ids.length; i++) map[ids[i]] = sh.arr[i];
+    // Avoid rare identity permutation — force a rotation so Daily always differs
+    let identity = true;
+    for (let i = 0; i < ids.length; i++) {
+      if (map[ids[i]] !== ids[i]) { identity = false; break; }
+    }
+    if (identity) {
+      for (let i = 0; i < ids.length; i++) {
+        map[ids[i]] = ids[(i + 1) % ids.length];
+      }
+    }
+    const out = [];
+    for (let t = 0; t < tubes.length; t++) {
+      const tube = tubes[t] || [];
+      const row = [];
+      for (let i = 0; i < tube.length; i++) {
+        const c = tube[i];
+        row.push(c ? map[c] : c);
+      }
+      out.push(row);
+    }
+    return { tubes: out, seed: sh.seed };
+  }
+
+  /**
+   * Date-seeded tube+cap reorder — same puzzle topology, different spatial layout
+   * than mainline (bijection; solvability unchanged).
+   */
+  function shuffleDailyLayout(tubes, capsIn, seed) {
+    const n = tubes.length;
+    const caps = cloneCaps(capsIn || []);
+    while (caps.length < n) caps.push(false);
+    const idx = [];
+    for (let i = 0; i < n; i++) idx.push(i);
+    if (n < 2) {
+      return { tubes: cloneTubes(tubes), caps: caps.slice(0, n), seed: seed >>> 0 };
+    }
+    const sh = dailySeededShuffle(idx, seed);
+    let identity = true;
+    for (let i = 0; i < n; i++) {
+      if (sh.arr[i] !== i) { identity = false; break; }
+    }
+    const order = identity
+      ? idx.map(function (_, i) { return (i + 1) % n; })
+      : sh.arr;
+    const newTubes = [];
+    const newCaps = [];
+    for (let i = 0; i < n; i++) {
+      const j = order[i];
+      newTubes.push((tubes[j] || []).slice());
+      newCaps.push(!!caps[j]);
+    }
+    return { tubes: newTubes, caps: newCaps, seed: sh.seed };
+  }
+
   /** Ensure daily boards show crowded gold lids (store/UA honesty). Uncap is free. */
   function ensureDailyCrowdedCaps(tubes, capsIn, seed, minCaps) {
     const n = tubes.length;
@@ -1639,24 +1737,25 @@
       }
     }
     // Deterministic shuffle from date seed
-    let s = seed >>> 0;
-    for (let i = candidates.length - 1; i > 0; i--) {
-      s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
-      const j = s % (i + 1);
-      const tmp = candidates[i];
-      candidates[i] = candidates[j];
-      candidates[j] = tmp;
-    }
-    for (let k = 0; k < candidates.length && count < minCaps; k++) {
-      caps[candidates[k]] = true;
+    const sh = dailySeededShuffle(candidates, seed);
+    const shuffled = sh.arr;
+    for (let k = 0; k < shuffled.length && count < minCaps; k++) {
+      caps[shuffled[k]] = true;
       count++;
     }
     return caps.slice(0, n);
   }
 
+  /**
+   * Daily = progress-scaled base + date-seeded remix (colors + layout) + crowded lids
+   * + twist-tier par. Not a mainline skin: board must differ from source level.
+   */
   function getDailyDef() {
     const key = todayStr();
     const seed = dateSeed(key);
+    const TWISTS = ['Crowded', 'Remixed', 'Pressure'];
+    const twist = TWISTS[seed % 3];
+    const parMul = twist === 'Pressure' ? 1.25 : twist === 'Remixed' ? 1.2 : 1.15;
     // Prefer crowded mid/late boards (≥6 tubes) near progress; fall back upward
     const maxU = save.maxUnlocked || 0;
     let idx = Math.min(
@@ -1674,18 +1773,36 @@
     }
     if (idx < 11) idx = Math.min(LEVELS.length - 1, 11);
     const base = LEVELS[idx];
-    const tubes = cloneTubes(base.tubes);
-    const caps = ensureDailyCrowdedCaps(tubes, base.caps || [], seed, 3);
+    let tubes = cloneTubes(base.tubes);
+    let caps = cloneCaps(base.caps || []);
+    while (caps.length < tubes.length) caps.push(false);
+
+    // 1) Color remix (solvability-preserving)
+    const colorStep = permuteDailyColors(tubes, seed ^ 0x9e3779b9);
+    tubes = colorStep.tubes;
+    // 2) Layout scramble (tube+cap bijection)
+    const layoutStep = shuffleDailyLayout(tubes, caps, colorStep.seed ^ 0x85ebca6b);
+    tubes = layoutStep.tubes;
+    caps = layoutStep.caps;
+    // 3) Crowded lids — Pressure pushes toward 4 when board is wide enough
+    let minCaps = 3;
+    if (twist === 'Pressure' && tubes.length >= 7) minCaps = 4;
+    else if (twist === 'Crowded') minCaps = 3;
+    caps = ensureDailyCrowdedCaps(tubes, caps, layoutStep.seed, minCaps);
+
     const modules = base.modules ? base.modules.slice() : [];
     if (caps.some(Boolean) && modules.indexOf('cap') < 0) modules.push('cap');
+    const basePar = estimatePar({ capacity: base.capacity, tubes: base.tubes });
     return {
       capacity: base.capacity,
       tubes: tubes,
       caps: caps,
       modules: modules.length ? modules : ['cap'],
-      par: Math.ceil(estimatePar(base) * 1.15),
+      par: Math.ceil(basePar * parMul),
       _dailyIndex: idx,
-      _dailyMinCaps: 3,
+      _dailyMinCaps: minCaps,
+      _dailyTwist: twist,
+      _dailyKey: key,
     };
   }
 
@@ -1695,8 +1812,10 @@
       toast('Daily already done! Streak ' + (save.streak || 0) + ' days');
     }
     hideAllOverlays();
-    loadLevel(0, { daily: true, dailyKey: key, def: getDailyDef() });
-    toast('Daily Challenge started!');
+    const def = getDailyDef();
+    loadLevel(0, { daily: true, dailyKey: key, def: def });
+    const twist = (def && def._dailyTwist) ? def._dailyTwist : 'Remix';
+    toast('Daily Challenge · ' + twist + '!');
   }
 
   // --- Render ---
@@ -1794,7 +1913,9 @@
 
   function updateChrome() {
     if (isDailyMode) {
-      levelLabel.textContent = 'Daily Challenge';
+      const d = getDailyDef();
+      const twist = (d && d._dailyTwist) ? d._dailyTwist : 'Remix';
+      levelLabel.textContent = 'Daily · ' + twist;
     } else {
       levelLabel.textContent = `Level ${levelIndex + 1} / ${LEVELS.length}`;
     }
