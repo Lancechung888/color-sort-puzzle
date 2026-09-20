@@ -2333,6 +2333,37 @@ block(
 }
 
 
+// --- LEAVE-TAB-GUARD: beforeunload when mid-run draft has progress; complements RUN-RESUME ---
+{
+  const gameSrc = read('assets/js/game.js') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const htmlRaw = read('index.html') || '';
+  const jsOk =
+    /addEventListener\s*\(\s*['"]beforeunload['"]/.test(gameSrc) &&
+    /beforeunload/.test(gameSrc) &&
+    /activeOrStoredProgressDraft\s*\(/.test(gameSrc) &&
+    /draftHasProgress\s*\(/.test(gameSrc) &&
+    /event\.preventDefault\s*\(/.test(gameSrc) &&
+    /event\.returnValue\s*=\s*['"]['"]/.test(gameSrc) &&
+    (/persistRunDraft\s*\(/.test(gameSrc) || /flushRunDraftOnHide\s*\(/.test(gameSrc));
+  const noSoft =
+    !/leave-tab-arm|leaveTab-arm|tab-guard-arm|claim-juice|hud-pulse/.test(
+      gameSrc + cssRaw + htmlRaw
+    );
+  if (jsOk && noSoft) {
+    pass(
+      'LEAVE-TAB-GUARD',
+      'beforeunload arms when activeOrStoredProgressDraft (draftHasProgress) has progress; preventDefault + returnValue; flush persist; no soft-arm'
+    );
+  } else {
+    fail(
+      'LEAVE-TAB-GUARD',
+      `missing beforeunload + progress/draft gate / preventDefault+returnValue / persist flush, or soft-arm slipped in (jsOk=${jsOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
