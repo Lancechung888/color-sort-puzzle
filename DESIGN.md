@@ -14,7 +14,7 @@
 | Hook | What it does |
 |------|----------------|
 | Visual juice | Better glass tubes, pour splash, confetti, glow on complete tube, soft shake |
-| Stars | 3★ if under par & no undo; 2★ within 1.5× par; 1★ clear — replay incentive |
+| Stars | 3★ if under par & no undo; 2★ within 1.5× par; 1★ clear — replay incentive. **L-PAR:** every level ships explicit `par` from shortest pour path (BFS) or heuristic depth with Day1 +1 / late ~+10% slack — never `par < opt` (fixes early impossible 3★). |
 | Coins | +8 / +15 / +28 by stars; persist in localStorage; spend on hints / themes |
 | Daily streak | Login streak + soft coin bonus; **Daily Challenge** = progress-scaled base + date-seeded color/layout remix + crowded lids + Crowded/Remixed/Pressure par tier (not a mainline skin) |
 | Themes | Free classic glass; neon / cat skins locked behind coins or mock IAP |

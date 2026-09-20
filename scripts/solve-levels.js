@@ -190,8 +190,51 @@ function solveAllLevels(levels, opts) {
   };
 }
 
+/**
+ * Exact shortest pour-path length (BFS). Free uncap (caps ignored).
+ * @returns {{ ok: boolean, depth?: number, nodes: number, reason?: string }}
+ */
+function shortestPourPath(lv, nodeBudget) {
+  const budget = nodeBudget || 2000000;
+  const capacity = lv.capacity || 4;
+  const start = cloneTubes(lv.tubes || []);
+  if (isWon(start, capacity)) return { ok: true, depth: 0, nodes: 0 };
+
+  const visited = new Set([keyOf(start)]);
+  const q = [{ tubes: start, depth: 0 }];
+  let qi = 0;
+  let nodes = 0;
+
+  while (qi < q.length) {
+    const cur = q[qi++];
+    nodes += 1;
+    if (nodes > budget) return { ok: false, reason: 'budget', nodes, depth: cur.depth };
+
+    const tubes = cur.tubes;
+    const n = tubes.length;
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        if (!canPour(tubes, i, j, capacity)) continue;
+        const amount = pourAmount(tubes, i, j, capacity);
+        if (amount <= 0) continue;
+        if (isUselessEmptyPour(tubes, i, j, amount)) continue;
+        const next = applyPour(tubes, i, j, amount);
+        const k = keyOf(next);
+        if (visited.has(k)) continue;
+        if (isWon(next, capacity)) return { ok: true, depth: cur.depth + 1, nodes };
+        visited.add(k);
+        q.push({ tubes: next, depth: cur.depth + 1 });
+      }
+    }
+    if (q.length > 500000) return { ok: false, reason: 'queue', nodes, depth: cur.depth };
+  }
+  return { ok: false, reason: 'unsolvable', nodes };
+}
+
 module.exports = {
   solveLevel,
   solveAllLevels,
+  shortestPourPath,
   DEFAULT_NODE_BUDGET,
 };
+

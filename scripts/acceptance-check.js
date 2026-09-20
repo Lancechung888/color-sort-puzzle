@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const { spawnSync } = require('child_process');
-const { solveAllLevels } = require('./solve-levels');
+const { solveAllLevels, solveLevel, shortestPourPath } = require('./solve-levels');
 
 const root = path.resolve(__dirname, '..');
 const rows = [];
@@ -165,6 +165,51 @@ if (levels) {
       'L-SOLVE',
       `${solve.fails.length}/${solve.count} unsolvable or over budget (≤${solve.nodeBudget}/level): ${sample}`
     );
+  }
+
+
+  // L-PAR: explicit par on every level; Day1 pars allow 3★ (par >= BFS opt);
+  // finale L79–L80 must not be trivial 1-pour boards (curve integrity).
+  const missingPar = [];
+  const day1Impossible = [];
+  for (let i = 0; i < levels.length; i++) {
+    const p = levels[i].par;
+    if (typeof p !== 'number' || !(p >= 1) || !Number.isFinite(p)) missingPar.push(i + 1);
+  }
+  const day1N = Math.min(15, levels.length);
+  for (let i = 0; i < day1N; i++) {
+    const r = shortestPourPath(levels[i], 2000000);
+    if (!r.ok) {
+      day1Impossible.push(`L${i + 1}:bfs-${r.reason}`);
+      continue;
+    }
+    if (levels[i].par < r.depth) {
+      day1Impossible.push(`L${i + 1}:par ${levels[i].par} < opt ${r.depth}`);
+    }
+  }
+  let finaleTrivial = false;
+  let finaleMsg = '';
+  if (levels.length >= 80) {
+    const d79 = solveLevel(levels[78], 500000);
+    const d80 = solveLevel(levels[79], 500000);
+    if (!d79.ok || !d80.ok || (d79.depth || 0) < 12 || (d80.depth || 0) < 12) {
+      finaleTrivial = true;
+      finaleMsg = `L79 depth=${d79.ok ? d79.depth : d79.reason} L80 depth=${d80.ok ? d80.depth : d80.reason} (need ≥12)`;
+    } else {
+      finaleMsg = `L79 depth=${d79.depth} L80 depth=${d80.depth}`;
+    }
+  }
+  if (missingPar.length === 0 && day1Impossible.length === 0 && !finaleTrivial) {
+    pass(
+      'L-PAR',
+      `explicit par×${levels.length}; Day1 L1–${day1N} par≥BFS opt; finale ${finaleMsg}; no soft-arm`
+    );
+  } else {
+    const bits = [];
+    if (missingPar.length) bits.push(`missing/invalid par: L${missingPar.slice(0, 8).join(',')}`);
+    if (day1Impossible.length) bits.push(day1Impossible.slice(0, 6).join('; '));
+    if (finaleTrivial) bits.push(finaleMsg);
+    fail('L-PAR', bits.join(' · '));
   }
 }
 
