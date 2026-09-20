@@ -3238,6 +3238,52 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-HAPTIC-OFF: setHapticFeedbackEnabled(false); no soft-arm ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-haptic-off.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk = /setHapticFeedbackEnabled\s*\(\s*false\s*\)/.test(patchRaw);
+  const longClickIdx = aabRaw.search(/patch-android-webview-long-click\.sh/);
+  const hapticIdx = aabRaw.search(/patch-android-webview-haptic-off\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    hapticIdx >= 0 &&
+    longClickIdx >= 0 &&
+    iconsIdx >= 0 &&
+    hapticIdx > longClickIdx &&
+    iconsIdx > hapticIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-HAPTIC-OFF/.test(readmeRaw) && /2t/.test(readmeRaw);
+  const keepOk = /setHapticFeedbackEnabled\s*\(\s*false\s*\)/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /setHapticFeedbackEnabled\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-haptic-off-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-HAPTIC-OFF',
+      'setHapticFeedbackEnabled(false) + patch-android-webview-haptic-off.sh + aab:internal after long-click before icons + README §2t + keep-awake template; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-HAPTIC-OFF',
+      `missing haptic-off / patch / aab hook-after-long-click-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';

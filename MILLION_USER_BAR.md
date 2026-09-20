@@ -310,6 +310,8 @@
 
 （已補）**ANDROID-WEBVIEW-LONG-CLICK**已上 — `MainActivity` `webView.setOnLongClickListener(v -> true)`＋`setLongClickable(false)`（拒絕原生 WebView 長按 ActionMode／context menu Copy／Share／Web Search 疊中局；CSS `user-select:none` 不足；`android/` 仍 gitignore）；`scripts/patch-android-webview-long-click.sh`＋`aab:internal` hook（zoom-lock 之後、icons 之前）＋`native-templates/android/README.md` §2s；accept `ANDROID-WEBVIEW-LONG-CLICK`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-WEBVIEW-HAPTIC-OFF**已上 — `MainActivity` `webView.setHapticFeedbackEnabled(false)`（拒絕 Android View 系統 haptic／`View.performHapticFeedback` 搶中局；異於 LONG-CLICK 的 ActionMode，遊戲 `haptic()`／Capacitor Haptics 仍經 JS 開啟；`android/` 仍 gitignore）；`scripts/patch-android-webview-haptic-off.sh`＋`aab:internal` hook（long-click 之後、icons 之前）＋`native-templates/android/README.md` §2t；accept `ANDROID-WEBVIEW-HAPTIC-OFF`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 
 

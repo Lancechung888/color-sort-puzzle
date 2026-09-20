@@ -97,6 +97,8 @@ bash "$ROOT/scripts/patch-android-webview-bg.sh"
 bash "$ROOT/scripts/patch-android-webview-zoom-lock.sh"
 # Deny WebView long-press ActionMode / context menu (Copy/Share/Web Search) mid-run.
 bash "$ROOT/scripts/patch-android-webview-long-click.sh"
+# Deny WebView system haptic (View.performHapticFeedback) so Capacitor/vibrate stays intentional.
+bash "$ROOT/scripts/patch-android-webview-haptic-off.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
