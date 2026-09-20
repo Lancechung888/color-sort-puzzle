@@ -3919,6 +3919,55 @@
     }
   }
 
+  /** Win/Fail overlay keys: Next/restart on win; hint on fail. Escape left alone. */
+  function handleWinFailKeys(e) {
+    const t = e.target;
+    if (t) {
+      const tag = (t.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return false;
+      if (t.isContentEditable) return false;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return false;
+
+    const winShow = winOverlay && winOverlay.classList.contains('show');
+    const failShow = failPrompt && failPrompt.classList.contains('show');
+    if (!winShow && !failShow) return false;
+
+    const key = e.key;
+
+    if (winShow) {
+      if (key === 'Enter' || key === 'n' || key === 'N') {
+        const nextBtn = $('#btn-next');
+        if (!nextBtn || nextBtn.disabled || nextBtn.hidden) return false;
+        e.preventDefault();
+        nextLevel();
+        return true;
+      }
+      if (key === 'r' || key === 'R') {
+        const restartBtn = $('#btn-win-restart');
+        if (!restartBtn || restartBtn.disabled || restartBtn.hidden) return false;
+        e.preventDefault();
+        hideWin();
+        doRestartLevel();
+        return true;
+      }
+      return false;
+    }
+
+    if (failShow) {
+      if (key === 'Enter' || key === 'h' || key === 'H') {
+        const hintBtn = $('#btn-fail-hint');
+        if (!hintBtn || hintBtn.disabled || hintBtn.hidden) return false;
+        e.preventDefault();
+        hintBtn.click();
+        return true;
+      }
+      return false;
+    }
+
+    return false;
+  }
+
   /** Levels grid arrow / Home / End nav; chapter-edge Left/Right shifts chapter. */
   function handleLevelsGridKeydown(e) {
     const ov = $('#levels-overlay');
@@ -5166,6 +5215,13 @@
           render();
         }
         return;
+      }
+      // WIN-FAIL-KEYS: win Enter/n Next, r Restart; fail Enter/h Hint (Escape left alone)
+      if (
+        (winOverlay && winOverlay.classList.contains('show')) ||
+        (failPrompt && failPrompt.classList.contains('show'))
+      ) {
+        if (handleWinFailKeys(e)) return;
       }
       // HUD-KEYS: in-play u/h/r/(l) — Undo / Hint / Restart / Levels
       handleHudKeys(e);
