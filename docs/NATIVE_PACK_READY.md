@@ -33,7 +33,7 @@
 
 - [x] **Capacitor deps** in `package.json`:
   - `@capacitor/core` ^6.2.0
-  - `@capacitor/app` ^6.0.3 (hardware/gesture back → BACK-NAV)
+  - `@capacitor/app` ^6.0.3 (hardware/gesture back → BACK-NAV; `appStateChange` → CAP-APP-STATE draft flush + wake sync)
   - `@capacitor/cli` / `@capacitor/android` ^6.2.0 (dev)
   - `@capacitor-community/admob` ^6.2.0
   - `@capgo/native-purchases` ^6.0.42
