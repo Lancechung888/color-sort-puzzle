@@ -137,6 +137,10 @@
   let hudHintArmTimer = 0;
   /** HUD #btn-undo soft-arm cue timer (once per ★-track drop when freeHints<1 + undo available). */
   let hudUndoArmTimer = 0;
+  /** Focus return when first dismissible/win overlay opens (depth 0→1). */
+  let overlayFocusReturn = null;
+  /** Count of open overlays that participate in focus restore (not start-screen). */
+  let overlayFocusDepth = 0;
   let streakClaimClearTimer = 0;
   /** Shop theme-unlock claim juice clear timer. */
   let themeClaimClearTimer = 0;
@@ -2484,7 +2488,7 @@
       });
     }
 
-    winOverlay.classList.add('show');
+    openOverlay(winOverlay);
     clearWinReplayArm();
     const winModal = winOverlay.querySelector('.modal-win');
     const winStars = $('#win-stars');
@@ -2657,8 +2661,7 @@
   }
 
   function hideWin() {
-    winOverlay.classList.remove('show');
-    clearWinReplayArm();
+    closeOverlay(winOverlay);
     const winModal = winOverlay.querySelector('.modal-win');
     const winStars = $('#win-stars');
     const winTitle = $('#win-title');
@@ -3137,8 +3140,65 @@
   }
 
   // --- Overlays ---
+  function safeFocus(el) {
+    if (!el || typeof el.focus !== 'function') return;
+    try {
+      el.focus({ preventScroll: true });
+    } catch (_) {
+      try { el.focus(); } catch (__) { /* ignore */ }
+    }
+  }
+
+  function focusOverlayPrimary(el) {
+    if (!el || !el.classList.contains('show')) return;
+    let target = el.querySelector('.modal-close');
+    if (!target) {
+      if (el === winOverlay) {
+        const nextBtn = $('#btn-next');
+        const restartBtn = $('#btn-win-restart');
+        target =
+          (nextBtn && nextBtn.classList.contains('next-unlock-arm') && nextBtn) ||
+          (restartBtn && restartBtn.classList.contains('win-replay-arm') && restartBtn) ||
+          nextBtn ||
+          restartBtn;
+      } else if (el === failPrompt) {
+        target = $('#btn-fail-hint');
+      } else if (el === hintPaywall) {
+        target =
+          el.querySelector('.hint-pay-arm') ||
+          $('#btn-hint-coins') ||
+          $('#btn-hint-ad');
+      } else if (el === shopOverlay) {
+        target = el.querySelector('.shop-buy-arm') || el.querySelector('.modal-close');
+      }
+    }
+    if (!target) {
+      const modal = el.querySelector('[role="dialog"]') || el.querySelector('.modal') || el;
+      target = modal.querySelector('button:not([disabled])');
+    }
+    safeFocus(target);
+  }
+
+  function topFocusOverlay() {
+    const order = [hintPaywall, shopOverlay, failPrompt, $('#levels-overlay'), winOverlay];
+    for (let i = 0; i < order.length; i++) {
+      const o = order[i];
+      if (o && o.classList.contains('show')) return o;
+    }
+    return null;
+  }
+
   function openOverlay(el) {
-    if (el) el.classList.add('show');
+    if (!el) return;
+    const wasOpen = el.classList.contains('show');
+    const tracksFocus = el !== startScreen;
+    if (!wasOpen && tracksFocus) {
+      if (overlayFocusDepth === 0) {
+        overlayFocusReturn = document.activeElement;
+      }
+      overlayFocusDepth++;
+    }
+    el.classList.add('show');
     // HUD hint arm is mid-play only — clear when any blocking overlay covers the board
     if (
       el === startScreen ||
@@ -3151,10 +3211,18 @@
       clearHudHintArm();
       clearHudUndoArm();
     }
+    if (!wasOpen && tracksFocus) {
+      requestAnimationFrame(function () {
+        focusOverlayPrimary(el);
+      });
+    }
   }
 
   function closeOverlay(el) {
-    if (el) el.classList.remove('show');
+    if (!el) return;
+    const wasOpen = el.classList.contains('show');
+    const tracksFocus = el !== startScreen;
+    el.classList.remove('show');
     if (el === shopOverlay) {
       clearThemeUnlockClaim();
       clearHintsPackClaim();
@@ -3165,10 +3233,46 @@
     if (el === hintPaywall) clearHintPayArm();
     if (el === winOverlay) clearWinReplayArm();
     if (el && el.id === 'levels-overlay') clearLevelsContinueArm();
+    if (wasOpen && tracksFocus) {
+      overlayFocusDepth = Math.max(0, overlayFocusDepth - 1);
+      if (overlayFocusDepth === 0) {
+        const ret = overlayFocusReturn;
+        overlayFocusReturn = null;
+        requestAnimationFrame(function () {
+          if (ret && document.contains(ret)) safeFocus(ret);
+        });
+      } else {
+        const top = topFocusOverlay();
+        if (top) {
+          requestAnimationFrame(function () {
+            focusOverlayPrimary(top);
+          });
+        }
+      }
+    }
   }
 
   function hideAllOverlays() {
-    [startScreen, winOverlay, shopOverlay, hintPaywall, failPrompt, $('#levels-overlay')].forEach(closeOverlay);
+    [startScreen, winOverlay, shopOverlay, hintPaywall, failPrompt, $('#levels-overlay')].forEach(function (el) {
+      if (!el) return;
+      el.classList.remove('show');
+      if (el === shopOverlay) {
+        clearThemeUnlockClaim();
+        clearHintsPackClaim();
+        clearUndoPackClaim();
+        clearShopBuyArm();
+      }
+      if (el === failPrompt) clearFailHintArm();
+      if (el === hintPaywall) clearHintPayArm();
+      if (el === winOverlay) clearWinReplayArm();
+      if (el.id === 'levels-overlay') clearLevelsContinueArm();
+    });
+    overlayFocusDepth = 0;
+    const ret = overlayFocusReturn;
+    overlayFocusReturn = null;
+    if (ret && document.contains(ret)) {
+      requestAnimationFrame(function () { safeFocus(ret); });
+    }
   }
 
   function openShop() {
@@ -3938,19 +4042,37 @@
       if (e.key !== 'Escape') return;
       const levelsOv = $('#levels-overlay');
       if (levelsOv && levelsOv.classList.contains('show')) {
+        e.preventDefault();
         closeLevels();
         return;
       }
       if (hintPaywall && hintPaywall.classList.contains('show')) {
+        e.preventDefault();
         closeOverlay(hintPaywall);
         return;
       }
       if (shopOverlay && shopOverlay.classList.contains('show')) {
+        e.preventDefault();
         closeOverlay(shopOverlay);
         return;
       }
       if (failPrompt && failPrompt.classList.contains('show')) {
+        e.preventDefault();
         closeOverlay(failPrompt);
+        return;
+      }
+      // Playing: Escape clears selection / pending uncap (does not dismiss win/start)
+      if (
+        selected >= 0 ||
+        pendingUncapIdx >= 0
+      ) {
+        if (pouring) return;
+        if (startScreen && startScreen.classList.contains('show')) return;
+        if (winOverlay && winOverlay.classList.contains('show')) return;
+        e.preventDefault();
+        selected = -1;
+        clearPendingUncap();
+        render();
       }
     });
     btnUndo.addEventListener('click', undo);
