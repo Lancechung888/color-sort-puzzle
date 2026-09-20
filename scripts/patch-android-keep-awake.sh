@@ -42,15 +42,19 @@ import android.os.Bundle;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
+import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * ANDROID-KEEP-AWAKE: FLAG_KEEP_SCREEN_ON while playing.
+ * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME: FLAG_KEEP_SCREEN_ON while playing;
+ * SplashScreen.installSplashScreen before super.onCreate (API 31+).
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
+    // ANDROID-SPLASH-THEME: must run before super.onCreate (API 31+).
+    SplashScreen.installSplashScreen(this);
     super.onCreate(savedInstanceState);
     // Default on until JS syncs save.keepAwake (matches WAKE-LOCK default).
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

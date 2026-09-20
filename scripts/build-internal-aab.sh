@@ -67,6 +67,8 @@ bash "$ROOT/scripts/patch-android-portrait.sh"
 bash "$ROOT/scripts/patch-android-keep-awake.sh"
 # Brand-dark status/nav/window bars (override Capacitor indigo #3F51B5).
 bash "$ROOT/scripts/patch-android-system-bars.sh"
+# Android 12+ SplashScreen install + postSplashScreenTheme (brand cold-start handoff).
+bash "$ROOT/scripts/patch-android-splash-theme.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
