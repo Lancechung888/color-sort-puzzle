@@ -2218,7 +2218,7 @@
       if (isWon()) {
         restartFailCount = 0;
         celebrateLevelClear();
-        setTimeout(showWin, 480);
+        setTimeout(showWin, prefersReducedMotion() ? 0 : 480);
       } else {
         // Soft toast only — no soft-arm / HUD pulse (matrix already dense)
         setTimeout(maybeNotifyStuck, 160);
@@ -2987,6 +2987,11 @@
 
   /** Level-clear juice: cascade glow on filled tubes, then showWin (no confetti here). */
   function celebrateLevelClear() {
+    // A11Y-WIN: skip cascade glowPulse delays under reduced-motion; keep haptic
+    if (prefersReducedMotion()) {
+      haptic('complete');
+      return;
+    }
     let delay = 0;
     for (let i = 0; i < tubes.length; i++) {
       if (!isFilledComplete(tubes[i])) continue;
@@ -3263,20 +3268,27 @@
     if (winTitle) winTitle.textContent = stars === 3 ? 'Perfect!' : 'You win!';
 
     const starEls = winOverlay.querySelectorAll('.win-stars .star');
-    starEls.forEach((el) => el.classList.remove('lit', 'perfect-pop'));
-    starEls.forEach((el, i) => {
-      setTimeout(() => {
-        if (i < stars) {
-          el.classList.remove('starPop', 'perfect-pop');
-          void el.offsetWidth;
-          el.classList.add('lit', 'starPop');
-          if (stars === 3 && i === 2) {
-            el.classList.add('perfect-pop');
-            spawnPerfectBurst(winStars);
+    starEls.forEach((el) => el.classList.remove('lit', 'perfect-pop', 'starPop'));
+    // A11Y-WIN: reduced-motion lights stars immediately (.lit only; no starPop/perfect-pop stagger)
+    if (prefersReducedMotion()) {
+      starEls.forEach((el, i) => {
+        if (i < stars) el.classList.add('lit');
+      });
+    } else {
+      starEls.forEach((el, i) => {
+        setTimeout(() => {
+          if (i < stars) {
+            el.classList.remove('starPop', 'perfect-pop');
+            void el.offsetWidth;
+            el.classList.add('lit', 'starPop');
+            if (stars === 3 && i === 2) {
+              el.classList.add('perfect-pop');
+              spawnPerfectBurst(winStars);
+            }
           }
-        }
-      }, 180 + i * 160);
-    });
+        }, 180 + i * 160);
+      });
+    }
 
     const totalShown = coins + (chest ? chest.coins : 0);
     $('#win-reward').textContent = `+${totalShown} coins`;

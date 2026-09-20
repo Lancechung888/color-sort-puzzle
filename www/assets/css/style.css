@@ -2873,11 +2873,13 @@ html, body {
   box-shadow: 0 0 8px rgba(247, 183, 49, 0.85);
 }
 @media (prefers-reduced-motion: reduce) {
+  .win-stars .star.starPop,
   .win-stars.perfect .star.perfect-pop {
     animation: none;
     filter: drop-shadow(0 0 10px rgba(255, 230, 109, 0.8));
   }
   .perfect-spark { display: none; }
+  .confetti { display: none; }
 }
 
 .win-reward {

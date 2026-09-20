@@ -1004,6 +1004,50 @@ if (gameRaw) {
     }
   }
 
+  // A11Y-WIN: celebrateLevelClear + showWin delay + star lighting under reduced-motion (no soft-arm)
+  {
+    const celebIdx = gameRaw.indexOf('function celebrateLevelClear');
+    const celebSlice = celebIdx >= 0 ? gameRaw.slice(celebIdx, celebIdx + 520) : '';
+    const celebEarly =
+      /function celebrateLevelClear\s*\(/.test(celebSlice) &&
+      /if\s*\(\s*prefersReducedMotion\s*\(\s*\)\s*\)/.test(celebSlice) &&
+      /haptic\s*\(\s*['"]complete['"]\s*\)/.test(celebSlice) &&
+      /return\s*;/.test(celebSlice);
+    const winDelay =
+      /setTimeout\s*\(\s*showWin\s*,\s*prefersReducedMotion\s*\(\s*\)\s*\?\s*0\s*:\s*480\s*\)/.test(
+        gameRaw
+      );
+    const showIdx = gameRaw.indexOf('function showWin');
+    const showSlice = showIdx >= 0 ? gameRaw.slice(showIdx, showIdx + 5600) : '';
+    const starImmediate =
+      /function showWin\s*\(/.test(showSlice) &&
+      /if\s*\(\s*prefersReducedMotion\s*\(\s*\)\s*\)/.test(showSlice) &&
+      /classList\.add\(\s*['"]lit['"]\s*\)/.test(showSlice) &&
+      /180\s*\+\s*i\s*\*\s*160/.test(showSlice);
+    const cssHas =
+      /prefers-reduced-motion:\s*reduce/.test(cssRaw) &&
+      /\.confetti/.test(cssRaw) &&
+      (/display:\s*none/.test(cssRaw) || /\.confetti\s*\{[^}]*display:\s*none/.test(cssRaw));
+    // Stricter: confetti hide must appear inside a prefers-reduced-motion block near .confetti
+    const cssConfettiHide =
+      /@media\s*\(\s*prefers-reduced-motion:\s*reduce\s*\)\s*\{[\s\S]*?\.confetti\s*\{[^}]*display:\s*none/.test(
+        cssRaw
+      );
+    const noSoft =
+      !/a11y-win-arm|win-reduced-arm|a11y-clear-arm|\.a11y-win-arm/.test(gameRaw + cssRaw);
+    if (celebEarly && winDelay && starImmediate && cssConfettiHide && noSoft) {
+      pass(
+        'A11Y-WIN',
+        'celebrateLevelClear early haptic; showWin delay 0 vs 480; stars lit immediately; CSS hide .confetti; no soft-arm'
+      );
+    } else {
+      fail(
+        'A11Y-WIN',
+        'missing celebrateLevelClear early path / showWin delay / star immediate path / CSS .confetti hide, or soft-arm slipped in'
+      );
+    }
+  }
+
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
   if (
     /function handleStartKeys/.test(gameRaw) &&
