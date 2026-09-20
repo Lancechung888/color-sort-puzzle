@@ -3458,9 +3458,9 @@
     let line;
     if (lastWinMode === 'daily') {
       const twist = lastWinTwist || 'Remix';
-      line = "I cleared today's Daily Challenge (" + twist + ') with ' + stars + '★ on ColorTube Sort!';
+      line = "I cleared today's Daily Challenge (" + twist + ') with ' + stars + '★ on ColorTube Sort: Lid Puzzle!';
     } else {
-      line = 'I cleared Level ' + (lastWinLevel || 1) + ' with ' + stars + '★ on ColorTube Sort!';
+      line = 'I cleared Level ' + (lastWinLevel || 1) + ' with ' + stars + '★ on ColorTube Sort: Lid Puzzle!';
     }
     return (
       line +
@@ -3473,7 +3473,7 @@
     if (pouring) return;
     if (!winOverlay || !winOverlay.classList.contains('show')) return;
     const text = buildWinShareText();
-    const title = 'ColorTube Sort';
+    const title = 'ColorTube Sort: Lid Puzzle';
     const finishOk = function () {
       try { SFX.tap(); } catch (_) { /* ignore */ }
       trackEvent('share_win', {
