@@ -376,7 +376,43 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js').catch(function () {});
+        var hadController = !!navigator.serviceWorker.controller;
+        navigator.serviceWorker.register('./sw.js').then(function (registration) {
+          function showUpdateToast() {
+            var el = document.getElementById('toast');
+            if (!el) return;
+            el.textContent = 'Update ready — tap to refresh';
+            el.classList.add('show');
+            clearTimeout(showUpdateToast._t);
+            showUpdateToast._t = setTimeout(function () {
+              el.classList.remove('show');
+              if (el.textContent === 'Update ready — tap to refresh') el.textContent = '';
+            }, 10000);
+            function onTap() {
+              el.removeEventListener('click', onTap);
+              try {
+                if (registration.waiting) {
+                  registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                }
+              } catch (_) {}
+              location.reload();
+            }
+            el.addEventListener('click', onTap);
+          }
+          registration.addEventListener('updatefound', function () {
+            var installing = registration.installing;
+            if (!installing) return;
+            installing.addEventListener('statechange', function () {
+              if (installing.state === 'installed' && navigator.serviceWorker.controller) {
+                showUpdateToast();
+              }
+            });
+          });
+          navigator.serviceWorker.addEventListener('controllerchange', function onControllerChange() {
+            navigator.serviceWorker.removeEventListener('controllerchange', onControllerChange);
+            if (hadController) showUpdateToast();
+          });
+        }).catch(function () {});
       });
     }
   </script>
