@@ -2035,6 +2035,45 @@ block(
 );
 
 
+// --- A11Y-ZOOM: viewport allows pinch/browser zoom (no maximum-scale=1 / user-scalable=no) ---
+{
+  const indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const vpRe = /<meta[^>]*name=["']viewport["'][^>]*>/i;
+  const indexVp = indexHtml.match(vpRe);
+  const indexContent = indexVp
+    ? ((indexVp[0].match(/content=["']([^"']*)["']/i) || [])[1] || '')
+    : '';
+  const indexOk =
+    !!indexContent &&
+    !/user-scalable\s*=\s*no/i.test(indexContent) &&
+    !/maximum-scale\s*=\s*1\b/i.test(indexContent) &&
+    /viewport-fit\s*=\s*cover/i.test(indexContent);
+  let docsOk = true;
+  const docsPath = path.join(root, 'docs/index.html');
+  if (fs.existsSync(docsPath)) {
+    const docsHtml = fs.readFileSync(docsPath, 'utf8');
+    const docsVp = docsHtml.match(vpRe);
+    if (docsVp) {
+      const docsContent = (docsVp[0].match(/content=["']([^"']*)["']/i) || [])[1] || '';
+      docsOk =
+        !/user-scalable\s*=\s*no/i.test(docsContent) &&
+        !/maximum-scale\s*=\s*1\b/i.test(docsContent) &&
+        /viewport-fit\s*=\s*cover/i.test(docsContent);
+    }
+  }
+  if (indexOk && docsOk) {
+    pass(
+      'A11Y-ZOOM',
+      'viewport allows zoom (no user-scalable=no / maximum-scale=1) + viewport-fit=cover on index (+ docs if present)'
+    );
+  } else {
+    fail(
+      'A11Y-ZOOM',
+      `viewport still blocks zoom or missing viewport-fit=cover (indexOk=${indexOk} docsOk=${docsOk})`
+    );
+  }
+}
+
 // --- Brand favicon (ICON A derivatives; head + files) ---
 {
   const indexRaw = read('index.html') || '';
