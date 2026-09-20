@@ -2719,6 +2719,7 @@
   }
 
   function startDailyChallenge() {
+    if (pouring) return;
     const key = todayStr();
     if (save.dailyDoneDate === key) {
       toast('Daily already done! Streak ' + (save.streak || 0) + ' days');
@@ -4083,7 +4084,7 @@
     }
   }
 
-  /** Win/Fail overlay keys: Next/restart/Home on win; hint on fail. Escape left alone. */
+  /** Win/Fail overlay keys: Next/restart/Home on win; hint + b Home on fail. Escape left alone. */
   function handleWinFailKeys(e) {
     const t = e.target;
     if (t) {
@@ -4132,6 +4133,13 @@
         if (!hintBtn || hintBtn.disabled || hintBtn.hidden) return false;
         e.preventDefault();
         hintBtn.click();
+        return true;
+      }
+      if (key === 'b' || key === 'B') {
+        const homeBtn = $('#btn-fail-home');
+        if (!homeBtn || homeBtn.disabled || homeBtn.hidden) return false;
+        e.preventDefault();
+        homeBtn.click();
         return true;
       }
       return false;
@@ -4636,7 +4644,10 @@
       clearPendingSpend();
       clearPendingReset();
     }
-    if (el === failPrompt) clearFailHintArm();
+    if (el === failPrompt) {
+      clearFailHintArm();
+      restartFailCount = 0;
+    }
     if (el === hintPaywall) clearHintPayArm();
     if (el === winOverlay) clearWinReplayArm();
     if (el && el.id === 'levels-overlay') clearLevelsContinueArm();
@@ -4671,7 +4682,10 @@
         clearPendingSpend();
         clearPendingReset();
       }
-      if (el === failPrompt) clearFailHintArm();
+      if (el === failPrompt) {
+        clearFailHintArm();
+        restartFailCount = 0;
+      }
       if (el === hintPaywall) clearHintPayArm();
       if (el === winOverlay) clearWinReplayArm();
       if (el.id === 'levels-overlay') clearLevelsContinueArm();
@@ -4685,6 +4699,7 @@
   }
 
   function openShop() {
+    if (pouring) return;
     clearThemeUnlockClaim();
     clearHintsPackClaim();
     clearUndoPackClaim();
@@ -5559,7 +5574,7 @@
       if (startScreen && startScreen.classList.contains('show')) {
         if (handleStartKeys(e)) return;
       }
-      // WIN-FAIL-KEYS: win Enter/n Next, r Restart; fail Enter/h Hint (Escape left alone)
+      // WIN-FAIL-KEYS: win Enter/n Next, r Restart, h Home; fail Enter/h Hint, b Home (Escape left alone)
       if (
         (winOverlay && winOverlay.classList.contains('show')) ||
         (failPrompt && failPrompt.classList.contains('show'))
