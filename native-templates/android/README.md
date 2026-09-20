@@ -124,6 +124,27 @@ bash scripts/patch-android-splash-theme.sh
 
 `npm run aab:internal` 在 system-bars patch **之後**自動跑。`android/` 仍 gitignore。
 
+
+## 2f. Disable Auto Backup（ANDROID-NO-BACKUP）
+
+Stock Capacitor sets `android:allowBackup="true"` with no rules. OS Auto Backup / device-transfer can restore WebView `localStorage` into a corrupt or stale progress blob after reinstall. In-app Settings **Backup progress** Export/Import (`SAVE-BACKUP`) is the supported backup path.
+
+Patch ensures `<application>`:
+
+- `android:allowBackup="false"`
+- `android:fullBackupContent="@xml/backup_rules"` (empty include list)
+- `android:dataExtractionRules="@xml/data_extraction_rules"` (deny cloud-backup + device-transfer)
+
+Writes `res/xml/backup_rules.xml` + `res/xml/data_extraction_rules.xml`.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-no-backup.sh
+```
+
+`npm run aab:internal` 在 splash-theme patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

@@ -2590,6 +2590,50 @@ block(
 }
 
 
+
+// --- ANDROID-NO-BACKUP: allowBackup=false + data extraction deny; no soft-arm ---
+{
+  const manifestPath = path.join(root, 'android/app/src/main/AndroidManifest.xml');
+  const rulesPath = path.join(root, 'android/app/src/main/res/xml/data_extraction_rules.xml');
+  const backupPath = path.join(root, 'android/app/src/main/res/xml/backup_rules.xml');
+  const manifestRaw = fs.existsSync(manifestPath) ? fs.readFileSync(manifestPath, 'utf8') : '';
+  const rulesRaw = fs.existsSync(rulesPath) ? fs.readFileSync(rulesPath, 'utf8') : '';
+  const backupRaw = fs.existsSync(backupPath) ? fs.readFileSync(backupPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-no-backup.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const patchOk =
+    /allowBackup/.test(patchRaw) &&
+    /data_extraction_rules/.test(patchRaw) &&
+    /backup_rules/.test(patchRaw) &&
+    /cloud-backup/.test(patchRaw) &&
+    /device-transfer/.test(patchRaw);
+  const aabHookOk = /patch-android-no-backup\.sh/.test(aabRaw);
+  // android/ is gitignored — allow missing; when present, require deny attrs + xml.
+  const localOk =
+    !manifestRaw ||
+    (/android:allowBackup\s*=\s*["']false["']/.test(manifestRaw) &&
+      /android:fullBackupContent\s*=\s*["']@xml\/backup_rules["']/.test(manifestRaw) &&
+      /android:dataExtractionRules\s*=\s*["']@xml\/data_extraction_rules["']/.test(manifestRaw) &&
+      /cloud-backup/.test(rulesRaw) &&
+      /device-transfer/.test(rulesRaw) &&
+      /<full-backup-content[\s>]/.test(backupRaw));
+  const noSoft =
+    !/no-backup-arm|backup-arm|claim-juice|hud-pulse/.test(
+      patchRaw + manifestRaw + rulesRaw + backupRaw
+    );
+  if (patchOk && aabHookOk && localOk && noSoft) {
+    pass(
+      'ANDROID-NO-BACKUP',
+      'allowBackup=false + fullBackupContent/@xml/backup_rules + dataExtractionRules deny cloud/device-transfer + patch-android-no-backup.sh + aab:internal hook; SAVE-BACKUP is supported path; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-NO-BACKUP',
+      `missing no-backup wiring / patch / aab hook, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
