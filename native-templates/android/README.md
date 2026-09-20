@@ -357,6 +357,28 @@ bash scripts/patch-android-webview-bg.sh
 
 `npm run aab:internal` 在 webview-text-zoom patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+
+## 2r. Lock native WebView pinch zoom（ANDROID-WEBVIEW-ZOOM-LOCK）
+
+Browser／PWA **A11Y-ZOOM** keeps viewport pinchable for accessibility. The **native** Capacitor WebView is different: pinch / built-in zoom scales the whole fixed portrait tube board and breaks HUD layout. Lock gesture zoom once the bridge WebView is ready (after `setBackgroundColor`／`setTextZoom` in `onStart`):
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after setBackgroundColor)
+webView.getSettings().setSupportZoom(false);
+webView.getSettings().setBuiltInZoomControls(false);
+webView.getSettings().setDisplayZoomControls(false);
+```
+
+Distinct from **ANDROID-WEBVIEW-TEXT-ZOOM** (`setTextZoom(100)` = system Font／Display size). This only denies WebView *gesture* zoom.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-zoom-lock.sh
+```
+
+`npm run aab:internal` 在 webview-bg patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
