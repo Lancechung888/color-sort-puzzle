@@ -77,6 +77,8 @@ bash "$ROOT/scripts/patch-android-cleartext.sh"
 bash "$ROOT/scripts/patch-android-resize.sh"
 # Keep the portrait WebView frame fixed while the soft keyboard opens.
 bash "$ROOT/scripts/patch-android-soft-input.sh"
+# Mark as a game for OS / Game Dashboard (hybrid-casual).
+bash "$ROOT/scripts/patch-android-is-game.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
