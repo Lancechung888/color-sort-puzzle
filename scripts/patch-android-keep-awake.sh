@@ -69,6 +69,8 @@ import com.getcapacitor.BridgeActivity;
  * blocked by sticky WebView media-gesture gates (distinct from SOUND-EFFECTS-OFF).
  * setMixedContentMode(MIXED_CONTENT_NEVER_ALLOW) so HTTPS Capacitor origin cannot load
  * cleartext HTTP subresources (complements ANDROID-CLEARTEXT Manifest denial).
+ * setGeolocationEnabled(false) so WebView cannot request GPS mid-run (no location collected;
+ * complements Play Data Safety / privacy — distinct from CLEARTEXT / MIXED-CONTENT).
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -99,7 +101,10 @@ public class MainActivity extends BridgeActivity {
       webView.setHapticFeedbackEnabled(false);
       webView.setVerticalScrollBarEnabled(false);
       webView.setHorizontalScrollBarEnabled(false);
+      webView.setSoundEffectsEnabled(false);
+      webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
       webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+      webView.getSettings().setGeolocationEnabled(false);
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.

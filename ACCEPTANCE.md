@@ -145,6 +145,8 @@
 
 ---
 
+（已補）**ANDROID-WEBVIEW-GEOLOCATION-OFF**已上 — `MainActivity` `webView.getSettings().setGeolocationEnabled(false)`（拒絕 WebView 地理位置；不收集位置；`android/` 仍 gitignore）；還原 keep-awake 模板缺漏 sound-effects／media-gesture 實行行；`scripts/patch-android-webview-geolocation-off.sh`＋`aab:internal` hook（mixed-content 之後、icons 之前）＋`native-templates/android/README.md` §2y；accept `ANDROID-WEBVIEW-GEOLOCATION-OFF`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 ## P0（一票否決）— ①–④ 對照
 
 | ID | 檢查項 | 狀態 | 重現／備註 |

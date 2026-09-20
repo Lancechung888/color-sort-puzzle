@@ -107,6 +107,8 @@ bash "$ROOT/scripts/patch-android-webview-sound-effects-off.sh"
 bash "$ROOT/scripts/patch-android-webview-media-gesture.sh"
 # Deny WebView mixed HTTP/HTTPS content (complement ANDROID-CLEARTEXT).
 bash "$ROOT/scripts/patch-android-webview-mixed-content.sh"
+# Deny WebView geolocation (no location collected; privacy / Data Safety).
+bash "$ROOT/scripts/patch-android-webview-geolocation-off.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

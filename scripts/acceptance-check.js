@@ -3485,6 +3485,52 @@ block(
   }
 }
 
+// --- ANDROID-WEBVIEW-GEOLOCATION-OFF: deny WebView geolocation; no location collected ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-geolocation-off.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk = /setGeolocationEnabled\s*\(\s*false\s*\)/.test(patchRaw);
+  const mixedIdx = aabRaw.search(/patch-android-webview-mixed-content\.sh/);
+  const geoIdx = aabRaw.search(/patch-android-webview-geolocation-off\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    mixedIdx >= 0 &&
+    geoIdx >= 0 &&
+    iconsIdx >= 0 &&
+    mixedIdx < geoIdx &&
+    geoIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-GEOLOCATION-OFF/.test(readmeRaw) && /2y/.test(readmeRaw);
+  const keepOk = /setGeolocationEnabled\s*\(\s*false\s*\)/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /setGeolocationEnabled\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-geolocation-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-GEOLOCATION-OFF',
+      'setGeolocationEnabled(false) + patch/aab after mixed-content before icons + README §2y + keep-awake; no location; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-GEOLOCATION-OFF',
+      `missing geolocation-off / patch / aab hook-after-mixed-content-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';
