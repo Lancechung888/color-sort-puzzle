@@ -72,6 +72,7 @@
       emptyTapTipDone: false,
       sfxOn: true,
       hapticsOn: true,
+      colorAssist: false,
     };
   }
   let save = defaultSave();
@@ -334,6 +335,7 @@
       emptyTapTipDone: data.emptyTapTipDone === true,
       sfxOn: data.sfxOn !== false,
       hapticsOn: data.hapticsOn !== false,
+      colorAssist: data.colorAssist === true,
     };
     if (data.v !== SAVE_VERSION) repaired = true;
     return { save: out, repaired: repaired, fatal: false };
@@ -2283,6 +2285,32 @@
     return layerPx * capacity;
   }
 
+
+  /** Color-vision assist: stable glyph + short token per colorId (1..12). */
+  const COLOR_ASSIST_GLYPHS = [
+    '', '●', '■', '▲', '◆', '★', '✚', '▬', '○', '▼', '▣', '✦', '⬡',
+  ];
+  const COLOR_ASSIST_TOKENS = [
+    '', 'red', 'blue', 'green', 'yellow', 'purple', 'orange',
+    'teal', 'pink', 'brown', 'cyan', 'lime', 'coral',
+  ];
+
+  function colorAssistOn() {
+    return save.colorAssist === true;
+  }
+
+  function colorAssistGlyph(colorId) {
+    const id = colorId | 0;
+    if (id >= 1 && id < COLOR_ASSIST_GLYPHS.length) return COLOR_ASSIST_GLYPHS[id];
+    return '●';
+  }
+
+  function colorAssistToken(colorId) {
+    const id = colorId | 0;
+    if (id >= 1 && id < COLOR_ASSIST_TOKENS.length) return COLOR_ASSIST_TOKENS[id];
+    return 'c' + id;
+  }
+
   function render() {
     const tubeH = computeLayerPx();
     tubesWrap.innerHTML = '';
@@ -2318,6 +2346,9 @@
         const layerCount = tube.length;
         const bits = ['Tube ' + (idx + 1)];
         if (layerCount) bits.push(layerCount + (layerCount === 1 ? ' layer' : ' layers'));
+        if (colorAssistOn() && layerCount) {
+          bits.push(tube.map(colorAssistToken).join('-'));
+        }
         if (selected === idx) bits.push('selected');
         if (capped) bits.push('capped');
         else if (pourTarget) bits.push('pour target');
@@ -2340,6 +2371,15 @@
         layer.className = 'layer';
         layer.style.height = layerPx + 'px';
         layer.style.background = PALETTE[colorId] || '#888';
+        if (colorAssistOn()) {
+          layer.classList.add('layer-assist');
+          layer.dataset.colorId = String(colorId);
+          const mark = document.createElement('span');
+          mark.className = 'layer-mark';
+          mark.setAttribute('aria-hidden', 'true');
+          mark.textContent = colorAssistGlyph(colorId);
+          layer.appendChild(mark);
+        }
         layers.appendChild(layer);
       });
 
@@ -3568,8 +3608,10 @@
   function refreshSettingsToggles() {
     const sfxBtn = $('#btn-toggle-sfx');
     const hapBtn = $('#btn-toggle-haptics');
+    const caBtn = $('#btn-toggle-color-assist');
     const sfxOn = save.sfxOn !== false;
     const hapOn = save.hapticsOn !== false;
+    const caOn = save.colorAssist === true;
     if (sfxBtn) {
       sfxBtn.textContent = sfxOn ? 'On' : 'Off';
       sfxBtn.setAttribute('aria-pressed', sfxOn ? 'true' : 'false');
@@ -3579,6 +3621,11 @@
       hapBtn.textContent = hapOn ? 'On' : 'Off';
       hapBtn.setAttribute('aria-pressed', hapOn ? 'true' : 'false');
       hapBtn.classList.toggle('is-off', !hapOn);
+    }
+    if (caBtn) {
+      caBtn.textContent = caOn ? 'On' : 'Off';
+      caBtn.setAttribute('aria-pressed', caOn ? 'true' : 'false');
+      caBtn.classList.toggle('is-off', !caOn);
     }
   }
 
@@ -4133,6 +4180,17 @@
         persist();
         refreshSettingsToggles();
         if (next) haptic('arm');
+      });
+    }
+    const btnToggleColorAssist = $('#btn-toggle-color-assist');
+    if (btnToggleColorAssist) {
+      btnToggleColorAssist.addEventListener('click', () => {
+        const next = save.colorAssist !== true;
+        save.colorAssist = next;
+        persist();
+        refreshSettingsToggles();
+        render();
+        if (next) SFX.tap();
       });
     }
     $('#coin-display').addEventListener('click', openShop);
