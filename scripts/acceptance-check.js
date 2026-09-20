@@ -291,6 +291,24 @@ if (gameRaw) {
     fail('A11Y-HUD', 'missing HUD aria-labels, focus-visible rings, and/or visibilitychange uncap clear');
   }
 
+  // Color assist (CVD patterns/glyphs) — Settings toggle + persist + layer marks
+  if (
+    /id="btn-toggle-color-assist"/.test(htmlRaw) &&
+    /Color assist/.test(htmlRaw) &&
+    /Patterns on colors \(colorblind-friendly\)/.test(htmlRaw) &&
+    /colorAssist:\s*false/.test(gameRaw) &&
+    /colorAssist:\s*data\.colorAssist\s*===\s*true/.test(gameRaw) &&
+    /COLOR_ASSIST_GLYPHS/.test(gameRaw) &&
+    /layer-mark/.test(gameRaw) &&
+    /btn-toggle-color-assist/.test(gameRaw) &&
+    /\.layer-mark/.test(cssRaw) &&
+    /\.layer\.layer-assist/.test(cssRaw)
+  ) {
+    pass('A11Y-COLOR', 'Color assist toggle + persist + layer glyphs (CVD); source-checked');
+  } else {
+    fail('A11Y-COLOR', 'missing colorAssist save/toggle, layer-mark glyphs, and/or CSS');
+  }
+
   // Save sanitization on load path
   if (
     /function sanitizeSave/.test(gameRaw) &&
