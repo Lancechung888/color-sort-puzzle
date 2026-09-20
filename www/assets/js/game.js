@@ -4169,6 +4169,13 @@
       openShop();
       return true;
     }
+    if (key === 'l' || key === 'L') {
+      const btn = $('#btn-start-levels');
+      if (!btn || btn.disabled || btn.hidden) return false;
+      e.preventDefault();
+      btn.click();
+      return true;
+    }
     return false;
   }
 
@@ -5528,7 +5535,7 @@
       if (shopOverlay && shopOverlay.classList.contains('show')) {
         if (handleShopKeys(e)) return;
       }
-      // START-KEYS: Enter Play, d Daily, s Shop (only when start shows and no modal)
+      // START-KEYS: Enter Play, d Daily, s Shop, l Levels (only when start shows and no modal)
       if (startScreen && startScreen.classList.contains('show')) {
         if (handleStartKeys(e)) return;
       }
