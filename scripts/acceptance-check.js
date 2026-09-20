@@ -771,13 +771,15 @@ if (gameRaw) {
       (/\bnextLevel\s*\(/.test(wfSlice)) &&
       (/\bhideWin\s*\(/.test(wfSlice) && /\bdoRestartLevel\s*\(/.test(wfSlice)) &&
       (/btn-fail-hint|#btn-fail-hint/.test(wfSlice)) &&
+      (/btn-win-home|#btn-win-home/.test(wfSlice)) &&
+      (/\bgoHome\s*\(/.test(wfSlice)) &&
       (/isContentEditable|contentEditable|tagName/.test(wfSlice) || /textarea/.test(wfSlice)) &&
       (/winOverlay|win-overlay/.test(wfSlice)) &&
       (/failPrompt|fail-prompt/.test(wfSlice));
     if (wired) {
       pass(
         'WIN-FAIL-KEYS',
-        'Win Enter/n Next + r Restart; Fail Enter/h Hint (+guards); no soft-arm'
+        'Win Enter/n Next + r Restart + h Home; Fail Enter/h Hint (+guards); no soft-arm'
       );
     } else {
       fail(
@@ -790,6 +792,36 @@ if (gameRaw) {
       'WIN-FAIL-KEYS',
       'missing win/fail overlay keys (handleWinFailKeys / n|r|h / win|fail overlays) or soft-arm slipped in'
     );
+  }
+
+  // Win Home CTA — visible Home + click + win h key (parity Escape/BACK-NAV); no soft-arm
+  {
+    const indexHtml = read('index.html') || '';
+    const htmlHas = /id=["']btn-win-home["']/.test(indexHtml);
+    const clickWired =
+      (/btn-win-home|#btn-win-home/.test(gameRaw)) &&
+      (/addEventListener\s*\(\s*['"]click['"]/.test(gameRaw)) &&
+      (/\bhideWin\s*\(/.test(gameRaw) && /\bgoHome\s*\(/.test(gameRaw));
+    const wfIdx = gameRaw.indexOf('function handleWinFailKeys');
+    const wfSlice = wfIdx >= 0 ? gameRaw.slice(wfIdx, wfIdx + 2200) : '';
+    const keyHome =
+      /btn-win-home|#btn-win-home/.test(wfSlice) &&
+      /['"]h['"]/.test(wfSlice) &&
+      /\bgoHome\s*\(/.test(wfSlice);
+    const noSoft =
+      !/win-home-arm|winHomeArm|\.win-home-arm/.test(gameRaw) &&
+      !/win-home-arm|winHomeArm|\.win-home-arm/.test(indexHtml);
+    if (htmlHas && clickWired && keyHome && noSoft) {
+      pass(
+        'WIN-HOME',
+        'Win overlay Home CTA (#btn-win-home) + click hideWin/goHome + win h→Home; no soft-arm'
+      );
+    } else {
+      fail(
+        'WIN-HOME',
+        'missing #btn-win-home / click hideWin+goHome / win h→Home wiring, or soft-arm slipped in'
+      );
+    }
   }
 
   // Start-screen keys: Enter Play, d Daily, s Shop, l Levels; no soft-arm
