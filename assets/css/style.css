@@ -1122,6 +1122,11 @@ html, body {
 .tube.invalid-shake {
   animation: shake 0.35s ease;
 }
+@media (prefers-reduced-motion: reduce) {
+  .tube.invalid-shake {
+    animation: none;
+  }
+}
 
 /* Instant pour tilt — don't fight the select-lift transition */
 .tube.pouring-tilt {
