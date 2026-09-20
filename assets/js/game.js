@@ -3884,6 +3884,41 @@
     if (best) safeFocus(best);
   }
 
+  /** In-play HUD keyboard: u/U Undo, h/H Hint, r/R Restart, l/L Levels. No soft-arm. */
+  function handleHudKeys(e) {
+    const t = e.target;
+    if (t) {
+      const tag = (t.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+      if (t.isContentEditable) return;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (pouring) return;
+    if (playfieldOverlayBlocking()) return;
+    const key = e.key;
+    if (key === 'u' || key === 'U') {
+      if (!history.length) return;
+      e.preventDefault();
+      undo();
+      return;
+    }
+    if (key === 'h' || key === 'H') {
+      e.preventDefault();
+      requestHint();
+      return;
+    }
+    if (key === 'r' || key === 'R') {
+      e.preventDefault();
+      restart();
+      return;
+    }
+    if (key === 'l' || key === 'L') {
+      e.preventDefault();
+      tryOpenLevelsFromHud();
+      return;
+    }
+  }
+
   /** Levels grid arrow / Home / End nav; chapter-edge Left/Right shifts chapter. */
   function handleLevelsGridKeydown(e) {
     const ov = $('#levels-overlay');
@@ -5089,47 +5124,51 @@
         trapOverlayTab(e);
         return;
       }
-      if (e.key !== 'Escape') return;
-      const levelsOv = $('#levels-overlay');
-      if (levelsOv && levelsOv.classList.contains('show')) {
-        e.preventDefault();
-        closeLevels();
+      if (e.key === 'Escape') {
+        const levelsOv = $('#levels-overlay');
+        if (levelsOv && levelsOv.classList.contains('show')) {
+          e.preventDefault();
+          closeLevels();
+          return;
+        }
+        if (hintPaywall && hintPaywall.classList.contains('show')) {
+          e.preventDefault();
+          closeOverlay(hintPaywall);
+          return;
+        }
+        if (shopOverlay && shopOverlay.classList.contains('show')) {
+          e.preventDefault();
+          closeOverlay(shopOverlay);
+          return;
+        }
+        if (failPrompt && failPrompt.classList.contains('show')) {
+          e.preventDefault();
+          closeOverlay(failPrompt);
+          return;
+        }
+        // Win: Escape → Home (parity with handleSystemBack / BACK-NAV; does not dismiss start)
+        if (winOverlay && winOverlay.classList.contains('show')) {
+          e.preventDefault();
+          hideWin();
+          goHome();
+          return;
+        }
+        // Playing: Escape clears selection / pending uncap (does not dismiss start)
+        if (
+          selected >= 0 ||
+          pendingUncapIdx >= 0
+        ) {
+          if (pouring) return;
+          if (startScreen && startScreen.classList.contains('show')) return;
+          e.preventDefault();
+          selected = -1;
+          clearPendingUncap();
+          render();
+        }
         return;
       }
-      if (hintPaywall && hintPaywall.classList.contains('show')) {
-        e.preventDefault();
-        closeOverlay(hintPaywall);
-        return;
-      }
-      if (shopOverlay && shopOverlay.classList.contains('show')) {
-        e.preventDefault();
-        closeOverlay(shopOverlay);
-        return;
-      }
-      if (failPrompt && failPrompt.classList.contains('show')) {
-        e.preventDefault();
-        closeOverlay(failPrompt);
-        return;
-      }
-      // Win: Escape → Home (parity with handleSystemBack / BACK-NAV; does not dismiss start)
-      if (winOverlay && winOverlay.classList.contains('show')) {
-        e.preventDefault();
-        hideWin();
-        goHome();
-        return;
-      }
-      // Playing: Escape clears selection / pending uncap (does not dismiss start)
-      if (
-        selected >= 0 ||
-        pendingUncapIdx >= 0
-      ) {
-        if (pouring) return;
-        if (startScreen && startScreen.classList.contains('show')) return;
-        e.preventDefault();
-        selected = -1;
-        clearPendingUncap();
-        render();
-      }
+      // HUD-KEYS: in-play u/h/r/(l) — Undo / Hint / Restart / Levels
+      handleHudKeys(e);
     });
     btnUndo.addEventListener('click', undo);
     btnRestart.addEventListener('click', restart);

@@ -564,6 +564,46 @@ if (gameRaw) {
     );
   }
 
+  // In-play HUD keyboard: u/U Undo, h/H Hint, r/R Restart (+ optional l/L Levels); no soft-arm
+  if (
+    /function handleHudKeys/.test(gameRaw) &&
+    /handleHudKeys\s*\(/.test(gameRaw) &&
+    (/key\s*===\s*['"]u['"]/.test(gameRaw) || /['"]u['"]\s*\|\|/.test(gameRaw)) &&
+    (/undo\s*\(/.test(gameRaw) && /requestHint\s*\(/.test(gameRaw) && /restart\s*\(/.test(gameRaw)) &&
+    /playfieldOverlayBlocking\s*\(/.test(gameRaw) &&
+    /startScreen/.test(gameRaw) &&
+    !/hud-keys-arm|hudKeysArm|\.hud-keys-arm/.test(gameRaw)
+  ) {
+    // Extra: ensure u/h/r wiring lives near handleHudKeys body (not just elsewhere)
+    const hudIdx = gameRaw.indexOf('function handleHudKeys');
+    const hudSlice = hudIdx >= 0 ? gameRaw.slice(hudIdx, hudIdx + 1200) : '';
+    const wired =
+      /['"]u['"]/.test(hudSlice) &&
+      /['"]h['"]/.test(hudSlice) &&
+      /['"]r['"]/.test(hudSlice) &&
+      /\bundo\s*\(/.test(hudSlice) &&
+      /\brequestHint\s*\(/.test(hudSlice) &&
+      /\brestart\s*\(/.test(hudSlice) &&
+      /playfieldOverlayBlocking/.test(hudSlice) &&
+      (/isContentEditable|contentEditable|tagName/.test(hudSlice) || /textarea/.test(hudSlice));
+    if (wired) {
+      pass(
+        'HUD-KEYS',
+        'In-play u/h/r Undo/Hint/Restart (+guards); no soft-arm'
+      );
+    } else {
+      fail(
+        'HUD-KEYS',
+        'handleHudKeys present but u/h/r wiring or overlay/input guards missing inside handler'
+      );
+    }
+  } else {
+    fail(
+      'HUD-KEYS',
+      'missing in-play HUD keys (handleHudKeys / u|h|r → undo|requestHint|restart / overlay guards) or soft-arm slipped in'
+    );
+  }
+
   // Overlay Tab focus trap (keyboard cannot escape to HUD behind modals; no soft-arm)
   if (
     /function overlayFocusables/.test(gameRaw) &&
