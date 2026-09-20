@@ -2536,6 +2536,60 @@ block(
   }
 }
 
+// --- ANDROID-SPLASH-THEME: SplashScreen.installSplashScreen + postSplashScreenTheme; no soft-arm ---
+{
+  const stylesPath = path.join(root, 'android/app/src/main/res/values/styles.xml');
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const stylesRaw = fs.existsSync(stylesPath) ? fs.readFileSync(stylesPath, 'utf8') : '';
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-splash-theme.sh') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const patchOk =
+    /SplashScreen\.installSplashScreen/.test(patchRaw) &&
+    /postSplashScreenTheme/.test(patchRaw) &&
+    /windowSplashScreenBackground/.test(patchRaw) &&
+    /patch-android-splash-theme/.test(patchRaw);
+  const keepTemplateOk =
+    /SplashScreen\.installSplashScreen/.test(keepRaw) &&
+    /androidx\.core\.splashscreen\.SplashScreen/.test(keepRaw);
+  const aabHookOk = /patch-android-splash-theme\.sh/.test(aabRaw);
+  // android/ is gitignored — allow missing; when present, require install before super.onCreate + splash attrs.
+  const installIdx = mainRaw.indexOf('SplashScreen.installSplashScreen');
+  const superIdx = mainRaw.indexOf('super.onCreate');
+  const mainOk =
+    !mainRaw ||
+    (installIdx >= 0 &&
+      superIdx >= 0 &&
+      installIdx < superIdx &&
+      /androidx\.core\.splashscreen\.SplashScreen/.test(mainRaw));
+  const stylesOk =
+    !stylesRaw ||
+    (/postSplashScreenTheme[^>]*>\s*@style\/AppTheme\.NoActionBar/.test(stylesRaw) &&
+      /windowSplashScreenBackground[^>]*>\s*(?:@color\/colorBrandBg|@color\/colorPrimary|#1a1a2e)/.test(
+        stylesRaw
+      ));
+  const noSoft =
+    !/splash-theme-arm|splash-arm|claim-juice|hud-pulse/.test(
+      stylesRaw + mainRaw + patchRaw
+    );
+  if (patchOk && keepTemplateOk && aabHookOk && mainOk && stylesOk && noSoft) {
+    pass(
+      'ANDROID-SPLASH-THEME',
+      'SplashScreen.installSplashScreen before super.onCreate + postSplashScreenTheme/windowSplashScreenBackground + patch-android-splash-theme.sh + keep-awake template + aab:internal hook; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-SPLASH-THEME',
+      `missing splash theme wiring / patch / aab hook, or soft-arm slipped in (patchOk=${patchOk} keepTemplateOk=${keepTemplateOk} aabHookOk=${aabHookOk} mainOk=${mainOk} stylesOk=${stylesOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');

@@ -106,6 +106,24 @@ bash scripts/patch-android-system-bars.sh
 
 `npm run aab:internal` 在 keep-awake patch **之後**自動跑。`android/` 仍 gitignore。
 
+
+## 2e. SplashScreen handoff（ANDROID-SPLASH-THEME）
+
+Capacitor already depends on `androidx.core:core-splashscreen` and uses `Theme.SplashScreen` for `AppTheme.NoActionBarLaunch`, but stock `MainActivity` never calls `SplashScreen.installSplashScreen(this)` **before** `super.onCreate` — on API 31+ cold start can flash white / skip the brand splash. Launch theme also needs `windowSplashScreenBackground` + `postSplashScreenTheme` → `AppTheme.NoActionBar`.
+
+Patch ensures:
+
+- `MainActivity.onCreate`: `SplashScreen.installSplashScreen(this)` before `super.onCreate` (also baked into `patch-android-keep-awake.sh` fresh template)
+- `styles.xml` `AppTheme.NoActionBarLaunch`: `windowSplashScreenBackground=@color/colorBrandBg`, `postSplashScreenTheme=@style/AppTheme.NoActionBar`, dark light-status/nav icons off
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-splash-theme.sh
+```
+
+`npm run aab:internal` 在 system-bars patch **之後**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

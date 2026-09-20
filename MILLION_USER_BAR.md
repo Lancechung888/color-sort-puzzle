@@ -277,6 +277,7 @@
 （已補）**ANDROID-KEEP-AWAKE**已上 — Capacitor WebView 常缺 `navigator.wakeLock`；`scripts/patch-android-keep-awake.sh` 冪等寫入 MainActivity `FLAG_KEEP_SCREEN_ON`＋`ColorTubeNative.setKeepScreenOn`；`aab:internal` hook；JS `syncNativeKeepScreenOn` 對齊 Settings Keep screen on；accept `ANDROID-KEEP-AWAKE`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**ANDROID-SYSTEM-BARS**已上 — Capacitor/AppCompat 預設 indigo `#3F51B5`；`scripts/patch-android-system-bars.sh` 冪等寫入 `colors.xml`（`colorPrimary` `#1a1a2e`／accent `#4ecdc4`）＋`styles.xml` `statusBarColor`／`navigationBarColor`／`windowBackground` `#1a1a2e`（含 splash theme）；`aab:internal` hook；accept `ANDROID-SYSTEM-BARS`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+（已補）**ANDROID-SPLASH-THEME**已上 — Capacitor 已有 core-splashscreen／`Theme.SplashScreen`，但 stock MainActivity 未呼叫 `SplashScreen.installSplashScreen`；補 install＋`postSplashScreenTheme`／`windowSplashScreenBackground`（brand `#1a1a2e`）；`scripts/patch-android-splash-theme.sh`＋`aab:internal`；accept `ANDROID-SPLASH-THEME`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 
 1. **真變現** — Play 過審後換正式 AdMob／Billing 單元；`remove_ads` 真接線（維持不打斷倒水）。勿把測 ID／Coming soon 標 Done。  
