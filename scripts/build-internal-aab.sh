@@ -61,6 +61,8 @@ npm run build:www
 npx cap sync
 # After sync so Capacitor cannot wipe custom Manifest / strings patches.
 bash "$ROOT/scripts/patch-android-admob.sh"
+# Lock MainActivity to portrait (hybrid-casual; web already portrait-primary).
+bash "$ROOT/scripts/patch-android-portrait.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

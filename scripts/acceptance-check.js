@@ -2414,6 +2414,50 @@ block(
   }
 }
 
+// --- ANDROID-PORTRAIT: MainActivity locked to portrait; no soft-arm ---
+{
+  const manifestPath = path.join(root, 'android/app/src/main/AndroidManifest.xml');
+  const manifestRaw = fs.existsSync(manifestPath)
+    ? fs.readFileSync(manifestPath, 'utf8')
+    : '';
+  const patchRaw = read('scripts/patch-android-portrait.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  // Attributes may appear in any order — scan MainActivity opening tag.
+  // Prefer exact portrait; sensorPortrait / userPortrait also acceptable.
+  const mainActivityOpen = (() => {
+    const re = /<activity\b([\s\S]*?)>/gi;
+    let m;
+    while ((m = re.exec(manifestRaw))) {
+      if (/android:name\s*=\s*["']\.MainActivity["']/.test(m[1])) return m[1];
+    }
+    return '';
+  })();
+  const orientMatch = /android:screenOrientation\s*=\s*["'](portrait|sensorPortrait|userPortrait)["']/.exec(
+    mainActivityOpen
+  );
+  const hasPortrait = !!orientMatch;
+  // android/ is gitignored — patch script + aab:internal hook are the committed source of truth.
+  const patchOk =
+    /screenOrientation="portrait"/.test(patchRaw) &&
+    /MainActivity/.test(patchRaw);
+  const aabHookOk = /patch-android-portrait\.sh/.test(aabRaw);
+  const noSoft =
+    !/portrait-arm|screenOrientation-arm|claim-juice|hud-pulse/.test(
+      manifestRaw + patchRaw
+    );
+  if (hasPortrait && patchOk && aabHookOk && noSoft) {
+    pass(
+      'ANDROID-PORTRAIT',
+      `MainActivity android:screenOrientation="${orientMatch[1]}" + patch-android-portrait.sh + aab:internal hook (web already portrait-primary); no soft-arm`
+    );
+  } else {
+    fail(
+      'ANDROID-PORTRAIT',
+      `MainActivity missing portrait lock and/or patch script/aab hook, or soft-arm slipped in (hasPortrait=${hasPortrait} patchOk=${patchOk} aabHookOk=${aabHookOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
