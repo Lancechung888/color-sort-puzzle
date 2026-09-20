@@ -2364,6 +2364,32 @@ block(
 }
 
 
+// --- SAFE-AREA-LR: horizontal safe-area insets on #app (+ overlay/toast); no soft-arm ---
+{
+  const cssRaw = read('assets/css/style.css') || '';
+  const leftVar =
+    /--safe-left\s*:\s*env\(\s*safe-area-inset-left/.test(cssRaw);
+  const rightVar =
+    /--safe-right\s*:\s*env\(\s*safe-area-inset-right/.test(cssRaw);
+  const appPad =
+    /#app\s*\{[\s\S]*?padding\s*:[^;]*var\(--safe-left\)[^;]*;/.test(cssRaw) &&
+    /#app\s*\{[\s\S]*?padding\s*:[^;]*var\(--safe-right\)[^;]*;/.test(cssRaw);
+  const noSoft =
+    !/safe-area-arm|safeArea-arm|safe-lr-arm|claim-juice|hud-pulse/.test(cssRaw);
+  if (leftVar && rightVar && appPad && noSoft) {
+    pass(
+      'SAFE-AREA-LR',
+      '#app padding uses --safe-left/--safe-right via env(safe-area-inset-left/right); no soft-arm'
+    );
+  } else {
+    fail(
+      'SAFE-AREA-LR',
+      `missing --safe-left/--safe-right env() and/or #app padding var(--safe-left/right), or soft-arm slipped in (leftVar=${leftVar} rightVar=${rightVar} appPad=${appPad} noSoft=${noSoft})`
+    );
+  }
+}
+
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
