@@ -440,6 +440,26 @@ bash scripts/patch-android-webview-scrollbars.sh
 
 `npm run aab:internal` 在 haptic-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+
+## 2v. Deny native WebView system click sounds（ANDROID-WEBVIEW-SOUND-EFFECTS-OFF）
+
+After **ANDROID-WEBVIEW-SCROLLBARS**, taps can still fire Android View **system click sounds** (`View.playSoundEffect`), which fight the game's intentional WebAudio SFX mid-run. Disable native View sound effects once the bridge WebView is ready (prefer after scrollbar guards in `onStart`):
+
+```java
+// MainActivity.onStart — after getBridge().getWebView() null-check (prefer after scrollbars)
+webView.setSoundEffectsEnabled(false);
+```
+
+Distinct from **ANDROID-WEBVIEW-HAPTIC-OFF** (system View haptic／vibrate) and from game `playSfx()`／WebAudio (still on via JS／Settings Sound toggle). This only denies the **system** View click-sound channel.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-webview-sound-effects-off.sh
+```
+
+`npm run aab:internal` 在 webview-scrollbars patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
