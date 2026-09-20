@@ -832,11 +832,20 @@ if (gameRaw) {
       (/btn-fail-home|#btn-fail-home/.test(gameRaw)) &&
       (/addEventListener\s*\(\s*['"]click['"]/.test(gameRaw)) &&
       (/\bcloseOverlay\s*\(/.test(gameRaw) && /\bgoHome\s*\(/.test(gameRaw));
-    // Prefer a contiguous listener slice so goHome is tied to fail-home, not only win-home
-    const fhIdx = gameRaw.search(/btn-fail-home|#btn-fail-home/);
-    const fhSlice = fhIdx >= 0 ? gameRaw.slice(Math.max(0, fhIdx - 80), fhIdx + 420) : '';
+    // Prefer the click-listener slice (btnFailHome / addEventListener) — not the earlier key path
+    let fhIdx = gameRaw.search(/btnFailHome\s*=/);
+    if (fhIdx < 0) fhIdx = gameRaw.search(/btn-fail-home['"]\)\s*\.addEventListener|#btn-fail-home['"]\)\s*\.addEventListener/);
+    if (fhIdx < 0) {
+      // Fallback: last occurrence of btn-fail-home (key path is earlier; click is later)
+      let last = -1;
+      const re = /btn-fail-home|#btn-fail-home/g;
+      let m;
+      while ((m = re.exec(gameRaw)) !== null) last = m.index;
+      fhIdx = last;
+    }
+    const fhSlice = fhIdx >= 0 ? gameRaw.slice(Math.max(0, fhIdx - 40), fhIdx + 480) : '';
     const homePath =
-      /btn-fail-home|#btn-fail-home/.test(fhSlice) &&
+      /btn-fail-home|#btn-fail-home|btnFailHome/.test(fhSlice) &&
       /\bcloseOverlay\s*\(/.test(fhSlice) &&
       /\bgoHome\s*\(/.test(fhSlice) &&
       (/restartFailCount\s*=\s*0/.test(fhSlice) || /restartFailCount\s*=\s*0/.test(gameRaw));
@@ -852,6 +861,37 @@ if (gameRaw) {
       fail(
         'FAIL-HOME',
         'missing #btn-fail-home / click closeOverlay+goHome wiring, or soft-arm slipped in'
+      );
+    }
+  }
+
+  // Fail dismiss reset — Escape/back/closeOverlay clears restartFailCount; fail b→Home (no soft-arm)
+  {
+    const closeIdx = gameRaw.indexOf('function closeOverlay');
+    const closeSlice = closeIdx >= 0 ? gameRaw.slice(closeIdx, closeIdx + 900) : '';
+    const dismissClears =
+      /function closeOverlay\s*\(/.test(closeSlice) &&
+      /el\s*===\s*failPrompt/.test(closeSlice) &&
+      /restartFailCount\s*=\s*0/.test(closeSlice);
+    const wfIdx = gameRaw.indexOf('function handleWinFailKeys');
+    const wfSlice = wfIdx >= 0 ? gameRaw.slice(wfIdx, wfIdx + 2800) : '';
+    // Prefer fail branch: look for b/B near fail-home after failShow / fail hint block
+    const failShowIdx = wfSlice.search(/failShow|failPrompt/);
+    const failSlice = failShowIdx >= 0 ? wfSlice.slice(failShowIdx) : wfSlice;
+    const keyHome =
+      (/['"]b['"]/.test(failSlice) || /key\s*===\s*['"]b['"]/.test(failSlice)) &&
+      (/btn-fail-home|#btn-fail-home/.test(failSlice) || /\bgoHome\s*\(/.test(failSlice));
+    const noSoft =
+      !/fail-dismiss-arm|failDismissArm|\.fail-dismiss-arm/.test(gameRaw);
+    if (dismissClears && keyHome && noSoft) {
+      pass(
+        'FAIL-DISMISS',
+        'closeOverlay clears restartFailCount on failPrompt; fail b/B→Home; no soft-arm'
+      );
+    } else {
+      fail(
+        'FAIL-DISMISS',
+        'missing closeOverlay restartFailCount reset on failPrompt and/or fail b→Home, or soft-arm slipped in'
       );
     }
   }
