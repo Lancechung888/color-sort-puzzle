@@ -128,6 +128,8 @@
 
 （已補）**ANDROID-WEBVIEW-HAPTIC-OFF**已上 — `MainActivity` `webView.setHapticFeedbackEnabled(false)`（拒絕 Android View 系統 haptic／`View.performHapticFeedback` 搶中局；異於 LONG-CLICK 的 ActionMode，遊戲 `haptic()`／Capacitor Haptics 仍經 JS 開啟；`android/` 仍 gitignore）；`scripts/patch-android-webview-haptic-off.sh`＋`aab:internal` hook（long-click 之後、icons 之前）＋`native-templates/android/README.md` §2t；accept `ANDROID-WEBVIEW-HAPTIC-OFF`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-WEBVIEW-SCROLLBARS**已上 — `MainActivity` `webView.setVerticalScrollBarEnabled(false)`＋`setHorizontalScrollBarEnabled(false)`（Levels grid／Shop modal 原生 WebView scrollbar chrome 隱藏；scrolling 仍可用；異於 OVERSCROLL 的 glow／rubber-band；CSS 另隱藏 `.levels-grid`／`.modal-shop` scrollbar）；`scripts/patch-android-webview-scrollbars.sh`＋`aab:internal` hook（haptic-off 之後、icons 之前）＋`native-templates/android/README.md` §2u；accept `ANDROID-WEBVIEW-SCROLLBARS`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 
 

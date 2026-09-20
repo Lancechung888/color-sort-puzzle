@@ -48,7 +48,7 @@ import androidx.core.splashscreen.SplashScreen;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF:
+ * ANDROID-KEEP-AWAKE + ANDROID-SPLASH-THEME + ANDROID-WEBVIEW-OVERSCROLL + ANDROID-WEBVIEW-TEXT-ZOOM + ANDROID-WEBVIEW-BG + ANDROID-WEBVIEW-ZOOM-LOCK + ANDROID-WEBVIEW-LONG-CLICK + ANDROID-WEBVIEW-HAPTIC-OFF + ANDROID-WEBVIEW-SCROLLBARS:
  * FLAG_KEEP_SCREEN_ON while playing; SplashScreen.installSplashScreen before
  * super.onCreate (API 31+); webView.setOverScrollMode(OVER_SCROLL_NEVER) so
  * native glow/rubber-band cannot kill mid-run play (pairs CSS overscroll-behavior:none);
@@ -60,6 +60,8 @@ import com.getcapacitor.BridgeActivity;
  * (Copy/Share/Web Search) cannot overlay mid-run despite CSS user-select:none;
  * setHapticFeedbackEnabled(false) so Android View system haptic cannot fight intentional
  * Capacitor/vibrate mid-run (game haptic() / @capacitor/haptics still on via JS).
+ * setVerticalScrollBarEnabled(false) + setHorizontalScrollBarEnabled(false) so native
+ * WebView scrollbar chrome cannot flash over scrollable Levels / Shop containers.
  * Web Screen Wake Lock is unreliable in Capacitor WebView; Settings toggles via ColorTubeNative.
  */
 public class MainActivity extends BridgeActivity {
@@ -88,6 +90,8 @@ public class MainActivity extends BridgeActivity {
       webView.setOnLongClickListener(v -> true); // consume long-press
       webView.setLongClickable(false);
       webView.setHapticFeedbackEnabled(false);
+      webView.setVerticalScrollBarEnabled(false);
+      webView.setHorizontalScrollBarEnabled(false);
       webView.addJavascriptInterface(new KeepAwakeBridge(), "ColorTubeNative");
     } catch (Throwable ignored) {
       // Bridge not ready — default FLAG from onCreate still applies.

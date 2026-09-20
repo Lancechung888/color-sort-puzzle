@@ -2593,6 +2593,18 @@ html, body {
   max-height: 52vh;
 }
 
+.levels-grid,
+.modal-shop {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.levels-grid::-webkit-scrollbar,
+.modal-shop::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .level-cell {
   position: relative;
   appearance: none;
