@@ -1096,8 +1096,17 @@
         .catch(function () { /* NotAllowedError / unsupported — silent */ });
     } catch (_) { /* ignore */ }
   }
+  function syncNativeKeepScreenOn(on) {
+    try {
+      if (typeof window !== 'undefined' && window.ColorTubeNative && typeof window.ColorTubeNative.setKeepScreenOn === 'function') {
+        window.ColorTubeNative.setKeepScreenOn(!!on);
+      }
+    } catch (_) { /* ignore — browser / unpatched WebView */ }
+  }
   function syncScreenWakeLock() {
-    if (wantsScreenWakeLock()) requestScreenWakeLock();
+    const want = wantsScreenWakeLock();
+    syncNativeKeepScreenOn(want);
+    if (want) requestScreenWakeLock();
     else releaseScreenWakeLock();
   }
   document.addEventListener('visibilitychange', function () {

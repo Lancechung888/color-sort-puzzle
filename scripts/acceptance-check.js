@@ -2459,6 +2459,44 @@ block(
 }
 
 
+
+// --- ANDROID-KEEP-AWAKE: MainActivity FLAG_KEEP_SCREEN_ON + ColorTubeNative; no soft-arm ---
+{
+  const mainPath = path.join(root, 'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java');
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const gameRaw = read('assets/js/game.js') || '';
+  const patchOk =
+    /FLAG_KEEP_SCREEN_ON/.test(patchRaw) &&
+    /ColorTubeNative/.test(patchRaw) &&
+    /setKeepScreenOn/.test(patchRaw) &&
+    /MainActivity/.test(patchRaw);
+  const aabHookOk = /patch-android-keep-awake\.sh/.test(aabRaw);
+  const jsOk =
+    /ColorTubeNative/.test(gameRaw) &&
+    /setKeepScreenOn/.test(gameRaw) &&
+    /syncNativeKeepScreenOn/.test(gameRaw);
+  const mainOk =
+    !mainRaw ||
+    (/FLAG_KEEP_SCREEN_ON/.test(mainRaw) && /ColorTubeNative/.test(mainRaw) && /setKeepScreenOn/.test(mainRaw));
+  const noSoft =
+    !/keep-awake-arm|wake-lock-arm|keepAwake-arm|claim-juice|hud-pulse/.test(
+      mainRaw + patchRaw + gameRaw
+    );
+  if (patchOk && aabHookOk && jsOk && mainOk && noSoft) {
+    pass(
+      'ANDROID-KEEP-AWAKE',
+      'MainActivity FLAG_KEEP_SCREEN_ON + ColorTubeNative.setKeepScreenOn + patch-android-keep-awake.sh + aab:internal hook + JS syncNativeKeepScreenOn; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-KEEP-AWAKE',
+      `missing keep-awake native/JS wiring or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} jsOk=${jsOk} mainOk=${mainOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
