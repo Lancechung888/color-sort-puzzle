@@ -103,6 +103,8 @@
 
 （已補）**ANDROID-IS-GAME**已上 — `<application>` `android:isGame="true"`＋`android:appCategory="game"`（OS／Game Dashboard 辨識 hybrid-casual 為遊戲；`android/` 仍 gitignore）；`scripts/patch-android-is-game.sh`＋`aab:internal` hook；accept `ANDROID-IS-GAME`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-FORCE-DARK**已上 — `<application>`＋themes `android:forceDarkAllowed="false"`（拒絕 Force Dark 改寫 brand-dark UI；`android/` gitignore）；`scripts/patch-android-force-dark.sh`＋`aab:internal` hook；accept `ANDROID-FORCE-DARK`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 重跑：清乾淨 tree 後執行 `npm run accept`，exit 0 = 可自動項 Pass + Blocked 項如實列出。
 

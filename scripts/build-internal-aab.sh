@@ -79,6 +79,8 @@ bash "$ROOT/scripts/patch-android-resize.sh"
 bash "$ROOT/scripts/patch-android-soft-input.sh"
 # Mark as a game for OS / Game Dashboard (hybrid-casual).
 bash "$ROOT/scripts/patch-android-is-game.sh"
+# Deny Android 10+ Force Dark rewriting brand-dark tubes/juice/HUD.
+bash "$ROOT/scripts/patch-android-force-dark.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (
