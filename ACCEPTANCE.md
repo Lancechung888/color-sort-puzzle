@@ -60,6 +60,8 @@
 
 （已補）**PWA offline（PWA-OFFLINE）**已上 — 根 `sw.js`（`colortube-offline-v1`；precache index／manifest／css／game scripts／icons／audio）＋playable `index.html` `serviceWorker.register`；`sync-www.sh` 複製 `sw.js`→`www/`（docs 為 brand landing，不註冊）；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；P0②③ 仍 Blocked。**未**把 #1／#3／#7／#9 標新 Pass。
 
+（已補）**PWA update（PWA-UPDATE）**已上 — `sw.js` bump `colortube-offline-v2`；`/assets/` **stale-while-revalidate**（cache hit 仍 background fetch＋`cache.put`）＋`SKIP_WAITING` message；playable `index.html` `updatefound`／`controllerchange` toast「Update ready — tap to refresh」→ tap reload；`sync-www`；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；P0②③ 仍 Blocked。**未**把 #1／#3／#7／#9 標新 Pass。
+
 
 重跑：清乾淨 tree 後執行 `npm run accept`，exit 0 = 可自動項 Pass + Blocked 項如實列出。
 

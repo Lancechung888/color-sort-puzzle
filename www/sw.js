@@ -1,5 +1,5 @@
-/* ColorTube Sort — offline service worker (PWA-OFFLINE) */
-const CACHE_NAME = 'colortube-offline-v1';
+/* ColorTube Sort — offline service worker (PWA-OFFLINE + PWA-UPDATE) */
+const CACHE_NAME = 'colortube-offline-v2';
 
 const PRECACHE_URLS = [
   './',
@@ -55,6 +55,12 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 function isNavigationRequest(request) {
   if (request.mode === 'navigate') return true;
   const accept = request.headers.get('accept') || '';
@@ -103,16 +109,23 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (isSameOriginAsset(url)) {
+    // stale-while-revalidate: serve cache immediately, refresh in background
     event.respondWith(
       caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          if (response && response.ok && response.type === 'basic') {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
-          }
-          return response;
-        });
+        const revalidate = fetch(request)
+          .then((response) => {
+            if (response && response.ok && response.type === 'basic') {
+              const copy = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
+            }
+            return response;
+          })
+          .catch(() => cached);
+        if (cached) {
+          event.waitUntil(revalidate);
+          return cached;
+        }
+        return revalidate;
       })
     );
   }

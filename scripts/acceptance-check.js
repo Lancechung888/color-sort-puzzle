@@ -2242,7 +2242,7 @@ block(
     ? fs.readFileSync(path.join(root, 'scripts/sync-www.sh'), 'utf8')
     : '';
   const swExists = fs.existsSync(swPath);
-  const cacheNameOk = /colortube-offline-v1/.test(swRaw);
+  const cacheNameOk = /colortube-offline-v2/.test(swRaw);
   const precacheOk =
     /game\.js/.test(swRaw) &&
     /style\.css/.test(swRaw) &&
@@ -2254,17 +2254,52 @@ block(
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse|pwa-arm|offline-arm/.test(swRaw) &&
     !/soft-arm|claim-juice|hud-pulse|pwa-arm|offline-arm/.test(
-      (htmlRaw.match(/serviceWorker[\s\S]{0,400}/) || [''])[0]
+      (htmlRaw.match(/serviceWorker[\s\S]{0,1200}/) || [''])[0]
     );
   if (swExists && cacheNameOk && precacheOk && registerOk && syncOk && noSoft) {
     pass(
       'PWA-OFFLINE',
-      'sw.js colortube-offline-v1 precache (game.js/style) + index serviceWorker.register + sync-www copies sw.js; no soft-arm'
+      'sw.js colortube-offline-v2 precache (game.js/style) + index serviceWorker.register + sync-www copies sw.js; no soft-arm'
     );
   } else {
     fail(
       'PWA-OFFLINE',
       `missing sw/precache/register/sync or soft-arm (exists=${swExists} cache=${cacheNameOk} precache=${precacheOk} register=${registerOk} sync=${syncOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- PWA-UPDATE: SWR assets + update toast UX; no soft-arm ---
+{
+  const swPath = path.join(root, 'sw.js');
+  const swRaw = fs.existsSync(swPath) ? fs.readFileSync(swPath, 'utf8') : '';
+  const htmlRaw = read('index.html') || '';
+  const regSnippet = (htmlRaw.match(/serviceWorker[\s\S]{0,1600}/) || [''])[0];
+  const cacheV2 = /colortube-offline-v2/.test(swRaw);
+  // SWR: on cache hit still background fetch + cache.put (not pure cache-first)
+  const swrOk =
+    /isSameOriginAsset/.test(swRaw) &&
+    /stale-while-revalidate/i.test(swRaw) &&
+    /if\s*\(\s*cached\s*\)/.test(swRaw) &&
+    /waitUntil\s*\(\s*revalidate\s*\)/.test(swRaw) &&
+    /cache\.put/.test(swRaw) &&
+    /SKIP_WAITING/.test(swRaw);
+  const updateUxOk =
+    (/updatefound/.test(regSnippet) || /controllerchange/.test(regSnippet)) &&
+    /Update ready/.test(regSnippet) &&
+    /SKIP_WAITING/.test(regSnippet);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse|pwa-arm|offline-arm|update-arm/.test(swRaw) &&
+    !/soft-arm|claim-juice|hud-pulse|pwa-arm|offline-arm|update-arm/.test(regSnippet);
+  if (cacheV2 && swrOk && updateUxOk && noSoft) {
+    pass(
+      'PWA-UPDATE',
+      'sw.js v2 stale-while-revalidate assets + SKIP_WAITING; index updatefound/controllerchange toast Update ready; no soft-arm'
+    );
+  } else {
+    fail(
+      'PWA-UPDATE',
+      `missing v2/SWR/update UX or soft-arm (v2=${cacheV2} swr=${swrOk} ux=${updateUxOk} noSoft=${noSoft})`
     );
   }
 }
