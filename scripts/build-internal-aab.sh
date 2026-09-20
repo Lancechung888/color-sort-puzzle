@@ -101,6 +101,8 @@ bash "$ROOT/scripts/patch-android-webview-long-click.sh"
 bash "$ROOT/scripts/patch-android-webview-haptic-off.sh"
 # Deny WebView native scrollbars while Levels / Shop containers remain scrollable.
 bash "$ROOT/scripts/patch-android-webview-scrollbars.sh"
+# Deny WebView system click sounds so WebAudio SFX stays intentional.
+bash "$ROOT/scripts/patch-android-webview-sound-effects-off.sh"
 # Brand launcher + splash from finals ICON A (cap sync may leave stock Capacitor icons).
 bash "$ROOT/scripts/apply-android-icons.sh"
 (

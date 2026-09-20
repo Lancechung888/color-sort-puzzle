@@ -3340,6 +3340,53 @@ block(
   }
 }
 
+
+// --- ANDROID-WEBVIEW-SOUND-EFFECTS-OFF: deny View click sounds; WebAudio SFX remains ---
+{
+  const mainPath = path.join(
+    root,
+    'android/app/src/main/java/com/lancechung/colortubesort/MainActivity.java'
+  );
+  const mainRaw = fs.existsSync(mainPath) ? fs.readFileSync(mainPath, 'utf8') : '';
+  const patchRaw = read('scripts/patch-android-webview-sound-effects-off.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const keepRaw = read('scripts/patch-android-keep-awake.sh') || '';
+  const patchOk = /setSoundEffectsEnabled\s*\(\s*false\s*\)/.test(patchRaw);
+  const scrollbarsIdx = aabRaw.search(/patch-android-webview-scrollbars\.sh/);
+  const soundIdx = aabRaw.search(/patch-android-webview-sound-effects-off\.sh/);
+  const iconsIdx = aabRaw.search(/apply-android-icons\.sh/);
+  const aabHookOk =
+    scrollbarsIdx >= 0 &&
+    soundIdx >= 0 &&
+    iconsIdx >= 0 &&
+    scrollbarsIdx < soundIdx &&
+    soundIdx < iconsIdx;
+  const readmeOk =
+    /ANDROID-WEBVIEW-SOUND-EFFECTS-OFF/.test(readmeRaw) && /2v/.test(readmeRaw);
+  const keepOk = /setSoundEffectsEnabled\s*\(\s*false\s*\)/.test(keepRaw);
+  // android/ is gitignored — allow missing; when present, require live MainActivity.
+  let localOk = !mainRaw;
+  if (mainRaw) {
+    localOk = /setSoundEffectsEnabled\s*\(\s*false\s*\)/.test(mainRaw);
+  }
+  const noSoft =
+    !/webview-sound-effects-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + mainRaw + keepRaw
+    );
+  if (patchOk && aabHookOk && readmeOk && keepOk && localOk && noSoft) {
+    pass(
+      'ANDROID-WEBVIEW-SOUND-EFFECTS-OFF',
+      'setSoundEffectsEnabled(false) + patch/aab after scrollbars before icons + README §2v + keep-awake; WebAudio SFX remains; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-WEBVIEW-SOUND-EFFECTS-OFF',
+      `missing sound-effects-off / patch / aab hook-after-scrollbars-before-icons / README / keep-awake, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} keepOk=${keepOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-APP-BACK: @capacitor/app dep + bindSystemBack backButton listener; no soft-arm ---
 {
   const pkgRaw = read('package.json') || '';
