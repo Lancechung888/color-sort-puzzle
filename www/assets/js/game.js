@@ -101,6 +101,8 @@
   let dailySeedKey = '';
   /** last hint source for hint_used attribution */
   let lastHintSource = 'unknown';
+  /** Once-per-stuck-state toast arm; clears when board gains a pour/uncap path */
+  let stuckToastArmed = false;
 
   function trackEvent(name, params) {
     if (window.ColorTubeAnalytics && typeof ColorTubeAnalytics.track === 'function') {
@@ -1120,6 +1122,7 @@
     levelFirstUncapDone = true;
     clearHudHintArm();
     clearHudUndoArm();
+    stuckToastArmed = false;
     clearStarTrackDropPulse();
     clearStarTrackRecoverPulse();
     if (!opts.daily) levelIndex = idx;
@@ -1280,6 +1283,61 @@
     const space = freeSpace(tubes[toIdx]);
     return Math.min(run.count, space);
   }
+
+
+  function hasAnyLegalPour() {
+    const n = tubes.length;
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        if (canPour(i, j)) return true;
+      }
+    }
+    return false;
+  }
+
+  /** Any lid still on — player can free-uncap to open pours (not a true deadlock). */
+  function hasActionableCap() {
+    if (!caps || !caps.length) return false;
+    for (let i = 0; i < caps.length; i++) {
+      if (caps[i]) return true;
+    }
+    return false;
+  }
+
+  /**
+   * True deadlock: not won, zero legal pours, and no lids left to uncap.
+   * Hint cannot invent a pour here — Undo / Restart are the recovery paths.
+   */
+  function isBoardStuck() {
+    if (isWon()) return false;
+    if (hasAnyLegalPour()) return false;
+    if (hasActionableCap()) return false;
+    return true;
+  }
+
+  function maybeNotifyStuck() {
+    if (pouring) return;
+    if (startScreen && startScreen.classList.contains('show')) return;
+    if (winOverlay && winOverlay.classList.contains('show')) return;
+    if (!isBoardStuck()) {
+      stuckToastArmed = false;
+      return;
+    }
+    if (stuckToastArmed) return;
+    stuckToastArmed = true;
+    const msg = history.length
+      ? 'No moves left — Undo'
+      : 'No moves left — Restart';
+    toast(msg, 2800);
+    trackEvent('board_stuck', {
+      level_id: analyticsLevelId(),
+      mode: analyticsMode(),
+      moves: moves,
+      undos_used: undosUsed,
+      can_undo: history.length > 0,
+    });
+  }
+
 
   /** Stars: 3 = under par & no undo; 2 = under 1.5×par or used undo but ≤par; 1 = clear */
   function calcStars() {
@@ -1685,6 +1743,7 @@
       render();
     }
     toast('Lid opened');
+    setTimeout(maybeNotifyStuck, 420);
   }
 
 
@@ -1788,6 +1847,9 @@
         restartFailCount = 0;
         celebrateLevelClear();
         setTimeout(showWin, 480);
+      } else {
+        // Soft toast only — no soft-arm / HUD pulse (matrix already dense)
+        setTimeout(maybeNotifyStuck, 160);
       }
     }, firstPourOfLevel, willComplete, willWinLevel);
   }
@@ -1807,6 +1869,7 @@
     render();
     SFX.tap();
     haptic('undo');
+    maybeNotifyStuck();
   }
 
   function restart() {

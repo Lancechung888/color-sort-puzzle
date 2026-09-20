@@ -27,6 +27,7 @@ Boot events (auto on script load):
 | `level_fail` | Fail-loop prompt shown (`showFailPrompt`) | `level_id`, `mode`, `fail_reason: "restart_loop"`, `restart_count` | Game has no hard lose; restart threshold is the fail signal |
 | `daily_start` | `startDailyChallenge` / daily `loadLevel` | `mode: "daily"`, `daily_key` (YYYY-MM-DD), `level_id` (source board index if known) | |
 | `daily_clear` | `showWin` in daily mode | `mode: "daily"`, `daily_key`, `stars`, `moves` | |
+| `board_stuck` | True deadlock toast (`maybeNotifyStuck`) | `level_id`, `mode`, `moves`, `undos_used`, `can_undo` | No legal pour + no lids; once per stuck state; not a soft-arm |
 
 ## Meta / retention
 
