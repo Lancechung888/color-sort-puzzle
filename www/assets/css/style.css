@@ -849,6 +849,23 @@ html, body {
   z-index: 4;
 }
 
+/* Keyboard / a11y focus — distinct from selected lift */
+.tube:focus {
+  outline: none;
+}
+.tube:focus-visible {
+  outline: 2px solid rgba(186, 230, 253, 0.95);
+  outline-offset: 4px;
+  filter: drop-shadow(0 0 10px rgba(125, 211, 252, 0.55));
+  z-index: 5;
+}
+.tube.selected:focus-visible {
+  outline-color: rgba(255, 255, 255, 0.95);
+  outline-offset: 5px;
+  filter: drop-shadow(0 12px 16px rgba(78, 205, 196, 0.55))
+    drop-shadow(0 0 12px rgba(186, 230, 253, 0.65));
+}
+
 /* Valid pour destinations while holding liquid — Day-1 “where do I tap?” clarity */
 .tube.pour-target {
   z-index: 3;

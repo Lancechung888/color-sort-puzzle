@@ -205,6 +205,43 @@ if (gameRaw) {
     fail('SAVE-RECOVER', 'missing sanitizeSave / STORAGE_BAK_KEY / reset toast / strict removeAds / SAVE_VERSION');
   }
 
+  // Keyboard / a11y: tubes focusable + Enter/Space activate (no soft-arm)
+  if (
+    /el\.tabIndex\s*=\s*0/.test(gameRaw) &&
+    /addEventListener\(\s*['"]keydown['"]/.test(gameRaw) &&
+    /e\.key\s*===\s*['"]Enter['"]/.test(gameRaw) &&
+    /e\.key\s*===\s*['"] ['"]/.test(gameRaw) &&
+    /selectTube\(idx\)/.test(gameRaw)
+  ) {
+    pass('A11Y-TUBE', 'tubes tabIndex=0 + Enter/Space keydown → selectTube');
+  } else {
+    fail('A11Y-TUBE', 'missing tube tabIndex and/or Enter/Space keydown activation');
+  }
+
+  // Escape dismisses topmost dismissible overlay (not start/win)
+  if (
+    /e\.key\s*!==\s*['"]Escape['"]|e\.key\s*===\s*['"]Escape['"]/.test(gameRaw) &&
+    /closeLevels\(\)/.test(gameRaw) &&
+    /closeOverlay\(hintPaywall\)/.test(gameRaw) &&
+    /closeOverlay\(shopOverlay\)/.test(gameRaw) &&
+    /closeOverlay\(failPrompt\)/.test(gameRaw)
+  ) {
+    pass('A11Y-ESC', 'Escape closes levels → hint-paywall → shop → fail-prompt');
+  } else {
+    fail('A11Y-ESC', 'missing Escape dismiss handler for dismissible overlays');
+  }
+
+  // Save sanitization on load path
+  if (
+    /function sanitizeSave/.test(gameRaw) &&
+    /sanitizeSave\(/.test(gameRaw) &&
+    /function loadSave|function tryLoadKey/.test(gameRaw)
+  ) {
+    pass('SAVE-SANITIZE', 'sanitizeSave present and invoked on load path');
+  } else {
+    fail('SAVE-SANITIZE', 'sanitizeSave missing or not called from load path');
+  }
+
   // Daily ≠ mainline skin: date-seeded color permute + layout shuffle + twist tier
   if (
     /function permuteDailyColors/.test(gameRaw) &&

@@ -2080,16 +2080,17 @@
       el.style.width = tubeW + 'px';
       el.dataset.index = idx;
       el.setAttribute('role', 'button');
-      el.setAttribute(
-        'aria-label',
-        capped
-          ? `Tube ${idx + 1} (capped)`
-          : pourTarget
-            ? `Tube ${idx + 1} (valid pour target)`
-            : nearComplete
-              ? `Tube ${idx + 1} (almost complete)`
-              : `Tube ${idx + 1}`
-      );
+      el.tabIndex = 0;
+      {
+        const layerCount = tube.length;
+        const bits = ['Tube ' + (idx + 1)];
+        if (layerCount) bits.push(layerCount + (layerCount === 1 ? ' layer' : ' layers'));
+        if (selected === idx) bits.push('selected');
+        if (capped) bits.push('capped');
+        else if (pourTarget) bits.push('pour target');
+        else if (nearComplete) bits.push('almost complete');
+        el.setAttribute('aria-label', bits.join(', '));
+      }
 
       const rim = document.createElement('div');
       rim.className = 'tube-rim';
@@ -2121,6 +2122,13 @@
       }
 
       el.addEventListener('click', () => selectTube(idx));
+      el.addEventListener('keydown', (e) => {
+        if (pouring) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          if (e.key === ' ') e.preventDefault();
+          selectTube(idx);
+        }
+      });
       tubesWrap.appendChild(el);
     });
 
@@ -3926,6 +3934,25 @@
     }
 
     document.addEventListener('pointerdown', resumeAudio, { once: true });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const levelsOv = $('#levels-overlay');
+      if (levelsOv && levelsOv.classList.contains('show')) {
+        closeLevels();
+        return;
+      }
+      if (hintPaywall && hintPaywall.classList.contains('show')) {
+        closeOverlay(hintPaywall);
+        return;
+      }
+      if (shopOverlay && shopOverlay.classList.contains('show')) {
+        closeOverlay(shopOverlay);
+        return;
+      }
+      if (failPrompt && failPrompt.classList.contains('show')) {
+        closeOverlay(failPrompt);
+      }
+    });
     btnUndo.addEventListener('click', undo);
     btnRestart.addEventListener('click', restart);
     btnHint.addEventListener('click', requestHint);

@@ -6,7 +6,7 @@
 - **Satisfying pours:** Lift, tilt, stream, splash particles, complete-tube glow + light screen shake — dopamine without complex systems.
 - **Fair difficulty curve:** Levels 1–5 teach the rule; later levels add colors, height, and tube count without timers or lives.
 - **Progression juice:** 3-star ratings, coins, daily streak / 今日挑戰, unlockable themes (經典玻璃、霓虹夜店、療癒貓咪色).
-- **TW / ZH-first UI:** 彩管分類 branding for Traditional Chinese markets; English fallback in docs.
+- **English-first default UI:** store / ASO / default strings in English for global hybrid-casual; Traditional Chinese is secondary localization only (see STORE.md).
 - **Lightweight:** Opens as static HTML — fast loads, easy WebView wrap for stores.
 
 ## Why people keep playing (attraction hooks)
@@ -33,21 +33,21 @@ Select → Pour (legal) → Sort → Win (stars + coins) → Next level. Undo / 
 | 商店 · 主題包 | Neon / Cat | 280 coins **or**「用真錢解鎖」mock IAP |
 | 商店 · 提示包 ×5 | Consumable | Coins or IAP; freeHints counter |
 | 商店 · 無限撤銷（本關） | Soft IAP | Undos don't hurt star rating this level |
-| Fail-loop (tiered) | Soft sheet | Early levels: after **3** restarts; L11+: after **2**. 「看廣告繼續」vs「去除廣告（即將開放）」vs skip |
-| Hint button (no free) | Paywall sheet | Rewarded ad / **40** coins / buy pack |
+| Fail-loop (tiered) | Soft sheet | Early levels (index **&lt; 15**): after **5** restarts; L16+ (index ≥ 15): after **2**. 「看廣告繼續」vs「去除廣告（即將開放）」vs skip |
+| Hint button (no free) | Paywall sheet | Rewarded ad / **25** coins / buy pack |
 
 **TODO in code (not ship-ready):** Google Play Billing / StoreKit 2; AdMob interstitial + rewarded (Capacitor plugin + publisher account). Shop「去除廣告」shows **即將開放／需商店帳號** and does **not** set `removeAds` unless DEV flag `localStorage.colorTubeSort_devIap=1`.
 
 ## Economy (accepted ruling)
 
-- Start: **70** coins + **2** free hints.
+- Start: **120** coins + **3** free hints.
 - Win: **+8 / +15 / +28** by 1/2/3 stars (replay half reward if not improving stars).
 - Daily first clear: **+40** bonus.
 - Daily login streak: soft **min(10, 3+streak)** coins.
-- Hint: **40** coins if no free hints (else paywall).
+- Hint: **25** coins if no free hints (else paywall).
 - Theme: **280** coins each; real-money IAP = **即將開放** until Billing/StoreKit.
 - Hint pack: **120** coins → ×5 (IAP path gated).
-- Fail-loop soft prompt: threshold **3** for level index **&lt; 10**; threshold **2** from level **11+**.
+- Fail-loop soft prompt: threshold **5** for level index **&lt; 15**; threshold **2** from level **16+** (index ≥ 15).
 - 今日挑戰: adaptive near progress `clamp(maxUnlocked-2 + seed%5, 3, last)` — **not** a hard late-catalog pull.
 
 ## ~US$300 / month path (sketch)

@@ -129,7 +129,7 @@
 
     <!-- Win overlay -->
     <div class="overlay" id="win-overlay">
-      <div class="modal modal-premium modal-win">
+      <div class="modal modal-premium modal-win" role="dialog" aria-modal="true">
         <h2 id="win-title">You win!</h2>
         <div class="win-stars" id="win-stars" aria-label="Star rating">
           <span class="star" data-i="1">★</span>
@@ -156,7 +156,7 @@
 
     <!-- Shop modal -->
     <div class="overlay" id="shop-overlay">
-      <div class="modal modal-premium modal-shop">
+      <div class="modal modal-premium modal-shop" role="dialog" aria-modal="true">
         <button type="button" class="modal-close" id="btn-shop-close" aria-label="Close">×</button>
         <h2>Shop</h2>
         <p class="shop-balance">Coins: <strong id="shop-coins">70</strong> 🪙</p>
@@ -264,7 +264,7 @@
 
     <!-- Hint paywall -->
     <div class="overlay" id="hint-paywall">
-      <div class="modal modal-premium">
+      <div class="modal modal-premium" role="dialog" aria-modal="true">
         <button type="button" class="modal-close" id="btn-hint-close" aria-label="Close">×</button>
         <h2>Get a hint</h2>
         <p>No free hints left. Choose a way to continue:</p>
@@ -278,7 +278,7 @@
 
     <!-- Fail-loop soft prompt — hint-first (keeps board) -->
     <div class="overlay" id="fail-prompt">
-      <div class="modal modal-premium modal-fail">
+      <div class="modal modal-premium modal-fail" role="dialog" aria-modal="true">
         <h2>Stuck?</h2>
         <p>Need a nudge? A hint keeps this board — no restart required.</p>
         <div class="modal-actions stacked">
@@ -292,7 +292,7 @@
 
     <!-- Level select / ★ mastery -->
     <div class="overlay" id="levels-overlay">
-      <div class="modal modal-premium modal-levels">
+      <div class="modal modal-premium modal-levels" role="dialog" aria-modal="true">
         <button type="button" class="modal-close" id="btn-levels-close" aria-label="Close">×</button>
         <h2>Levels · ★ mastery</h2>
         <p class="levels-teaser" id="levels-teaser">First 3★ bonus · every 10 perfect → chapter chest</p>
