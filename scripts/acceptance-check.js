@@ -4231,6 +4231,42 @@ block(
   }
 }
 
+
+// --- INLINE-CRITICAL-BG: brand dark paint before CSS; kill white FOUC; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const styleMatch = htmlRaw.match(/<style>\s*html,\s*body\s*\{[^}]*\}\s*<\/style>/i);
+  const bgOk =
+    !!styleMatch &&
+    /background\s*:\s*#1a1a2e/i.test(styleMatch[0]) &&
+    /color\s*:\s*#f5f5f7/i.test(styleMatch[0]);
+  const early =
+    htmlRaw.indexOf('INLINE-CRITICAL-BG') >= 0 &&
+    htmlRaw.indexOf('INLINE-CRITICAL-BG') < htmlRaw.indexOf('assets/css/style.css') &&
+    htmlRaw.indexOf('<style>') >= 0 &&
+    htmlRaw.indexOf('<style>') < htmlRaw.indexOf('assets/fonts/noto-sans-latin-700-normal.woff2');
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/INLINE-CRITICAL-BG/.test(playHtml) &&
+      /background\s*:\s*#1a1a2e/i.test(playHtml) &&
+      /color\s*:\s*#f5f5f7/i.test(playHtml));
+  const snippet = htmlRaw.slice(0, 2200);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(snippet);
+  if (bgOk && early && playOk && noSoft) {
+    pass(
+      'INLINE-CRITICAL-BG',
+      'index inline style html/body background #1a1a2e + color #f5f5f7 before font/script preload; docs/play synced; no soft-arm'
+    );
+  } else {
+    fail(
+      'INLINE-CRITICAL-BG',
+      `missing critical bg (bg=${bgOk} early=${early} play=${playOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
