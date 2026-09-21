@@ -1,5 +1,7 @@
 # Play 帳號過審後操作清單（ColorTube Sort）
 
+> Marker: **DEVICE-THREE-GREEN** — Seeker #7 Pass; see `docs/DEVICE_THREE_GREEN.md`. Production still held (#1/#3 Partial).
+
 > AppId：`com.lancechung.colortubesort`　顯示名稱：ColorTube Sort／彩管分類  
 > **Play Console developer account: APPROVED**（2026-09-21 Asia/Taipei）。  
 > **未完成真 AdMob ID／`remove_ads` Billing 內測驗證前：勿宣稱已上架／勿標 MILLION_USER_BAR #7 Pass。** 本階段仍可用示範廣告 ID；假 IAP（`colorTubeSort_devIap`）維持關閉。  
@@ -54,7 +56,7 @@
 2. 產品 ID：`remove_ads`（須與 `assets/js/billing.js` 常數 `REMOVE_ADS` 一致）。
 3. 類型：**非消耗型（Managed / One-time）**。
 4. 名稱／說明可寫「Remove Ads／去除插頁廣告」；建議價 **$2.99** → **啟用**。
-5. **設定 → 授權測試** → License testers：**已加** `lancechung@gmail.com` + `hanwen16888@gmail.com`／**RESPOND_NORMALLY**（**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**）。內測名單 **ColorTube-internal** 已含兩帳；opt-in：`https://play.google.com/apps/internaltest/4701709602422954921`。**#7 仍 Fail**（缺實機三綠燈）。
+5. **設定 → 授權測試** → License testers：**已加** `lancechung@gmail.com` + `hanwen16888@gmail.com`／**RESPOND_NORMALLY**（**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**）。內測名單 **ColorTube-internal** 已含兩帳；opt-in：`https://play.google.com/apps/internaltest/4701709602422954921`。**#7 Pass**（DEVICE-THREE-GREEN Seeker）（缺實機三綠燈）。
 
 ---
 
@@ -71,14 +73,14 @@
 6. 設定簽章（keystore）後跑 `npm run aab:internal`（或手動 `./gradlew bundleRelease`）產出 AAB。
 7. Play Console → **內部測試** → **Active** AAB `1.0.5-internal-vc6-iapBusy`／vc6／1.0.5／prod AdMob／UNCAP-ONE-TAP＋IAP-PURCHASE-BUSY 已上傳（**NATIVE-VC6-INTERNAL-SYNC**／**PLAY-PASTE-VC6-SYNC**；歷史 vc5／vc4／vc3 superseded）；testers `lancechung@gmail.com` + `hanwen16888@gmail.com` 已在 **ColorTube-internal**。仍須實機驗證：
    - 正式廣告 interstitial／rewarded full-watch
-   - `remove_ads` 購買成功後 `removeAds` 才為 true；一般點擊不得白送 → **#7 仍 Fail** 直到三綠燈
+   - `remove_ads` 購買成功後 `removeAds` 才為 true；一般點擊不得白送 → **#7 Pass**（DEVICE-THREE-GREEN Seeker） 直到三綠燈
 
 ---
 
 ## F. 明確禁令（驗收／對外溝通）
 
 1. **未完成真 AdMob ID／`remove_ads` Billing 內測驗證前：勿宣稱已上架／勿標 #7 Pass。**
-2. **REAL-ADMOB-IDS** 已配線正式 Android 單元（`USE_TEST_ADS=false`）；歷史示範／sample ID 僅作 superseded 參考，**勿**當現況。#7 仍 Fail 直至實機三綠燈。
+2. **REAL-ADMOB-IDS** 已配線正式 Android 單元（`USE_TEST_ADS=false`）；歷史示範／sample ID 僅作 superseded 參考，**勿**當現況。#7 Pass（DEVICE-THREE-GREEN Seeker） 直至實機三綠燈。
 3. 假 IAP：`colorTubeSort_devIap` **預設維持關閉**；僅本機手動設 `1` 才可 mock 給獎。
 4. 商店點「去除廣告」在無真 Billing 成功時必須維持「即將開放／需商店帳號」，**不可**寫入 `removeAds`。
 

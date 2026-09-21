@@ -1,10 +1,10 @@
 # 彩管分類 · 驗收報告（百萬用戶閘門）
 
-> 結論：**不過** — P0②③ 仍 Blocked，禁止上架。  
+> 結論：**不過** — 閘門仍關閉因 **MILLION_USER_BAR #1／#3 Partial**（外部 3s 競品對照／15s UA 剪輯缺）；**非**因變現 Blocked。P0②③／#7 已 **Pass**（DEVICE-THREE-GREEN Seeker）。**Production／soft-launch 仍禁止**。
 > 標準：找問題／擋過關，不是蓋章。能玩 ≠ 通過。
 
-驗收日：2026-09-18  
-重驗日：2026-09-18（P0①④）；2026-09-19（`npm run accept` 自動化）  
+驗收日：2026-09-18
+重驗日：2026-09-18（P0①④）；2026-09-19（`npm run accept` 自動化）；2026-09-21（DEVICE-THREE-GREEN Seeker P0②③／#7 Pass）
 驗收角色：遊戲驗收
 
 ---
@@ -13,8 +13,8 @@
 
 | 結果 | 說明 |
 |------|------|
-| **不過** | P0①④ 已 Pass；P0②③ 真廣告／`?ad=1` 產線仍 **Blocked**（**REAL-ADMOB-IDS** 已配線 Android 正式單元；仍待實機三綠燈＋Billing 複驗） |
-| 上架 | **禁止**直到②③解除 Blocked 並複驗通過 |
+| **不過** | P0①②③④ 已 **Pass**（P0②③＝**DEVICE-THREE-GREEN** Seeker 2026-09-21 Asia/Taipei；見 `docs/DEVICE_THREE_GREEN.md`）。閘門關閉因 MILLION_USER_BAR **#1／#3 Partial**（非變現 Blocked）。總評 **7 Pass／2 Partial／0 Fail** |
+| 上架 | **禁止** Production／soft-launch 直到 #1–#9 全 Pass（現差 #1／#3） |
 
 ---
 
@@ -23,12 +23,13 @@
 | 項目 | 狀態 |
 |------|------|
 | 指令 | `npm run accept`（`scripts/acceptance-check.js`；內含 `native:check`） |
-| 可自動項 | 關卡密度／教學弧／顏色可解／**L-SOLVE** 倒水路徑可解（ALL n/n）／**L-SELF-TEST** 每關 sanity＋UNCAP-ONE-TAP／**L16-UNCAP-SOLVE**／**L-PAR** 顯式 par≥BFS opt、Day1 經濟常數、P0① 商店不白送、**REAL-ADMOB-IDS**／Billing 配線（產線 `USE_TEST_ADS=false`；#7 仍 Fail）、倒水中不插頁（源碼護欄） |
-| 仍 Blocked | **P0②③**、真 `remove_ads` Billing／StoreKit（Play 帳號已過審；**REAL-ADMOB-IDS** 已配線；仍待實機三綠燈＋Billing 複驗）— 套件標 **BLOCKED**，**不標 Pass** |
-| 本輪結果 | 自動化檢查 **全綠**；閘門仍 **不過**（變現未解） |
+| 可自動項 | 關卡密度／教學弧／顏色可解／**L-SOLVE**／**L-SELF-TEST**／**L16-UNCAP-SOLVE**／**L-PAR**、Day1 經濟、P0① 商店不白送、**REAL-ADMOB-IDS**／Billing（`USE_TEST_ADS=false`）、**DEVICE-THREE-GREEN** 證據門（P0-2／P0-3／M-IAP → Pass）、倒水中不插頁（源碼護欄） |
+| 仍 Blocked | **無**（P0②③／M-IAP 已依 Seeker 三綠燈標 **Pass**；缺證據則 Fail，不再永遠 Blocked） |
+| 本輪結果 | 自動化檢查目標 **全綠／0 Blocked**；閘門仍 **不過**（#1／#3 Partial；Production held） |
 
-自動化另含 **A11Y-COLOR**（Color assist CVD glyphs／Settings toggle／persist；源碼檢查）、**STUCK-DETECT**（卡死 toast Undo／Restart；無 soft-arm）、**RESTART-CONFIRM**（局中有進度 Restart 需兩次確認 toast；空盤一鍵；無 soft-arm CSS）、**LEAVE-RUN-CONFIRM**（放棄有進度 draft 進他關／Daily 需兩次確認 toast；同目標／空盤一鍵；無 soft-arm CSS）、**SHOP-SPEND-CONFIRM**（商店大額金幣消費 hints-pack／undo 需兩次確認 toast；theme 金幣解鎖一鍵；無 soft-arm CSS）、**BACK-NAV**（系統／瀏覽器返回：先關 levels／hint／shop／fail，局中再 pause 回 Home 保留 draft；無 soft-arm CSS）、**CAP-APP-BACK**（`@capacitor/app` ^6＋`bindSystemBack` `App.addListener(backButton)`；無 soft-arm）、**CAP-APP-STATE**（`App.addListener(appStateChange)` 背景 flush draft／clearPendingUncap／wake sync；無 soft-arm）、**ANDROID-TARGET-36**（compile／targetSdk 36＋`enableOnBackInvokedCallback`；無 soft-arm）／**ANDROID-BACK-INVOKED**／**ANDROID-WEBVIEW-OVERSCROLL**（`setOverScrollMode(OVER_SCROLL_NEVER)`；無 soft-arm）／**ANDROID-WEBVIEW-TEXT-ZOOM**（`setTextZoom(100)`；無 soft-arm）／**ANDROID-WEBVIEW-BG**（`setBackgroundColor(#1a1a2e)`；無 soft-arm）／**ANDROID-WEBVIEW-ZOOM-LOCK**（`setSupportZoom`／builtIn／display false；無 soft-arm）／**ANDROID-WEBVIEW-LONG-CLICK**（`setOnLongClickListener` consume＋`setLongClickable(false)`；無 soft-arm）／**ANDROID-WEBVIEW-HAPTIC-OFF**（`setHapticFeedbackEnabled(false)`；無 soft-arm）、**A11Y-ESC**（Escape 關 levels／hint／shop／fail；**win→Home**；不關 start）、**LEVELS-SCROLL**（openLevels 後 Continue／star-gap `scrollIntoView`）、**LEVELS-FOCUS**（`focusOverlayPrimary` 優先 Continue／star-gap 非 Close；關卡格 locked／play／stars `aria-label`）／**LEVELS-CHAPTER**（chapter prev/next；一章網格）／**LEVELS-KEYS**（Levels 網格方向鍵／Home／End＋章邊緣換章）／**A11Y-TRAP**（modal Tab／Shift+Tab 焦點陷阱；不陷阱 start）／**BOARD-KEYS**（局中彩管 Arrow／Home／End 幾何焦點導航；無 soft-arm）／**HUD-KEYS**（局中 u／h／r Undo／Hint／Restart；可選 l Levels；無 soft-arm）／**WIN-FAIL-KEYS**（通關 Enter／n Next、r Restart、h Home；失敗 Enter／h Hint、b Home；無 soft-arm）／**WIN-HOME**（通關 `#btn-win-home` Home＋click `hideWin`／`goHome`＋`h`；無 soft-arm）／**FAIL-HOME**（失敗 `#btn-fail-home`＋click `closeOverlay`／`goHome`；`h` 仍 Hint；無 soft-arm）／**FAIL-DISMISS**（`closeOverlay` 關 fail 清 `restartFailCount`；失敗 `b`→Home；無 soft-arm）／**POUR-UI-GUARD**（倒水中阻擋 `openShop`／`startDailyChallenge`；無 soft-arm）／**A11Y-POUR**（`prefers-reduced-motion` 跳過 pour stream／tilt／splash；仍 SFX＋haptic；無 soft-arm）／**A11Y-BURST**（reduced-motion 跳過 complete／uncap sparks＋screen-shake＋white flash；仍 SFX＋haptic；無 soft-arm）／**A11Y-WIN**（reduced-motion 跳過 celebrate cascade／showWin 480ms／star stagger；CSS hide `.confetti`；仍 SFX＋haptic；無 soft-arm）／**A11Y-SHAKE**（reduced-motion 跳過非法倒 `.invalid-shake`；仍 SFX＋haptic；無 soft-arm）／**SHARE-WIN**（通關 `#btn-win-share`；`navigator.share`／clipboard；無 soft-arm）／**WIN-SHARE-KEY**（通關 `s`／`S` → Share；無 soft-arm）／**FAIL-RESTART-KEY**（失敗 `r`／`R` → Keep restarting／`#btn-fail-skip`；無 soft-arm）／**WIN-SHOP-KEY**（通關 `o`／`O` → Shop／`openShop`；無 soft-arm）／**LEVELS-HOME-KEY**（Levels `h`／`H` → `#btn-levels-home`；無 soft-arm）／**LEVELS-CHAPTER-KEYS**（Levels `PageUp`／`[` 上一章、`PageDown`／`]` 下一章；無 soft-arm）／**SHARE-LANDING**（`docs/index.html` brand landing＋`docs/og.png`＋og:image；`buildWinShareText` github.io 根；無 soft-arm）／**STORE-TITLE-ALIGN**（Play lock title `ColorTube Sort: Lid Puzzle` on docs landing／OG／Twitter／h1＋`buildWinShareText`／`shareWinResult`＋index meta；HUD `.brand` 短名；無 soft-arm）／**WEB-MANIFEST**（`site.webmanifest`＋icons 192／512＋index／docs link；無 soft-arm）／**PWA-MASKABLE**（maskable icons＋orientation／categories＋apple status-bar；無 soft-arm）／**KEYSHORTCUTS-MARKUP**（start／HUD／win-fail `aria-keyshortcuts`；無 soft-arm）／**TOUCH-44**（`.btn-icon`／`.btn-home`／`.modal-close` ≥44×44；無 soft-arm）／**HUD-DAILY-KEY**（局中 `d`／`D` → `#btn-daily`；無 soft-arm）／**CLOSE-ESC-MARKUP**（Home／close `aria-keyshortcuts=Escape`；無 soft-arm）／**A11Y-MOTION-PREF**（Settings Reduced motion toggle＋persist；`prefersReducedMotion` OR save；`html.reduced-motion`；RESET 保留；無 soft-arm）／**START-KEYS**（開始屏 Enter Play、d Daily、s Shop、l Levels；無 soft-arm）／**BRAND-FAVICON**（index.html icon＋apple-touch-icon；assets/icons PNG 存在）／**HINT-PAYWALL-KEYS**（提示付費牆 Enter arm→coins→ad；永不 pack；無 soft-arm）／**SHOP-KEYS**（商店 Enter `.shop-buy-arm`；SHOP-SPEND-CONFIRM 走既有 click；無 soft-arm）／**LEVELS-RUN-BADGE**（Levels 進行中 draft `.level-in-progress`＋`On` badge；靜態 cyan／無 soft-arm）／**START-RUN-RESUME**（開始屏 mid-run mainline → `Resume · Level N`＋`.play-in-progress` 靜態 cyan；無 soft-arm）／**DAILY-RUN-RESUME**（Daily mid-run → badge `On`＋`.daily-in-progress` 靜態 cyan；Done 優先；無 soft-arm）／**RESET-PROGRESS**（Settings Reset progress 兩次確認 toast；保留 Sound／Haptics／Color assist；清 draft＋bak；無 soft-arm）／**SAVE-BACKUP**（Settings Backup Export／Import；Import 兩次確認 toast；progress_export／progress_import；無 soft-arm）／**A11Y-ZOOM**（viewport 移除 maximum-scale=1／user-scalable=no；保留 viewport-fit=cover；允許 pinch／瀏覽器縮放；無 soft-arm）、**HOW-TO-PLAY**（Settings How to play＋`?` 快捷鍵 toast；howto tip；無 soft-arm）、**HAPTICS-KEY**（`v`／`V` 切換 Haptics＋toast；`#btn-toggle-haptics` aria-keyshortcuts=v；無 soft-arm）。P0②③ 仍 **Blocked**。
+自動化另含 **A11Y-COLOR**（Color assist CVD glyphs／Settings toggle／persist；源碼檢查）、**STUCK-DETECT**（卡死 toast Undo／Restart；無 soft-arm）、**RESTART-CONFIRM**（局中有進度 Restart 需兩次確認 toast；空盤一鍵；無 soft-arm CSS）、**LEAVE-RUN-CONFIRM**（放棄有進度 draft 進他關／Daily 需兩次確認 toast；同目標／空盤一鍵；無 soft-arm CSS）、**SHOP-SPEND-CONFIRM**（商店大額金幣消費 hints-pack／undo 需兩次確認 toast；theme 金幣解鎖一鍵；無 soft-arm CSS）、**BACK-NAV**（系統／瀏覽器返回：先關 levels／hint／shop／fail，局中再 pause 回 Home 保留 draft；無 soft-arm CSS）、**CAP-APP-BACK**（`@capacitor/app` ^6＋`bindSystemBack` `App.addListener(backButton)`；無 soft-arm）、**CAP-APP-STATE**（`App.addListener(appStateChange)` 背景 flush draft／clearPendingUncap／wake sync；無 soft-arm）、**ANDROID-TARGET-36**（compile／targetSdk 36＋`enableOnBackInvokedCallback`；無 soft-arm）／**ANDROID-BACK-INVOKED**／**ANDROID-WEBVIEW-OVERSCROLL**（`setOverScrollMode(OVER_SCROLL_NEVER)`；無 soft-arm）／**ANDROID-WEBVIEW-TEXT-ZOOM**（`setTextZoom(100)`；無 soft-arm）／**ANDROID-WEBVIEW-BG**（`setBackgroundColor(#1a1a2e)`；無 soft-arm）／**ANDROID-WEBVIEW-ZOOM-LOCK**（`setSupportZoom`／builtIn／display false；無 soft-arm）／**ANDROID-WEBVIEW-LONG-CLICK**（`setOnLongClickListener` consume＋`setLongClickable(false)`；無 soft-arm）／**ANDROID-WEBVIEW-HAPTIC-OFF**（`setHapticFeedbackEnabled(false)`；無 soft-arm）、**A11Y-ESC**（Escape 關 levels／hint／shop／fail；**win→Home**；不關 start）、**LEVELS-SCROLL**（openLevels 後 Continue／star-gap `scrollIntoView`）、**LEVELS-FOCUS**（`focusOverlayPrimary` 優先 Continue／star-gap 非 Close；關卡格 locked／play／stars `aria-label`）／**LEVELS-CHAPTER**（chapter prev/next；一章網格）／**LEVELS-KEYS**（Levels 網格方向鍵／Home／End＋章邊緣換章）／**A11Y-TRAP**（modal Tab／Shift+Tab 焦點陷阱；不陷阱 start）／**BOARD-KEYS**（局中彩管 Arrow／Home／End 幾何焦點導航；無 soft-arm）／**HUD-KEYS**（局中 u／h／r Undo／Hint／Restart；可選 l Levels；無 soft-arm）／**WIN-FAIL-KEYS**（通關 Enter／n Next、r Restart、h Home；失敗 Enter／h Hint、b Home；無 soft-arm）／**WIN-HOME**（通關 `#btn-win-home` Home＋click `hideWin`／`goHome`＋`h`；無 soft-arm）／**FAIL-HOME**（失敗 `#btn-fail-home`＋click `closeOverlay`／`goHome`；`h` 仍 Hint；無 soft-arm）／**FAIL-DISMISS**（`closeOverlay` 關 fail 清 `restartFailCount`；失敗 `b`→Home；無 soft-arm）／**POUR-UI-GUARD**（倒水中阻擋 `openShop`／`startDailyChallenge`；無 soft-arm）／**A11Y-POUR**（`prefers-reduced-motion` 跳過 pour stream／tilt／splash；仍 SFX＋haptic；無 soft-arm）／**A11Y-BURST**（reduced-motion 跳過 complete／uncap sparks＋screen-shake＋white flash；仍 SFX＋haptic；無 soft-arm）／**A11Y-WIN**（reduced-motion 跳過 celebrate cascade／showWin 480ms／star stagger；CSS hide `.confetti`；仍 SFX＋haptic；無 soft-arm）／**A11Y-SHAKE**（reduced-motion 跳過非法倒 `.invalid-shake`；仍 SFX＋haptic；無 soft-arm）／**SHARE-WIN**（通關 `#btn-win-share`；`navigator.share`／clipboard；無 soft-arm）／**WIN-SHARE-KEY**（通關 `s`／`S` → Share；無 soft-arm）／**FAIL-RESTART-KEY**（失敗 `r`／`R` → Keep restarting／`#btn-fail-skip`；無 soft-arm）／**WIN-SHOP-KEY**（通關 `o`／`O` → Shop／`openShop`；無 soft-arm）／**LEVELS-HOME-KEY**（Levels `h`／`H` → `#btn-levels-home`；無 soft-arm）／**LEVELS-CHAPTER-KEYS**（Levels `PageUp`／`[` 上一章、`PageDown`／`]` 下一章；無 soft-arm）／**SHARE-LANDING**（`docs/index.html` brand landing＋`docs/og.png`＋og:image；`buildWinShareText` github.io 根；無 soft-arm）／**STORE-TITLE-ALIGN**（Play lock title `ColorTube Sort: Lid Puzzle` on docs landing／OG／Twitter／h1＋`buildWinShareText`／`shareWinResult`＋index meta；HUD `.brand` 短名；無 soft-arm）／**WEB-MANIFEST**（`site.webmanifest`＋icons 192／512＋index／docs link；無 soft-arm）／**PWA-MASKABLE**（maskable icons＋orientation／categories＋apple status-bar；無 soft-arm）／**KEYSHORTCUTS-MARKUP**（start／HUD／win-fail `aria-keyshortcuts`；無 soft-arm）／**TOUCH-44**（`.btn-icon`／`.btn-home`／`.modal-close` ≥44×44；無 soft-arm）／**HUD-DAILY-KEY**（局中 `d`／`D` → `#btn-daily`；無 soft-arm）／**CLOSE-ESC-MARKUP**（Home／close `aria-keyshortcuts=Escape`；無 soft-arm）／**A11Y-MOTION-PREF**（Settings Reduced motion toggle＋persist；`prefersReducedMotion` OR save；`html.reduced-motion`；RESET 保留；無 soft-arm）／**START-KEYS**（開始屏 Enter Play、d Daily、s Shop、l Levels；無 soft-arm）／**BRAND-FAVICON**（index.html icon＋apple-touch-icon；assets/icons PNG 存在）／**HINT-PAYWALL-KEYS**（提示付費牆 Enter arm→coins→ad；永不 pack；無 soft-arm）／**SHOP-KEYS**（商店 Enter `.shop-buy-arm`；SHOP-SPEND-CONFIRM 走既有 click；無 soft-arm）／**LEVELS-RUN-BADGE**（Levels 進行中 draft `.level-in-progress`＋`On` badge；靜態 cyan／無 soft-arm）／**START-RUN-RESUME**（開始屏 mid-run mainline → `Resume · Level N`＋`.play-in-progress` 靜態 cyan；無 soft-arm）／**DAILY-RUN-RESUME**（Daily mid-run → badge `On`＋`.daily-in-progress` 靜態 cyan；Done 優先；無 soft-arm）／**RESET-PROGRESS**（Settings Reset progress 兩次確認 toast；保留 Sound／Haptics／Color assist；清 draft＋bak；無 soft-arm）／**SAVE-BACKUP**（Settings Backup Export／Import；Import 兩次確認 toast；progress_export／progress_import；無 soft-arm）／**A11Y-ZOOM**（viewport 移除 maximum-scale=1／user-scalable=no；保留 viewport-fit=cover；允許 pinch／瀏覽器縮放；無 soft-arm）、**HOW-TO-PLAY**（Settings How to play＋`?` 快捷鍵 toast；howto tip；無 soft-arm）、**HAPTICS-KEY**（`v`／`V` 切換 Haptics＋toast；`#btn-toggle-haptics` aria-keyshortcuts=v；無 soft-arm）。P0②③ 已 **Pass**（DEVICE-THREE-GREEN Seeker；見 `docs/DEVICE_THREE_GREEN.md`）。閘門仍不過因 #1／#3 Partial。
 
+（已補）**DEVICE-THREE-GREEN**已上 — 2026-09-21 ~19:28–19:49 Asia/Taipei Seeker self-verify：**#7 Pass**（interstitial／rewarded full-watch／`remove_ads` `GPA.3327-2483-8031-49087`）；P0②③ → **Pass**；accept 0 Blocked 目標；**#9 Pass**；閘門 **7 Pass／2 Partial／0 Fail** 仍關閉（#1／#3 Partial）。**Production／soft-launch 仍禁止**。**不宣稱 ship-ready。**
 （已補）**NATIVE-VC6-INTERNAL-SYNC**／**NATIVE-VC6-LOCAL-AAB-SYNC**已上 — 已建 signed `ColorTubeSort-internal-20260921-1826-prodAdMob-vc6-iapBusy-release.aab`（+ latest + `play-upload/ColorTubeSort-vc6-iapBusy.aab`）並上傳 Play；Active 為 `1.0.5-internal-vc6-iapBusy`／vc6／1.0.5，含 **UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**；**無 AAB rebuild**；**#7 仍 Fail**；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 （已補）**ANDROID-VERSION-CODE-6**已上 — `scripts/patch-android-version.sh` 預設 **versionCode 6**／`versionName 1.0.5`；`package.json` **1.0.5**；README §2ak；accept `ANDROID-VERSION-CODE-6`／**NATIVE-VC6-INTERNAL-SYNC**（Play Active 為 vc6／1.0.5，含 **UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**；**無 AAB rebuild**）；**#7 仍 Fail**；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
@@ -261,16 +262,16 @@
 | ID | 檢查項 | 狀態 | 重現／備註 |
 |----|--------|------|------------|
 | **P0①** | 商店假 IAP | **Pass** | 點「去除廣告」→ toast「即將開放／需商店帳號」；`removeAds` 維持 false（除非 `localStorage.colorTubeSort_devIap=1`） |
-| **P0②** | 真 AdMob／變現 SDK | **Blocked** | **REAL-ADMOB-IDS** 已配線 Android 正式 App／單元＋`USE_TEST_ADS=false`（Play 帳號已過審）；仍 **Blocked** 僅待實機三綠燈（interstitial／rewarded full-watch／`remove_ads` purchase+restore）。**不可標 Pass** |
-| **P0③** | `?ad=1` 當廣告流 | **Blocked** | 僅 ad-capture 截圖模式，非廣告播放；等真 SDK 後另開驗收項。**不可當變現完成** |
+| **P0②** | 真 AdMob／變現 SDK | **Pass** | **DEVICE-THREE-GREEN**（2026-09-21 ~19:28–19:49 Asia/Taipei）：Seeker／vc6／1.0.5／`hanwen16888@gmail.com` — interstitial Pass＋rewarded full-watch Pass＋`remove_ads` purchase+restore Pass （order `GPA.3327-2483-8031-49087`）。**REAL-ADMOB-IDS**／`USE_TEST_ADS=false`。Mid-pour 護欄仍在源碼。見 `docs/DEVICE_THREE_GREEN.md`。**Production 仍禁止**（#1／#3 Partial）。 |
+| **P0③** | `?ad=1` 當廣告流 | **Pass** | `?ad=1` 仍僅 ad-capture；**產線廣告流已用實機 SDK 驗證**（DEVICE-THREE-GREEN：interstitial AdActivity＋rewarded full-watch）。不再以 `?ad=1` 冒充變現完成；變現完成依據為 Seeker 三綠燈。見 `docs/DEVICE_THREE_GREEN.md`。 |
 | **P0④** | 跳關／開始鈕穿透 | **Pass** | 雙擊關卡標籤不跳關；開始畫面雙擊「開始遊戲」不誤觸開蓋 |
 
 ### 重驗證據（2026-09-18）
 
-1. **① Pass**：清 localStorage → 商店 → 去除廣告 →「即將開放」，權益未變。  
-2. **④ Pass**：關卡標籤連點雙擊仍停在關卡 1；重整後仍從 1 起。  
-3. **④ Pass**：開始鈕快速雙擊正常進關，無「蓋子打開了」誤觸。  
-4. **②③ Blocked**：**REAL-ADMOB-IDS** 已配線／帳號已過審；仍缺實機三綠燈（＋P0③ `?ad=1` 非產線廣告流）→ 維持 Blocked，不重測為 Pass。
+1. **① Pass**：清 localStorage → 商店 → 去除廣告 →「即將開放」，權益未變。
+2. **④ Pass**：關卡標籤連點雙擊仍停在關卡 1；重整後仍從 1 起。
+3. **④ Pass**：開始鈕快速雙擊正常進關，無「蓋子打開了」誤觸。
+4. **②③ Pass（重驗 2026-09-21 Asia/Taipei）**：**DEVICE-THREE-GREEN** Seeker — interstitial／rewarded full-watch／`remove_ads` `GPA.3327-2483-8031-49087`；`?ad=1` 仍非產線，但產線 SDK 已實機驗證 → **Pass**。見 `docs/DEVICE_THREE_GREEN.md`。
 
 ---
 
@@ -297,10 +298,10 @@
 
 ## Smoke（複驗手冊）
 
-1. 清站內資料 → 商店去除廣告必須「即將開放」，重整後廣告路徑仍在。  
-2. 關卡標籤雙擊無跳關；開始鈕雙擊無穿透開蓋。  
-3. L1–2 無蓋；L3 有蓋＋教學（單點揭蓋；持液點有蓋→清選取並揭蓋）。  
-4. DEV only：`localStorage.setItem('colorTubeSort_devIap','1')` 才可 mock 給獎；預設必須關。  
+1. 清站內資料 → 商店去除廣告必須「即將開放」，重整後廣告路徑仍在。
+2. 關卡標籤雙擊無跳關；開始鈕雙擊無穿透開蓋。
+3. L1–2 無蓋；L3 有蓋＋教學（單點揭蓋；持液點有蓋→清選取並揭蓋）。
+4. DEV only：`localStorage.setItem('colorTubeSort_devIap','1')` 才可 mock 給獎；預設必須關。
 5. ②③：**REAL-ADMOB-IDS** 已配線／`USE_TEST_ADS=false`；實機三綠燈未過前 **維持 Blocked**（P0③ `?ad=1` 仍非產線廣告流）。
 
 **Suite：** ①④ Pass；②③ Blocked → **not ship-ready**。

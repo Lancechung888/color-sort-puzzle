@@ -3,7 +3,7 @@
 > **給 CEO 三問一行摘要**
 > 1) Capacitor android／簽名：**文件齊備**（本機 `cap add`＋keystore／`signingConfigs` 步驟齊，`android/` 不進 git）。
 > 2) 內測 AAB：`npm run aab:internal` 一鍵路徑已就緒；**包裝箱已具備 JDK 17 + Android SDK**；已多次產出**已簽名** release AAB（含現況 **vc6-iapBusy**）。無 SDK 的 agent／CI 箱仍應非 0 退出並印缺項。
-> 3) AdMob／Billing：**REAL-ADMOB-IDS** 已配線 Android 正式 App／單元 ID＋`USE_TEST_ADS=false`；Billing≥8 patch 就緒；假 IAP 預設關。Play **internal testing Active** = `1.0.5-internal-vc6-iapBusy`／versionCode **6**／**UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**。**#7 仍 Fail**（缺實機三綠燈）。未上架 production。
+> 3) AdMob／Billing：**REAL-ADMOB-IDS** 已配線 Android 正式 App／單元 ID＋`USE_TEST_ADS=false`；Billing≥8 patch 就緒；假 IAP 預設關。Play **internal testing Active** = `1.0.5-internal-vc6-iapBusy`／versionCode **6**／**UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**。**#7 Pass**（DEVICE-THREE-GREEN Seeker）。未上架 production（#1／#3 Partial）。
 >
 > Marker: **NATIVE-ACCEPTANCE-VC6-SYNC** · **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**（對齊 `docs/NATIVE_PACK_READY.md`／`docs/PLAY_CONSOLE_PASTE.md` 的 **NATIVE-VC6-INTERNAL-SYNC**／**PLAY-PASTE-VC6-SYNC**；vc5 marker 為歷史）。
 
@@ -16,7 +16,7 @@
 | 階段 | **prod AdMob 已配線**（`REAL-ADMOB-IDS`；`USE_TEST_ADS=false`）＋ Play **internal** Active **vc6** |
 | 上架 | **僅內部測試**；**未** production；勿宣稱已上架 |
 | 假 IAP | **關**（`colorTubeSort_devIap` 預設關閉；無 native Billing 不 grant） |
-| #7 | **仍 Fail** — 需實機三綠燈（interstitial／rewarded 完整看完／`remove_ads` 購買＋還原） |
+| #7 | **Pass** — DEVICE-THREE-GREEN 實機三綠燈已過（interstitial／rewarded 完整看完／`remove_ads` 購買＋還原） |
 | Active AAB | `1.0.5-internal-vc6-iapBusy`／vc6／1.0.5／Billing≥8／prod AdMob／**UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**；已由本機 ~18:26 建置的 signed AAB 上傳並在 Play Active。**NATIVE-VC6-INTERNAL-SYNC**（建置來源：**NATIVE-VC6-LOCAL-AAB-SYNC**） |
 | 本文件 | **可驗收**：與 `NATIVE_PACK_READY`／paste 對齊；歷史測 ID 階段標 superseded |
 
@@ -159,9 +159,9 @@ npm run native:check
 
 - Google sample／示範 AdMob App／單元 ID＋`USE_TEST_ADS=true`＋`1.0.1-internal-vc2-testids`／vc2 — **已 superseded**（見 `NATIVE_PACK_READY` 歷史段）。
 
-### 仍開著（阻塞 #7／下次上傳 — 非「測 ID 階段」）
+### 仍開著（非 #7 — Production／#1／#3）
 
-- [ ] **實機三綠燈** → 才能把 MILLION_USER_BAR **#7** 從 Fail 挪開：
+- [x] **實機三綠燈** → MILLION_USER_BAR **#7 Pass**（DEVICE-THREE-GREEN Seeker）：
   (1) interstitial 實機播出
   (2) rewarded **完整看完**發獎
   (3) `remove_ads` 購買＋還原
