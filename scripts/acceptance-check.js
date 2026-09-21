@@ -150,13 +150,14 @@ if (levels) {
   else fail('L-COLOR', `${unsolvable} levels fail color-count ÷ capacity (likely unsolvable)`);
 
   // L-SOLVE: real pour-path search (free uncap). Strengthens L-COLOR for MILLION_USER_BAR #4.
+  // Must cover EVERY mainline level (no soft-skip / sample subset).
   const solve = solveAllLevels(levels);
-  if (solve.ok) {
+  if (solve.ok && solve.count === n && n === levels.length) {
     pass(
       'L-SOLVE',
-      `pour-path solvable (free uncap); ${solve.count} levels; maxNodes=L${solve.maxLevel}/${solve.maxNodes}; no soft-arm`
+      `pour-path solvable (free uncap); ALL ${solve.count}/${n} levels; maxNodes=L${solve.maxLevel}/${solve.maxNodes}; no soft-arm`
     );
-  } else {
+  } else if (!solve.ok) {
     const sample = solve.fails
       .slice(0, 5)
       .map((f) => `L${f.level}:${f.reason}@${f.nodes}`)
@@ -165,6 +166,44 @@ if (levels) {
       'L-SOLVE',
       `${solve.fails.length}/${solve.count} unsolvable or over budget (≤${solve.nodeBudget}/level): ${sample}`
     );
+  } else {
+    fail(
+      'L-SOLVE',
+      `coverage mismatch: solved=${solve.count} levels.length=${levels.length} n=${n} (must test every level)`
+    );
+  }
+
+  // L-SELF-TEST: sanity (color/capacity/free-space/caps) + UNCAP-ONE-TAP free-uncap then pour-solve for EVERY level.
+  // Prevents claims that skip per-level verification; L16 capped path included.
+  {
+    const { runSelfTest } = require('./self-test-levels');
+    const self = runSelfTest(levels);
+    if (self.ok && self.count === n && self.count === levels.length) {
+      const capped = self.rows.filter((r) => r.caps.length > 0).length;
+      const l16 = self.rows[15];
+      const l16ok = l16 && l16.status === 'PASS' && l16.caps.length > 0;
+      pass(
+        'L-SELF-TEST',
+        `ALL ${self.count}/${n} levels sanity+solve; capped=${capped}; L16 uncap+solve=${l16ok ? 'Pass depth=' + l16.depth : 'MISSING'}; no soft-arm`
+      );
+      if (!l16ok) {
+        fail('L16-UNCAP-SOLVE', 'L16 must Pass self-test with caps + free-uncap pour-solve');
+      } else {
+        pass(
+          'L16-UNCAP-SOLVE',
+          `L16 caps=[${l16.caps.join(',')}] one-tap clear + pour-solve depth=${l16.depth}; no soft-arm`
+        );
+      }
+    } else {
+      const sample = self.fails
+        .slice(0, 5)
+        .map((f) => `L${f.L}:${(f.issues || []).join('+')}`)
+        .join(', ');
+      fail(
+        'L-SELF-TEST',
+        `${self.fails.length}/${self.count} failed (need ALL ${n}): ${sample || 'coverage mismatch'}`
+      );
+    }
   }
 
 
