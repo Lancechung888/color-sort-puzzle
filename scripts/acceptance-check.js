@@ -3947,6 +3947,91 @@ block(
 }
 
 
+
+
+// --- ANDROID-BILLING-CLIENT-8: Play Billing Library ≥8.0.0 (Cap 6 force); no soft-arm ---
+{
+  const patchRaw = read('scripts/patch-android-billing-8.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const npGradlePath = path.join(
+    root,
+    'node_modules/@capgo/native-purchases/android/build.gradle'
+  );
+  const npJavaPath = path.join(
+    root,
+    'node_modules/@capgo/native-purchases/android/src/main/java/ee/forgr/nativepurchases/NativePurchasesPlugin.java'
+  );
+  const appGradlePath = path.join(root, 'android/app/build.gradle');
+  const npGradle = fs.existsSync(npGradlePath)
+    ? fs.readFileSync(npGradlePath, 'utf8')
+    : '';
+  const npJava = fs.existsSync(npJavaPath)
+    ? fs.readFileSync(npJavaPath, 'utf8')
+    : '';
+  const appGradle = fs.existsSync(appGradlePath)
+    ? fs.readFileSync(appGradlePath, 'utf8')
+    : '';
+  const patchOk =
+    /ANDROID-BILLING-CLIENT-8/.test(patchRaw) &&
+    /billing_version/.test(patchRaw) &&
+    /8\.3\.0/.test(patchRaw) &&
+    /PendingPurchasesParams/.test(patchRaw) &&
+    /QueryProductDetailsResult/.test(patchRaw) &&
+    /resolutionStrategy/.test(patchRaw) &&
+    /minSdkVersion/.test(patchRaw) &&
+    /MIN_SDK\s*=\s*23/.test(patchRaw);
+  const syncIdx = aabRaw.search(/npx cap sync/);
+  const billingIdx = aabRaw.search(/patch-android-billing-8\.sh/);
+  const admobIdx = aabRaw.search(/patch-android-admob\.sh/);
+  const aabHookOk =
+    syncIdx >= 0 &&
+    billingIdx >= 0 &&
+    admobIdx >= 0 &&
+    syncIdx < billingIdx &&
+    billingIdx < admobIdx;
+  const readmeOk =
+    /ANDROID-BILLING-CLIENT-8/.test(readmeRaw) && /2ai/.test(readmeRaw);
+  let pluginOk = !npGradle && !npJava;
+  if (npGradle || npJava) {
+    const verM = npGradle.match(/def\s+billing_version\s*=\s*"([^"]+)"/);
+    const ver = verM ? verM[1] : '';
+    const major = parseInt(String(ver).split('.')[0], 10);
+    const verOk = Number.isFinite(major) && major >= 8;
+    const javaOk =
+      /PendingPurchasesParams\.newBuilder\(\)\s*\.\s*enableOneTimeProducts\(/.test(
+        npJava
+      ) &&
+      /QueryProductDetailsResult/.test(npJava) &&
+      /getProductDetailsList\s*\(/.test(npJava) &&
+      !/\.enablePendingPurchases\s*\(\s*\)/.test(npJava);
+    pluginOk = verOk && javaOk;
+  }
+  const varsPath = path.join(root, 'android/variables.gradle');
+  const varsRaw = fs.existsSync(varsPath) ? fs.readFileSync(varsPath, 'utf8') : '';
+  let localOk = !appGradle && !varsRaw;
+  if (appGradle || varsRaw) {
+    const forceOk = !appGradle || /force\s+'com\.android\.billingclient:billing:8\./.test(appGradle);
+    const minOk = !varsRaw || /minSdkVersion\s*=\s*2[3-9]\b/.test(varsRaw) || /minSdkVersion\s*=\s*[3-9]\d\b/.test(varsRaw);
+    localOk = forceOk && minOk;
+  }
+  const noSoft =
+    !/billing-arm|soft-arm|claim-juice|hud-pulse/.test(
+      patchRaw + npGradle + npJava + appGradle
+    );
+  if (patchOk && aabHookOk && readmeOk && pluginOk && localOk && noSoft) {
+    pass(
+      'ANDROID-BILLING-CLIENT-8',
+      'Play Billing ≥8.0.0 via patch-android-billing-8.sh (Capgo 6.x stay) + aab after sync before admob + README §2ai; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-BILLING-CLIENT-8',
+      `missing billing≥8 patch / aab hook-after-sync-before-admob / README / plugin migrate / force, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} pluginOk=${pluginOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF: deny 3P cookies; no soft-arm ---
 {
   const mainPath = path.join(
