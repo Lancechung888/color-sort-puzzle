@@ -760,14 +760,14 @@ bash scripts/patch-android-version.sh
 
 `npm run aab:internal` 在 Billing-8 patch **之後**、AdMob Manifest patch **之前**自動跑。
 
-## 2ak. Android versionCode ≥5（ANDROID-VERSION-CODE-5）
+## 2ak. Android versionCode ≥6（ANDROID-VERSION-CODE-6）
 
-Play internal testing rejects reused `versionCode`. After vc4 (`1.0.3` / theme1tap) upload, the next signed AAB must bump:
+Play internal testing rejects reused `versionCode`. Play **Active** internal is still **vc5** / `1.0.4-internal-vc5-uncap1tap` (built before **IAP-PURCHASE-BUSY**). The next signed AAB must bump:
 
-1. `versionCode` → **5**
-2. `versionName` → **"1.0.4"**
+1. `versionCode` → **6**
+2. `versionName` → **"1.0.5"**
 
-Pairs with **REAL-ADMOB-IDS** (`USE_TEST_ADS=false` + prod Android App/unit IDs) + **UNCAP-ONE-TAP** (#234). Does **not** claim MILLION_USER_BAR **#7 Pass** — still need device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore).
+Pairs with tip **IAP-PURCHASE-BUSY** (#237) + **REAL-ADMOB-IDS** (`USE_TEST_ADS=false`) + **UNCAP-ONE-TAP**. Does **not** claim MILLION_USER_BAR **#7 Pass** — still need device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore). Does **not** change Active Play until upload.
 
 一鍵補丁（冪等；無 `android/` 時 exit 0；override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`）：
 

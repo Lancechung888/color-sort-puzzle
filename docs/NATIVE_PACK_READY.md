@@ -7,7 +7,7 @@
 > **Do not claim ship-ready** from this doc alone.
 > Marker: **NATIVE-VC5-INTERNAL-SYNC** (current internal = `1.0.4-internal-vc5-uncap1tap` / vc5 / versionName **1.0.4** / Billing≥8 / prod AdMob / **UNCAP-ONE-TAP**; historical **NATIVE-VC3-INTERNAL-SYNC** = `1.0.2-internal-vc3-prodAdMob` / vc3; historical vc4 / 1.0.3; historical **NATIVE-INTERNAL-TESTING-SYNC** = `1.0.1-internal-vc2-testids`; #7 still Fail).  
 > Also: **PLAY-PASTE-VC5-SYNC** (historical **PLAY-PASTE-VC3-SYNC**) / **INTERNAL-TESTER-SYNC** / **INTERNAL-TESTER-HANWEN-SYNC** — paste docs + tester Gmail honesty (`lancechung@gmail.com` + `hanwen16888@gmail.com` / ColorTube-internal / opt-in URL).  
-> Honesty: Active Play AAB is **vc5-uncap1tap** (built before **IAP-PURCHASE-BUSY** / #237). Tip `main` has IAP-PURCHASE-BUSY; next upload needs a new versionCode. Do **not** claim IAP-PURCHASE-BUSY is in the Active vc5 AAB.
+> Honesty: Active Play AAB is **vc5-uncap1tap** (built before **IAP-PURCHASE-BUSY** / #237). Tip `main` has IAP-PURCHASE-BUSY; **script default** is now **ANDROID-VERSION-CODE-6** (`versionCode` **6** / `versionName` **1.0.5**) for the *next* upload — Active track remains vc5 until that AAB is uploaded. Do **not** claim IAP-PURCHASE-BUSY is in the Active vc5 AAB.
 
 ---
 
@@ -21,7 +21,7 @@
 | Test AdMob App IDs in `capacitor.config.json` | **DONE** (Google sample) |
 | Test AdMob unit IDs + `USE_TEST_ADS=true` in `assets/js/ads.js` | **DONE** (historical; superseded by REAL-ADMOB-IDS) |
 | **REAL-ADMOB-IDS** Android prod App ID + interstitial/rewarded + `USE_TEST_ADS=false` | **DONE in repo** (2026-09-21 Asia/Taipei). Device three-green **not** met → **#7 still Fail** |
-| Play `versionCode` 5 / `versionName` 1.0.4 (`ANDROID-VERSION-CODE-5`) | **UPLOADED current** (Play Active `1.0.4-internal-vc5-uncap1tap`). Script defaults match. Historical prior: **vc4** / 1.0.3 (`ANDROID-VERSION-CODE-4`); **vc3** / 1.0.2 |
+| Play Active `versionCode` 5 / `versionName` 1.0.4 (`ANDROID-VERSION-CODE-5`) | **UPLOADED current** (Play Active `1.0.4-internal-vc5-uncap1tap`). Script default now **6** / **1.0.5** (`ANDROID-VERSION-CODE-6`) for next upload. Historical prior: **vc4** / 1.0.3 (`ANDROID-VERSION-CODE-4`); **vc3** / 1.0.2 |
 | Billing skeleton (`assets/js/billing.js`, product `remove_ads`) | **DONE** (no fake grant) |
 | `npx cap add android` in this environment | **DONE** (local `android/` generated; **gitignored**) |
 | `npx cap sync` + plugins discovered | **DONE** (AdMob + NativePurchases) |
@@ -30,9 +30,9 @@
 | Launcher ICON A + branded splash (vs stock Capacitor) | **DONE** (`scripts/apply-android-icons.sh` ← `native-templates/android/res/` from finals ICON A; hooked in `aab:internal`) |
 | JDK 17 + Android SDK on this packaging box | **DONE** (`JAVA_HOME=/home/box/sdk/jdk-17.0.20.1+1`, `ANDROID_HOME=/home/box/sdk/android`) |
 | Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19 + **2026-09-21**): `npm run aab:internal` → signed AABs. Durable copies under `/workspace/colortube-artifacts/` including **current vc5-uncap1tap** (`ColorTubeSort-internal-20260921-1522-prodAdMob-vc5-uncap1tap-release.aab`), historical **vc4**, **vc3 prodAdMob** (`…-1420-prodAdMob-vc3-release.aab`, `…-1424-vc3-prodadmob-release.aab`), and **vc2 testids** (`…-1312-vc2-billing8-testids-release.aab`) |
-| Play `versionCode` / `versionName` | **UPLOADED current** **versionCode 5** / **versionName 1.0.4** (`ANDROID-VERSION-CODE-5`; hooked in `aab:internal`). Historical: **vc4** / 1.0.3 (`ANDROID-VERSION-CODE-4`); **vc3** / 1.0.2; **vc2** / 1.0.1. |
+| Play `versionCode` / `versionName` | **UPLOADED current** **versionCode 5** / **versionName 1.0.4** (`ANDROID-VERSION-CODE-5`). Script default for next `aab:internal`: **versionCode 6** / **versionName 1.0.5** (`ANDROID-VERSION-CODE-6`; hooked after Billing-8). Historical: **vc4** / 1.0.3 (`ANDROID-VERSION-CODE-4`); **vc3** / 1.0.2; **vc2** / 1.0.1. |
 | Play developer account | **APPROVED** (2026-09-21 Asia/Taipei) — see `docs/PLAY_POST_APPROVAL_CHECKLIST.md` |
-| Play **internal testing** track | **UPLOADED current** (2026-09-21 Asia/Taipei ~15:41): release `1.0.4-internal-vc5-uncap1tap` / **versionCode 5** / **versionName 1.0.4** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` / vc2 (superseded; **NATIVE-INTERNAL-TESTING-SYNC**). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921` (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**). **Not** production. **#7 still Fail** (device three green lights open). Active vc5 AAB does **not** include **IAP-PURCHASE-BUSY** (#237; tip main only — next upload needs new versionCode). |
+| Play **internal testing** track | **UPLOADED current** (2026-09-21 Asia/Taipei ~15:41): release `1.0.4-internal-vc5-uncap1tap` / **versionCode 5** / **versionName 1.0.4** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` / vc2 (superseded; **NATIVE-INTERNAL-TESTING-SYNC**). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921` (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**). **Not** production. **#7 still Fail** (device three green lights open). Active vc5 AAB does **not** include **IAP-PURCHASE-BUSY** (#237; tip main only — next upload = **versionCode 6** / **1.0.5** via `ANDROID-VERSION-CODE-6`). |
 | Play Console real AdMob / real IAP IDs / production publish | **Android AdMob IDs wired (REAL-ADMOB-IDS)**; IAP device verify + production publish still open. **#7 still Fail** until three green lights. |
 
 ---
@@ -83,7 +83,7 @@
 
 ### DONE this packaging box — signed internal AAB (2026-09-19 + 2026-09-21 Asia/Taipei)
 
-- [x] `npm install` + `npm run aab:internal` (build:www → `cap sync` → Billing≥8 patch → versionCode **5** patch → AdMob Manifest patch → `bundleRelease`)
+- [x] `npm install` + `npm run aab:internal` (build:www → `cap sync` → Billing≥8 patch → versionCode **6** patch (`ANDROID-VERSION-CODE-6`; Active Play still vc5 until upload) → AdMob Manifest patch → `bundleRelease`)
 - [x] Plugins on sync: AdMob 6.2.0, App 6.0.3, Haptics 6.0.3, NativePurchases 6.0.42
 - [x] `validateSigningRelease` / `signReleaseBundle` succeeded (upload keystore via local `android/keystore.properties`)
 - [x] Artifacts under `/workspace/colortube-artifacts/`:
@@ -93,7 +93,7 @@
   - 2026-09-21 (historical): **versionCode 4** / **versionName 1.0.3** + prod AdMob
   - 2026-09-21 (**current**): **versionCode 5** / **versionName 1.0.4** + Billing≥8 + **prod AdMob** + **UNCAP-ONE-TAP** — `ColorTubeSort-internal-20260921-1522-prodAdMob-vc5-uncap1tap-release.aab` (**NATIVE-VC5-INTERNAL-SYNC**)
 - [x] **Play developer account APPROVED** (2026-09-21 Asia/Taipei). Prior uploads used versionCodes **1**→**4**; **current** is **vc5**.
-- [x] Play **internal testing** track **UPLOADED** (2026-09-21 Asia/Taipei ~15:41): **current** release name `1.0.4-internal-vc5-uncap1tap` / **versionCode 5** / **versionName 1.0.4** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` / vc2 (superseded; **NATIVE-INTERNAL-TESTING-SYNC**). Package `com.lancechung.colortubesort`. Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921` (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**). Active vc5 AAB does **not** include **IAP-PURCHASE-BUSY** (tip main / #237; next upload needs new versionCode). **Do not** mark MILLION_USER_BAR **#7 Pass** from AAB upload / tester config alone — need device three green lights.
+- [x] Play **internal testing** track **UPLOADED** (2026-09-21 Asia/Taipei ~15:41): **current** release name `1.0.4-internal-vc5-uncap1tap` / **versionCode 5** / **versionName 1.0.4** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` / vc2 (superseded; **NATIVE-INTERNAL-TESTING-SYNC**). Package `com.lancechung.colortubesort`. Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921` (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**). Active vc5 AAB does **not** include **IAP-PURCHASE-BUSY** (tip main / #237; next upload = **versionCode ≥6** / script `ANDROID-VERSION-CODE-6`). **Do not** mark MILLION_USER_BAR **#7 Pass** from AAB upload / tester config alone — need device three green lights.
 
 ### Still required on each machine that owns `android/`
 
@@ -169,7 +169,7 @@ Do this on the machine that can run Gradle.
 
 ## DONE vs NOT Pass (acceptance for this packaging track)
 
-**DONE (repo + this env):** Capacitor deps, **REAL-ADMOB-IDS** (Android prod App/units + `USE_TEST_ADS=false`), billing skeleton, `index.html` script order, `build:www`, `cap add android` + `cap sync` with both plugins, idempotent Manifest / Billing≥8 / **versionCode 5** patch scripts, JDK 17 + ANDROID_HOME on this box, signing steps documented, signed internal AABs including **current Play Active** `1.0.4-internal-vc5-uncap1tap` (**UNCAP-ONE-TAP** / prod AdMob; **NATIVE-VC5-INTERNAL-SYNC**) plus historical vc4 / vc3 / vc2, **Play developer account APPROVED** (2026-09-21 Asia/Taipei). Tip main has **IAP-PURCHASE-BUSY** (#237) — **not** in Active vc5 AAB; next upload needs new versionCode.
+**DONE (repo + this env):** Capacitor deps, **REAL-ADMOB-IDS** (Android prod App/units + `USE_TEST_ADS=false`), billing skeleton, `index.html` script order, `build:www`, `cap add android` + `cap sync` with both plugins, idempotent Manifest / Billing≥8 / **versionCode 6** patch scripts (`ANDROID-VERSION-CODE-6`; Active Play still **vc5**), JDK 17 + ANDROID_HOME on this box, signing steps documented, signed internal AABs including **current Play Active** `1.0.4-internal-vc5-uncap1tap` (**UNCAP-ONE-TAP** / prod AdMob; **NATIVE-VC5-INTERNAL-SYNC**) plus historical vc4 / vc3 / vc2, **Play developer account APPROVED** (2026-09-21 Asia/Taipei). Tip main has **IAP-PURCHASE-BUSY** (#237) — **not** in Active vc5 AAB; next upload uses script default **6** / **1.0.5**.
 
 **NOT ship-ready / #7 still Fail:** Device three green lights (interstitial, rewarded full-watch, `remove_ads` purchase+restore). Repo wiring + internal AAB + tester Gmail ≠ #7 Pass. Production untouched. Testers configured (`lancechung@gmail.com` + `hanwen16888@gmail.com` / ColorTube-internal / RESPOND_NORMALLY) — **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**.
 
@@ -179,6 +179,6 @@ Do this on the machine that can run Gradle.
 
 Also see operational acceptance: [`docs/NATIVE_ACCEPTANCE.md`](NATIVE_ACCEPTANCE.md) (`npm run native:check` / `npm run aab:internal`).
 
-### versionCode (Play uploads) — ANDROID-VERSION-CODE-5
+### versionCode (Play uploads) — ANDROID-VERSION-CODE-6
 
-- Play rejects reuse of the same `versionCode` (prior uploads used **1**, **2**, **3**, **4**; **current** Play Active is **5** / `1.0.4-internal-vc5-uncap1tap`). After `cap sync`, run `bash scripts/patch-android-version.sh` (hooked in `npm run aab:internal` after Billing-8, before AdMob) to set **versionCode 5** / **versionName 1.0.4** (override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME` for the *next* bump). Repo `package.json` `"version"` aligns to **1.0.4**. Accept gate: `ANDROID-VERSION-CODE-5`. Does **not** claim MILLION_USER_BAR **#7 Pass**. Next upload (e.g. IAP-PURCHASE-BUSY) needs a new versionCode beyond 5.
+- Play rejects reuse of the same `versionCode` (prior uploads used **1**→**4**; **current** Play Active is still **5** / `1.0.4-internal-vc5-uncap1tap`). After `cap sync`, run `bash scripts/patch-android-version.sh` (hooked in `npm run aab:internal` after Billing-8, before AdMob) to set **versionCode 6** / **versionName 1.0.5** by default (override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`). Repo `package.json` `"version"` aligns to **1.0.5**. Accept gate: `ANDROID-VERSION-CODE-6`. Does **not** claim MILLION_USER_BAR **#7 Pass**. Active track remains vc5 until the next AAB (tip **IAP-PURCHASE-BUSY**) is uploaded as vc6.
