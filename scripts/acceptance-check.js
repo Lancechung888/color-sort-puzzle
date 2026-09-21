@@ -4118,6 +4118,46 @@ block(
   }
 }
 
+// --- FONT-PRELOAD: critical Noto 700/800/900 before CSS; crossorigin; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const preload700 =
+    /rel=["']preload["'][^>]*href=["']assets\/fonts\/noto-sans-latin-700-normal\.woff2["']/.test(htmlRaw) ||
+    /href=["']assets\/fonts\/noto-sans-latin-700-normal\.woff2["'][^>]*rel=["']preload["']/.test(htmlRaw);
+  const preload800 =
+    /rel=["']preload["'][^>]*href=["']assets\/fonts\/noto-sans-latin-800-normal\.woff2["']/.test(htmlRaw) ||
+    /href=["']assets\/fonts\/noto-sans-latin-800-normal\.woff2["'][^>]*rel=["']preload["']/.test(htmlRaw);
+  const preload900 =
+    /rel=["']preload["'][^>]*href=["']assets\/fonts\/noto-sans-latin-900-normal\.woff2["']/.test(htmlRaw) ||
+    /href=["']assets\/fonts\/noto-sans-latin-900-normal\.woff2["'][^>]*rel=["']preload["']/.test(htmlRaw);
+  // Attribute order-agnostic: each preload link must also carry as=font, type=font/woff2, crossorigin
+  const links = [...htmlRaw.matchAll(/<link\b[^>]*rel=["']preload["'][^>]*>/gi)].map((m) => m[0]);
+  const fontLinks = links.filter((l) => /noto-sans-latin-(700|800|900)-normal\.woff2/.test(l));
+  const attrsOk =
+    fontLinks.length >= 3 &&
+    fontLinks.every(
+      (l) =>
+        /\bas=["']font["']/.test(l) &&
+        /type=["']font\/woff2["']/.test(l) &&
+        /\bcrossorigin\b/.test(l)
+    );
+  const beforeCss =
+    htmlRaw.indexOf('noto-sans-latin-700-normal.woff2') >= 0 &&
+    htmlRaw.indexOf('noto-sans-latin-700-normal.woff2') < htmlRaw.indexOf('assets/css/style.css');
+  const noSoft = !/soft-arm|claim-juice|hud-pulse|font-arm/.test(htmlRaw.slice(0, 2500));
+  if (preload700 && preload800 && preload900 && attrsOk && beforeCss && noSoft) {
+    pass(
+      'FONT-PRELOAD',
+      'index preload Noto 700/800/900 woff2 as=font type=font/woff2 crossorigin before stylesheet; no soft-arm'
+    );
+  } else {
+    fail(
+      'FONT-PRELOAD',
+      `missing font preload (700=${preload700} 800=${preload800} 900=${preload900} attrs=${attrsOk} beforeCss=${beforeCss} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');

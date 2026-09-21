@@ -157,6 +157,7 @@
 （已補）**ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF**已上 — `MainActivity` `CookieManager.getInstance().setAcceptThirdPartyCookies(webView, false)`（拒絕第三方 cookies；第一方／DomStorage 維持；對齊 Data Safety／隱私；異於 CLEARTEXT／MIXED-CONTENT／AUTOFILL；`android/` 仍 gitignore）；`scripts/patch-android-webview-third-party-cookies-off.sh`＋`aab:internal` hook（autofill-off 之後、icons 之前）＋`native-templates/android/README.md` §2ah；accept `ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 （已補）**SELF-HOST-FONTS**已上 — 可玩端自託管 Noto Sans latin woff2（400–900）＋`@font-face`；移除 Google Fonts CDN（fonts.googleapis.com／fonts.gstatic.com）；`sw.js` `colortube-offline-v3` precache 字體（離線字形可用）；`sync-www` → www／docs/play；accept `SELF-HOST-FONTS`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**FONT-PRELOAD**已上 — `index.html` stylesheet 前 preload Noto 700／800／900 woff2（as=font／type=font/woff2／crossorigin）；`sync-www`；accept `FONT-PRELOAD`；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 ## P0（一票否決）— ①–④ 對照
 
 | ID | 檢查項 | 狀態 | 重現／備註 |
