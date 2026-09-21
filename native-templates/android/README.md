@@ -720,6 +720,29 @@ bash scripts/patch-android-webview-third-party-cookies-off.sh
 
 `npm run aab:internal` 在 webview-autofill-off patch **之後**、icons **之前**自動跑。`android/` 仍 gitignore。
 
+
+
+## 2ai. Play Billing Library ≥8.0.0（ANDROID-BILLING-CLIENT-8）
+
+Play Console rejects internal/production AABs that still ship **Google Play Billing Library 6.2.1** (declared by `@capgo/native-purchases@6.0.42`). Capgo **7+/8+** already depend on billing **8.x**, but those majors require **Capacitor ≥7 / ≥8**. This project stays on **Capacitor 6**, so we **do not** bump the npm major — instead an idempotent patch:
+
+1. Rewrites `node_modules/@capgo/native-purchases/android/build.gradle` `billing_version` → **8.3.0**
+2. Migrates `NativePurchasesPlugin.java` to Billing **8** APIs:
+   - `enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())` (no-arg removed in 8.0)
+   - `ProductDetailsResponseListener.onProductDetailsResponse(..., QueryProductDetailsResult)` + `getProductDetailsList()`
+3. Forces `com.android.billingclient:billing:8.3.0` via `android/app/build.gradle` `resolutionStrategy` (local `android/` is gitignored)
+4. Bumps `android/variables.gradle` `minSdkVersion` → **23** (Billing 8 requirement; Cap6 default was 22)
+
+**Cap go purchases JS API unchanged** (same `@capgo/native-purchases@^6.0.42`). Does **not** flip `USE_TEST_ADS` or invent real AdMob IDs.
+
+一鍵補丁（冪等；無 plugin 時 exit 0）：
+
+```bash
+bash scripts/patch-android-billing-8.sh
+```
+
+`npm run aab:internal` 在 `npx cap sync` **之後**、AdMob Manifest patch **之前**自動跑（sync 會還原 `node_modules` 連結的 plugin 樹，必須每次重補）。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

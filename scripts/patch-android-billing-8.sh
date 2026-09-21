@@ -7,6 +7,7 @@
 # Billing 8.3.0 also declares minSdk 23 (Cap6 default minSdk 22) — bump variables.gradle.
 # Stay on Capacitor 6: patch node_modules (re-applied after every npm install / cap sync).
 # Safe to re-run. Does NOT upgrade Capacitor. Does NOT touch AdMob test IDs / USE_TEST_ADS.
+# ANDROID-BILLING-CLIENT-8
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
