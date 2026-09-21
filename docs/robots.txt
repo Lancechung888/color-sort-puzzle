@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://lancechung888.github.io/color-sort-puzzle/sitemap.xml

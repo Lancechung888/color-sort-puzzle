@@ -213,6 +213,8 @@
 
 （已補）**APPLE-SPLASH-MODERN**已上 — 補 5 張 portrait `apple-touch-startup-image`：1206×2622（iPhone 16 Pro）／1320×2868（iPhone 16 Pro Max）／1488×2266（iPad mini 6）／1640×2360（iPad Air 10.9／iPad 10）／1668×2224（iPad Pro 10.5）；品牌底 `#1a1a2e`＋ICON A；`sync-www` → www／docs/play；**未**進 sw PRECACHE；accept `APPLE-SPLASH-MODERN`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**SHARE-SEO**已上 — 品牌 landing／可玩端 JSON-LD `SoftwareApplication`（name／alternateName／GameApplication／Android, iOS, Web／Offer price 0 USD；url 分 landing／play；**未**發明 Play Store／評分／下載量）；`docs/robots.txt`＋`docs/sitemap.xml`（`/`／`/play/`／`/privacy/`；lastmod 2026-09-21）；`sync-www` → www／docs/play；accept `SHARE-SEO`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 | ID | 檢查項 | 狀態 | 重現／備註 |
 |----|--------|------|------------|
 | **P0①** | 商店假 IAP | **Pass** | 點「去除廣告」→ toast「即將開放／需商店帳號」；`removeAds` 維持 false（除非 `localStorage.colorTubeSort_devIap=1`） |
