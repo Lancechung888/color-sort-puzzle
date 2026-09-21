@@ -71,7 +71,7 @@
 4. `npx cap sync`
 5. 依 `native-templates/android/README.md` 確認 AdMob App ID、Billing 權限；簽名步驟見 `docs/NATIVE_ACCEPTANCE.md` §1。
 6. 設定簽章（keystore）後跑 `npm run aab:internal`（或手動 `./gradlew bundleRelease`）產出 AAB。
-7. Play Console → **內部測試** → **Active** AAB `1.0.5-internal-vc6-iapBusy`／vc6／1.0.5／prod AdMob／UNCAP-ONE-TAP＋IAP-PURCHASE-BUSY 已上傳（**NATIVE-VC6-INTERNAL-SYNC**／**PLAY-PASTE-VC6-SYNC**；歷史 vc5／vc4／vc3 superseded）；testers `lancechung@gmail.com` + `hanwen16888@gmail.com` 已在 **ColorTube-internal**。仍須實機驗證：
+7. Play Console → **內部測試** → **Active** AAB `1.0.6-internal-vc7-adUnavailable`／vc7／1.0.6／prod AdMob／UNCAP-ONE-TAP＋IAP-PURCHASE-BUSY＋AD-REWARD-UNAVAILABLE 已上傳（**NATIVE-VC7-INTERNAL-SYNC**／**PLAY-PASTE-VC7-SYNC**；歷史 vc6／vc5／vc4／vc3 superseded；**NATIVE-VC6-INTERNAL-SYNC**／**PLAY-PASTE-VC6-SYNC** 為歷史）；testers `lancechung@gmail.com` + `hanwen16888@gmail.com` 已在 **ColorTube-internal**。仍須實機驗證：
    - 正式廣告 interstitial／rewarded full-watch
    - `remove_ads` 購買成功後 `removeAds` 才為 true；一般點擊不得白送 → **#7 Pass**（DEVICE-THREE-GREEN Seeker） 直到三綠燈
 

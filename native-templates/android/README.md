@@ -762,12 +762,12 @@ bash scripts/patch-android-version.sh
 
 ## 2ak. Android versionCode ≥7（ANDROID-VERSION-CODE-7）
 
-Play internal testing rejects reused `versionCode`. Play **Active** internal is still **vc6** / `1.0.5-internal-vc6-iapBusy` (contains **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**; **lacks** tip **AD-REWARD-UNAVAILABLE** / #244). The next signed AAB must bump:
+Play internal testing rejects reused `versionCode`. Play **Active** internal is **vc7** / `1.0.6-internal-vc7-adUnavailable` (contains **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE**; uploaded from `…-2117-prodAdMob-vc7-adUnavailable-release.aab`; **NATIVE-VC7-INTERNAL-SYNC**). Historical Active was **vc6** / `1.0.5-internal-vc6-iapBusy`. Script default for rebuilds:
 
 1. `versionCode` → **7**
 2. `versionName` → **"1.0.6"**
 
-Pairs with tip **AD-REWARD-UNAVAILABLE** (#244) + **REAL-ADMOB-IDS** (`USE_TEST_ADS=false`) + **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**. Does **not** change Active Play until upload. Does **not** claim vc7 uploaded. **#7 Pass** remains DEVICE-THREE-GREEN Seeker evidence (unchanged by this bump). Gate stays **7 Pass / 2 Partial** (#1/#3). No soft-arm / soft-launch.
+Pairs with tip **AD-REWARD-UNAVAILABLE** (#244) + **REAL-ADMOB-IDS** (`USE_TEST_ADS=false`) + **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**. Active Play is already **vc7** with **AD-REWARD-UNAVAILABLE**. **#7 Pass** remains DEVICE-THREE-GREEN Seeker evidence. Gate stays **7 Pass / 2 Partial** (#1/#3). No soft-arm / soft-launch / Production.
 
 一鍵補丁（冪等；無 `android/` 時 exit 0；override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`）：
 
