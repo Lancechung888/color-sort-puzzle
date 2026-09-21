@@ -6498,6 +6498,59 @@ block(
   }
 }
 
+// --- A11Y-REDUCED-TRANSPARENCY: prefers-reduced-transparency solid scrims; sync www/play; no soft-arm ---
+{
+  const cssRaw = read('assets/css/style.css') || '';
+  const htmlRaw = read('index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const wwwHtmlPath = path.join(root, 'www/index.html');
+  const playCssPath = path.join(root, 'docs/play/assets/css/style.css');
+  const wwwCssPath = path.join(root, 'www/assets/css/style.css');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const wwwHtml = fs.existsSync(wwwHtmlPath) ? fs.readFileSync(wwwHtmlPath, 'utf8') : '';
+  const playCss = fs.existsSync(playCssPath) ? fs.readFileSync(playCssPath, 'utf8') : '';
+  const wwwCss = fs.existsSync(wwwCssPath) ? fs.readFileSync(wwwCssPath, 'utf8') : '';
+
+  const markerCss = /A11Y-REDUCED-TRANSPARENCY/.test(cssRaw);
+  const prefersOk = /@media\s*\(\s*prefers-reduced-transparency\s*:\s*reduce\s*\)/.test(cssRaw);
+  const slice = markerCss
+    ? cssRaw.slice(cssRaw.indexOf('A11Y-REDUCED-TRANSPARENCY'))
+    : '';
+  const tubeOk =
+    prefersOk &&
+    /\.tube-glass/.test(slice) &&
+    /backdrop-filter\s*:\s*none/.test(slice);
+  const overlayOk =
+    /\.overlay/.test(slice) &&
+    /backdrop-filter\s*:\s*none/.test(slice) &&
+    /rgba\(\s*8\s*,\s*10\s*,\s*24\s*,\s*0\.96\s*\)/.test(slice);
+  const markerHtml = /A11Y-REDUCED-TRANSPARENCY/.test(htmlRaw);
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/A11Y-REDUCED-TRANSPARENCY/.test(playHtml) &&
+      /prefers-reduced-transparency\s*:\s*reduce/.test(playCss) &&
+      /A11Y-REDUCED-TRANSPARENCY/.test(playCss));
+  const wwwOk =
+    !fs.existsSync(wwwHtmlPath) ||
+    (/A11Y-REDUCED-TRANSPARENCY/.test(wwwHtml) &&
+      /prefers-reduced-transparency\s*:\s*reduce/.test(wwwCss) &&
+      /A11Y-REDUCED-TRANSPARENCY/.test(wwwCss));
+  const noSoft = !/\.soft-arm|claim-juice|hud-pulse|transparency-arm/.test(slice);
+
+  if (markerCss && prefersOk && tubeOk && overlayOk && markerHtml && playOk && wwwOk && noSoft) {
+    pass(
+      'A11Y-REDUCED-TRANSPARENCY',
+      'style.css marker + prefers-reduced-transparency:reduce solid scrims (tube+overlay); index+www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'A11Y-REDUCED-TRANSPARENCY',
+      `missing reduced-transparency a11y (markerCss=${markerCss} prefers=${prefersOk} tube=${tubeOk} overlay=${overlayOk} markerHtml=${markerHtml} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+
 // --- PLAY-CONTENT-RATING: paste pack + Advertising ID Yes + IARC guidance; checklist greppable ---
 {
   const paste = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';

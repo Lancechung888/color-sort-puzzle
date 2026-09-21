@@ -31,6 +31,8 @@
 
 （已補）**PLAY-DATA-SAFETY-PASTE**已上 — Play Data Safety **Device or other IDs** 深表 paste（`PLAY_CONSOLE_PASTE_PACK` §4＋`PLAY_DATA_SAFETY` §C2＋post-approval checklist）；修正 paste pack 過時「Create the Play app next」；zh-Hant 完整長述；accept 項；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**A11Y-REDUCED-TRANSPARENCY**已上 — `assets/css/style.css` `@media (prefers-reduced-transparency: reduce)` 關閉 `.tube-glass`／`.overlay` `backdrop-filter`，overlay 改實心 scrim `rgba(8,10,24,0.96)`（cat theme 同步加濃）；`index.html` marker；`sync-www` → www／docs/play；accept `A11Y-REDUCED-TRANSPARENCY`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**NATIVE-INTERNAL-TESTING-SYNC**已上 — `docs/NATIVE_PACK_READY.md` 標記 Play internal testing `1.0.1-internal-vc2-testids`／vc2 **UPLOADED**（對齊 ADMOB_POST_LINK_CHECKLIST）；測 AdMob IDs／`USE_TEST_ADS=true` 不變；**#7 仍 Fail**；accept 項；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**A11Y-PREFER-CONTRAST / PLAY-CONTENT-RATING**已上 — `assets/css/style.css` `@media (prefers-contrast: more)` 加厚 `.tube-glass`／lid／`.btn`／chip／HUD 邊框＋`@media (forced-colors: active)` `forced-color-adjust: none` 保留液色；`index.html` marker；`docs/PLAY_CONSOLE_PASTE_PACK.md` §3 PLAY-CONTENT-RATING（Ads／IAP／**Advertising ID Yes**／IARC 建議答案）＋`PLAY_POST_APPROVAL_CHECKLIST` Content rating＋Advertising ID；accept 兩項；**無** soft-arm／claim-juice／HUD pulse；測 AdMob IDs／`USE_TEST_ADS=true` 不變；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
