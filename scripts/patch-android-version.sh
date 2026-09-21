@@ -2,14 +2,14 @@
 # Idempotent: set Play versionCode/versionName after cap sync (android/ is gitignored).
 # Cap sync / fresh cap add resets defaultConfig to versionCode 1 — always re-apply before bundleRelease.
 # Play internal testing rejects reused versionCode (prior upload used 1).
-# Defaults: VERSION_CODE=3, VERSION_NAME=1.0.2 (ANDROID-VERSION-CODE-3). Does NOT claim #7 Pass.
+# Defaults: VERSION_CODE=4, VERSION_NAME=1.0.3 (ANDROID-VERSION-CODE-3). Does NOT claim #7 Pass.
 # ANDROID-VERSION-CODE-3 (was CODE-2 for vc2)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GRADLE="$ROOT/android/app/build.gradle"
-VERSION_CODE="${COLOR_TUBE_VERSION_CODE:-3}"
-VERSION_NAME="${COLOR_TUBE_VERSION_NAME:-1.0.2}"
+VERSION_CODE="${COLOR_TUBE_VERSION_CODE:-4}"
+VERSION_NAME="${COLOR_TUBE_VERSION_NAME:-1.0.3}"
 
 log() { echo "[patch-android-version] $*"; }
 
