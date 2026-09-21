@@ -762,12 +762,14 @@ bash scripts/patch-android-version.sh
 
 ## 2ak. Android versionCode ≥6（ANDROID-VERSION-CODE-6）
 
-Play internal testing rejects reused `versionCode`. Play **Active** internal is still **vc5** / `1.0.4-internal-vc5-uncap1tap` (built before **IAP-PURCHASE-BUSY**). The next signed AAB must bump:
+Play internal testing rejects reused `versionCode`. Play **Active** internal is now **vc6** / `1.0.5-internal-vc6-iapBusy`, containing **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**. The already-built signed vc6 AAB is uploaded to Active; **no AAB rebuild**.
+
+The current patch values are:
 
 1. `versionCode` → **6**
 2. `versionName` → **"1.0.5"**
 
-Pairs with tip **IAP-PURCHASE-BUSY** (#237) + **REAL-ADMOB-IDS** (`USE_TEST_ADS=false`) + **UNCAP-ONE-TAP**. Does **not** claim MILLION_USER_BAR **#7 Pass** — still need device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore). Does **not** change Active Play until upload.
+Pairs with tip **IAP-PURCHASE-BUSY** (#237) + **REAL-ADMOB-IDS** (`USE_TEST_ADS=false`) + **UNCAP-ONE-TAP**. Does **not** claim MILLION_USER_BAR **#7 Pass** — still need device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore). Future uploads must use a versionCode above 6.
 
 一鍵補丁（冪等；無 `android/` 時 exit 0；override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`）：
 

@@ -1,9 +1,9 @@
 # Play Console paste pack — ColorTube Sort (post-approval)
 
-**App ID (package):** `com.lancechung.colortubesort`  
-**Play app ID:** `4972040404691889159`  
-**Status:** Developer account **APPROVED** (2026-09-21 Asia/Taipei). Play app exists. **Current** internal testing: `1.0.4-internal-vc5-uncap1tap` / **versionCode 5** / **versionName 1.0.4** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` (vc2 / sample IDs) **superseded**. Android prod App ID `ca-app-pub-3904450574947460~6670970617`; interstitial `…/2731725604`; rewarded `…/8768677032` (see **REAL-ADMOB-IDS** / `docs/ADMOB_POST_LINK_CHECKLIST.md`). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`. **Data safety** Device IDs deep form may still be incomplete (use §4 PLAY-DATA-SAFETY-PASTE). Merchant / support email / GA4 `MEASUREMENT_ID` still external placeholders — do not invent. Active vc5 AAB does **not** include **IAP-PURCHASE-BUSY** (tip main / #237; **local vc6-iapBusy AAB built ~18:26, NOT uploaded** — `…-1826-prodAdMob-vc6-iapBusy-release.aab` / `play-upload/ColorTubeSort-vc6-iapBusy.aab`; suggested release `1.0.5-internal-vc6-iapBusy`; Active remains vc5 until Console upload; **NATIVE-VC6-LOCAL-AAB-SYNC**). **#7 still Fail** until device three green lights. Production untouched.  
-**Markers:** **PLAY-PASTE-VC5-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC** · **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC** (alongside **NATIVE-VC5-INTERNAL-SYNC**; historical **PLAY-PASTE-VC3-SYNC** / **NATIVE-VC3-INTERNAL-SYNC**).  
+**App ID (package):** `com.lancechung.colortubesort`
+**Play app ID:** `4972040404691889159`
+**Status:** Developer account **APPROVED** (2026-09-21 Asia/Taipei). Play app exists. **Current Active** internal testing: `1.0.5-internal-vc6-iapBusy` / **versionCode 6** / **versionName 1.0.5** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` (vc2 / sample IDs) **superseded**. Android prod App ID `ca-app-pub-3904450574947460~6670970617`; interstitial `…/2731725604`; rewarded `…/8768677032` (see **REAL-ADMOB-IDS** / `docs/ADMOB_POST_LINK_CHECKLIST.md`). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`. **Data safety** Device IDs deep form may still be incomplete (use §4 PLAY-DATA-SAFETY-PASTE). Merchant / support email / GA4 `MEASUREMENT_ID` still external placeholders — do not invent. Active vc6 AAB **includes** **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** (tip main / #237; the already-built ~18:26 AAB `…-1826-prodAdMob-vc6-iapBusy-release.aab` / `play-upload/ColorTubeSort-vc6-iapBusy.aab` is uploaded as `1.0.5-internal-vc6-iapBusy`; **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**). **#7 still Fail** until device three green lights. Production untouched.
+**Markers:** **PLAY-PASTE-VC6-SYNC** · **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC** · **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC** (historical **PLAY-PASTE-VC5-SYNC** / **NATIVE-VC5-INTERNAL-SYNC** / **PLAY-PASTE-VC3-SYNC** / **NATIVE-VC3-INTERNAL-SYNC**).
 **Do not** claim #7 Pass from paste/docs alone.
 
 ---
@@ -14,8 +14,8 @@
 https://lancechung888.github.io/color-sort-puzzle/privacy/
 ```
 
-- GitHub Pages: `main` → `/docs` · HTTP 200 confirmed 2026-09-21  
-- Source: `docs/privacy/index.html` · markdown: `docs/PRIVACY_POLICY_EN.md`  
+- GitHub Pages: `main` → `/docs` · HTTP 200 confirmed 2026-09-21
+- Source: `docs/privacy/index.html` · markdown: `docs/PRIVACY_POLICY_EN.md`
 - **Still needed:** replace `[replace with public support email]` in policy HTML before final store submit
 
 ---
@@ -135,15 +135,15 @@ Water-sort / lid-puzzle hybrid-casual; soft currency coins; ads + optional remov
 
 Checklist:
 
-- [ ] **Ads:** Yes, my app contains ads  
-- [ ] **In-app purchases:** Yes  
-- [ ] **Advertising ID:** Yes (AdMob advertising / measurement) — do **not** answer No  
-- [ ] **News app:** No  
-- [ ] **COVID-19 contact tracing / status:** No  
-- [ ] **Privacy policy URL:** paste URL in §1  
-- [ ] **Data safety:** `docs/PLAY_DATA_SAFETY.md`  
-- [ ] **Target audience:** not primarily children; not Designed for Families / Designed for children  
-- [ ] **Content rating (IARC):** complete questionnaire with answers above  
+- [ ] **Ads:** Yes, my app contains ads
+- [ ] **In-app purchases:** Yes
+- [ ] **Advertising ID:** Yes (AdMob advertising / measurement) — do **not** answer No
+- [ ] **News app:** No
+- [ ] **COVID-19 contact tracing / status:** No
+- [ ] **Privacy policy URL:** paste URL in §1
+- [ ] **Data safety:** `docs/PLAY_DATA_SAFETY.md`
+- [ ] **Target audience:** not primarily children; not Designed for Families / Designed for children
+- [ ] **Content rating (IARC):** complete questionnaire with answers above
 
 ---
 
@@ -152,8 +152,8 @@ Checklist:
 <!-- PLAY-DATA-SAFETY-PASTE -->
 ### PLAY-DATA-SAFETY-PASTE — Console click-path (EN; honest for AdMob + optional `remove_ads`; GA4 Measurement ID still empty)
 
-Aligned with `docs/PLAY_DATA_SAFETY.md` · live privacy: https://lancechung888.github.io/color-sort-puzzle/privacy/  
-**Do not** invent GA4 / Crashlytics rows while `assets/js/analytics-config.js` `MEASUREMENT_ID` is empty and Crashlytics is absent.  
+Aligned with `docs/PLAY_DATA_SAFETY.md` · live privacy: https://lancechung888.github.io/color-sort-puzzle/privacy/
+**Do not** invent GA4 / Crashlytics rows while `assets/js/analytics-config.js` `MEASUREMENT_ID` is empty and Crashlytics is absent.
 **Do not** mark MILLION_USER_BAR #7 Pass from completing this form alone.
 
 #### Overview answers
@@ -237,10 +237,10 @@ Play Console → Monetize → Products → In-app products → Create:
 
 Play Console → Settings → License testing / Internal testing → Testers:
 
-1. Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for `1.0.4-internal-vc5-uncap1tap`)  
-2. License response: **RESPOND_NORMALLY**  
-3. Opt-in URL: `https://play.google.com/apps/internaltest/4701709602422954921`  
-4. Those accounts can buy `remove_ads` under license testing; **Never** enable `colorTubeSort_devIap` / fake IAP in release or internal-test AAB  
+1. Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for `1.0.5-internal-vc6-iapBusy`)
+2. License response: **RESPOND_NORMALLY**
+3. Opt-in URL: `https://play.google.com/apps/internaltest/4701709602422954921`
+4. Those accounts can buy `remove_ads` under license testing; **Never** enable `colorTubeSort_devIap` / fake IAP in release or internal-test AAB
 
 **Still open:** device-verify purchase → `removeAds=true`; Restore purchases; cold start still owned → **#7 still Fail** until three green lights.
 
@@ -248,7 +248,7 @@ Play Console → Settings → License testing / Internal testing → Testers:
 
 ## 6) AdMob — **REAL-ADMOB-IDS** wired (current = prod; #7 still Fail)
 
-<!-- PLAY-PASTE-VC5-SYNC -->
+<!-- PLAY-PASTE-VC6-SYNC -->
 <!-- PLAY-PASTE-VC3-SYNC (historical) -->
 **Done in repo (2026-09-21 Asia/Taipei):** Android prod App ID + units + `USE_TEST_ADS=false` / `initializeForTesting=false`. Do **not** roll back to Google sample IDs as current guidance. Historical vc2-testids / sample IDs superseded.
 
@@ -258,21 +258,21 @@ Play Console → Settings → License testing / Internal testing → Testers:
 | Interstitial | `ca-app-pub-3904450574947460/2731725604` |
 | Rewarded | `ca-app-pub-3904450574947460/8768677032` |
 | Flag | `USE_TEST_ADS=false` |
-| Internal AAB | `1.0.4-internal-vc5-uncap1tap` / versionCode **5** / 1.0.4 / UNCAP-ONE-TAP |
+| Internal AAB (Active) | `1.0.5-internal-vc6-iapBusy` / versionCode **6** / 1.0.5 / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY |
 
-Source of truth: `docs/ADMOB_POST_LINK_CHECKLIST.md` · marker **REAL-ADMOB-IDS**. iOS App ID still Google sample (no iOS app yet).  
+Source of truth: `docs/ADMOB_POST_LINK_CHECKLIST.md` · marker **REAL-ADMOB-IDS**. iOS App ID still Google sample (no iOS app yet).
 **#7 still Fail** until device interstitial / rewarded full-watch / `remove_ads` purchase+restore. Production untouched. Do **not** invent new `ca-app-pub` values — match existing wired IDs only.
 
 ---
 
 ## 7) Monetization gates (unchanged)
 
-1. Interstitial only fail-loop / level clear — **never mid-pour**  
-2. Rewarded: grant only after earn  
-3. Real `remove_ads` + restore; no fake IAP; no leftover test IDs in release  
-4. Price **$2.99**  
-5. Store/UA EN-first; thick gold lid in first 3s  
+1. Interstitial only fail-loop / level clear — **never mid-pour**
+2. Rewarded: grant only after earn
+3. Real `remove_ads` + restore; no fake IAP; no leftover test IDs in release
+4. Price **$2.99**
+5. Store/UA EN-first; thick gold lid in first 3s
 
 ---
 
-*Generated for post-approval sprint 2026-09-21 · **PLAY-PASTE-VC5-SYNC** / **INTERNAL-TESTER-SYNC** / **INTERNAL-TESTER-HANWEN-SYNC** (vc5-uncap1tap paste honesty + hanwen tester; historical **PLAY-PASTE-VC3-SYNC**) · PLAY-DATA-SAFETY-PASTE Device IDs deep form. Source of truth: `STORE.md` + `docs/PLAY_DATA_SAFETY.md` + `docs/ADMOB_POST_LINK_CHECKLIST.md`.*
+*Generated for post-approval sprint 2026-09-21 · **PLAY-PASTE-VC6-SYNC** / **INTERNAL-TESTER-SYNC** / **INTERNAL-TESTER-HANWEN-SYNC** (vc6-iapBusy paste honesty + hanwen tester; historical **PLAY-PASTE-VC5-SYNC** / **PLAY-PASTE-VC3-SYNC**) · PLAY-DATA-SAFETY-PASTE Device IDs deep form. Source of truth: `STORE.md` + `docs/PLAY_DATA_SAFETY.md` + `docs/ADMOB_POST_LINK_CHECKLIST.md`.*

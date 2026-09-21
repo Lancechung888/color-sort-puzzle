@@ -6711,7 +6711,7 @@ block(
   }
 }
 
-// --- NATIVE-PACK-READY-SYNC: docs truth + package 1.0.5 + REAL-ADMOB-IDS; Active still vc5; script ready vc6; no soft-arm ---
+// --- NATIVE-PACK-READY-SYNC: docs truth + package 1.0.5 + REAL-ADMOB-IDS; Active vc6; no soft-arm ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
   const pkgRaw = read('package.json') || '';
@@ -6725,11 +6725,13 @@ block(
   const approvedOk =
     /Play developer account\s+\*?\*?APPROVED\*?\*?/i.test(packRaw) ||
     (/APPROVED/.test(packRaw) && /Play/.test(packRaw) && /account/i.test(packRaw));
-  // Active Play track honesty (still uploaded vc5 / 1.0.4)
+  // Active Play track honesty (uploaded vc6 / 1.0.5)
   const vcActiveOk =
-    /1\.0\.4-internal-vc5/.test(packRaw) &&
-    (/versionCode\s*\*?\*?5\*?\*?/.test(packRaw) || /ANDROID-VERSION-CODE-5/.test(packRaw));
-  // Tip/script ready for next upload (vc6 / 1.0.5)
+    /1\.0\.5-internal-vc6-iapBusy/.test(packRaw) &&
+    (/versionCode\s*\*?\*?6\*?\*?/.test(packRaw) || /ANDROID-VERSION-CODE-6/.test(packRaw)) &&
+    /UNCAP-ONE-TAP/.test(packRaw) &&
+    /IAP-PURCHASE-BUSY/.test(packRaw);
+  // Script remains pinned to vc6 / 1.0.5
   const vcScriptOk =
     /ANDROID-VERSION-CODE-6/.test(packRaw) &&
     (/versionCode\s*6/.test(packRaw) || /versionName\s*1\.0\.5/.test(packRaw) || /1\.0\.5/.test(packRaw));
@@ -6742,7 +6744,7 @@ block(
   if (noStale && approvedOk && vcActiveOk && vcScriptOk && pkgOk && realAdOk && noSoft) {
     pass(
       'NATIVE-PACK-READY-SYNC',
-      'NATIVE_PACK_READY: Play account APPROVED + Active vc5/1.0.4 + script ANDROID-VERSION-CODE-6 / 1.0.5 + REAL-ADMOB-IDS; package.json 1.0.5; no soft-arm'
+      'NATIVE_PACK_READY: Play account APPROVED + Active vc6/1.0.5 with UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + script ANDROID-VERSION-CODE-6 + REAL-ADMOB-IDS; package.json 1.0.5; no soft-arm'
     );
   } else {
     fail(
@@ -6913,28 +6915,26 @@ block(
 }
 
 
-// --- NATIVE-VC5-INTERNAL-SYNC: current internal = vc5-uncap1tap; #7 still Fail; no soft-arm ---
+// --- NATIVE-VC6-INTERNAL-SYNC: current internal = vc6-iapBusy; #7 still Fail; no soft-arm ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
   const admobRaw = read('docs/ADMOB_POST_LINK_CHECKLIST.md') || '';
   const designRaw = read('DESIGN.md') || '';
-  const markerOk = /NATIVE-VC5-INTERNAL-SYNC/.test(packRaw) && /NATIVE-VC5-INTERNAL-SYNC/.test(admobRaw);
+  const markerOk = /NATIVE-VC6-INTERNAL-SYNC/.test(packRaw) && /NATIVE-VC6-INTERNAL-SYNC/.test(admobRaw);
   const currentOk =
-    /1\.0\.4-internal-vc5-uncap1tap/.test(packRaw) &&
-    /1\.0\.4-internal-vc5-uncap1tap/.test(admobRaw) &&
-    (/versionCode\s*5/.test(packRaw) || /ANDROID-VERSION-CODE-5/.test(packRaw)) &&
-    (/versionName\s*\*?\*?1\.0\.4\*?\*?/.test(packRaw) || /1\.0\.4/.test(packRaw));
+    /1\.0\.5-internal-vc6-iapBusy/.test(packRaw) &&
+    /1\.0\.5-internal-vc6-iapBusy/.test(admobRaw) &&
+    (/versionCode\s*6/.test(packRaw) || /ANDROID-VERSION-CODE-6/.test(packRaw)) &&
+    (/versionName\s*\*?\*?1\.0\.5\*?\*?/.test(packRaw) || /1\.0\.5/.test(packRaw));
   const prodOk =
     (/USE_TEST_ADS\s*=\s*false/.test(packRaw) || /prod AdMob/i.test(packRaw)) &&
     (/USE_TEST_ADS\s*=\s*false/.test(admobRaw) || /prod AdMob/i.test(admobRaw));
   const uncapOk = /UNCAP-ONE-TAP/.test(packRaw) && /UNCAP-ONE-TAP/.test(admobRaw);
+  const busyOk = /IAP-PURCHASE-BUSY/.test(packRaw) && /IAP-PURCHASE-BUSY/.test(admobRaw);
   const histOk =
     (/historical/i.test(packRaw) || /superseded/i.test(packRaw)) &&
-    (/1\.0\.2-internal-vc3-prodAdMob/.test(packRaw) || /vc3/.test(packRaw)) &&
+    (/1\.0\.4-internal-vc5-uncap1tap/.test(packRaw) || /vc5/.test(packRaw)) &&
     (/vc4/.test(packRaw) || /versionCode 4/.test(packRaw) || /1\.0\.3/.test(packRaw));
-  const noBusyInActive =
-    /IAP-PURCHASE-BUSY/.test(packRaw) &&
-    (/does \*\*not\*\* include/.test(packRaw) || /not\) include/.test(packRaw) || /does not include/i.test(packRaw) || /不含/.test(packRaw) || /not include/i.test(packRaw));
   const fail7Ok =
     (/#7/.test(packRaw) && (/still Fail/i.test(packRaw) || /remains Fail/i.test(packRaw))) &&
     (/#7/.test(admobRaw) &&
@@ -6948,32 +6948,21 @@ block(
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(packRaw) &&
     !/soft-arm|claim-juice|hud-pulse/.test(admobRaw);
-  if (
-    markerOk &&
-    currentOk &&
-    prodOk &&
-    uncapOk &&
-    histOk &&
-    noBusyInActive &&
-    fail7Ok &&
-    designOk &&
-    noSoft
-  ) {
+  if (markerOk && currentOk && prodOk && uncapOk && busyOk && histOk && fail7Ok && designOk && noSoft) {
     pass(
-      'NATIVE-VC5-INTERNAL-SYNC',
-      'NATIVE_PACK_READY + ADMOB checklist: current internal 1.0.4-internal-vc5-uncap1tap / vc5 / 1.0.4 / UNCAP-ONE-TAP; IAP-PURCHASE-BUSY not in Active AAB; #7 still Fail; no soft-arm'
+      'NATIVE-VC6-INTERNAL-SYNC',
+      'NATIVE_PACK_READY + ADMOB checklist: current Active 1.0.5-internal-vc6-iapBusy / vc6 / 1.0.5 / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY; #7 still Fail; no soft-arm'
     );
   } else {
     fail(
-      'NATIVE-VC5-INTERNAL-SYNC',
-      `missing vc5 internal truth (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} uncapOk=${uncapOk} histOk=${histOk} noBusyInActive=${noBusyInActive} fail7Ok=${fail7Ok} designOk=${designOk} noSoft=${noSoft})`
+      'NATIVE-VC6-INTERNAL-SYNC',
+      `missing vc6 internal truth (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} uncapOk=${uncapOk} busyOk=${busyOk} histOk=${histOk} fail7Ok=${fail7Ok} designOk=${designOk} noSoft=${noSoft})`
     );
   }
 }
 
 
-
-// --- NATIVE-VC6-LOCAL-AAB-SYNC: local vc6-iapBusy AAB built, NOT uploaded; Active still vc5; #7 Fail ---
+// --- NATIVE-VC6-LOCAL-AAB-SYNC: built vc6-iapBusy AAB is now uploaded Active; #7 Fail ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
   const na = read('docs/NATIVE_ACCEPTANCE.md') || '';
@@ -6987,55 +6976,39 @@ block(
   const localAabOk =
     /1826-prodAdMob-vc6-iapBusy/.test(packRaw) &&
     (/ColorTubeSort-vc6-iapBusy\.aab/.test(packRaw) || /play-upload\/ColorTubeSort-vc6-iapBusy/.test(packRaw)) &&
-    (/NOT uploaded/i.test(packRaw) || /not uploaded/i.test(packRaw) || /尚未上傳/.test(packRaw));
-  const activeStillVc5 =
-    /1\.0\.4-internal-vc5-uncap1tap/.test(packRaw) &&
-    (/Active.*vc5/i.test(packRaw) || /Active track remains vc5/i.test(packRaw) || /Active Play.*vc5/i.test(packRaw));
-  const noClaimActiveVc6 =
-    !/Play Active[`*\s]+1\.0\.5-internal-vc6/i.test(packRaw) &&
-    !/\*\*UPLOADED current\*\*[^*\n]*versionCode\s*\*?\*?6/i.test(packRaw) &&
-    !/current internal = `?1\.0\.5-internal-vc6/i.test(packRaw) &&
-    !/(?<![Nn]ot claim )Active (track |Play )?(is |= |AAB is ).{0,40}vc6/i.test(packRaw) &&
-    !/(?<![Nn]ot claim )Play Active = vc6/i.test(packRaw);
-  const busyHonesty =
+    (/uploaded/i.test(packRaw) || /上傳/.test(packRaw));
+  const activeVc6 =
+    /1\.0\.5-internal-vc6-iapBusy/.test(packRaw) &&
+    (/Active.*vc6/i.test(packRaw) || /current.*vc6/i.test(packRaw));
+  const busyActive =
     /IAP-PURCHASE-BUSY/.test(packRaw) &&
-    (/does \*\*not\*\* include/.test(packRaw) || /does not include/i.test(packRaw) || /不含/.test(packRaw));
-  const fail7Ok =
-    /#7/.test(packRaw) && (/still Fail/i.test(packRaw) || /remains Fail/i.test(packRaw));
+    (/includes/.test(packRaw) || /含/.test(packRaw));
+  const fail7Ok = /#7/.test(packRaw) && (/still Fail/i.test(packRaw) || /remains Fail/i.test(packRaw));
   const naOk =
     /1826-prodAdMob-vc6-iapBusy/.test(na) &&
-    (/尚未上傳/.test(na) || /NOT uploaded/i.test(na));
+    (/已在 Play Active/.test(na) || /uploaded/i.test(na));
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(packRaw + na + paste + pastePack);
-  if (
-    markerOk &&
-    localAabOk &&
-    activeStillVc5 &&
-    noClaimActiveVc6 &&
-    busyHonesty &&
-    fail7Ok &&
-    naOk &&
-    noSoft
-  ) {
+  if (markerOk && localAabOk && activeVc6 && busyActive && fail7Ok && naOk && noSoft) {
     pass(
       'NATIVE-VC6-LOCAL-AAB-SYNC',
-      'docs: local vc6-iapBusy AAB built (~1826 path) NOT uploaded; Active still vc5-uncap1tap; IAP-PURCHASE-BUSY not in Active; #7 still Fail; no soft-arm'
+      'docs: existing vc6-iapBusy AAB uploaded; Active is vc6-uncap1tap + IAP-PURCHASE-BUSY; #7 still Fail; no soft-arm'
     );
   } else {
     fail(
       'NATIVE-VC6-LOCAL-AAB-SYNC',
-      `missing vc6 local AAB honesty (markerOk=${markerOk} localAabOk=${localAabOk} activeStillVc5=${activeStillVc5} noClaimActiveVc6=${noClaimActiveVc6} busyHonesty=${busyHonesty} fail7Ok=${fail7Ok} naOk=${naOk} noSoft=${noSoft})`
+      `missing vc6 AAB sync (markerOk=${markerOk} localAabOk=${localAabOk} activeVc6=${activeVc6} busyActive=${busyActive} fail7Ok=${fail7Ok} naOk=${naOk} noSoft=${noSoft})`
     );
   }
 }
 
-// --- NATIVE-ACCEPTANCE-VC5-SYNC: NATIVE_ACCEPTANCE honesty vs vc5/prod AdMob; #7 Fail ---
+// --- NATIVE-ACCEPTANCE-VC6-SYNC: NATIVE_ACCEPTANCE current Active vc6; #7 Fail ---
 {
   const na = read('docs/NATIVE_ACCEPTANCE.md') || '';
-  const markerOk = /NATIVE-ACCEPTANCE-VC5-SYNC/.test(na);
+  const markerOk = /NATIVE-ACCEPTANCE-VC6-SYNC/.test(na);
   const currentOk =
-    /1\.0\.4-internal-vc5-uncap1tap/.test(na) &&
-    (/versionCode\s*\*?\*?5\*?\*?/.test(na) || /vc5/.test(na));
+    /1\.0\.5-internal-vc6-iapBusy/.test(na) &&
+    (/versionCode\s*\*?\*?6\*?\*?/.test(na) || /vc6/.test(na));
   const prodOk =
     /REAL-ADMOB-IDS/.test(na) &&
     (/USE_TEST_ADS\s*=\s*false/.test(na) || /prod AdMob/i.test(na));
@@ -7043,82 +7016,67 @@ block(
     !/^# 原生包可驗收說明（測試 ID 階段）/m.test(na) &&
     !/\|\s*階段\s*\|\s*\*\*測試 ID\*\*/.test(na) &&
     !/AdMob／Billing 測 ID：\*\*接線打勾已過關\*\*/.test(na);
-  const openOk =
-    (/三綠燈/.test(na) || /three green/i.test(na)) &&
-    (/IAP-PURCHASE-BUSY/.test(na) &&
-      (/versionCode\s*>\s*5/.test(na) ||
-        /versionCode \*\*>5\*\*/.test(na) ||
-        />5/.test(na) ||
-        (/1826-prodAdMob-vc6-iapBusy/.test(na) &&
-          (/尚未上傳/.test(na) || /NOT uploaded/i.test(na)))));
+  const activeFeatures =
+    /UNCAP-ONE-TAP/.test(na) &&
+    /IAP-PURCHASE-BUSY/.test(na) &&
+    (/已在 Play Active/.test(na) || /uploaded/i.test(na));
   const fail7Ok = /#7/.test(na) && (/仍 Fail/.test(na) || /still Fail/i.test(na));
   const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(na);
-  if (markerOk && currentOk && prodOk && noStaleTestStage && openOk && fail7Ok && noSoft) {
+  if (markerOk && currentOk && prodOk && noStaleTestStage && activeFeatures && fail7Ok && noSoft) {
     pass(
-      'NATIVE-ACCEPTANCE-VC5-SYNC',
-      'NATIVE_ACCEPTANCE: vc5 / REAL-ADMOB-IDS / #7 still Fail; not stale test-ID stage; no soft-arm'
+      'NATIVE-ACCEPTANCE-VC6-SYNC',
+      'NATIVE_ACCEPTANCE: Active vc6 / REAL-ADMOB-IDS / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY / #7 still Fail; no soft-arm'
     );
   } else {
     fail(
-      'NATIVE-ACCEPTANCE-VC5-SYNC',
-      `stale or incomplete NATIVE_ACCEPTANCE (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} noStaleTestStage=${noStaleTestStage} openOk=${openOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+      'NATIVE-ACCEPTANCE-VC6-SYNC',
+      `stale or incomplete NATIVE_ACCEPTANCE (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} noStaleTestStage=${noStaleTestStage} activeFeatures=${activeFeatures} fail7Ok=${fail7Ok} noSoft=${noSoft})`
     );
   }
 }
 
-// --- PLAY-PASTE-VC5-SYNC: paste pack/docs = vc5-uncap1tap; #7 Fail ---
+// --- PLAY-PASTE-VC6-SYNC: paste pack/docs = vc6-iapBusy; #7 Fail ---
 {
   const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
   const paste = read('docs/PLAY_CONSOLE_PASTE.md') || '';
   const post = read('docs/PLAY_POST_APPROVAL_CHECKLIST.md') || '';
   const markerOk =
-    /PLAY-PASTE-VC5-SYNC/.test(pastePack) && /PLAY-PASTE-VC5-SYNC/.test(paste);
+    /PLAY-PASTE-VC6-SYNC/.test(pastePack) && /PLAY-PASTE-VC6-SYNC/.test(paste);
   const currentOk =
-    /1\.0\.4-internal-vc5-uncap1tap/.test(pastePack) &&
-    /1\.0\.4-internal-vc5-uncap1tap/.test(paste) &&
+    /1\.0\.5-internal-vc6-iapBusy/.test(pastePack) &&
+    /1\.0\.5-internal-vc6-iapBusy/.test(paste) &&
     (/USE_TEST_ADS\s*=\s*false/.test(pastePack) || /prod AdMob/i.test(pastePack)) &&
-    (/versionCode\s*\*?\*?5\*?\*?/.test(pastePack) || /versionCode\s+5/.test(pastePack));
+    (/versionCode\s*\*?\*?6\*?\*?/.test(pastePack) || /versionCode\s+6/.test(pastePack));
   const uncapOk = /UNCAP-ONE-TAP/.test(pastePack) || /uncap1tap/i.test(pastePack);
+  const busyOk = /IAP-PURCHASE-BUSY/.test(pastePack) && /IAP-PURCHASE-BUSY/.test(paste);
   const idsOk =
     /ca-app-pub-3904450574947460~6670970617/.test(pastePack) &&
     (/2731725604/.test(pastePack) || /…\/2731725604/.test(pastePack)) &&
     (/8768677032/.test(pastePack) || /…\/8768677032/.test(pastePack));
   const noStaleSampleAdvice =
-    !/Until then:\s*keep Google\s+\*\*sample\*\*\s*IDs\s*\+\s*`USE_TEST_ADS=true`/i.test(pastePack) &&
-    !/Until units exist:\s*keep Google\s+\*\*sample\*\*\s*IDs\s*\+\s*`USE_TEST_ADS\s*=\s*true`/i.test(
-      paste
-    ) &&
+    !/Until then:\s*keep Google\s+\*\*sample\*\*\s*IDs\s+\+\s*`USE_TEST_ADS=true`/i.test(pastePack) &&
+    !/Until units exist:\s*keep Google\s+\*\*sample\*\*\s*IDs\s+\+\s*`USE_TEST_ADS\s*=\s*true`/i.test(paste) &&
     !/\*\*Do not invent\*\*\s+real\s+`ca-app-pub/i.test(paste);
   const histOk =
     (/superseded/i.test(pastePack) || /historical/i.test(pastePack)) &&
     (/1\.0\.2-internal-vc3-prodAdMob/.test(pastePack) || /vc3/.test(pastePack)) &&
     /1\.0\.1-internal-vc2-testids/.test(pastePack);
-  const postOk = /1\.0\.4-internal-vc5-uncap1tap/.test(post);
+  const postOk = /1\.0\.5-internal-vc6-iapBusy/.test(post);
   const fail7Ok =
     (/#7/.test(pastePack) && /still Fail/i.test(pastePack)) &&
     (/#7/.test(paste) && /still Fail/i.test(paste));
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(pastePack) &&
     !/soft-arm|claim-juice|hud-pulse/.test(paste);
-  if (
-    markerOk &&
-    currentOk &&
-    uncapOk &&
-    idsOk &&
-    noStaleSampleAdvice &&
-    histOk &&
-    postOk &&
-    fail7Ok &&
-    noSoft
-  ) {
+  if (markerOk && currentOk && uncapOk && busyOk && idsOk && noStaleSampleAdvice && histOk && postOk && fail7Ok && noSoft) {
     pass(
-      'PLAY-PASTE-VC5-SYNC',
-      'PLAY_CONSOLE_PASTE(_PACK): vc5-uncap1tap / USE_TEST_ADS=false; historical vc3/vc2; #7 still Fail; no soft-arm'
+      'PLAY-PASTE-VC6-SYNC',
+      'PLAY_CONSOLE_PASTE(_PACK): Active vc6-iapBusy / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY / USE_TEST_ADS=false; #7 still Fail; no soft-arm'
     );
   } else {
     fail(
-      'PLAY-PASTE-VC5-SYNC',
-      `missing paste vc5 sync (markerOk=${markerOk} currentOk=${currentOk} uncapOk=${uncapOk} idsOk=${idsOk} noStaleSampleAdvice=${noStaleSampleAdvice} histOk=${histOk} postOk=${postOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+      'PLAY-PASTE-VC6-SYNC',
+      `missing paste vc6 sync (markerOk=${markerOk} currentOk=${currentOk} uncapOk=${uncapOk} busyOk=${busyOk} idsOk=${idsOk} noStaleSampleAdvice=${noStaleSampleAdvice} histOk=${histOk} postOk=${postOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
     );
   }
 }
