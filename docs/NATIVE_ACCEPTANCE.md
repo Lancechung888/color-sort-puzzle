@@ -147,6 +147,7 @@ npm run native:check
   路徑：`assets/js/ads.js`
 - [x] **billing.js** 產品 `remove_ads` + 無 web／無 plugin 時不 grant  
   路徑：`assets/js/billing.js`
+- [x] **Play Billing ≥8**（Console 拒 <8）：`scripts/patch-android-billing-8.sh` 把 Cap6 `@capgo/native-purchases` 的 `billing:6.2.1` 升到 `8.3.0` + `PendingPurchasesParams` / `QueryProductDetailsResult` + `minSdk 23`（不升 Cap 7/8）；`aab:internal` 在 `cap sync` 後呼叫  
 - [x] **game.js** 點擊不白送 `removeAds`（僅 `isBillingReady()` 走真購買；否則 gated mock，devIap 預設關）  
   路徑：`assets/js/game.js`（或專案內對應 `purchaseRemoveAds` 實作）
 - [x] **native-templates** Manifest／Billing snippets  
