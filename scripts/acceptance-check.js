@@ -4032,6 +4032,58 @@ block(
   }
 }
 
+
+// --- ANDROID-VERSION-CODE-2: Play versionCode≥2 + versionName 1.0.1; no soft-arm ---
+{
+  const patchRaw = read('scripts/patch-android-version.sh') || '';
+  const aabRaw = read('scripts/build-internal-aab.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const appGradlePath = path.join(root, 'android/app/build.gradle');
+  const appGradle = fs.existsSync(appGradlePath)
+    ? fs.readFileSync(appGradlePath, 'utf8')
+    : '';
+  const patchOk =
+    /ANDROID-VERSION-CODE-2/.test(patchRaw) &&
+    /COLOR_TUBE_VERSION_CODE:-2/.test(patchRaw) &&
+    /COLOR_TUBE_VERSION_NAME:-1\.0\.1/.test(patchRaw) &&
+    /versionCode/.test(patchRaw) &&
+    /versionName/.test(patchRaw);
+  const syncIdx = aabRaw.search(/npx cap sync/);
+  const billingIdx = aabRaw.search(/patch-android-billing-8\.sh/);
+  const versionIdx = aabRaw.search(/patch-android-version\.sh/);
+  const admobIdx = aabRaw.search(/patch-android-admob\.sh/);
+  const aabHookOk =
+    syncIdx >= 0 &&
+    billingIdx >= 0 &&
+    versionIdx >= 0 &&
+    admobIdx >= 0 &&
+    syncIdx < billingIdx &&
+    billingIdx < versionIdx &&
+    versionIdx < admobIdx &&
+    !/patch-android-version-code\.sh/.test(aabRaw);
+  const readmeOk =
+    /ANDROID-VERSION-CODE-2/.test(readmeRaw) && /2aj/.test(readmeRaw);
+  let localOk = !appGradle;
+  if (appGradle) {
+    localOk =
+      /versionCode\s+2\b/.test(appGradle) &&
+      /versionName\s+"1\.0\.1"/.test(appGradle);
+  }
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(patchRaw + appGradle);
+  if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
+    pass(
+      'ANDROID-VERSION-CODE-2',
+      'versionCode 2 / versionName 1.0.1 via patch-android-version.sh + aab after billing before admob + README §2aj; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-VERSION-CODE-2',
+      `missing versionCode≥2 patch / aab hook-after-billing-before-admob / README / local gradle, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- ANDROID-WEBVIEW-THIRD-PARTY-COOKIES-OFF: deny 3P cookies; no soft-arm ---
 {
   const mainPath = path.join(
