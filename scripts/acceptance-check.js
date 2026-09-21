@@ -4785,6 +4785,55 @@ block(
   }
 }
 
+// --- OFFLINE-TOAST: web/PWA network status toasts; skip native; sync www/play; no soft-arm ---
+{
+  const gameJs = read('assets/js/game.js') || '';
+  const playGamePath = path.join(root, 'docs/play/assets/js/game.js');
+  const wwwGamePath = path.join(root, 'www/assets/js/game.js');
+  const playGame = fs.existsSync(playGamePath) ? fs.readFileSync(playGamePath, 'utf8') : '';
+  const wwwGame = fs.existsSync(wwwGamePath) ? fs.readFileSync(wwwGamePath, 'utf8') : '';
+
+  const helperOk =
+    /function bindOfflineStatus\s*\(/.test(gameJs) &&
+    /OFFLINE-TOAST/.test(gameJs) &&
+    /Offline — progress saved on this device/.test(gameJs) &&
+    /Back online/.test(gameJs) &&
+    /addEventListener\(\s*['"]offline['"]/.test(gameJs) &&
+    /addEventListener\(\s*['"]online['"]/.test(gameJs) &&
+    /isCapacitorNativePlatform\s*\(/.test(gameJs) &&
+    /networkWasOffline/.test(gameJs);
+
+  const initOk = /bindOfflineStatus\s*\(\s*\)/.test(gameJs);
+
+  const playOk =
+    !fs.existsSync(playGamePath) ||
+    (/function bindOfflineStatus\s*\(/.test(playGame) &&
+      /Offline — progress saved on this device/.test(playGame) &&
+      /OFFLINE-TOAST/.test(playGame));
+  const wwwOk =
+    !fs.existsSync(wwwGamePath) ||
+    (/function bindOfflineStatus\s*\(/.test(wwwGame) &&
+      /Offline — progress saved on this device/.test(wwwGame) &&
+      /OFFLINE-TOAST/.test(wwwGame));
+
+  const helperSlice = (gameJs.match(/function bindOfflineStatus[\s\S]{0,1600}/) || [''])[0];
+  const noSoft =
+    !!helperSlice &&
+    !/soft-arm|claim-juice|hud-pulse|offline-toast-arm/.test(helperSlice);
+
+  if (helperOk && initOk && playOk && wwwOk && noSoft) {
+    pass(
+      'OFFLINE-TOAST',
+      'bindOfflineStatus + offline/online toasts; skip Capacitor native; delayed boot offline; sync www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'OFFLINE-TOAST',
+      `missing offline toast helper/init/sync (helper=${helperOk} init=${initOk} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-TEACH-ARM: tip dismiss does not set capTeachDone; uncap does; load soft-arm ---
 {
   const gameSrc = read('assets/js/game.js') || '';
