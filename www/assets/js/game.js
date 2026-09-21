@@ -6181,8 +6181,10 @@
     // Ad creative capture: ?ad=1 or body.ad-capture hides chrome, scales playfield
     // PWA-DAILY-SHORTCUT / DAILY-DEEPLINK: ?daily=1 opens today's challenge (manifest shortcut)
     // PWA-CONTINUE-SHORTCUT: ?continue=1 resumes mid-run or frontier (manifest shortcut)
+    // PWA-LEVELS-SHORTCUT: ?levels=1 opens Levels overlay for ★ mastery revisit (manifest shortcut)
     let bootDaily = false;
     let bootContinue = false;
+    let bootLevels = false;
     try {
       const q = new URLSearchParams(location.search);
       if (q.get('ad') === '1' || q.has('ad')) {
@@ -6205,6 +6207,17 @@
         bootContinue = true;
         try {
           q.delete('continue');
+          const next = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
+          history.replaceState(null, '', next);
+        } catch (_) { /* ignore */ }
+      }
+      const levelsParam = q.get('levels');
+      // Accept ?levels=1 / ?levels=true (PWA shortcut); ignore ?levels=0/false
+      // PWA-LEVELS-SHORTCUT
+      if (levelsParam === '1' || levelsParam === 'true') {
+        bootLevels = true;
+        try {
+          q.delete('levels');
           const next = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
           history.replaceState(null, '', next);
         } catch (_) { /* ignore */ }
@@ -6549,6 +6562,7 @@
 
     // PWA-DAILY-SHORTCUT: after chrome ready, honor ?daily=1 (stripped above) once
     // PWA-CONTINUE-SHORTCUT: else honor ?continue=1 → startGame() (resume mid-run or frontier)
+    // PWA-LEVELS-SHORTCUT: else honor ?levels=1 → openLevels() (★ mastery revisit)
     if (bootDaily) {
       setTimeout(function () {
         try { startDailyChallenge(); } catch (_) { /* ignore */ }
@@ -6556,6 +6570,10 @@
     } else if (bootContinue) {
       setTimeout(function () {
         try { startGame(); } catch (_) { /* ignore */ }
+      }, 0);
+    } else if (bootLevels) {
+      setTimeout(function () {
+        try { openLevels(); } catch (_) { /* ignore */ }
       }, 0);
     }
   }

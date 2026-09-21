@@ -64,6 +64,19 @@
           "type": "image/png"
         }
       ]
+    },
+    {
+      "name": "Levels",
+      "short_name": "Levels",
+      "description": "Browse levels and replay for 3\u2605 mastery.",
+      "url": "./?levels=1",
+      "icons": [
+        {
+          "src": "assets/icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
