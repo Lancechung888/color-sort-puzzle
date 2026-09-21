@@ -204,6 +204,8 @@
 
 （已補）**PWA-SCREENSHOTS-WIDE**已上 — root／docs `site.webmanifest` 追加 `form_factor: "wide"`×3（1920×1080：lid／uncap／daily；窄圖置中於品牌底 `#1a1a2e`；EN labels 對齊 narrow）；root `assets/screenshots/wide-0N-*.png`、docs `docs/screenshots/`；`sync-www` → www／docs/play；accept `PWA-SCREENSHOTS-WIDE`；**未**進 sw PRECACHE；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**APPLE-SPLASH**已上 — 可玩端 `apple-touch-startup-image`×7（750×1334／828×1792／1170×2532／1179×2556／1284×2778／1290×2796／1668×2388；品牌底 `#1a1a2e`＋ICON A 置中；portrait＋device-pixel-ratio media）；`assets/splash/`；`sync-www` → www／docs/play；**未**進 sw PRECACHE；accept `APPLE-SPLASH`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 | ID | 檢查項 | 狀態 | 重現／備註 |
 |----|--------|------|------------|
 | **P0①** | 商店假 IAP | **Pass** | 點「去除廣告」→ toast「即將開放／需商店帳號」；`removeAds` 維持 false（除非 `localStorage.colorTubeSort_devIap=1`） |
