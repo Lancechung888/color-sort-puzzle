@@ -4736,6 +4736,55 @@ block(
   }
 }
 
+// --- STORAGE-ESTIMATE: navigator.storage.estimate low-quota Backup toast; sync www/play; no soft-arm ---
+{
+  const gameJs = read('assets/js/game.js') || '';
+  const playGamePath = path.join(root, 'docs/play/assets/js/game.js');
+  const wwwGamePath = path.join(root, 'www/assets/js/game.js');
+  const playGame = fs.existsSync(playGamePath) ? fs.readFileSync(playGamePath, 'utf8') : '';
+  const wwwGame = fs.existsSync(wwwGamePath) ? fs.readFileSync(wwwGamePath, 'utf8') : '';
+
+  const helperOk =
+    /function maybeWarnStoragePressure\s*\(/.test(gameJs) &&
+    /storageEstimateWarned/.test(gameJs) &&
+    /navigator\.storage\.estimate/.test(gameJs) &&
+    /Storage low — Backup progress in Settings/.test(gameJs) &&
+    /STORAGE-ESTIMATE/.test(gameJs);
+
+  const callSites =
+    (gameJs.match(/\/\/ STORAGE-ESTIMATE/g) || []).length >= 2 &&
+    /maybeWarnStoragePressure\s*\(/.test(gameJs) &&
+    /saveHasMeaningfulProgress\(\)\s*\)\s*maybeWarnStoragePressure\s*\(/.test(gameJs);
+
+  const playOk =
+    !fs.existsSync(playGamePath) ||
+    (/function maybeWarnStoragePressure\s*\(/.test(playGame) &&
+      /Storage low — Backup progress in Settings/.test(playGame) &&
+      /STORAGE-ESTIMATE/.test(playGame));
+  const wwwOk =
+    !fs.existsSync(wwwGamePath) ||
+    (/function maybeWarnStoragePressure\s*\(/.test(wwwGame) &&
+      /Storage low — Backup progress in Settings/.test(wwwGame) &&
+      /STORAGE-ESTIMATE/.test(wwwGame));
+
+  const helperSlice = (gameJs.match(/function maybeWarnStoragePressure[\s\S]{0,1200}/) || [''])[0];
+  const noSoft =
+    !!helperSlice &&
+    !/soft-arm|claim-juice|hud-pulse|storage-estimate-arm/.test(helperSlice);
+
+  if (helperOk && callSites && playOk && wwwOk && noSoft) {
+    pass(
+      'STORAGE-ESTIMATE',
+      'maybeWarnStoragePressure + storage.estimate; once/session toast when usage high; Backup in Settings; sync www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'STORAGE-ESTIMATE',
+      `missing estimate helper/call sites (helper=${helperOk} calls=${callSites} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-TEACH-ARM: tip dismiss does not set capTeachDone; uncap does; load soft-arm ---
 {
   const gameSrc = read('assets/js/game.js') || '';

@@ -181,6 +181,8 @@
 
 （已補）**STORAGE-PERSIST**已上 — `navigator.storage.persist()` 於有意義進度時請求一次／session（`saveHasMeaningfulProgress`：maxUnlocked／stars／coins≠default／draft moves；load／persist／draft 呼叫點）；缺 API 或已 persisted 則 no-op；swallow errors；`sync-www` → www／docs/play；accept `STORAGE-PERSIST`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**STORAGE-ESTIMATE**已上 — `navigator.storage.estimate()` 於有意義進度時一次／session 低配額警告（`usage/quota ≥ 0.85` 或剩餘 ＜256KB；`saveHasMeaningfulProgress`；load／persist／draft 呼叫點）；toast「Storage low — Backup progress in Settings」→ SAVE-BACKUP；缺 API／無 quota 則 no-op；swallow errors；`sync-www` → www／docs/play；accept `STORAGE-ESTIMATE`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 | ID | 檢查項 | 狀態 | 重現／備註 |
 |----|--------|------|------------|
