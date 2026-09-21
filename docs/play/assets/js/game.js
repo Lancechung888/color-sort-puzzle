@@ -6180,7 +6180,9 @@
   function init() {
     // Ad creative capture: ?ad=1 or body.ad-capture hides chrome, scales playfield
     // PWA-DAILY-SHORTCUT / DAILY-DEEPLINK: ?daily=1 opens today's challenge (manifest shortcut)
+    // PWA-CONTINUE-SHORTCUT: ?continue=1 resumes mid-run or frontier (manifest shortcut)
     let bootDaily = false;
+    let bootContinue = false;
     try {
       const q = new URLSearchParams(location.search);
       if (q.get('ad') === '1' || q.has('ad')) {
@@ -6192,6 +6194,17 @@
         bootDaily = true;
         try {
           q.delete('daily');
+          const next = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
+          history.replaceState(null, '', next);
+        } catch (_) { /* ignore */ }
+      }
+      const contParam = q.get('continue');
+      // Accept ?continue=1 / ?continue=true (PWA shortcut); ignore ?continue=0/false
+      // PWA-CONTINUE-SHORTCUT
+      if (contParam === '1' || contParam === 'true') {
+        bootContinue = true;
+        try {
+          q.delete('continue');
           const next = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
           history.replaceState(null, '', next);
         } catch (_) { /* ignore */ }
@@ -6535,9 +6548,14 @@
     updateChrome();
 
     // PWA-DAILY-SHORTCUT: after chrome ready, honor ?daily=1 (stripped above) once
+    // PWA-CONTINUE-SHORTCUT: else honor ?continue=1 → startGame() (resume mid-run or frontier)
     if (bootDaily) {
       setTimeout(function () {
         try { startDailyChallenge(); } catch (_) { /* ignore */ }
+      }, 0);
+    } else if (bootContinue) {
+      setTimeout(function () {
+        try { startGame(); } catch (_) { /* ignore */ }
       }, 0);
     }
   }

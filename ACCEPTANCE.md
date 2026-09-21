@@ -172,6 +172,8 @@
 
 （已補）**PWA-DAILY-SHORTCUT**已上 — `site.webmanifest` shortcuts「Daily Challenge」→ `./?daily=1`（docs brand → `./play/?daily=1`）；`game.js` `bootDaily` 讀 `?daily=1`／`true` 後 `history.replaceState` 清 query、再 `startDailyChallenge`；`sync-www` → www／docs/play；accept `PWA-DAILY-SHORTCUT`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**PWA-CONTINUE-SHORTCUT**已上 — `site.webmanifest` shortcuts「Continue」→ `./?continue=1`（docs brand → `./play/?continue=1`）；`game.js` `bootContinue` 讀 `?continue=1`／`true` 後 `history.replaceState` 清 query、再 `startGame()`（resume mid-run／frontier；`bootDaily` 優先）；`sync-www` → www／docs/play；accept `PWA-CONTINUE-SHORTCUT`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 | ID | 檢查項 | 狀態 | 重現／備註 |
 |----|--------|------|------------|
 | **P0①** | 商店假 IAP | **Pass** | 點「去除廣告」→ toast「即將開放／需商店帳號」；`removeAds` 維持 false（除非 `localStorage.colorTubeSort_devIap=1`） |
