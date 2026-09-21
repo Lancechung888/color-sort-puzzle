@@ -4158,6 +4158,35 @@ block(
   }
 }
 
+// --- COLOR-SCHEME-DARK: meta + CSS color-scheme dark; brand stays #1a1a2e; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const metaOk =
+    /<meta\s+name=["']color-scheme["']\s+content=["']dark["']\s*\/>/i.test(htmlRaw) ||
+    /<meta\s+content=["']dark["']\s+name=["']color-scheme["']\s*\/>/i.test(htmlRaw);
+  const cssOk = /color-scheme\s*:\s*dark/.test(cssRaw);
+  const playMetaOk =
+    !fs.existsSync(playHtmlPath) ||
+    /<meta\s+name=["']color-scheme["']\s+content=["']dark["']\s*\/>/i.test(playHtml) ||
+    /<meta\s+content=["']dark["']\s+name=["']color-scheme["']\s*\/>/i.test(playHtml);
+  const snippet = htmlRaw.slice(0, 2000) + cssRaw.slice(0, 400);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(snippet);
+  if (metaOk && cssOk && playMetaOk && noSoft) {
+    pass(
+      'COLOR-SCHEME-DARK',
+      'index meta color-scheme=dark + style.css color-scheme:dark + docs/play synced; no soft-arm'
+    );
+  } else {
+    fail(
+      'COLOR-SCHEME-DARK',
+      `missing dark color-scheme (meta=${metaOk} css=${cssOk} playMeta=${playMetaOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');

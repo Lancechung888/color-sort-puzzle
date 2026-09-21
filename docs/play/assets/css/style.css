@@ -51,6 +51,7 @@
 /* ColorTube Sort — premium styles + themes (English-first UI) */
 :root,
 [data-theme="classic"] {
+  color-scheme: dark;
   --bg-top: #1a1a2e;
   --bg-bot: #16213e;
   --bg-mid: #1f2740;
@@ -126,6 +127,7 @@
 }
 
 html, body {
+  color-scheme: dark;
   margin: 0;
   padding: 0;
   height: 100%;
