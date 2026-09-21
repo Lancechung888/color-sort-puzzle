@@ -6551,6 +6551,51 @@ block(
 }
 
 
+// --- TOUCH-CALLOUT: -webkit-touch-callout:none on * + html/body; sync www/play; no soft-arm ---
+{
+  const cssRaw = read('assets/css/style.css') || '';
+  const htmlRaw = read('index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const wwwHtmlPath = path.join(root, 'www/index.html');
+  const playCssPath = path.join(root, 'docs/play/assets/css/style.css');
+  const wwwCssPath = path.join(root, 'www/assets/css/style.css');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const wwwHtml = fs.existsSync(wwwHtmlPath) ? fs.readFileSync(wwwHtmlPath, 'utf8') : '';
+  const playCss = fs.existsSync(playCssPath) ? fs.readFileSync(playCssPath, 'utf8') : '';
+  const wwwCss = fs.existsSync(wwwCssPath) ? fs.readFileSync(wwwCssPath, 'utf8') : '';
+
+  const markerCss = /TOUCH-CALLOUT/.test(cssRaw);
+  const calloutStar = /-webkit-touch-callout\s*:\s*none/.test(cssRaw);
+  const markerHtml = /TOUCH-CALLOUT/.test(htmlRaw);
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/TOUCH-CALLOUT/.test(playHtml) &&
+      /-webkit-touch-callout\s*:\s*none/.test(playCss) &&
+      /TOUCH-CALLOUT/.test(playCss));
+  const wwwOk =
+    !fs.existsSync(wwwHtmlPath) ||
+    (/TOUCH-CALLOUT/.test(wwwHtml) &&
+      /-webkit-touch-callout\s*:\s*none/.test(wwwCss) &&
+      /TOUCH-CALLOUT/.test(wwwCss));
+  const slice = markerCss
+    ? cssRaw.slice(Math.max(0, cssRaw.indexOf('TOUCH-CALLOUT') - 40), cssRaw.indexOf('TOUCH-CALLOUT') + 280)
+    : '';
+  const noSoft = !/\.soft-arm|claim-juice|hud-pulse|touch-callout-arm/.test(slice);
+
+  if (markerCss && calloutStar && markerHtml && playOk && wwwOk && noSoft) {
+    pass(
+      'TOUCH-CALLOUT',
+      'style.css marker + -webkit-touch-callout:none (* + html/body); index+www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'TOUCH-CALLOUT',
+      `missing touch-callout a11y (markerCss=${markerCss} callout=${calloutStar} markerHtml=${markerHtml} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+
 // --- PLAY-CONTENT-RATING: paste pack + Advertising ID Yes + IARC guidance; checklist greppable ---
 {
   const paste = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';

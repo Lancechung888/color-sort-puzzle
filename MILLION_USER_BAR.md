@@ -146,6 +146,8 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**TOUCH-CALLOUT**已上 — `assets/css/style.css` `*`／`html, body` 加 `-webkit-touch-callout: none`（補 `user-select:none`／tap-highlight；拒 iOS Safari／WKWebView／PWA 長按 Copy／Look Up／Share 搶焦；對齊 ANDROID-WEBVIEW-LONG-CLICK 的 web／PWA／iOS 面）；`index.html` marker；`sync-www` → www／docs/play；accept `TOUCH-CALLOUT`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**PLAY-DATA-SAFETY-PASTE**已上 — `docs/PLAY_CONSOLE_PASTE_PACK.md` §4 補 **Device or other IDs** Console 深表（Collected+Shared／非 ephemeral／Optional／Advertising＋Fraud；未接 GA4 勿勾 Analytics）＋Approx location／Purchase history；修正過時「Create the Play app next」（改為 app ID `4972040404691889159`＋internal testing 已上傳）；zh-Hant 完整長述；`PLAY_DATA_SAFETY` §C2＋`PLAY_POST_APPROVAL_CHECKLIST` 對齊；accept `PLAY-DATA-SAFETY-PASTE`；**無** soft-arm／claim-juice／HUD pulse；測 AdMob IDs／`USE_TEST_ADS=true` 不變；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**A11Y-REDUCED-TRANSPARENCY**已上 — `assets/css/style.css` `@media (prefers-reduced-transparency: reduce)` 關閉 `.tube-glass`／`.overlay` `backdrop-filter`，overlay 改實心 scrim `rgba(8,10,24,0.96)`（cat theme 同步加濃）；`index.html` marker；`sync-www` → www／docs/play；accept `A11Y-REDUCED-TRANSPARENCY`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
