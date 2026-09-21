@@ -4330,6 +4330,91 @@ block(
   }
 }
 
+// --- PRIVACY-META: referrer + Permissions-Policy deny sensors/trackers; format-detection; sync www/play + docs landing; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const docsHtml = read('docs/index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const wwwHtmlPath = path.join(root, 'www/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const wwwHtml = fs.existsSync(wwwHtmlPath) ? fs.readFileSync(wwwHtmlPath, 'utf8') : '';
+
+  const markerOk = /PRIVACY-META/.test(htmlRaw);
+  const referrerOk =
+    /<meta\s+name=["']referrer["']\s+content=["']strict-origin-when-cross-origin["']\s*\/>/i.test(
+      htmlRaw
+    ) ||
+    /<meta\s+content=["']strict-origin-when-cross-origin["']\s+name=["']referrer["']\s*\/>/i.test(
+      htmlRaw
+    );
+  const permsMatch = htmlRaw.match(
+    /<meta\s+http-equiv=["']Permissions-Policy["']\s+content=["']([^"']+)["']\s*\/>/i
+  ) || htmlRaw.match(
+    /<meta\s+content=["']([^"']+)["']\s+http-equiv=["']Permissions-Policy["']\s*\/>/i
+  );
+  const permsContent = (permsMatch && permsMatch[1]) || '';
+  const permsOk =
+    /camera=\(\)/.test(permsContent) &&
+    /microphone=\(\)/.test(permsContent) &&
+    /geolocation=\(\)/.test(permsContent) &&
+    /interest-cohort=\(\)/.test(permsContent) &&
+    /browsing-topics=\(\)/.test(permsContent) &&
+    !/payment=\(\)/.test(permsContent) &&
+    !/fullscreen=\(\)/.test(permsContent);
+  const formatOk =
+    /<meta\s+name=["']format-detection["']\s+content=["']telephone=no["']\s*\/>/i.test(htmlRaw) ||
+    /<meta\s+content=["']telephone=no["']\s+name=["']format-detection["']\s*\/>/i.test(htmlRaw);
+
+  const docsOk =
+    /PRIVACY-META/.test(docsHtml) &&
+    /strict-origin-when-cross-origin/.test(docsHtml) &&
+    /camera=\(\)/.test(docsHtml) &&
+    /microphone=\(\)/.test(docsHtml) &&
+    /geolocation=\(\)/.test(docsHtml) &&
+    /format-detection/.test(docsHtml) &&
+    /telephone=no/.test(docsHtml);
+
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/PRIVACY-META/.test(playHtml) &&
+      /strict-origin-when-cross-origin/.test(playHtml) &&
+      /camera=\(\)/.test(playHtml) &&
+      /microphone=\(\)/.test(playHtml) &&
+      /geolocation=\(\)/.test(playHtml) &&
+      /telephone=no/.test(playHtml));
+  const wwwOk =
+    !fs.existsSync(wwwHtmlPath) ||
+    (/PRIVACY-META/.test(wwwHtml) &&
+      /strict-origin-when-cross-origin/.test(wwwHtml) &&
+      /camera=\(\)/.test(wwwHtml) &&
+      /microphone=\(\)/.test(wwwHtml) &&
+      /geolocation=\(\)/.test(wwwHtml) &&
+      /telephone=no/.test(wwwHtml));
+
+  const headSlice = htmlRaw.slice(0, 3500);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse|privacy-arm/.test(headSlice);
+
+  if (markerOk && referrerOk && permsOk && formatOk && docsOk && playOk && wwwOk && noSoft) {
+    pass(
+      'PRIVACY-META',
+      'referrer strict-origin-when-cross-origin + Permissions-Policy camera/mic/geo deny (no payment/fullscreen) + format-detection; docs+www/play synced; no soft-arm'
+    );
+    pass(
+      'FORMAT-DETECTION',
+      'meta format-detection telephone=no on playable index + docs landing + www/play sync; no soft-arm'
+    );
+  } else {
+    fail(
+      'PRIVACY-META',
+      `missing privacy metas (marker=${markerOk} referrer=${referrerOk} perms=${permsOk} format=${formatOk} docs=${docsOk} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+    fail(
+      'FORMAT-DETECTION',
+      `format-detection missing or soft-arm (format=${formatOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- COLOR-SCHEME-DARK: meta + CSS color-scheme dark; brand stays #1a1a2e; no soft-arm ---
 {
   const htmlRaw = read('index.html') || '';
