@@ -3480,3 +3480,80 @@ html.reduced-motion .perfect-spark {
   display: none !important;
   animation: none !important;
 }
+
+/* A11Y-PREFER-CONTRAST */
+/* High-contrast OS preference: thicker tube/lid/chrome edges; keep brand dark #1a1a2e — no light theme; static borders only (no pulse classes). */
+@media (prefers-contrast: more) {
+  .tube-glass {
+    border-width: 5px;
+    border-color: rgba(255, 255, 255, 0.72);
+    box-shadow:
+      inset 3px 0 8px rgba(255, 255, 255, 0.18),
+      inset -2px 0 6px rgba(0, 0, 0, 0.2),
+      inset 0 -6px 12px rgba(0, 0, 0, 0.18),
+      0 0 0 1px rgba(255, 255, 255, 0.28),
+      0 6px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  .tube-rim {
+    border-width: 5px;
+    border-color: rgba(255, 255, 255, 0.72);
+  }
+
+  .tube-lid {
+    border-width: 5px;
+    border-color: rgba(255, 230, 150, 0.98);
+    box-shadow:
+      var(--lid-glow),
+      0 0 0 1px rgba(255, 255, 255, 0.35),
+      0 6px 14px rgba(0, 0, 0, 0.5),
+      inset 0 2px 0 rgba(255, 255, 255, 0.85),
+      inset 0 -3px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .tube.capped .tube-glass {
+    border-color: rgba(255, 230, 150, 0.85);
+  }
+
+  .btn,
+  .btn-icon,
+  .btn-home,
+  .modal-close,
+  .chip,
+  .level-badge {
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgba(255, 255, 255, 0.55);
+    outline: 1px solid rgba(186, 230, 253, 0.55);
+    outline-offset: 1px;
+  }
+
+  .btn-primary,
+  .btn.primary,
+  .btn-cta {
+    border-color: rgba(78, 205, 196, 0.95);
+  }
+
+  html, body, #app {
+    background-color: #1a1a2e;
+  }
+}
+
+/* Forced colors: preserve liquid/tube gameplay hues; do not invent animations. */
+@media (forced-colors: active) {
+  .tube-glass,
+  .tube-lid,
+  .layer,
+  .liquid {
+    forced-color-adjust: none;
+  }
+
+  .btn,
+  .btn-icon,
+  .btn-home,
+  .modal-close,
+  .chip,
+  .level-badge {
+    border: 2px solid ButtonBorder;
+  }
+}

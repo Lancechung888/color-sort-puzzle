@@ -6442,6 +6442,93 @@ block(
   }
 }
 
+// --- A11Y-PREFER-CONTRAST: prefers-contrast:more + forced-colors liquid preserve; sync www/play; no soft-arm ---
+{
+  const cssRaw = read('assets/css/style.css') || '';
+  const htmlRaw = read('index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const wwwHtmlPath = path.join(root, 'www/index.html');
+  const playCssPath = path.join(root, 'docs/play/assets/css/style.css');
+  const wwwCssPath = path.join(root, 'www/assets/css/style.css');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const wwwHtml = fs.existsSync(wwwHtmlPath) ? fs.readFileSync(wwwHtmlPath, 'utf8') : '';
+  const playCss = fs.existsSync(playCssPath) ? fs.readFileSync(playCssPath, 'utf8') : '';
+  const wwwCss = fs.existsSync(wwwCssPath) ? fs.readFileSync(wwwCssPath, 'utf8') : '';
+  const syncWww = fs.existsSync(path.join(root, 'scripts/sync-www.sh'))
+    ? fs.readFileSync(path.join(root, 'scripts/sync-www.sh'), 'utf8')
+    : '';
+
+  const markerCss = /A11Y-PREFER-CONTRAST/.test(cssRaw);
+  const prefersOk = /@media\s*\(\s*prefers-contrast\s*:\s*more\s*\)/.test(cssRaw);
+  const tubeOk = /\.tube-glass/.test(cssRaw) && prefersOk;
+  const forcedOk =
+    /@media\s*\(\s*forced-colors\s*:\s*active\s*\)/.test(cssRaw) &&
+    (/forced-color-adjust\s*:\s*none/.test(cssRaw) ||
+      /\.liquid/.test(cssRaw) ||
+      /\.layer/.test(cssRaw));
+  const markerHtml = /A11Y-PREFER-CONTRAST/.test(htmlRaw);
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/A11Y-PREFER-CONTRAST/.test(playHtml) &&
+      /prefers-contrast\s*:\s*more/.test(playCss) &&
+      /A11Y-PREFER-CONTRAST/.test(playCss));
+  const wwwOk =
+    !fs.existsSync(wwwHtmlPath) ||
+    (/A11Y-PREFER-CONTRAST/.test(wwwHtml) &&
+      /prefers-contrast\s*:\s*more/.test(wwwCss) &&
+      /A11Y-PREFER-CONTRAST/.test(wwwCss));
+  const syncOk =
+    /sync-www\.sh/.test(syncWww) ||
+    (/cp .*index\.html/.test(syncWww) && /assets/.test(syncWww));
+  const contrastSlice = cssRaw.slice(cssRaw.indexOf('A11Y-PREFER-CONTRAST'));
+  const noSoft = !/\.soft-arm|claim-juice|hud-pulse|contrast-arm|prefer-contrast-arm/.test(
+    contrastSlice
+  );
+
+  if (markerCss && prefersOk && tubeOk && forcedOk && markerHtml && playOk && wwwOk && syncOk && noSoft) {
+    pass(
+      'A11Y-PREFER-CONTRAST',
+      'style.css marker + prefers-contrast:more + tube-glass/forced-colors liquid preserve; index+www/play markers; sync-www copies css; no soft-arm'
+    );
+  } else {
+    fail(
+      'A11Y-PREFER-CONTRAST',
+      `missing contrast a11y (markerCss=${markerCss} prefers=${prefersOk} tube=${tubeOk} forced=${forcedOk} markerHtml=${markerHtml} play=${playOk} www=${wwwOk} sync=${syncOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- PLAY-CONTENT-RATING: paste pack + Advertising ID Yes + IARC guidance; checklist greppable ---
+{
+  const paste = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
+  const checklist = read('docs/PLAY_POST_APPROVAL_CHECKLIST.md') || '';
+  const markerOk = /PLAY-CONTENT-RATING/.test(paste);
+  const section = paste.includes('PLAY-CONTENT-RATING')
+    ? paste.slice(paste.indexOf('PLAY-CONTENT-RATING'))
+    : paste;
+  const adIdYes =
+    /Advertising ID/i.test(section) &&
+    (/\*\*Yes\*\*/.test(section) || /Yes —/.test(section) || /Yes -/.test(section)) &&
+    /AdMob/i.test(section);
+  const iarcOk =
+    /Content rating/i.test(paste) &&
+    (/IARC/i.test(paste) || /questionnaire/i.test(paste));
+  const checklistOk = /PLAY-CONTENT-RATING/.test(checklist) && /Advertising ID/i.test(checklist);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(paste + checklist);
+
+  if (markerOk && adIdYes && iarcOk && checklistOk && noSoft) {
+    pass(
+      'PLAY-CONTENT-RATING',
+      'PLAY_CONSOLE_PASTE_PACK PLAY-CONTENT-RATING + Advertising ID Yes + IARC guidance; post-approval checklist item; no soft-arm'
+    );
+  } else {
+    fail(
+      'PLAY-CONTENT-RATING',
+      `missing content-rating docs (marker=${markerOk} adIdYes=${adIdYes} iarc=${iarcOk} checklist=${checklistOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- NATIVE-PACK-READY-SYNC: docs truth + package 1.0.1; no soft-arm ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
