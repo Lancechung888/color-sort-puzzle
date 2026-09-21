@@ -146,6 +146,8 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**IAP-PURCHASE-BUSY**已上 — native `remove_ads` purchase＋restore 飛行中鎖（`iapBusy`／finally 清；busy 忽略不授獎；停用 buy／fail／Restore CTA）；web Coming soon 不變；accept 項；**#7 仍 Fail**；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**UNCAP-ONE-TAP**已上 — 蓋子**單點即揭**（持液點有蓋＝清選取＋揭蓋）；移除雙點 arm／pendingUncap；EN tip／howto／hint 改 Tap the lid；accept `UNCAP-ONE-TAP`；#1 維持 Partial；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**REMOVE-ADS-SHOP-LIVE**已上 — Play `remove_ads` Active @$2.99：Billing ready 時商店／失敗屏 `$2.99 · Remove ads`＋Restore；web 仍 Coming soon（不假授）；accept 項；**#7 仍 Fail**（缺實機購買＋還原）；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**

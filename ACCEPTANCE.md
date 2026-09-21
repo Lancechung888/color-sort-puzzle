@@ -31,6 +31,8 @@
 
 （已補）**L-SELF-TEST**已上 — `scripts/self-test-levels.js` 對 **每一關** `COLOR_SORT_LEVELS` 做顏色多重集／容量／空位／蓋子 sanity，並模擬 **UNCAP-ONE-TAP**（單點揭盡蓋後 free-uncap pour-solve）；`npm run accept` 加 `L-SELF-TEST`＋`L16-UNCAP-SOLVE`；`L-SOLVE` 明示 ALL n/n；`npm run test:levels`；**無** soft-arm；**#7 仍 Fail**（缺實機三綠燈）；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**IAP-PURCHASE-BUSY**已上 — `purchaseRemoveAds`／`restoreRemoveAdsPurchases` 加 `iapBusy` 飛行中鎖：busy 時忽略二次點擊（toast「Purchase in progress…」）、停用 `#btn-buy-remove-ads`／`#btn-fail-remove-ads`／`#btn-restore-purchases`，`finally` 清鎖；**不**在 busy／ignore 路徑授 `removeAds`；web／Coming soon 不變（P0①）；接上 Restore click；`sync-www`；accept `IAP-PURCHASE-BUSY`；**無** soft-arm／claim-juice／HUD pulse；**#7 仍 Fail**；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**UNCAP-ONE-TAP**已上 — 蓋子改**單點即揭**：`selectTube` 在 `isCapped` 時直接 `uncapTube`（持液點有蓋＝清選取＋揭蓋，永不倒進蓋管）；移除 `pendingUncap`／雙點 arm／「Tap again to uncap」；EN tip／howto／hint 改「Tap the lid」；`capTeachDone` 仍僅真實 uncap 寫入；`sync-www` → www／docs/play；accept `UNCAP-ONE-TAP`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**ANDROID-VERSION-CODE-5**已上 — `scripts/patch-android-version.sh` 預設 **versionCode 5**／`versionName 1.0.4`（Cap sync 後、Billing-8 後、AdMob 前重補）；`package.json` **1.0.4**；README §2ak；accept `ANDROID-VERSION-CODE-5`／`NATIVE-PACK-READY-SYNC`；含 **UNCAP-ONE-TAP**（#234）；prod AdMob／`USE_TEST_ADS=false` 不變；Billing≥8 不變；**#7 仍 Fail**（缺實機三綠燈）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
