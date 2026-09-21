@@ -146,6 +146,8 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**NATIVE-PACK-READY-SYNC**已上 — 同步 `docs/NATIVE_PACK_READY.md`：Play developer account **APPROVED**（2026-09-21 Asia/Taipei）；Billing≥8＋**versionCode 2**／`versionName 1.0.1`（`ANDROID-VERSION-CODE-2`）腳本就緒；簽章內測 AAB（含 vc2 billing8+testids）於 `/workspace/colortube-artifacts/`；移除過時「account still in review／Not uploaded」敘述；內測上傳／Console 仍可能進行中（不虛構 uploaded successfully）；`package.json` version **1.0.1**；accept `NATIVE-PACK-READY-SYNC`；**無** soft-arm／claim-juice／HUD pulse；測 AdMob IDs／`USE_TEST_ADS=true` 不變；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**ANDROID-BILLING-CLIENT-8**已上 — Play Console 拒 Billing <8：`scripts/patch-android-billing-8.sh` 將 Cap6 `@capgo/native-purchases@6.0.42` 的 `billing:6.2.1` 升到 **8.3.0**＋`PendingPurchasesParams`＋`QueryProductDetailsResult`（不升 Cap 7/8）；`aab:internal` 在 `cap sync` 後重補；accept `ANDROID-BILLING-CLIENT-8`；**無** soft-arm；測 AdMob IDs／`USE_TEST_ADS=true` 不變；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**L-SOLVE**已上 — accept 倒水路徑可解驗證（free uncap；修 L47／L68／L70 死關補空管）；#4 維持 Pass（無明顯死關）；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（仍差 P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**

@@ -1,8 +1,9 @@
 # Native Android packaging readiness (ColorTube Sort)
 
-> AppId: `com.lancechung.colortubesort` · Capacitor 6 · **No Play approval / real AdMob / real Billing IDs required for this checklist.**  
-> Verified in packaging environment: **2026-09-19** (Asia/Taipei).  
-> Out of scope here: UA creatives, real unit IDs, enabling fake free `remove_ads`.  
+> AppId: `com.lancechung.colortubesort` · Capacitor 6 · **Play developer account APPROVED** (2026-09-21 Asia/Taipei).  
+> Verified in packaging environment: **2026-09-21** (Asia/Taipei). Packaging checklist itself still needs **no** real AdMob / real Billing IDs.  
+> Out of scope here: UA creatives, real unit IDs, enabling fake free `remove_ads`, production publish.  
+> Aligns with `docs/PLAY_POST_APPROVAL_CHECKLIST.md` / `MILLION_USER_BAR` — **#7 AdMob remains Fail** (test IDs only; three green lights not met).  
 > **Do not claim ship-ready** from this doc alone.
 
 ---
@@ -23,8 +24,10 @@
 | Play Billing Library ≥8 (Cap6 plugin pin 6.2.1) | **SCRIPT READY** (`scripts/patch-android-billing-8.sh` → 8.3.0 + PendingPurchasesParams + QueryProductDetailsResult + minSdk 23; hooked in `aab:internal`) |
 | Launcher ICON A + branded splash (vs stock Capacitor) | **DONE** (`scripts/apply-android-icons.sh` ← `native-templates/android/res/` from finals ICON A; hooked in `aab:internal`) |
 | JDK 17 + Android SDK on this packaging box | **DONE** (`JAVA_HOME=/home/box/sdk/jdk-17.0.20.1+1`, `ANDROID_HOME=/home/box/sdk/android`) |
-| Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19): `npm run aab:internal` → signed `app-release.aab` (~6.1 MB; upload keystore local/gitignored). Copy: `/workspace/colortube-artifacts/ColorTubeSort-internal-20260919-release.aab` |
-| Play Console / real AdMob / real IAP IDs | **OUT OF SCOPE** (post-approval; see checklist) |
+| Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19 + **2026-09-21**): `npm run aab:internal` → signed AABs (upload keystore local/gitignored). Durable copies under `/workspace/colortube-artifacts/` including **versionCode 2** / Billing≥8 / test-IDs builds (e.g. `ColorTubeSort-internal-20260921-1312-vc2-billing8-testids-release.aab`, `…-1309-vc2-testids-release.aab`) |
+| Play `versionCode` / `versionName` | **SCRIPT READY** (`scripts/patch-android-version.sh` → **versionCode 2** / **versionName 1.0.1**; accept `ANDROID-VERSION-CODE-2`; hooked in `aab:internal` after Billing-8, before AdMob) |
+| Play developer account | **APPROVED** (2026-09-21 Asia/Taipei) — see `docs/PLAY_POST_APPROVAL_CHECKLIST.md` |
+| Play Console real AdMob / real IAP IDs / production publish | **OUT OF SCOPE** (post-approval ops; #7 still Fail — test IDs only) |
 
 ---
 
@@ -71,13 +74,16 @@
   - `ANDROID_HOME=/home/box/sdk/android`
   - Gradle can compile; Manifest patch is still required for AdMob native init.
 
-### DONE this packaging box — signed internal AAB (2026-09-19 Asia/Taipei)
+### DONE this packaging box — signed internal AAB (2026-09-19 + 2026-09-21 Asia/Taipei)
 
-- [x] `npm install` + `npm run aab:internal` (build:www → `cap sync` → AdMob Manifest patch → `bundleRelease`)
+- [x] `npm install` + `npm run aab:internal` (build:www → `cap sync` → Billing≥8 patch → versionCode 2 patch → AdMob Manifest patch → `bundleRelease`)
 - [x] Plugins on sync: AdMob 6.2.0, App 6.0.3, Haptics 6.0.3, NativePurchases 6.0.42
 - [x] `validateSigningRelease` / `signReleaseBundle` succeeded (upload keystore via local `android/keystore.properties`)
-- [x] Artifact: `android/app/build/outputs/bundle/release/app-release.aab` (~6.1 MB) + durable copy under `/workspace/colortube-artifacts/`
-- [ ] **Not** uploaded to Play (account still in review). Test AdMob IDs only — do **not** mark MILLION_USER_BAR #7 Pass.
+- [x] Artifacts under `/workspace/colortube-artifacts/`:
+  - 2026-09-19: `ColorTubeSort-internal-20260919-release.aab` (~6.1 MB; early build)
+  - 2026-09-21: **versionCode 2** / **versionName 1.0.1** + Billing Library ≥8 + **test AdMob IDs** — e.g. `ColorTubeSort-internal-20260921-1312-vc2-billing8-testids-release.aab` (+ 1309 vc2 copy)
+- [x] **Play developer account APPROVED** (2026-09-21 Asia/Taipei). Prior internal upload attempt blocked because **versionCode 1** was already used — rebuild with versionCode 2 done.
+- [ ] Play **internal testing** track upload / Console ops may be in progress or still need Console action — **do not invent “uploaded successfully”** from this doc alone. Test AdMob IDs only (`USE_TEST_ADS=true`) — do **not** mark MILLION_USER_BAR **#7 Pass**.
 
 ### Still required on each machine that owns `android/`
 
@@ -98,13 +104,13 @@ bash scripts/patch-android-admob.sh
 
 ### Still external (intentionally not done — not Pass for #7)
 
-- [ ] Play Console app + internal testing track
-- [ ] Real AdMob App ID + interstitial/rewarded unit IDs (`USE_TEST_ADS=false`)
-- [ ] Play product `remove_ads` enabled + license testers
-- [ ] Device-verified SDK ads + real Billing purchase path
-- [ ] Release keystore + signed AAB upload to Play
+- [ ] Play Console app listing + **internal testing** track (account approved; Console upload / tester group may still be pending)
+- [ ] Real AdMob App ID + interstitial/rewarded unit IDs (`USE_TEST_ADS=false`) — three green lights not met
+- [ ] Play product `remove_ads` enabled + license testers + **device-verified** Billing purchase path
+- [ ] Device-verified SDK ads (no mid-pour ads) + real unit wiring
+- [ ] Production / open testing publish (forbidden until monetization green lights)
 
-See `docs/PLAY_POST_APPROVAL_CHECKLIST.md`. **Do not claim the app is published** until listing is live. **Do not mark MILLION_USER_BAR #7 Pass** from Manifest patch alone.
+See `docs/PLAY_POST_APPROVAL_CHECKLIST.md` / `MILLION_USER_BAR`. **Do not claim the app is published** until listing is live. **Do not mark MILLION_USER_BAR #7 Pass/Partial** from account approval, Manifest patch, or test-ID AABs alone.
 
 ---
 
@@ -151,16 +157,16 @@ Do this on the machine that can run Gradle.
 
 ## DONE vs NOT Pass (acceptance for this packaging track)
 
-**DONE (repo + this env):** Capacitor deps, test AdMob IDs in config + `ads.js`, billing skeleton, `index.html` script order, `build:www`, `cap add android` + `cap sync` with both plugins, idempotent Manifest patch script, JDK 17 + ANDROID_HOME on this box, signing steps documented.
+**DONE (repo + this env):** Capacitor deps, test AdMob IDs in config + `ads.js`, billing skeleton, `index.html` script order, `build:www`, `cap add android` + `cap sync` with both plugins, idempotent Manifest / Billing≥8 / versionCode 2 patch scripts, JDK 17 + ANDROID_HOME on this box, signing steps documented, signed internal AABs including **vc2 + billing8 + testids**, **Play developer account APPROVED** (2026-09-21 Asia/Taipei).
 
-**NOT ship-ready / #7 still Fail:** Device-verified AdMob SDK ads, real `remove_ads` IAP, Play approval, real unit IDs. Manifest patch prevents init crash with the **Google sample** App ID only.
+**NOT ship-ready / #7 still Fail:** Device-verified AdMob SDK ads, real `remove_ads` IAP, real unit IDs, three green lights. Manifest patch prevents init crash with the **Google sample** App ID only. Account approval ≠ #7 Pass.
 
-**OUT OF SCOPE:** Real AdMob/Billing IDs, Play approval, UA creatives, enabling free/fake `remove_ads`.
+**OUT OF SCOPE:** Real AdMob/Billing IDs, production publish, UA creatives, enabling free/fake `remove_ads`.
 
 ---
 
 Also see operational acceptance: [`docs/NATIVE_ACCEPTANCE.md`](NATIVE_ACCEPTANCE.md) (`npm run native:check` / `npm run aab:internal`).
 
-### versionCode (Play uploads)
+### versionCode (Play uploads) — ANDROID-VERSION-CODE-2
 
-- Play rejects reuse of the same `versionCode`. After `cap sync`, run `bash scripts/patch-android-version.sh` (hooked in `npm run aab:internal`) to set **versionCode 2** / **versionName 1.0.1** (override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`).
+- Play rejects reuse of the same `versionCode` (prior internal attempt used **1**). After `cap sync`, run `bash scripts/patch-android-version.sh` (hooked in `npm run aab:internal` after Billing-8, before AdMob) to set **versionCode 2** / **versionName 1.0.1** (override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`). Repo `package.json` `"version"` aligns to **1.0.1**. Accept gate: `ANDROID-VERSION-CODE-2`.

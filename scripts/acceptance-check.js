@@ -6442,6 +6442,39 @@ block(
   }
 }
 
+// --- NATIVE-PACK-READY-SYNC: docs truth + package 1.0.1; no soft-arm ---
+{
+  const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
+  const pkgRaw = read('package.json') || '';
+  let pkgVer = '';
+  try {
+    pkgVer = JSON.parse(pkgRaw).version || '';
+  } catch (_) {
+    pkgVer = '';
+  }
+  const noStale = !/account still in review/i.test(packRaw);
+  const approvedOk =
+    /Play developer account\s+\*?\*?APPROVED\*?\*?/i.test(packRaw) ||
+    (/APPROVED/.test(packRaw) && /Play/.test(packRaw) && /account/i.test(packRaw));
+  const vcOk =
+    /versionCode\s*2/.test(packRaw) ||
+    /ANDROID-VERSION-CODE-2/.test(packRaw) ||
+    /versionName\s*1\.0\.1/.test(packRaw);
+  const pkgOk = pkgVer === '1.0.1';
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(packRaw);
+  if (noStale && approvedOk && vcOk && pkgOk && noSoft) {
+    pass(
+      'NATIVE-PACK-READY-SYNC',
+      'NATIVE_PACK_READY: Play account APPROVED + versionCode 2 / 1.0.1; package.json 1.0.1; no stale in-review; no soft-arm'
+    );
+  } else {
+    fail(
+      'NATIVE-PACK-READY-SYNC',
+      `stale/missing sync (noStale=${noStale} approvedOk=${approvedOk} vcOk=${vcOk} pkgOk=${pkgOk} pkgVer=${pkgVer} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- 5) Delegate native wiring ---
 const native = spawnSync('node', [path.join(root, 'scripts/native-wiring-check.js')], {
   cwd: root,
