@@ -31,6 +31,8 @@
 
 （已補）**UNCAP-ONE-TAP**已上 — 蓋子改**單點即揭**：`selectTube` 在 `isCapped` 時直接 `uncapTube`（持液點有蓋＝清選取＋揭蓋，永不倒進蓋管）；移除 `pendingUncap`／雙點 arm／「Tap again to uncap」；EN tip／howto／hint 改「Tap the lid」；`capTeachDone` 仍僅真實 uncap 寫入；`sync-www` → www／docs/play；accept `UNCAP-ONE-TAP`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**ANDROID-VERSION-CODE-5**已上 — `scripts/patch-android-version.sh` 預設 **versionCode 5**／`versionName 1.0.4`（Cap sync 後、Billing-8 後、AdMob 前重補）；`package.json` **1.0.4**；README §2ak；accept `ANDROID-VERSION-CODE-5`／`NATIVE-PACK-READY-SYNC`；含 **UNCAP-ONE-TAP**（#234）；prod AdMob／`USE_TEST_ADS=false` 不變；Billing≥8 不變；**#7 仍 Fail**（缺實機三綠燈）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**ANDROID-VERSION-CODE-4**已上 — `scripts/patch-android-version.sh` 預設 **versionCode 4**／`versionName 1.0.3`（Cap sync 後、Billing-8 後、AdMob 前重補）；`package.json` **1.0.3**；README §2ak；accept `ANDROID-VERSION-CODE-4`／`NATIVE-PACK-READY-SYNC`；prod AdMob／`USE_TEST_ADS=false` 不變；Billing≥8 不變；**#7 仍 Fail**（缺實機三綠燈）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**REMOVE-ADS-SHOP-LIVE**已上 — Play `remove_ads` Active @$2.99：Billing ready 時商店／失敗屏顯示 `$2.99 · Remove ads`＋`Restore purchases`；web／未 ready 仍 Coming soon（P0① 不假授）；accept `REMOVE-ADS-SHOP-LIVE`；**#7 仍 Fail**（缺實機購買＋還原綠燈）；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
