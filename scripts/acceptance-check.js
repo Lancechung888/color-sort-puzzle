@@ -5875,6 +5875,67 @@ block(
   }
 }
 
+// --- SHARE-SEO: JSON-LD SoftwareApplication + robots.txt + sitemap; sync www/play; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const docsHtml = read('docs/index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const robotsRaw = read('docs/robots.txt') || '';
+  const sitemapRaw = read('docs/sitemap.xml') || '';
+
+  function ldOk(raw, expectUrl) {
+    if (!raw) return false;
+    if (!/SHARE-SEO:\s*JSON-LD SoftwareApplication/.test(raw)) return false;
+    if (!/type=["']application\/ld\+json["']/.test(raw)) return false;
+    if (!/"@type"\s*:\s*"SoftwareApplication"/.test(raw)) return false;
+    if (!/"name"\s*:\s*"ColorTube Sort: Lid Puzzle"/.test(raw)) return false;
+    if (!/"alternateName"\s*:\s*"ColorTube Sort"/.test(raw)) return false;
+    if (!/"applicationCategory"\s*:\s*"GameApplication"/.test(raw)) return false;
+    if (!/"offers"\s*:/.test(raw)) return false;
+    if (!/"price"\s*:\s*"0"/.test(raw)) return false;
+    if (!/"priceCurrency"\s*:\s*"USD"/.test(raw)) return false;
+    if (expectUrl && !raw.includes(expectUrl)) return false;
+    if (/play\.google\.com|aggregateRating|ratingValue|downloadCount/.test(raw)) {
+      return false;
+    }
+    return true;
+  }
+
+  const rootOk = ldOk(htmlRaw, 'https://lancechung888.github.io/color-sort-puzzle/play/');
+  const docsOk = ldOk(docsHtml, 'https://lancechung888.github.io/color-sort-puzzle/');
+  const docsUrlOk =
+    docsOk &&
+    /"url"\s*:\s*"https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/"/.test(docsHtml) &&
+    !/"url"\s*:\s*"https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/play\/"/.test(docsHtml);
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    ldOk(playHtml, 'https://lancechung888.github.io/color-sort-puzzle/play/');
+  const robotsOk =
+    /Sitemap:\s*https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/sitemap\.xml/.test(
+      robotsRaw
+    ) && /User-agent:\s*\*/.test(robotsRaw) && /Allow:\s*\//.test(robotsRaw);
+  const sitemapOk =
+    /https:\/\/lancechung888\.github\.io\/color-sort-puzzle\//.test(sitemapRaw) &&
+    /https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/play\//.test(sitemapRaw) &&
+    /https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/privacy\//.test(sitemapRaw);
+  const headSlice =
+    htmlRaw.slice(0, 8000) + docsHtml.slice(0, 4000) + robotsRaw + sitemapRaw.slice(0, 2000);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(headSlice);
+
+  if (rootOk && docsUrlOk && playOk && robotsOk && sitemapOk && noSoft) {
+    pass(
+      'SHARE-SEO',
+      'JSON-LD SoftwareApplication on docs + playable (+docs/play); robots.txt Sitemap; sitemap / /play/ /privacy/; no soft-arm'
+    );
+  } else {
+    fail(
+      'SHARE-SEO',
+      `missing crawlable SEO signals (root=${rootOk} docs=${docsUrlOk} play=${playOk} robots=${robotsOk} sitemap=${sitemapOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-DISPLAY-OVERRIDE: display_override + handle_links preferred; sync www/play; no soft-arm ---
 {
   const rootManifestPath = path.join(root, 'site.webmanifest');

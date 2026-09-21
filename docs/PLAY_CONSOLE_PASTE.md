@@ -16,6 +16,7 @@ Source of truth: `STORE.md` · `docs/PRIVACY_README.md` · `docs/PLAY_POST_APPRO
 | **App name (display)** | ColorTube Sort |
 | **Play listing title (EN)** | ColorTube Sort: Lid Puzzle |
 | **Package name / appId** | `com.lancechung.colortubesort` |
+| **Play app ID** | `4972040404691889159` |
 | **Privacy policy URL (HTTPS)** | https://lancechung888.github.io/color-sort-puzzle/privacy/ |
 
 Verified live on GitHub Pages (`main` → `/docs`). Use this exact URL in the Play form.
