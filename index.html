@@ -10,7 +10,8 @@
     html, body { margin: 0; background: #1a1a2e; color: #f5f5f7; }
   </style>
   <!-- CSS-PRELOAD: discover style.css before font/script preload competition — shorten unstyled flash -->
-  <link rel="preload" href="assets/css/style.css" as="style" />
+  <!-- FETCHPRIORITY-CRITICAL: CSS/brand/scripts high; body fonts 400/500/600 low — first-paint priority -->
+  <link rel="preload" href="assets/css/style.css" as="style" fetchpriority="high" />
   <meta name="description" content="ColorTube Sort: Lid Puzzle — gold lids block pours until you uncap. Pour matching colors into the same tube. Uncap, pour, sort." />
   <title>ColorTube Sort: Lid Puzzle</title>
   <!-- Open Graph — win-share / organic links land on /play/ -->
@@ -34,17 +35,17 @@
   <meta name="apple-mobile-web-app-title" content="ColorTube Sort" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <!-- FONT-PRELOAD: critical Noto weights before CSS @font-face discovery (start brand 900 / CTAs 700–800) -->
-  <link rel="preload" href="assets/fonts/noto-sans-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="assets/fonts/noto-sans-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="assets/fonts/noto-sans-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/noto-sans-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high" />
+  <link rel="preload" href="assets/fonts/noto-sans-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high" />
+  <link rel="preload" href="assets/fonts/noto-sans-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high" />
   <!-- FONT-PRELOAD-BODY: HUD/chip/body weights 400/500/600 — cut first-screen FOUT on chips & copy -->
-  <link rel="preload" href="assets/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="assets/fonts/noto-sans-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin />
-  <link rel="preload" href="assets/fonts/noto-sans-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/noto-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin fetchpriority="low" />
+  <link rel="preload" href="assets/fonts/noto-sans-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin fetchpriority="low" />
+  <link rel="preload" href="assets/fonts/noto-sans-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin fetchpriority="low" />
   <!-- SCRIPT-PRELOAD: critical gameplay JS in parallel with CSS/fonts (not ads/billing/analytics) -->
-  <link rel="preload" href="assets/js/levels.js" as="script" />
-  <link rel="preload" href="assets/js/game.js" as="script" />
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="preload" href="assets/js/levels.js" as="script" fetchpriority="high" />
+  <link rel="preload" href="assets/js/game.js" as="script" fetchpriority="high" />
+  <link rel="stylesheet" href="assets/css/style.css" fetchpriority="high" />
 </head>
 <body data-theme="classic">
   <div id="app">

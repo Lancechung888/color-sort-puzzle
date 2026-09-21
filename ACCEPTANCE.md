@@ -190,6 +190,7 @@
 （已補）**PAGE-LIFECYCLE**已上 — web／PWA `bindPageLifecycle`：`pageshow`＋`event.persisted`（bfcache）→ `clearPendingUncap`＋mid-run `persistRunDraft`＋`syncScreenWakeLock`＋`resumeAudio`；offline／online 僅在相對 `networkWasOffline` 真翻轉時 toast（對齊 OFFLINE-TOAST；native 跳過）；`document` `freeze`→清 uncap＋flush draft；`resume`→wake＋audio（對齊 visibility show，不 clearPendingUncap）；try／catch no-op；`sync-www` → www／docs/play；accept `PAGE-LIFECYCLE`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**FONT-PRELOAD-BODY**已上 — 可玩端 `index.html` 在 FONT-PRELOAD（700／800／900）後再 `rel=preload` Noto Sans latin **400／500／600** woff2（`as=font`／`type=font/woff2`／`crossorigin`）；HUD／chip／body 字重首屏少 FOUT；`sync-www` → www／docs/play；accept `FONT-PRELOAD-BODY`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+（已補）**FETCHPRIORITY-CRITICAL**已上 — 可玩端 CSS／Noto 700–900／levels+game preload `fetchpriority=high`；HUD body 400／500／600 `fetchpriority=low`；首屏品牌／CTA 優先於 body 字重帶寬；`sync-www` → www／docs/play；accept `FETCHPRIORITY-CRITICAL`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 
 

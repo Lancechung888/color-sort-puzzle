@@ -4221,6 +4221,63 @@ block(
 
 
 
+
+// --- FETCHPRIORITY-CRITICAL: CSS/brand/scripts high; body fonts 400/500/600 low; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const links = [...htmlRaw.matchAll(/<link\b[^>]*>/gi)].map((m) => m[0]);
+  const cssHigh = links.some(
+    (l) =>
+      /assets\/css\/style\.css/.test(l) &&
+      (/rel=["']preload["']/.test(l) || /rel=["']stylesheet["']/.test(l)) &&
+      /fetchpriority=["']?high["']?/.test(l)
+  );
+  const brandHigh = [700, 800, 900].every((w) =>
+    links.some(
+      (l) =>
+        l.includes(`noto-sans-latin-${w}-normal.woff2`) &&
+        /rel=["']preload["']/.test(l) &&
+        /fetchpriority=["']?high["']?/.test(l)
+    )
+  );
+  const bodyLow = [400, 500, 600].every((w) =>
+    links.some(
+      (l) =>
+        l.includes(`noto-sans-latin-${w}-normal.woff2`) &&
+        /rel=["']preload["']/.test(l) &&
+        /fetchpriority=["']?low["']?/.test(l)
+    )
+  );
+  const scriptsHigh = ['levels.js', 'game.js'].every((s) =>
+    links.some(
+      (l) =>
+        l.includes(`assets/js/${s}`) &&
+        /rel=["']preload["']/.test(l) &&
+        /fetchpriority=["']?high["']?/.test(l)
+    )
+  );
+  const markerOk = /FETCHPRIORITY-CRITICAL/.test(htmlRaw);
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/FETCHPRIORITY-CRITICAL/.test(playHtml) &&
+      /fetchpriority=["']?high["']?/.test(playHtml) &&
+      /fetchpriority=["']?low["']?/.test(playHtml));
+  const noSoft = !/soft-arm|claim-juice|hud-pulse|font-arm/.test(htmlRaw.slice(0, 3200));
+  if (cssHigh && brandHigh && bodyLow && scriptsHigh && markerOk && playOk && noSoft) {
+    pass(
+      'FETCHPRIORITY-CRITICAL',
+      'index CSS/stylesheet + Noto 700/800/900 + levels/game fetchpriority=high; body 400/500/600=low; marker; docs/play synced; no soft-arm'
+    );
+  } else {
+    fail(
+      'FETCHPRIORITY-CRITICAL',
+      `missing fetchpriority (cssHigh=${cssHigh} brandHigh=${brandHigh} bodyLow=${bodyLow} scriptsHigh=${scriptsHigh} marker=${markerOk} play=${playOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- COLOR-SCHEME-DARK: meta + CSS color-scheme dark; brand stays #1a1a2e; no soft-arm ---
 {
   const htmlRaw = read('index.html') || '';
