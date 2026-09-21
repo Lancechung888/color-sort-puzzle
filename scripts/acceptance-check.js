@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * ColorTube Sort — ACCEPTANCE automation (headless Node).
- * Proves what can be proven without Play publisher / live AdMob.
- * P0②③ (real AdMob / production ad stream) stay BLOCKED — never marked Pass.
+ * Proves what can be proven in-repo; device three-green monetization Passes when
+ * docs evidence markers exist (DEVICE_THREE_GREEN / ACCEPTANCE Pass rows / bar #7 Pass).
+ * P0-2 / P0-3 / M-IAP Fail if evidence missing — no longer forever-Blocked.
  *
  * Usage: npm run accept
  * Exit 0 = all non-blocked checks Pass; else non-zero.
@@ -34,6 +35,25 @@ function block(id, msg) {
 function info(id, msg) {
   rows.push({ id, status: 'INFO', msg });
 }
+
+/** #7 Pass + device three-green evidence markers in a doc blob. */
+function pass7DeviceOk(text) {
+  if (!text) return false;
+  const has7 = /#7/.test(text);
+  const passNow =
+    /\|\s*7\s*\|[^|\n]*\|\s*\*\*Pass\*\*/.test(text) ||
+    /#7\s*\*\*Pass\*\*/.test(text) ||
+    /#7 Pass/i.test(text) ||
+    /\*\*#7 Pass\*\*/i.test(text) ||
+    /#7[^\n]{0,100}Pass \(DEVICE-THREE-GREEN/i.test(text) ||
+    /#7[^\n]{0,80}\*\*Pass\*\*/.test(text);
+  const evidence =
+    /DEVICE[-_]THREE[-_]GREEN/i.test(text) ||
+    /Seeker/.test(text) ||
+    /GPA\.3327-2483-8031-49087/.test(text);
+  return has7 && passNow && evidence;
+}
+
 
 function read(rel) {
   const p = path.join(root, rel);
@@ -2132,19 +2152,58 @@ if (billRaw) {
   }
 }
 
-// --- 4) Blocked monetization (do NOT Pass) ---
-block(
-  'P0-2',
-  'Real AdMob Android units wired in repo; device interstitial/rewarded full-watch unverified. Not Pass.'
-);
-block(
-  'P0-3',
-  '?ad=1 is capture mode, not live ad stream — blocked until real SDK verified on device.'
-);
-block(
-  'M-IAP',
-  'Live remove_ads Play Billing — product Active $2.99 + shop live CTA when Billing ready; device purchase+restore still Blocked (not Pass).'
-);
+// --- 4) Monetization: Pass only with DEVICE-THREE-GREEN evidence (else Fail; never forever-Blocked) ---
+{
+  const deviceDoc = read('docs/DEVICE_THREE_GREEN.md') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accRaw = read('ACCEPTANCE.md') || '';
+  const evidenceOk =
+    /DEVICE-THREE-GREEN|DEVICE_THREE_GREEN/.test(deviceDoc) &&
+    /Seeker/.test(deviceDoc) &&
+    /GPA\.3327-2483-8031-49087/.test(deviceDoc) &&
+    /interstitial/i.test(deviceDoc) &&
+    /rewarded/i.test(deviceDoc) &&
+    (/remove_ads|purchase/i.test(deviceDoc));
+  const bar7Pass = pass7DeviceOk(barRaw);
+  const p02Pass = /^\|\s*\*\*P0②\*\*.*\*\*Pass\*\*/m.test(accRaw);
+  const p03Pass = /^\|\s*\*\*P0③\*\*.*\*\*Pass\*\*/m.test(accRaw);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(deviceDoc) &&
+    !/soft-launch|ship-ready/i.test(deviceDoc.split('Production')[0] || '');
+  if (evidenceOk && bar7Pass && p02Pass) {
+    pass(
+      'P0-2',
+      'DEVICE-THREE-GREEN Seeker: interstitial + rewarded full-watch Pass; bar #7 Pass; ACCEPTANCE P0② Pass'
+    );
+  } else {
+    fail(
+      'P0-2',
+      `missing device three-green evidence (evidenceOk=${evidenceOk} bar7Pass=${bar7Pass} p02Pass=${p02Pass})`
+    );
+  }
+  if (evidenceOk && bar7Pass && p03Pass) {
+    pass(
+      'P0-3',
+      'DEVICE-THREE-GREEN: live SDK ad stream verified on device; ?ad=1 remains capture-only; P0③ Pass'
+    );
+  } else {
+    fail(
+      'P0-3',
+      `missing live-stream device evidence (evidenceOk=${evidenceOk} bar7Pass=${bar7Pass} p03Pass=${p03Pass})`
+    );
+  }
+  if (evidenceOk && bar7Pass && /remove_ads|GPA\.3327/.test(deviceDoc)) {
+    pass(
+      'M-IAP',
+      'DEVICE-THREE-GREEN Seeker: remove_ads purchase+restore Pass (GPA.3327-2483-8031-49087); not forever-Blocked'
+    );
+  } else {
+    fail(
+      'M-IAP',
+      `missing remove_ads device purchase+restore evidence (evidenceOk=${evidenceOk} bar7Pass=${bar7Pass})`
+    );
+  }
+}
 
 
 // --- A11Y-ZOOM: viewport allows pinch/browser zoom (no maximum-scale=1 / user-scalable=no) ---
@@ -6808,9 +6867,7 @@ block(
   const noInventStale =
     !/may be in progress or still need Console action/i.test(packRaw) &&
     !/do not invent .uploaded successfully./i.test(packRaw);
-  const fail7Ok =
-    /#7/.test(packRaw) &&
-    (/still Fail/i.test(packRaw) || /remains Fail/i.test(packRaw));
+  const fail7Ok = pass7DeviceOk(packRaw);
   const admobAlign =
     /1\.0\.1-internal-vc2-testids/.test(admobRaw) ||
     /1\.0\.2-internal-vc3-prodAdMob/.test(admobRaw) ||
@@ -6820,7 +6877,7 @@ block(
   if (uploadedOk && noInventStale && fail7Ok && admobAlign && noSoft) {
     pass(
       'NATIVE-INTERNAL-TESTING-SYNC',
-      'NATIVE_PACK_READY: internal testing history/current UPLOADED (vc2-testids and/or vc3-prodAdMob); #7 still Fail; aligns ADMOB checklist; no soft-arm'
+      'NATIVE_PACK_READY: internal testing history/current UPLOADED (vc2-testids and/or vc3-prodAdMob); #7 Pass DEVICE-THREE-GREEN; aligns ADMOB checklist; no soft-arm'
     );
   } else {
     fail(
@@ -6848,13 +6905,7 @@ block(
   const noUntilSample =
     !/Until §3:\s*keep sample IDs/i.test(admobRaw) ||
     /Historical \(before REAL-ADMOB-IDS\)/i.test(admobRaw);
-  const fail7Ok =
-    (/#7/.test(packRaw) && (/still Fail/i.test(packRaw) || /remains Fail/i.test(packRaw))) &&
-    (/#7/.test(admobRaw) &&
-      (/still Fail/i.test(admobRaw) ||
-        /Do \*\*not\*\* mark #7/i.test(admobRaw) ||
-        /not.*mark #7/i.test(admobRaw) ||
-        /Do not.*mark #7/i.test(admobRaw)));
+  const fail7Ok = pass7DeviceOk(packRaw) && pass7DeviceOk(admobRaw);
   const designOk =
     /REAL-ADMOB-IDS/.test(designRaw) &&
     !/AdMob interstitial \+ rewarded \(Capacitor plugin \+ publisher account\)/.test(designRaw);
@@ -6864,7 +6915,7 @@ block(
   if (markerOk && histOk && prodOk && noNextStale && noUntilSample && fail7Ok && designOk && noSoft) {
     pass(
       'NATIVE-VC3-INTERNAL-SYNC',
-      'NATIVE_PACK_READY + ADMOB checklist: historical 1.0.2-internal-vc3-prodAdMob / vc3 documented; DESIGN honest; #7 still Fail; no soft-arm'
+      'NATIVE_PACK_READY + ADMOB checklist: historical 1.0.2-internal-vc3-prodAdMob / vc3 documented; DESIGN honest; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -6896,15 +6947,14 @@ block(
   const histOk =
     /superseded/i.test(pastePack) && /1\.0\.1-internal-vc2-testids/.test(pastePack);
   const fail7Ok =
-    (/#7/.test(pastePack) && /still Fail/i.test(pastePack)) &&
-    (/#7/.test(paste) && /still Fail/i.test(paste));
+    pass7DeviceOk(pastePack) && pass7DeviceOk(paste);
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(pastePack) &&
     !/soft-arm|claim-juice|hud-pulse/.test(paste);
   if (markerOk && histVc3Ok && idsOk && noStaleSampleAdvice && histOk && fail7Ok && noSoft) {
     pass(
       'PLAY-PASTE-VC3-SYNC',
-      'PLAY_CONSOLE_PASTE(_PACK): historical vc3 prodAdMob documented; no stale sample-ID current advice; #7 still Fail; no soft-arm'
+      'PLAY_CONSOLE_PASTE(_PACK): historical vc3 prodAdMob documented; no stale sample-ID current advice; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -6935,13 +6985,7 @@ block(
     (/historical/i.test(packRaw) || /superseded/i.test(packRaw)) &&
     (/1\.0\.4-internal-vc5-uncap1tap/.test(packRaw) || /vc5/.test(packRaw)) &&
     (/vc4/.test(packRaw) || /versionCode 4/.test(packRaw) || /1\.0\.3/.test(packRaw));
-  const fail7Ok =
-    (/#7/.test(packRaw) && (/still Fail/i.test(packRaw) || /remains Fail/i.test(packRaw))) &&
-    (/#7/.test(admobRaw) &&
-      (/still Fail/i.test(admobRaw) ||
-        /Do \*\*not\*\* mark #7/i.test(admobRaw) ||
-        /not.*mark #7/i.test(admobRaw) ||
-        /Do not.*mark #7/i.test(admobRaw)));
+  const fail7Ok = pass7DeviceOk(packRaw) && pass7DeviceOk(admobRaw);
   const designOk =
     /REAL-ADMOB-IDS/.test(designRaw) &&
     !/AdMob interstitial \+ rewarded \(Capacitor plugin \+ publisher account\)/.test(designRaw);
@@ -6951,7 +6995,7 @@ block(
   if (markerOk && currentOk && prodOk && uncapOk && busyOk && histOk && fail7Ok && designOk && noSoft) {
     pass(
       'NATIVE-VC6-INTERNAL-SYNC',
-      'NATIVE_PACK_READY + ADMOB checklist: current Active 1.0.5-internal-vc6-iapBusy / vc6 / 1.0.5 / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY; #7 still Fail; no soft-arm'
+      'NATIVE_PACK_READY + ADMOB checklist: current Active 1.0.5-internal-vc6-iapBusy / vc6 / 1.0.5 / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -6983,7 +7027,7 @@ block(
   const busyActive =
     /IAP-PURCHASE-BUSY/.test(packRaw) &&
     (/includes/.test(packRaw) || /含/.test(packRaw));
-  const fail7Ok = /#7/.test(packRaw) && (/still Fail/i.test(packRaw) || /remains Fail/i.test(packRaw));
+  const fail7Ok = pass7DeviceOk(packRaw);
   const naOk =
     /1826-prodAdMob-vc6-iapBusy/.test(na) &&
     (/已在 Play Active/.test(na) || /uploaded/i.test(na));
@@ -6992,7 +7036,7 @@ block(
   if (markerOk && localAabOk && activeVc6 && busyActive && fail7Ok && naOk && noSoft) {
     pass(
       'NATIVE-VC6-LOCAL-AAB-SYNC',
-      'docs: existing vc6-iapBusy AAB uploaded; Active is vc6-uncap1tap + IAP-PURCHASE-BUSY; #7 still Fail; no soft-arm'
+      'docs: existing vc6-iapBusy AAB uploaded; Active is vc6-uncap1tap + IAP-PURCHASE-BUSY; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -7020,12 +7064,12 @@ block(
     /UNCAP-ONE-TAP/.test(na) &&
     /IAP-PURCHASE-BUSY/.test(na) &&
     (/已在 Play Active/.test(na) || /uploaded/i.test(na));
-  const fail7Ok = /#7/.test(na) && (/仍 Fail/.test(na) || /still Fail/i.test(na));
+  const fail7Ok = pass7DeviceOk(na);
   const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(na);
   if (markerOk && currentOk && prodOk && noStaleTestStage && activeFeatures && fail7Ok && noSoft) {
     pass(
       'NATIVE-ACCEPTANCE-VC6-SYNC',
-      'NATIVE_ACCEPTANCE: Active vc6 / REAL-ADMOB-IDS / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY / #7 still Fail; no soft-arm'
+      'NATIVE_ACCEPTANCE: Active vc6 / REAL-ADMOB-IDS / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY / #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -7063,15 +7107,14 @@ block(
     /1\.0\.1-internal-vc2-testids/.test(pastePack);
   const postOk = /1\.0\.5-internal-vc6-iapBusy/.test(post);
   const fail7Ok =
-    (/#7/.test(pastePack) && /still Fail/i.test(pastePack)) &&
-    (/#7/.test(paste) && /still Fail/i.test(paste));
+    pass7DeviceOk(pastePack) && pass7DeviceOk(paste);
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(pastePack) &&
     !/soft-arm|claim-juice|hud-pulse/.test(paste);
   if (markerOk && currentOk && uncapOk && busyOk && idsOk && noStaleSampleAdvice && histOk && postOk && fail7Ok && noSoft) {
     pass(
       'PLAY-PASTE-VC6-SYNC',
-      'PLAY_CONSOLE_PASTE(_PACK): Active vc6-iapBusy / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY / USE_TEST_ADS=false; #7 still Fail; no soft-arm'
+      'PLAY_CONSOLE_PASTE(_PACK): Active vc6-iapBusy / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY / USE_TEST_ADS=false; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -7113,9 +7156,7 @@ block(
     !/Testers \/ license-tester Gmail may still need user/i.test(packRaw) &&
     !/Tester group \/ license-tester Gmail may still need user/i.test(packRaw);
   const fail7Ok =
-    (/#7/.test(packRaw) && /still Fail/i.test(packRaw)) &&
-    (/#7/.test(admobRaw) &&
-      (/still Fail/i.test(admobRaw) || /Do \*\*not\*\* mark #7/i.test(admobRaw)));
+    pass7DeviceOk(packRaw) && pass7DeviceOk(admobRaw);
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(packRaw) &&
     !/soft-arm|claim-juice|hud-pulse/.test(admobRaw);
@@ -7131,7 +7172,7 @@ block(
   ) {
     pass(
       'INTERNAL-TESTER-SYNC',
-      'NATIVE_PACK_READY + ADMOB + paste: lancechung@gmail.com / ColorTube-internal / opt-in URL / RESPOND_NORMALLY; #7 still Fail; no soft-arm'
+      'NATIVE_PACK_READY + ADMOB + paste: lancechung@gmail.com / ColorTube-internal / opt-in URL / RESPOND_NORMALLY; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -7141,31 +7182,33 @@ block(
   }
 }
 
-// --- ACCEPTANCE-P0-ADMOB-HONESTY: P0② row not stale stub/USE_TEST_ADS-as-current; REAL-ADMOB + Blocked + device/三綠燈 ---
+// --- ACCEPTANCE-P0-ADMOB-HONESTY: P0② Pass + DEVICE-THREE-GREEN evidence; not stale stub ---
 {
   const accRaw = read('ACCEPTANCE.md') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
   const markerOk =
     /ACCEPTANCE-P0-ADMOB-HONESTY/.test(accRaw) &&
-    /ACCEPTANCE-P0-ADMOB-HONESTY/.test(read('MILLION_USER_BAR.md') || '');
+    /ACCEPTANCE-P0-ADMOB-HONESTY/.test(barRaw);
   const p02Match = accRaw.match(/^\|\s*\*\*P0②\*\*.*$/m);
   const p02Row = p02Match ? p02Match[0] : '';
   const staleStub =
     /仍 stub/.test(p02Row) ||
     /等出版社帳號＋正式單元/.test(p02Row);
   const honestyOk =
-    (/REAL-ADMOB-IDS/.test(p02Row) || /prod wired|正式.*配線|已配線/.test(p02Row)) &&
-    /\*\*Blocked\*\*|Blocked/.test(p02Row) &&
-    (/三綠燈|three green|device/.test(p02Row));
+    (/REAL-ADMOB-IDS/.test(p02Row) || /prod wired|正式.*配線|已配線|DEVICE-THREE-GREEN/.test(p02Row)) &&
+    /\*\*Pass\*\*/.test(p02Row) &&
+    (/三綠燈|three green|DEVICE-THREE-GREEN|Seeker|GPA\.3327/.test(p02Row));
+  const noBlockedNow = !/\*\*Blocked\*\*/.test(p02Row);
   const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(p02Row);
-  if (markerOk && p02Match && !staleStub && honestyOk && noSoft) {
+  if (markerOk && p02Match && !staleStub && honestyOk && noBlockedNow && noSoft) {
     pass(
       'ACCEPTANCE-P0-ADMOB-HONESTY',
-      'P0② row: REAL-ADMOB-IDS / prod wired + Blocked + device/三綠燈; not stale stub/USE_TEST_ADS-as-current; no soft-arm'
+      'P0② row: Pass + DEVICE-THREE-GREEN / Seeker evidence; not stale stub; no soft-arm'
     );
   } else {
     fail(
       'ACCEPTANCE-P0-ADMOB-HONESTY',
-      `P0② honesty failed (markerOk=${markerOk} hasRow=${!!p02Match} staleStub=${staleStub} honestyOk=${honestyOk} noSoft=${noSoft} row=${JSON.stringify(p02Row.slice(0, 160))})`
+      `P0② honesty failed (markerOk=${markerOk} hasRow=${!!p02Match} staleStub=${staleStub} honestyOk=${honestyOk} noBlockedNow=${noBlockedNow} noSoft=${noSoft} row=${JSON.stringify(p02Row.slice(0, 160))})`
     );
   }
 }
@@ -7194,16 +7237,14 @@ block(
     /https:\/\/play\.google\.com\/apps\/internaltest\/4701709602422954921/.test(packRaw) &&
     /https:\/\/play\.google\.com\/apps\/internaltest\/4701709602422954921/.test(admobRaw);
   const fail7Ok =
-    (/#7/.test(packRaw) && /still Fail/i.test(packRaw)) &&
-    (/#7/.test(admobRaw) &&
-      (/still Fail/i.test(admobRaw) || /Do \*\*not\*\* mark #7/i.test(admobRaw)));
+    pass7DeviceOk(packRaw) && pass7DeviceOk(admobRaw);
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(packRaw) &&
     !/soft-arm|claim-juice|hud-pulse/.test(admobRaw);
   if (markerOk && hanwenOk && listOk && optInOk && fail7Ok && noSoft) {
     pass(
       'INTERNAL-TESTER-HANWEN-SYNC',
-      'NATIVE_PACK_READY + ADMOB + paste: hanwen16888@gmail.com / ColorTube-internal / opt-in; #7 still Fail; no soft-arm'
+      'NATIVE_PACK_READY + ADMOB + paste: hanwen16888@gmail.com / ColorTube-internal / opt-in; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -7242,10 +7283,7 @@ block(
     /3904450574947460\/2731725604/.test(esmRaw);
   const patchOk = /capacitor\.config\.json/.test(patchRaw) && /appIdAndroid/.test(patchRaw);
   const notesOk = /3904450574947460~6670970617/.test(notesRaw) && /iOS/.test(notesRaw);
-  const fail7Ok =
-    /#7/.test(barRaw) &&
-    (/still Fail/i.test(barRaw) || /\*\*Fail\*\*/.test(barRaw)) &&
-    (/three green|三綠燈|device three/i.test(barRaw));
+  const fail7Ok = pass7DeviceOk(barRaw);
   const noSampleInCapAndroid = !/3940256099942544~3347511713/.test(
     String(admob.appIdAndroid || '')
   );
@@ -7264,7 +7302,7 @@ block(
   ) {
     pass(
       'REAL-ADMOB-IDS',
-      'Android prod App ID + interstitial/rewarded + USE_TEST_ADS=false; iOS test App ID kept; patch reads config; #7 still Fail; no soft-arm'
+      'Android prod App ID + interstitial/rewarded + USE_TEST_ADS=false; iOS test App ID kept; patch reads config; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -7309,9 +7347,7 @@ block(
   const webHonest =
     /Coming soon \/ needs store account/.test(gameJs) &&
     /ACCEPTANCE P0①: normal shop click must NOT grant removeAds/.test(gameJs);
-  const fail7Ok =
-    /#7/.test(barRaw) &&
-    (/still Fail/i.test(barRaw) || /\*\*Fail\*\*/.test(barRaw));
+  const fail7Ok = pass7DeviceOk(barRaw);
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(
       (gameJs.match(/IAP-PURCHASE-BUSY[\s\S]{0,2500}/) || [''])[0]
@@ -7329,7 +7365,7 @@ block(
   ) {
     pass(
       'IAP-PURCHASE-BUSY',
-      'iapBusy + finally clear; disable buy/fail/restore; busy ignore no grant; web Coming soon; #7 still Fail; no soft-arm'
+      'iapBusy + finally clear; disable buy/fail/restore; busy ignore no grant; web Coming soon; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -7363,9 +7399,7 @@ block(
     /Coming soon \/ needs store account/.test(gameJs) &&
     /ACCEPTANCE P0①: normal shop click must NOT grant removeAds/.test(gameJs);
   const descOk = /id="shop-remove-ads-desc"/.test(indexHtml);
-  const fail7Ok =
-    /#7/.test(barRaw) &&
-    (/still Fail/i.test(barRaw) || /\*\*Fail\*\*/.test(barRaw));
+  const fail7Ok = pass7DeviceOk(barRaw);
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(
       (gameJs.match(/REMOVE-ADS-SHOP-LIVE[\s\S]{0,2500}/) || [''])[0]
@@ -7382,7 +7416,7 @@ block(
   ) {
     pass(
       'REMOVE-ADS-SHOP-LIVE',
-      'shop/fail live $2.99 CTA + Restore when Billing ready; web Coming soon + P0①; #7 still Fail; no soft-arm'
+      'shop/fail live $2.99 CTA + Restore when Billing ready; web Coming soon + P0①; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
@@ -7415,11 +7449,11 @@ console.log(
   `Summary: ${rows.filter((r) => r.status === 'PASS').length} Pass · ${fails} Fail · ${blocked} Blocked (external)`
 );
 console.log(
-  'Gate: suite proves automatable product rules; P0②③ / live IAP remain Blocked — not ship-ready.'
+  'Gate: suite green when DEVICE-THREE-GREEN evidence present (P0-2/P0-3/M-IAP Pass); MILLION_USER_BAR #1/#3 Partial → Production still held — not ship-ready.'
 );
 if (fails > 0) {
   console.log(`結果: FAIL（${fails} automatable checks）`);
   process.exit(1);
 }
-console.log('結果: PASS — automatable checks green; monetization still Blocked');
+console.log('結果: PASS — automatable checks green; #7/P0②③ Pass via DEVICE-THREE-GREEN; Production held (#1/#3 Partial)');
 process.exit(0);

@@ -3,7 +3,7 @@
 > **EN first** (primary listing). Traditional Chinese secondary below.
 > Play developer account: **APPROVED** (2026-09-21 Asia/Taipei).
 > **Current** internal testing Active: `1.0.5-internal-vc6-iapBusy` / versionCode **6** / versionName **1.0.5** / Billing≥8 / prod AdMob (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded); vc2-testids superseded.
-> **Do not** claim live / #7 Pass until device three green lights (interstitial, rewarded full-watch, `remove_ads` purchase+restore). **#7 still Fail**. Production untouched.
+> **Do not** claim live / #7 Pass — verified DEVICE-THREE-GREEN (interstitial, rewarded full-watch, `remove_ads` purchase+restore). **#7 Pass** (DEVICE-THREE-GREEN Seeker). Production untouched.
 > Active vc6 AAB **includes** **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** (tip main / #237; the already-built ~18:26 AAB `…-1826-prodAdMob-vc6-iapBusy-release.aab` / `play-upload/ColorTubeSort-vc6-iapBusy.aab` is uploaded as `1.0.5-internal-vc6-iapBusy`; **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**).
 > Marker: **PLAY-PASTE-VC6-SYNC** · **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC** (historical **PLAY-PASTE-VC5-SYNC** / **NATIVE-VC5-INTERNAL-SYNC** / **PLAY-PASTE-VC3-SYNC** / **NATIVE-VC3-INTERNAL-SYNC**).
 
@@ -80,7 +80,7 @@ Keywords: color sort, water sort, tube puzzle, pour puzzle, color sorting, relax
 
 ---
 
-## AdMob — **REAL-ADMOB-IDS** (wired; #7 still Fail)
+## AdMob — **REAL-ADMOB-IDS** (wired; #7 Pass (DEVICE-THREE-GREEN Seeker))
 
 <!-- PLAY-PASTE-VC6-SYNC -->
 <!-- PLAY-PASTE-VC3-SYNC (historical) -->
@@ -93,7 +93,7 @@ Android prod IDs are **already wired** in repo (`USE_TEST_ADS=false`). Do **not*
 | Android rewarded | `ca-app-pub-3904450574947460/8768677032` | `PROD_UNITS.rewarded.android` |
 | iOS interstitial / rewarded | Still Google sample (no iOS app yet) | `PROD_UNITS.*.ios` |
 
-**#7 still Fail** until device three green lights. Production untouched.
+**#7 Pass** (DEVICE-THREE-GREEN Seeker). Production untouched.
 
 ---
 
@@ -145,5 +145,5 @@ Android prod IDs are **already wired** in repo (`USE_TEST_ADS=false`). Do **not*
 
 1. **Play app / internal testing / AdMob Android IDs** — **DONE** (app ID `4972040404691889159`; Active internal `1.0.5-internal-vc6-iapBusy`; **REAL-ADMOB-IDS**).
 2. **Internal testers** — list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`.
-3. **Device three green lights** — interstitial / rewarded full-watch / `remove_ads` purchase+restore → **#7 still Fail**.
+3. **Device three green lights** — interstitial / rewarded full-watch / `remove_ads` purchase+restore → **#7 Pass** (DEVICE-THREE-GREEN Seeker).
 4. **Still external placeholders** — support email; GA4 `MEASUREMENT_ID`; Merchant / Data Safety Device IDs deep form may still be incomplete. Do not invent.
