@@ -2065,8 +2065,8 @@ if (gameRaw) {
 // --- 3) Ads / billing source honesty ---
 const adsRaw = read('assets/js/ads.js');
 if (adsRaw) {
-  if (/USE_TEST_ADS\s*=\s*true/.test(adsRaw)) pass('AD-TEST', 'USE_TEST_ADS === true (test-ID phase)');
-  else fail('AD-TEST', 'USE_TEST_ADS must be true until real publisher IDs');
+  if (/USE_TEST_ADS\s*=\s*false/.test(adsRaw) && /3904450574947460\/2731725604/.test(adsRaw) && /3904450574947460\/8768677032/.test(adsRaw)) pass('AD-PROD', 'USE_TEST_ADS === false + prod Android units');
+  else fail('AD-PROD', 'Expected USE_TEST_ADS=false and real Android interstitial/rewarded unit IDs');
 
   if (/禁止倒水中|not during.*pour|僅 fail-loop/i.test(adsRaw)) {
     pass('AD-GUARD-DOC', 'ads.js documents no mid-pour interstitial');

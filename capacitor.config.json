@@ -8,9 +8,9 @@
   },
   "plugins": {
     "AdMob": {
-      "appIdAndroid": "ca-app-pub-3940256099942544~3347511713",
+      "appIdAndroid": "ca-app-pub-3904450574947460~6670970617",
       "appIdIos": "ca-app-pub-3940256099942544~1458002511",
-      "initializeForTesting": true
+      "initializeForTesting": false
     },
     "NativePurchases": {
       "removeAdsProductId": "remove_ads"

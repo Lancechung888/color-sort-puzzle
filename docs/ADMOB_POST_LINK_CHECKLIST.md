@@ -80,3 +80,10 @@ Until §3: keep sample IDs + `USE_TEST_ADS = true` + current `*-testids` AAB.
 - Claiming #7 Pass on testids build  
 
 See also: `docs/PLAY_IAP_ADMOB_SETUP.md` (full IAP + AdMob), `docs/PLAY_CONSOLE_PASTE_PACK.md`.
+
+## Status update (2026-09-21)
+
+- Android AdMob App ID + interstitial + rewarded **wired in repo** (Play store link may still 404 until listing public).
+- `USE_TEST_ADS=false`, `initializeForTesting=false`.
+- Next: native **versionCode 3** / **1.0.2** internal AAB **without** `testids` in name.
+- **Do not** mark #7 Pass until device QA: interstitial / rewarded / remove_ads+restore green.

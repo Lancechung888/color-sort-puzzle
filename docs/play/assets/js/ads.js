@@ -39,16 +39,18 @@
 
   const PROD_UNITS = {
     interstitial: {
-      android: 'ca-app-pub-XXXXXXXXXXXXXXXX/IIIIIIIIII',
+      android: 'ca-app-pub-3904450574947460/2731725604',
+      // iOS units TBD — do not ship iOS release until real IDs exist
       ios: 'ca-app-pub-XXXXXXXXXXXXXXXX/IIIIIIIIII',
     },
     rewarded: {
-      android: 'ca-app-pub-XXXXXXXXXXXXXXXX/RRRRRRRRRR',
+      android: 'ca-app-pub-3904450574947460/8768677032',
       ios: 'ca-app-pub-XXXXXXXXXXXXXXXX/RRRRRRRRRR',
     },
   };
 
-  const USE_TEST_ADS = true;
+  // Android prod IDs live (2026-09-21, AdMob unpublished-app OK). Play store link may 404 until listing public.
+  const USE_TEST_ADS = false;
 
   const state = {
     ready: false,
