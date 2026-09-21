@@ -3557,3 +3557,22 @@ html.reduced-motion .perfect-spark {
     border: 2px solid ButtonBorder;
   }
 }
+
+/* A11Y-REDUCED-TRANSPARENCY */
+/* OS prefers-reduced-transparency: drop backdrop blur; use denser solid scrims (no soft-arm / pulse). */
+@media (prefers-reduced-transparency: reduce) {
+  .tube-glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .overlay {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(8, 10, 24, 0.96);
+  }
+
+  [data-theme="cat"] .overlay {
+    background: rgba(80, 50, 60, 0.94);
+  }
+}
