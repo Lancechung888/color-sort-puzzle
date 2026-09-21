@@ -1,6 +1,6 @@
 /**
  * ColorTube Sort — AdMob (Capacitor) drop-in
- * Path: assets/js/ads.js  （在 game.js 之前載入）
+ * Path: assets/js/ads.js  （可在 game.js 之後載入；game 用 optional globals；sync 於 DOMContentLoaded 前即可）
  *
  * 對齊 game.js stub：
  *   showInterstitialStub(reason)
