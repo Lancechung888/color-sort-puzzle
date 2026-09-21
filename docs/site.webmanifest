@@ -51,6 +51,19 @@
           "type": "image/png"
         }
       ]
+    },
+    {
+      "name": "Continue",
+      "short_name": "Continue",
+      "description": "Resume mid-run or frontier level.",
+      "url": "./play/?continue=1",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
