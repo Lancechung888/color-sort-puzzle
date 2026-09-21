@@ -6967,6 +6967,39 @@ block(
   }
 }
 
+
+// --- NATIVE-ACCEPTANCE-VC5-SYNC: NATIVE_ACCEPTANCE honesty vs vc5/prod AdMob; #7 Fail ---
+{
+  const na = read('docs/NATIVE_ACCEPTANCE.md') || '';
+  const markerOk = /NATIVE-ACCEPTANCE-VC5-SYNC/.test(na);
+  const currentOk =
+    /1\.0\.4-internal-vc5-uncap1tap/.test(na) &&
+    (/versionCode\s*\*?\*?5\*?\*?/.test(na) || /vc5/.test(na));
+  const prodOk =
+    /REAL-ADMOB-IDS/.test(na) &&
+    (/USE_TEST_ADS\s*=\s*false/.test(na) || /prod AdMob/i.test(na));
+  const noStaleTestStage =
+    !/^# 原生包可驗收說明（測試 ID 階段）/m.test(na) &&
+    !/\|\s*階段\s*\|\s*\*\*測試 ID\*\*/.test(na) &&
+    !/AdMob／Billing 測 ID：\*\*接線打勾已過關\*\*/.test(na);
+  const openOk =
+    (/三綠燈/.test(na) || /three green/i.test(na)) &&
+    (/IAP-PURCHASE-BUSY/.test(na) && (/versionCode\s*>\s*5/.test(na) || /versionCode \*\*>5\*\*/.test(na) || />5/.test(na)));
+  const fail7Ok = /#7/.test(na) && (/仍 Fail/.test(na) || /still Fail/i.test(na));
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(na);
+  if (markerOk && currentOk && prodOk && noStaleTestStage && openOk && fail7Ok && noSoft) {
+    pass(
+      'NATIVE-ACCEPTANCE-VC5-SYNC',
+      'NATIVE_ACCEPTANCE: vc5 / REAL-ADMOB-IDS / #7 still Fail; not stale test-ID stage; no soft-arm'
+    );
+  } else {
+    fail(
+      'NATIVE-ACCEPTANCE-VC5-SYNC',
+      `stale or incomplete NATIVE_ACCEPTANCE (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} noStaleTestStage=${noStaleTestStage} openOk=${openOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PLAY-PASTE-VC5-SYNC: paste pack/docs = vc5-uncap1tap; #7 Fail ---
 {
   const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
