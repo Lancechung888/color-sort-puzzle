@@ -4165,6 +4165,62 @@ block(
   }
 }
 
+// --- FONT-PRELOAD-BODY: Noto 400/500/600 HUD/chip/body before CSS; crossorigin; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const preload400 =
+    /rel=["']preload["'][^>]*href=["']assets\/fonts\/noto-sans-latin-400-normal\.woff2["']/.test(htmlRaw) ||
+    /href=["']assets\/fonts\/noto-sans-latin-400-normal\.woff2["'][^>]*rel=["']preload["']/.test(htmlRaw);
+  const preload500 =
+    /rel=["']preload["'][^>]*href=["']assets\/fonts\/noto-sans-latin-500-normal\.woff2["']/.test(htmlRaw) ||
+    /href=["']assets\/fonts\/noto-sans-latin-500-normal\.woff2["'][^>]*rel=["']preload["']/.test(htmlRaw);
+  const preload600 =
+    /rel=["']preload["'][^>]*href=["']assets\/fonts\/noto-sans-latin-600-normal\.woff2["']/.test(htmlRaw) ||
+    /href=["']assets\/fonts\/noto-sans-latin-600-normal\.woff2["'][^>]*rel=["']preload["']/.test(htmlRaw);
+  const links = [...htmlRaw.matchAll(/<link\b[^>]*rel=["']preload["'][^>]*>/gi)].map((m) => m[0]);
+  const bodyLinks = links.filter((l) => /noto-sans-latin-(400|500|600)-normal\.woff2/.test(l));
+  const attrsOk =
+    bodyLinks.length >= 3 &&
+    bodyLinks.every(
+      (l) =>
+        /\bas=["']font["']/.test(l) &&
+        /type=["']font\/woff2["']/.test(l) &&
+        /\bcrossorigin\b/.test(l)
+    );
+  const sheetIdx = (() => {
+    const m = [...htmlRaw.matchAll(/<link\b[^>]*>/gi)].find(
+      (x) => /rel=["']stylesheet["']/.test(x[0]) && /assets\/css\/style\.css/.test(x[0])
+    );
+    return m ? m.index : -1;
+  })();
+  const beforeCss =
+    htmlRaw.indexOf('noto-sans-latin-400-normal.woff2') >= 0 &&
+    sheetIdx >= 0 &&
+    htmlRaw.indexOf('noto-sans-latin-400-normal.woff2') < sheetIdx;
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/FONT-PRELOAD-BODY/.test(playHtml) &&
+      /noto-sans-latin-400-normal\.woff2/.test(playHtml) &&
+      /noto-sans-latin-500-normal\.woff2/.test(playHtml) &&
+      /noto-sans-latin-600-normal\.woff2/.test(playHtml));
+  const noSoft = !/soft-arm|claim-juice|hud-pulse|font-arm/.test(htmlRaw.slice(0, 3200));
+  if (preload400 && preload500 && preload600 && attrsOk && beforeCss && playOk && noSoft) {
+    pass(
+      'FONT-PRELOAD-BODY',
+      'index preload Noto 400/500/600 woff2 as=font type=font/woff2 crossorigin before stylesheet; docs/play synced; no soft-arm'
+    );
+  } else {
+    fail(
+      'FONT-PRELOAD-BODY',
+      `missing body font preload (400=${preload400} 500=${preload500} 600=${preload600} attrs=${attrsOk} beforeCss=${beforeCss} play=${playOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+
+
 // --- COLOR-SCHEME-DARK: meta + CSS color-scheme dark; brand stays #1a1a2e; no soft-arm ---
 {
   const htmlRaw = read('index.html') || '';
