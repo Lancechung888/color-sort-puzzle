@@ -4138,7 +4138,7 @@ if (billRaw) {
 }
 
 
-// --- ANDROID-VERSION-CODE-6: Play versionCode≥6 + versionName 1.0.5; no soft-arm ---
+// --- ANDROID-VERSION-CODE-7: Play versionCode≥7 + versionName 1.0.6; no soft-arm ---
 {
   const patchRaw = read('scripts/patch-android-version.sh') || '';
   const aabRaw = read('scripts/build-internal-aab.sh') || '';
@@ -4148,9 +4148,9 @@ if (billRaw) {
     ? fs.readFileSync(appGradlePath, 'utf8')
     : '';
   const patchOk =
-    /ANDROID-VERSION-CODE-6/.test(patchRaw) &&
-    /COLOR_TUBE_VERSION_CODE:-6/.test(patchRaw) &&
-    /COLOR_TUBE_VERSION_NAME:-1\.0\.5/.test(patchRaw) &&
+    /ANDROID-VERSION-CODE-7/.test(patchRaw) &&
+    /COLOR_TUBE_VERSION_CODE:-7/.test(patchRaw) &&
+    /COLOR_TUBE_VERSION_NAME:-1\.0\.6/.test(patchRaw) &&
     /versionCode/.test(patchRaw) &&
     /versionName/.test(patchRaw);
   const syncIdx = aabRaw.search(/npx cap sync/);
@@ -4167,24 +4167,24 @@ if (billRaw) {
     versionIdx < admobIdx &&
     !/patch-android-version-code\.sh/.test(aabRaw);
   const readmeOk =
-    /ANDROID-VERSION-CODE-6/.test(readmeRaw) && /2ak/.test(readmeRaw);
+    /ANDROID-VERSION-CODE-7/.test(readmeRaw) && /2ak/.test(readmeRaw);
   let localOk = !appGradle;
   if (appGradle) {
     localOk =
-      /versionCode\s+6\b/.test(appGradle) &&
-      /versionName\s+"1\.0\.5"/.test(appGradle);
+      /versionCode\s+7\b/.test(appGradle) &&
+      /versionName\s+"1\.0\.6"/.test(appGradle);
   }
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(patchRaw + appGradle);
   if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
     pass(
-      'ANDROID-VERSION-CODE-6',
-      'versionCode 6 / versionName 1.0.5 via patch-android-version.sh + aab after billing before admob + README §2ak; Active Play still vc5 until upload; no soft-arm'
+      'ANDROID-VERSION-CODE-7',
+      'versionCode 7 / versionName 1.0.6 via patch-android-version.sh + aab after billing before admob + README §2ak; Active Play still vc6 until upload; no soft-arm'
     );
   } else {
     fail(
-      'ANDROID-VERSION-CODE-6',
-      `missing versionCode≥6 patch / aab hook-after-billing-before-admob / README / local gradle, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+      'ANDROID-VERSION-CODE-7',
+      `missing versionCode≥7 patch / aab hook-after-billing-before-admob / README / local gradle, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
     );
   }
 }
@@ -6838,7 +6838,7 @@ if (billRaw) {
   }
 }
 
-// --- NATIVE-PACK-READY-SYNC: docs truth + package 1.0.5 + REAL-ADMOB-IDS; Active vc6; no soft-arm ---
+// --- NATIVE-PACK-READY-SYNC: docs truth + package 1.0.6 + REAL-ADMOB-IDS; Active vc6; script ready vc7; no soft-arm ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
   const pkgRaw = read('package.json') || '';
@@ -6858,11 +6858,11 @@ if (billRaw) {
     (/versionCode\s*\*?\*?6\*?\*?/.test(packRaw) || /ANDROID-VERSION-CODE-6/.test(packRaw)) &&
     /UNCAP-ONE-TAP/.test(packRaw) &&
     /IAP-PURCHASE-BUSY/.test(packRaw);
-  // Script remains pinned to vc6 / 1.0.5
+  // Tip/script ready for next upload (vc7 / 1.0.6)
   const vcScriptOk =
-    /ANDROID-VERSION-CODE-6/.test(packRaw) &&
-    (/versionCode\s*6/.test(packRaw) || /versionName\s*1\.0\.5/.test(packRaw) || /1\.0\.5/.test(packRaw));
-  const pkgOk = pkgVer === '1.0.5';
+    /ANDROID-VERSION-CODE-7/.test(packRaw) &&
+    (/versionCode\s*7/.test(packRaw) || /versionName\s*1\.0\.6/.test(packRaw) || /1\.0\.6/.test(packRaw));
+  const pkgOk = pkgVer === '1.0.6';
   const realAdOk =
     /REAL-ADMOB-IDS/.test(packRaw) ||
     /3904450574947460/.test(packRaw) ||
@@ -6871,7 +6871,7 @@ if (billRaw) {
   if (noStale && approvedOk && vcActiveOk && vcScriptOk && pkgOk && realAdOk && noSoft) {
     pass(
       'NATIVE-PACK-READY-SYNC',
-      'NATIVE_PACK_READY: Play account APPROVED + Active vc6/1.0.5 with UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + script ANDROID-VERSION-CODE-6 + REAL-ADMOB-IDS; package.json 1.0.5; no soft-arm'
+      'NATIVE_PACK_READY: Play account APPROVED + Active vc6/1.0.5 with UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + script ANDROID-VERSION-CODE-7 / 1.0.6 + REAL-ADMOB-IDS; package.json 1.0.6; no soft-arm'
     );
   } else {
     fail(

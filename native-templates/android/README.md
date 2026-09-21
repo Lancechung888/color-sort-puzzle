@@ -760,16 +760,14 @@ bash scripts/patch-android-version.sh
 
 `npm run aab:internal` 在 Billing-8 patch **之後**、AdMob Manifest patch **之前**自動跑。
 
-## 2ak. Android versionCode ≥6（ANDROID-VERSION-CODE-6）
+## 2ak. Android versionCode ≥7（ANDROID-VERSION-CODE-7）
 
-Play internal testing rejects reused `versionCode`. Play **Active** internal is now **vc6** / `1.0.5-internal-vc6-iapBusy`, containing **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**. The already-built signed vc6 AAB is uploaded to Active; **no AAB rebuild**.
+Play internal testing rejects reused `versionCode`. Play **Active** internal is still **vc6** / `1.0.5-internal-vc6-iapBusy` (contains **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**; **lacks** tip **AD-REWARD-UNAVAILABLE** / #244). The next signed AAB must bump:
 
-The current patch values are:
+1. `versionCode` → **7**
+2. `versionName` → **"1.0.6"**
 
-1. `versionCode` → **6**
-2. `versionName` → **"1.0.5"**
-
-Pairs with tip **IAP-PURCHASE-BUSY** (#237) + **REAL-ADMOB-IDS** (`USE_TEST_ADS=false`) + **UNCAP-ONE-TAP**. Does **not** claim MILLION_USER_BAR **#7 Pass** — still need device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore). Future uploads must use a versionCode above 6.
+Pairs with tip **AD-REWARD-UNAVAILABLE** (#244) + **REAL-ADMOB-IDS** (`USE_TEST_ADS=false`) + **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**. Does **not** change Active Play until upload. Does **not** claim vc7 uploaded. **#7 Pass** remains DEVICE-THREE-GREEN Seeker evidence (unchanged by this bump). Gate stays **7 Pass / 2 Partial** (#1/#3). No soft-arm / soft-launch.
 
 一鍵補丁（冪等；無 `android/` 時 exit 0；override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`）：
 
