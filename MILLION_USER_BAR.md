@@ -368,6 +368,8 @@
 （已補）**FONT-PRELOAD-BODY**已上 — 可玩端 `index.html` 在 FONT-PRELOAD（700／800／900）後再 `rel=preload` Noto Sans latin **400／500／600** woff2（`as=font`／`type=font/woff2`／`crossorigin`）；HUD／chip／body 字重首屏少 FOUT；`sync-www` → www／docs/play；accept `FONT-PRELOAD-BODY`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 （已補）**FETCHPRIORITY-CRITICAL**已上 — 可玩端 CSS／Noto 700–900／levels+game preload `fetchpriority=high`；HUD body 400／500／600 `fetchpriority=low`；首屏品牌／CTA 優先於 body 字重帶寬；`sync-www` → www／docs/play；accept `FETCHPRIORITY-CRITICAL`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**AUDIO-EARLY-WARM**已上 — boot 於 `warmSfx`／`SFX` 後 `detectSfxExt`＋`SFX_STEMS.forEach(warmSfx)`（僅 fetch／preload，**不** `play()`）；首手勢從 cache 播；`resumeAudio` 仍負責 `sfxUnlocked`＋再暖；`sync-www` → www／docs/play；accept `AUDIO-EARLY-WARM`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 
 1. **真變現** — Play 過審後換正式 AdMob／Billing 單元；`remove_ads` 真接線（維持不打斷倒水）。勿把測 ID／Coming soon 標 Done。  
