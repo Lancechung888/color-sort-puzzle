@@ -1,6 +1,6 @@
 # AdMob checklist — after Play package link
 
-**Context (2026-09-21):** Internal testing previously uploaded `1.0.1-internal-vc2-testids` / vc2 (Google **sample** AdMob IDs). **REAL-ADMOB-IDS** now wires Android prod App ID `ca-app-pub-3904450574947460~6670970617` + interstitial `…/2731725604` + rewarded `…/8768677032` with `USE_TEST_ADS=false` / `initializeForTesting=false` (versionCode **3** / 1.0.2 AAB). Play package `com.lancechung.colortubesort`. CEO creating `remove_ads` @ $2.99 in Console. Support email / license-tester Gmail still pending user.
+**Context (2026-09-21):** **Current** Play internal testing = `1.0.2-internal-vc3-prodAdMob` / **versionCode 3** / **versionName 1.0.2** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`). Historical: `1.0.1-internal-vc2-testids` / vc2 / sample IDs (superseded; **NATIVE-INTERNAL-TESTING-SYNC**). **REAL-ADMOB-IDS** wires Android prod App ID `ca-app-pub-3904450574947460~6670970617` + interstitial `…/2731725604` + rewarded `…/8768677032` with `initializeForTesting=false`. Play package `com.lancechung.colortubesort`. `remove_ads` IAP Active @ $2.99 in Console (device purchase+restore still open). Support email / license-tester Gmail / tester invites may still need user. Marker: **NATIVE-VC3-INTERNAL-SYNC**.
 
 **Rule:** Do **not** mark monetization Pass / #7 until device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore) — repo wiring alone is **not** enough.
 
@@ -9,9 +9,9 @@
 ## 0) Preconditions
 
 - [x] Play app exists + package fixed: `com.lancechung.colortubesort`
-- [x] Internal testing track has a build (currently **testids** — OK for smoke)
+- [x] Internal testing track has a build (**current:** `1.0.2-internal-vc3-prodAdMob` / vc3 / prod AdMob)
 - [ ] License testers Gmail added (user)
-- [ ] `remove_ads` product Active @ **$2.99** (CEO in progress)
+- [x] `remove_ads` product Active @ **$2.99** (Console); device purchase+restore still open → **#7 still Fail**
 - [ ] Support email for privacy page (user)
 
 ---
@@ -35,9 +35,9 @@
 | Interstitial | `ca-app-pub-XXXX/YYYY` | `cts_interstitial_android` | Fail-loop / level-clear only — never mid-pour |
 | Rewarded | `ca-app-pub-XXXX/YYYY` | `cts_rewarded_android` | Grant only after earn |
 
-- [ ] Interstitial created + ID copied  
-- [ ] Rewarded created + ID copied  
-- [ ] App ID (`~`) copied  
+- [x] Interstitial created + ID copied (`…/2731725604`)  
+- [x] Rewarded created + ID copied (`…/8768677032`)  
+- [x] App ID (`~`) copied (`…~6670970617`)  
 
 Optional: add your device as an AdMob **test device** while iterating; still use real unit IDs in next AAB, not Google sample app IDs.
 
@@ -69,7 +69,7 @@ No placeholders. No sample `3940256099942544` IDs.
    - [ ] `remove_ads` purchase + restore; owned → no interstitial  
 6. QA sign-off → then consider Pass / #7 (not before).
 
-Until §3: keep sample IDs + `USE_TEST_ADS = true` + current `*-testids` AAB.
+**Historical (before REAL-ADMOB-IDS):** sample IDs + `USE_TEST_ADS = true` + `*-testids` AAB (`1.0.1-internal-vc2-testids`). **Do not** roll back to that as the current track.
 
 ---
 
@@ -77,13 +77,18 @@ Until §3: keep sample IDs + `USE_TEST_ADS = true` + current `*-testids` AAB.
 
 - Bus Jam / UA creatives  
 - Fake IAP / `colorTubeSort_devIap` in any uploaded AAB  
-- Claiming #7 Pass on testids build  
+- Claiming #7 Pass on wiring / AAB upload alone (need device three green lights)  
 
 See also: `docs/PLAY_IAP_ADMOB_SETUP.md` (full IAP + AdMob), `docs/PLAY_CONSOLE_PASTE_PACK.md`.
 
-## Status update (2026-09-21)
+## Status update (2026-09-21) — **NATIVE-VC3-INTERNAL-SYNC**
 
 - Android AdMob App ID + interstitial + rewarded **wired in repo** (Play store link may still 404 until listing public).
 - `USE_TEST_ADS=false`, `initializeForTesting=false`.
-- Next: native **versionCode 3** / **1.0.2** internal AAB **without** `testids` in name.
-- **Do not** mark #7 Pass until device QA: interstitial / rewarded / remove_ads+restore green.
+- Play **internal testing** **UPLOADED**: `1.0.2-internal-vc3-prodAdMob` / versionCode **3** / 1.0.2 (no `testids` in name). Historical vc2-testids superseded.
+- Tester invites / license-tester Gmail may still need user.
+- Device QA still open:
+  - [ ] Interstitial only fail-loop / clear  
+  - [ ] Rewarded grants only after complete  
+  - [ ] `remove_ads` purchase + restore; owned → no interstitial  
+- **Do not** mark #7 Pass until those three green lights. Production untouched.

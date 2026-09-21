@@ -146,6 +146,8 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**NATIVE-VC3-INTERNAL-SYNC**已上 — `docs/NATIVE_PACK_READY.md`／`docs/ADMOB_POST_LINK_CHECKLIST.md` 對齊：Play **internal testing** 現況為 `1.0.2-internal-vc3-prodAdMob`／versionCode **3**／prod AdMob（`USE_TEST_ADS=false`）；歷史 `1.0.1-internal-vc2-testids` 標 superseded；`DESIGN.md` AdMob TODO 改誠實；accept `NATIVE-VC3-INTERNAL-SYNC`；**#7 仍 Fail**（缺實機三綠燈）；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**REAL-ADMOB-IDS**已上 — Android 正式 AdMob App ID＋interstitial／rewarded；`USE_TEST_ADS=false`；`initializeForTesting=false`；`patch-android-admob.sh` 從 config 注入（無 3940 sample）；versionCode **3**／versionName **1.0.2**；accept `REAL-ADMOB-IDS`／`ANDROID-VERSION-CODE-3`／`AD-PROD`；**#7 仍 Fail**（缺實機三綠燈：interstitial、rewarded full-watch、remove_ads purchase+restore）；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**TOUCH-CALLOUT**已上 — `assets/css/style.css` `*`／`html, body` 加 `-webkit-touch-callout: none`（補 `user-select:none`／tap-highlight；拒 iOS Safari／WKWebView／PWA 長按 Copy／Look Up／Share 搶焦；對齊 ANDROID-WEBVIEW-LONG-CLICK 的 web／PWA／iOS 面）；`index.html` marker；`sync-www` → www／docs/play；accept `TOUCH-CALLOUT`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
