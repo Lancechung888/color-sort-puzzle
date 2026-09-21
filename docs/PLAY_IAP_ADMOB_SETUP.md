@@ -51,9 +51,9 @@
 ### B3. Report back (paste this block to 上架變現 / CEO)
 
 ```
-AdMob App ID (Android): ca-app-pub-____~____
-Interstitial unit:      ca-app-pub-____/____
-Rewarded unit:          ca-app-pub-____/____
+AdMob App ID (Android): ca-app-pub-3904450574947460~6670970617   (REAL-ADMOB-IDS — wired)
+Interstitial unit:      ca-app-pub-3904450574947460/2731725604
+Rewarded unit:          ca-app-pub-3904450574947460/8768677032
 Play package confirmed: com.lancechung.colortubesort
 ```
 
@@ -63,7 +63,7 @@ Play package confirmed: com.lancechung.colortubesort
 3. Release / internal AAB: `USE_TEST_ADS = false`.
 4. Never leave Google sample `3940256099942544` IDs in a signed release.
 
-Until B3 is filled: keep **sample IDs** + `USE_TEST_ADS = true`.
+**Historical:** before **REAL-ADMOB-IDS**, keep sample IDs + `USE_TEST_ADS = true`. **Current (2026-09-21):** Android prod IDs wired + `USE_TEST_ADS=false` / internal `1.0.2-internal-vc3-prodAdMob` — see `docs/ADMOB_POST_LINK_CHECKLIST.md` (**PLAY-PASTE-VC3-SYNC**). Do **not** roll back to sample IDs as current advice. **#7 still Fail** until device three green lights.
 
 ---
 

@@ -1,8 +1,10 @@
 # Play Console paste pack — ColorTube Sort (post-approval)
 
 **App ID (package):** `com.lancechung.colortubesort`  
-**Status:** Developer account **APPROVED** (2026-09-21 Asia/Taipei). Play app exists — package `com.lancechung.colortubesort` · Play app ID `4972040404691889159` · internal testing `1.0.1-internal-vc2-testids` UPLOADED (test AdMob IDs). **Data safety form still incomplete** (Device or other IDs — use §4 PLAY-DATA-SAFETY-PASTE). Merchant / real AdMob / `remove_ads` still external.  
-**Do not** claim AdMob production units or #7 Pass until real IDs exist.
+**Play app ID:** `4972040404691889159`  
+**Status:** Developer account **APPROVED** (2026-09-21 Asia/Taipei). Play app exists. **Current** internal testing: `1.0.2-internal-vc3-prodAdMob` / **versionCode 3** / **versionName 1.0.2** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`). Historical `1.0.1-internal-vc2-testids` (vc2 / sample IDs) **superseded**. Android prod App ID `ca-app-pub-3904450574947460~6670970617`; interstitial `…/2731725604`; rewarded `…/8768677032` (see **REAL-ADMOB-IDS** / `docs/ADMOB_POST_LINK_CHECKLIST.md`). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` (selected for vc3 prodAdMob); license tester **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`. **Data safety** Device IDs deep form may still be incomplete (use §4 PLAY-DATA-SAFETY-PASTE). Merchant / support email / GA4 `MEASUREMENT_ID` still external placeholders — do not invent. **#7 still Fail** until device three green lights. Production untouched.  
+**Markers:** **PLAY-PASTE-VC3-SYNC** · **INTERNAL-TESTER-SYNC** (alongside **NATIVE-VC3-INTERNAL-SYNC**).  
+**Do not** claim #7 Pass from paste/docs alone.
 
 ---
 
@@ -231,34 +233,34 @@ Play Console → Monetize → Products → In-app products → Create:
 | **Default price** | **USD $2.99** (local equivalents OK) |
 | **Status** | Activate |
 
-### License testers (authorized test accounts)
+### License testers (authorized test accounts) — **INTERNAL-TESTER-SYNC**
 
-Play Console → Settings → License testing:
+Play Console → Settings → License testing / Internal testing → Testers:
 
-1. Add Gmail accounts that will install internal-test builds  
-2. License response: **RESPOND_NORMALLY** (or test responses as needed)  
-3. Those accounts can buy `remove_ads` without real charges in licensed test  
-4. **Never** enable `colorTubeSort_devIap` / fake IAP in release or internal-test AAB  
+1. Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` (selected for `1.0.2-internal-vc3-prodAdMob`)  
+2. License response: **RESPOND_NORMALLY**  
+3. Opt-in URL: `https://play.google.com/apps/internaltest/4701709602422954921`  
+4. Those accounts can buy `remove_ads` under license testing; **Never** enable `colorTubeSort_devIap` / fake IAP in release or internal-test AAB  
 
-Verify: purchase → `removeAds=true`; Restore purchases works; cold start still owned.
+**Still open:** device-verify purchase → `removeAds=true`; Restore purchases; cold start still owned → **#7 still Fail** until three green lights.
 
 ---
 
-## 6) AdMob — after Play app is created & linkable
+## 6) AdMob — **REAL-ADMOB-IDS** wired (current = prod; #7 still Fail)
 
-**Blocked until Play listing package exists.** Do **not** invent unit IDs or mark gate Pass.
+<!-- PLAY-PASTE-VC3-SYNC -->
+**Done in repo (2026-09-21 Asia/Taipei):** Android prod App ID + units + `USE_TEST_ADS=false` / `initializeForTesting=false`. Do **not** roll back to Google sample IDs as current guidance. Historical vc2-testids / sample IDs superseded.
 
-When ready:
+| Role | Value |
+|------|--------|
+| Android App ID | `ca-app-pub-3904450574947460~6670970617` |
+| Interstitial | `ca-app-pub-3904450574947460/2731725604` |
+| Rewarded | `ca-app-pub-3904450574947460/8768677032` |
+| Flag | `USE_TEST_ADS=false` |
+| Internal AAB | `1.0.2-internal-vc3-prodAdMob` / versionCode **3** |
 
-1. AdMob → Apps → Add app → Android → link Play app `com.lancechung.colortubesort`  
-2. Copy **App ID** (`ca-app-pub-XXXX~YYYY`)  
-3. Create units:
-   - Interstitial  
-   - Rewarded  
-4. Report **real** App ID + both unit IDs to CEO / 上架變現  
-5. Then swap in repo (`capacitor.config.json`, `ads.js`): `USE_TEST_ADS=false`; never ship Google sample IDs in release  
-
-Until then: keep Google **sample** IDs + `USE_TEST_ADS=true`.
+Source of truth: `docs/ADMOB_POST_LINK_CHECKLIST.md` · marker **REAL-ADMOB-IDS**. iOS App ID still Google sample (no iOS app yet).  
+**#7 still Fail** until device interstitial / rewarded full-watch / `remove_ads` purchase+restore. Production untouched. Do **not** invent new `ca-app-pub` values — match existing wired IDs only.
 
 ---
 
@@ -272,4 +274,4 @@ Until then: keep Google **sample** IDs + `USE_TEST_ADS=true`.
 
 ---
 
-*Generated for post-approval sprint 2026-09-21 · PLAY-DATA-SAFETY-PASTE Device IDs deep form. Source of truth: `STORE.md` + `docs/PLAY_DATA_SAFETY.md`.*
+*Generated for post-approval sprint 2026-09-21 · **PLAY-PASTE-VC3-SYNC** / **INTERNAL-TESTER-SYNC** (vc3 prodAdMob paste honesty) · PLAY-DATA-SAFETY-PASTE Device IDs deep form. Source of truth: `STORE.md` + `docs/PLAY_DATA_SAFETY.md` + `docs/ADMOB_POST_LINK_CHECKLIST.md`.*
