@@ -2089,7 +2089,7 @@ if (billRaw) {
 // --- 4) Blocked monetization (do NOT Pass) ---
 block(
   'P0-2',
-  'Real AdMob / publisher units — awaiting Play approval; test IDs only. Not Pass.'
+  'Real AdMob Android units wired in repo; device interstitial/rewarded full-watch unverified. Not Pass.'
 );
 block(
   'P0-3',
@@ -4033,7 +4033,7 @@ block(
 }
 
 
-// --- ANDROID-VERSION-CODE-2: Play versionCode≥2 + versionName 1.0.1; no soft-arm ---
+// --- ANDROID-VERSION-CODE-3: Play versionCode≥3 + versionName 1.0.2; no soft-arm ---
 {
   const patchRaw = read('scripts/patch-android-version.sh') || '';
   const aabRaw = read('scripts/build-internal-aab.sh') || '';
@@ -4043,9 +4043,9 @@ block(
     ? fs.readFileSync(appGradlePath, 'utf8')
     : '';
   const patchOk =
-    /ANDROID-VERSION-CODE-2/.test(patchRaw) &&
-    /COLOR_TUBE_VERSION_CODE:-2/.test(patchRaw) &&
-    /COLOR_TUBE_VERSION_NAME:-1\.0\.1/.test(patchRaw) &&
+    /ANDROID-VERSION-CODE-3/.test(patchRaw) &&
+    /COLOR_TUBE_VERSION_CODE:-3/.test(patchRaw) &&
+    /COLOR_TUBE_VERSION_NAME:-1\.0\.2/.test(patchRaw) &&
     /versionCode/.test(patchRaw) &&
     /versionName/.test(patchRaw);
   const syncIdx = aabRaw.search(/npx cap sync/);
@@ -4062,24 +4062,24 @@ block(
     versionIdx < admobIdx &&
     !/patch-android-version-code\.sh/.test(aabRaw);
   const readmeOk =
-    /ANDROID-VERSION-CODE-2/.test(readmeRaw) && /2aj/.test(readmeRaw);
+    /ANDROID-VERSION-CODE-3/.test(readmeRaw) && /2ak/.test(readmeRaw);
   let localOk = !appGradle;
   if (appGradle) {
     localOk =
-      /versionCode\s+2\b/.test(appGradle) &&
-      /versionName\s+"1\.0\.1"/.test(appGradle);
+      /versionCode\s+3\b/.test(appGradle) &&
+      /versionName\s+"1\.0\.2"/.test(appGradle);
   }
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(patchRaw + appGradle);
   if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
     pass(
-      'ANDROID-VERSION-CODE-2',
-      'versionCode 2 / versionName 1.0.1 via patch-android-version.sh + aab after billing before admob + README §2aj; no soft-arm'
+      'ANDROID-VERSION-CODE-3',
+      'versionCode 3 / versionName 1.0.2 via patch-android-version.sh + aab after billing before admob + README §2ak; no soft-arm'
     );
   } else {
     fail(
-      'ANDROID-VERSION-CODE-2',
-      `missing versionCode≥2 patch / aab hook-after-billing-before-admob / README / local gradle, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+      'ANDROID-VERSION-CODE-3',
+      `missing versionCode≥3 patch / aab hook-after-billing-before-admob / README / local gradle, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
     );
   }
 }
@@ -6627,7 +6627,7 @@ block(
   }
 }
 
-// --- NATIVE-PACK-READY-SYNC: docs truth + package 1.0.1; no soft-arm ---
+// --- NATIVE-PACK-READY-SYNC: docs truth + package 1.0.2 + REAL-ADMOB-IDS; no soft-arm ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
   const pkgRaw = read('package.json') || '';
@@ -6642,20 +6642,24 @@ block(
     /Play developer account\s+\*?\*?APPROVED\*?\*?/i.test(packRaw) ||
     (/APPROVED/.test(packRaw) && /Play/.test(packRaw) && /account/i.test(packRaw));
   const vcOk =
-    /versionCode\s*2/.test(packRaw) ||
-    /ANDROID-VERSION-CODE-2/.test(packRaw) ||
-    /versionName\s*1\.0\.1/.test(packRaw);
-  const pkgOk = pkgVer === '1.0.1';
+    /versionCode\s*3/.test(packRaw) ||
+    /ANDROID-VERSION-CODE-3/.test(packRaw) ||
+    /versionName\s*1\.0\.2/.test(packRaw);
+  const pkgOk = pkgVer === '1.0.2';
+  const realAdOk =
+    /REAL-ADMOB-IDS/.test(packRaw) ||
+    /3904450574947460/.test(packRaw) ||
+    /USE_TEST_ADS\s*=\s*false/.test(packRaw);
   const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(packRaw);
-  if (noStale && approvedOk && vcOk && pkgOk && noSoft) {
+  if (noStale && approvedOk && vcOk && pkgOk && realAdOk && noSoft) {
     pass(
       'NATIVE-PACK-READY-SYNC',
-      'NATIVE_PACK_READY: Play account APPROVED + versionCode 2 / 1.0.1; package.json 1.0.1; no stale in-review; no soft-arm'
+      'NATIVE_PACK_READY: Play account APPROVED + versionCode 3 / 1.0.2 + REAL-ADMOB-IDS; package.json 1.0.2; no soft-arm'
     );
   } else {
     fail(
       'NATIVE-PACK-READY-SYNC',
-      `stale/missing sync (noStale=${noStale} approvedOk=${approvedOk} vcOk=${vcOk} pkgOk=${pkgOk} pkgVer=${pkgVer} noSoft=${noSoft})`
+      `stale/missing sync (noStale=${noStale} approvedOk=${approvedOk} vcOk=${vcOk} pkgOk=${pkgOk} pkgVer=${pkgVer} realAdOk=${realAdOk} noSoft=${noSoft})`
     );
   }
 }
@@ -6731,13 +6735,74 @@ block(
   }
 }
 
+// --- REAL-ADMOB-IDS: Android prod App ID + units + USE_TEST_ADS=false; #7 still Fail; no soft-arm ---
+{
+  const capRaw = read('capacitor.config.json') || '';
+  const adsRaw2 = read('assets/js/ads.js') || '';
+  const esmRaw = read('assets/js/ads.esm.js') || '';
+  const notesRaw = read('capacitor.config.notes.md') || '';
+  const patchRaw = read('scripts/patch-android-admob.sh') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  let cap = null;
+  try {
+    cap = JSON.parse(capRaw);
+  } catch (_) {
+    cap = null;
+  }
+  const admob = (cap && cap.plugins && cap.plugins.AdMob) || {};
+  const appOk = admob.appIdAndroid === 'ca-app-pub-3904450574947460~6670970617';
+  const initOk = admob.initializeForTesting === false;
+  const iosTestOk =
+    typeof admob.appIdIos === 'string' &&
+    /3940256099942544/.test(admob.appIdIos);
+  const unitsOk =
+    /3904450574947460\/2731725604/.test(adsRaw2) &&
+    /3904450574947460\/8768677032/.test(adsRaw2) &&
+    /USE_TEST_ADS\s*=\s*false/.test(adsRaw2);
+  const esmOk =
+    /USE_TEST_ADS\s*=\s*false/.test(esmRaw) &&
+    /3904450574947460\/2731725604/.test(esmRaw);
+  const patchOk = /capacitor\.config\.json/.test(patchRaw) && /appIdAndroid/.test(patchRaw);
+  const notesOk = /3904450574947460~6670970617/.test(notesRaw) && /iOS/.test(notesRaw);
+  const fail7Ok =
+    /#7/.test(barRaw) &&
+    (/still Fail/i.test(barRaw) || /\*\*Fail\*\*/.test(barRaw)) &&
+    (/three green|三綠燈|device three/i.test(barRaw));
+  const noSampleInCapAndroid = !/3940256099942544~3347511713/.test(
+    String(admob.appIdAndroid || '')
+  );
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(adsRaw2 + notesRaw + patchRaw);
+  if (
+    appOk &&
+    initOk &&
+    iosTestOk &&
+    unitsOk &&
+    esmOk &&
+    patchOk &&
+    notesOk &&
+    fail7Ok &&
+    noSampleInCapAndroid &&
+    noSoft
+  ) {
+    pass(
+      'REAL-ADMOB-IDS',
+      'Android prod App ID + interstitial/rewarded + USE_TEST_ADS=false; iOS test App ID kept; patch reads config; #7 still Fail; no soft-arm'
+    );
+  } else {
+    fail(
+      'REAL-ADMOB-IDS',
+      `missing real AdMob wiring (appOk=${appOk} initOk=${initOk} iosTestOk=${iosTestOk} unitsOk=${unitsOk} esmOk=${esmOk} patchOk=${patchOk} notesOk=${notesOk} fail7Ok=${fail7Ok} noSample=${noSampleInCapAndroid} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- 5) Delegate native wiring ---
 const native = spawnSync('node', [path.join(root, 'scripts/native-wiring-check.js')], {
   cwd: root,
   encoding: 'utf8',
 });
 if (native.status === 0) {
-  pass('NATIVE', 'npm run native:check exited 0 (test-ID wiring)');
+  pass('NATIVE', 'npm run native:check exited 0 (REAL-ADMOB-IDS Android prod wiring)');
 } else {
   fail('NATIVE', `native:check failed (exit ${native.status}): ${(native.stdout || native.stderr || '').split('\n').slice(-3).join(' ')}`);
 }
