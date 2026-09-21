@@ -2,10 +2,11 @@
 
 > **EN first** (primary listing). Traditional Chinese secondary below.  
 > Play developer account: **APPROVED** (2026-09-21 Asia/Taipei).  
-> **Do not** claim live / #7 Pass until real AdMob units + `remove_ads` Billing device verify.  
-> **Do not invent** real `ca-app-pub-…` IDs — leave placeholders until AdMob Console creates them.
+> **Current** internal testing: `1.0.2-internal-vc3-prodAdMob` / versionCode **3** / prod AdMob (`USE_TEST_ADS=false`). Historical vc2-testids superseded.  
+> **Do not** claim live / #7 Pass until device three green lights (interstitial, rewarded full-watch, `remove_ads` purchase+restore). Production untouched.  
+> Marker: **PLAY-PASTE-VC3-SYNC** (paste honesty after **REAL-ADMOB-IDS** / **NATIVE-VC3-INTERNAL-SYNC**).
 
-Source of truth: `STORE.md` · `docs/PRIVACY_README.md` · `docs/PLAY_POST_APPROVAL_CHECKLIST.md`
+Source of truth: `STORE.md` · `docs/PRIVACY_README.md` · `docs/PLAY_POST_APPROVAL_CHECKLIST.md` · `docs/ADMOB_POST_LINK_CHECKLIST.md`
 
 ---
 
@@ -17,6 +18,7 @@ Source of truth: `STORE.md` · `docs/PRIVACY_README.md` · `docs/PLAY_POST_APPRO
 | **Play listing title (EN)** | ColorTube Sort: Lid Puzzle |
 | **Package name / appId** | `com.lancechung.colortubesort` |
 | **Play app ID** | `4972040404691889159` |
+| **Internal testing (current)** | `1.0.2-internal-vc3-prodAdMob` / versionCode **3** / versionName **1.0.2** / Billing≥8 / prod AdMob |
 | **Privacy policy URL (HTTPS)** | https://lancechung888.github.io/color-sort-puzzle/privacy/ |
 
 Verified live on GitHub Pages (`main` → `/docs`). Use this exact URL in the Play form.
@@ -77,19 +79,19 @@ Keywords: color sort, water sort, tube puzzle, pour puzzle, color sorting, relax
 
 ---
 
-## AdMob — unit naming convention (create in Console; then paste real IDs)
+## AdMob — **REAL-ADMOB-IDS** (wired; #7 still Fail)
 
-Do **not** invent `ca-app-pub` values. Name units clearly so they map 1:1 into `assets/js/ads.js` → `PROD_UNITS`:
+<!-- PLAY-PASTE-VC3-SYNC -->
+Android prod IDs are **already wired** in repo (`USE_TEST_ADS=false`). Do **not** invent new `ca-app-pub` values — match existing **REAL-ADMOB-IDS** / `docs/ADMOB_POST_LINK_CHECKLIST.md` only. Historical sample IDs + `USE_TEST_ADS=true` + `1.0.1-internal-vc2-testids` are **superseded** (not current advice).
 
-| Role | Suggested AdMob unit name | Maps to |
-|------|---------------------------|---------|
-| Android interstitial | `ColorTube Sort — Android Interstitial` | `PROD_UNITS.interstitial.android` |
-| Android rewarded | `ColorTube Sort — Android Rewarded` | `PROD_UNITS.rewarded.android` |
-| iOS interstitial (later) | `ColorTube Sort — iOS Interstitial` | `PROD_UNITS.interstitial.ios` |
-| iOS rewarded (later) | `ColorTube Sort — iOS Rewarded` | `PROD_UNITS.rewarded.ios` |
+| Role | Value | Maps to |
+|------|--------|---------|
+| Android App ID | `ca-app-pub-3904450574947460~6670970617` | `plugins.AdMob.appIdAndroid` |
+| Android interstitial | `ca-app-pub-3904450574947460/2731725604` | `PROD_UNITS.interstitial.android` |
+| Android rewarded | `ca-app-pub-3904450574947460/8768677032` | `PROD_UNITS.rewarded.android` |
+| iOS interstitial / rewarded | Still Google sample (no iOS app yet) | `PROD_UNITS.*.ios` |
 
-App ID (with `~`) → `capacitor.config.json` → `plugins.AdMob.appIdAndroid` / `appIdIos`.  
-Until units exist: keep Google **sample** IDs + `USE_TEST_ADS = true`.
+**#7 still Fail** until device three green lights. Production untouched.
 
 ---
 
@@ -137,8 +139,9 @@ Until units exist: keep Google **sample** IDs + `USE_TEST_ADS = true`.
 
 ---
 
-## Still needs user login (not done by this prep PR)
+## Still open (honest; not done by paste alone) — **INTERNAL-TESTER-SYNC**
 
-1. **Play Console** — Create app with package `com.lancechung.colortubesort`; paste listing + privacy URL; Data safety; Internal testing track.
-2. **AdMob** — Create Android app + interstitial/rewarded units; copy real App ID + unit IDs into repo (separate PR).
-3. **Play Billing** — Create/activate `remove_ads`; add license testers; device-verify purchase.
+1. **Play app / internal testing / AdMob Android IDs** — **DONE** (app ID `4972040404691889159`; internal `1.0.2-internal-vc3-prodAdMob`; **REAL-ADMOB-IDS**).  
+2. **Internal testers** — list **ColorTube-internal** includes `lancechung@gmail.com`; license tester **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`.  
+3. **Device three green lights** — interstitial / rewarded full-watch / `remove_ads` purchase+restore → **#7 still Fail**.  
+4. **Still external placeholders** — support email; GA4 `MEASUREMENT_ID`; Merchant / Data Safety Device IDs deep form may still be incomplete. Do not invent.

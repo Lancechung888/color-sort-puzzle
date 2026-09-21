@@ -54,7 +54,7 @@
 2. 產品 ID：`remove_ads`（須與 `assets/js/billing.js` 常數 `REMOVE_ADS` 一致）。
 3. 類型：**非消耗型（Managed / One-time）**。
 4. 名稱／說明可寫「Remove Ads／去除插頁廣告」；建議價 **$2.99** → **啟用**。
-5. **設定 → 授權測試** → 加入 License testers（Gmail），以便內部測試不扣真錢。
+5. **設定 → 授權測試** → License testers：**已加** `lancechung@gmail.com`／**RESPOND_NORMALLY**（**INTERNAL-TESTER-SYNC**）。內測名單 **ColorTube-internal** 已含該 Gmail；opt-in：`https://play.google.com/apps/internaltest/4701709602422954921`。**#7 仍 Fail**（缺實機三綠燈）。
 
 ---
 
@@ -69,9 +69,9 @@
 4. `npx cap sync`
 5. 依 `native-templates/android/README.md` 確認 AdMob App ID、Billing 權限；簽名步驟見 `docs/NATIVE_ACCEPTANCE.md` §1。
 6. 設定簽章（keystore）後跑 `npm run aab:internal`（或手動 `./gradlew bundleRelease`）產出 AAB。
-7. Play Console → **內部測試** → 上傳 AAB → 將測試連結給授權測試帳號驗證：
-   - 示範／正式廣告是否依設定顯示
-   - `remove_ads` 購買成功後 `removeAds` 才為 true；一般點擊不得白送
+7. Play Console → **內部測試** → **current** AAB `1.0.2-internal-vc3-prodAdMob`／vc3／prod AdMob 已上傳；tester `lancechung@gmail.com` 已在 **ColorTube-internal**。仍須實機驗證：
+   - 正式廣告 interstitial／rewarded full-watch
+   - `remove_ads` 購買成功後 `removeAds` 才為 true；一般點擊不得白送 → **#7 仍 Fail** 直到三綠燈
 
 ---
 

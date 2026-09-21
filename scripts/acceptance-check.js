@@ -6781,6 +6781,107 @@ block(
   }
 }
 
+// --- PLAY-PASTE-VC3-SYNC: paste pack/docs = vc3 prodAdMob; no stale sample-ID current advice; #7 Fail ---
+{
+  const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
+  const paste = read('docs/PLAY_CONSOLE_PASTE.md') || '';
+  const markerOk =
+    /PLAY-PASTE-VC3-SYNC/.test(pastePack) && /PLAY-PASTE-VC3-SYNC/.test(paste);
+  const currentOk =
+    /1\.0\.2-internal-vc3-prodAdMob/.test(pastePack) &&
+    (/USE_TEST_ADS\s*=\s*false/.test(pastePack) || /prod AdMob/i.test(pastePack)) &&
+    (/versionCode\s*\*?\*?3\*?\*?/.test(pastePack) || /versionCode\s+3/.test(pastePack));
+  const idsOk =
+    /ca-app-pub-3904450574947460~6670970617/.test(pastePack) &&
+    (/2731725604/.test(pastePack) || /…\/2731725604/.test(pastePack)) &&
+    (/8768677032/.test(pastePack) || /…\/8768677032/.test(pastePack));
+  const noStaleSampleAdvice =
+    !/Until then:\s*keep Google\s+\*\*sample\*\*\s*IDs\s*\+\s*`USE_TEST_ADS=true`/i.test(pastePack) &&
+    !/Until units exist:\s*keep Google\s+\*\*sample\*\*\s*IDs\s*\+\s*`USE_TEST_ADS\s*=\s*true`/i.test(
+      paste
+    ) &&
+    !/\*\*Do not invent\*\*\s+real\s+`ca-app-pub/i.test(paste);
+  const histOk =
+    /superseded/i.test(pastePack) && /1\.0\.1-internal-vc2-testids/.test(pastePack);
+  const fail7Ok =
+    (/#7/.test(pastePack) && /still Fail/i.test(pastePack)) &&
+    (/#7/.test(paste) && /still Fail/i.test(paste));
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(pastePack) &&
+    !/soft-arm|claim-juice|hud-pulse/.test(paste);
+  if (markerOk && currentOk && idsOk && noStaleSampleAdvice && histOk && fail7Ok && noSoft) {
+    pass(
+      'PLAY-PASTE-VC3-SYNC',
+      'PLAY_CONSOLE_PASTE(_PACK): vc3 prodAdMob / USE_TEST_ADS=false; no stale sample-ID current advice; #7 still Fail; no soft-arm'
+    );
+  } else {
+    fail(
+      'PLAY-PASTE-VC3-SYNC',
+      `missing paste vc3 sync (markerOk=${markerOk} currentOk=${currentOk} idsOk=${idsOk} noStaleSampleAdvice=${noStaleSampleAdvice} histOk=${histOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- INTERNAL-TESTER-SYNC: lancechung@gmail.com + ColorTube-internal + opt-in URL; #7 still Fail ---
+{
+  const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
+  const admobRaw = read('docs/ADMOB_POST_LINK_CHECKLIST.md') || '';
+  const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
+  const paste = read('docs/PLAY_CONSOLE_PASTE.md') || '';
+  const checklist = read('docs/PLAY_POST_APPROVAL_CHECKLIST.md') || '';
+  const markerOk =
+    /INTERNAL-TESTER-SYNC/.test(packRaw) &&
+    /INTERNAL-TESTER-SYNC/.test(admobRaw) &&
+    (/INTERNAL-TESTER-SYNC/.test(pastePack) || /INTERNAL-TESTER-SYNC/.test(paste));
+  const gmailOk =
+    /lancechung@gmail\.com/.test(packRaw) &&
+    /lancechung@gmail\.com/.test(admobRaw) &&
+    /lancechung@gmail\.com/.test(pastePack);
+  const listOk =
+    /ColorTube-internal/.test(packRaw) &&
+    /ColorTube-internal/.test(admobRaw) &&
+    /ColorTube-internal/.test(pastePack);
+  const optInOk =
+    /https:\/\/play\.google\.com\/apps\/internaltest\/4701709602422954921/.test(packRaw) &&
+    /https:\/\/play\.google\.com\/apps\/internaltest\/4701709602422954921/.test(admobRaw) &&
+    /https:\/\/play\.google\.com\/apps\/internaltest\/4701709602422954921/.test(pastePack);
+  const respondOk =
+    /RESPOND_NORMALLY/.test(packRaw) &&
+    /RESPOND_NORMALLY/.test(admobRaw) &&
+    (/RESPOND_NORMALLY/.test(pastePack) || /RESPOND_NORMALLY/.test(checklist));
+  const noStaleNeedUser =
+    !/Tester invites \/ license-tester Gmail may still need user/i.test(admobRaw) &&
+    !/Testers \/ license-tester Gmail may still need user/i.test(packRaw) &&
+    !/Tester group \/ license-tester Gmail may still need user/i.test(packRaw);
+  const fail7Ok =
+    (/#7/.test(packRaw) && /still Fail/i.test(packRaw)) &&
+    (/#7/.test(admobRaw) &&
+      (/still Fail/i.test(admobRaw) || /Do \*\*not\*\* mark #7/i.test(admobRaw)));
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(packRaw) &&
+    !/soft-arm|claim-juice|hud-pulse/.test(admobRaw);
+  if (
+    markerOk &&
+    gmailOk &&
+    listOk &&
+    optInOk &&
+    respondOk &&
+    noStaleNeedUser &&
+    fail7Ok &&
+    noSoft
+  ) {
+    pass(
+      'INTERNAL-TESTER-SYNC',
+      'NATIVE_PACK_READY + ADMOB + paste: lancechung@gmail.com / ColorTube-internal / opt-in URL / RESPOND_NORMALLY; #7 still Fail; no soft-arm'
+    );
+  } else {
+    fail(
+      'INTERNAL-TESTER-SYNC',
+      `missing tester sync (markerOk=${markerOk} gmailOk=${gmailOk} listOk=${listOk} optInOk=${optInOk} respondOk=${respondOk} noStaleNeedUser=${noStaleNeedUser} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- REAL-ADMOB-IDS: Android prod App ID + units + USE_TEST_ADS=false; #7 still Fail; no soft-arm ---
 {
   const capRaw = read('capacitor.config.json') || '';
