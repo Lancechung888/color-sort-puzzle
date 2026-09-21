@@ -1,6 +1,6 @@
 /**
  * ColorTube Sort — Play Billing / StoreKit skeleton (@capgo/native-purchases)
- * Path: assets/js/billing.js  （在 ads.js 之後、game.js 之前載入）
+ * Path: assets/js/billing.js  （可在 game.js 之後載入；通常接在 ads.js 後；game 用 optional globals；sync 於 DOMContentLoaded 前即可）
  *
  * 產品：remove_ads（非消耗型 / non-consumable）
  * 成功購買／還原 → 合併寫入 localStorage colorTubeSort_v2.removeAds = true

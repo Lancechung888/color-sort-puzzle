@@ -4245,6 +4245,55 @@ block(
   }
 }
 
+// --- SCRIPT-ORDER: levels → game before ads/billing/analytics script tags; docs/play synced ---
+{
+  const htmlRaw = read('index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const scriptSrcs = [...htmlRaw.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)].map(
+    (m) => m[1]
+  );
+  const idx = (name) => scriptSrcs.findIndex((s) => s === `assets/js/${name}`);
+  const iLevels = idx('levels.js');
+  const iGame = idx('game.js');
+  const iAds = idx('ads.js');
+  const iBilling = idx('billing.js');
+  const iAnalytics = idx('analytics.js');
+  const orderOk =
+    iLevels >= 0 &&
+    iGame >= 0 &&
+    iAds >= 0 &&
+    iBilling >= 0 &&
+    iAnalytics >= 0 &&
+    iLevels < iGame &&
+    iGame < iAds &&
+    iGame < iBilling &&
+    iGame < iAnalytics;
+  const playSrcs = [...playHtml.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)].map(
+    (m) => m[1]
+  );
+  const pIdx = (name) => playSrcs.findIndex((s) => s === `assets/js/${name}`);
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (pIdx('levels.js') >= 0 &&
+      pIdx('game.js') >= 0 &&
+      pIdx('ads.js') >= 0 &&
+      pIdx('levels.js') < pIdx('game.js') &&
+      pIdx('game.js') < pIdx('ads.js') &&
+      pIdx('game.js') < pIdx('billing.js') &&
+      pIdx('game.js') < pIdx('analytics.js'));
+  if (orderOk && playOk) {
+    pass(
+      'SCRIPT-ORDER',
+      'index script tags levels.js → game.js before ads/billing/analytics; docs/play synced'
+    );
+  } else {
+    fail(
+      'SCRIPT-ORDER',
+      `bad script order (levels=${iLevels} game=${iGame} ads=${iAds} billing=${iBilling} analytics=${iAnalytics} play=${playOk})`
+    );
+  }
+}
 
 // --- INLINE-CRITICAL-BG: brand dark paint before CSS; kill white FOUC; no soft-arm ---
 {

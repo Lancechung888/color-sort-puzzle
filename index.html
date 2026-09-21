@@ -396,14 +396,14 @@
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   </div>
 
-  <!-- Native pack wiring: ads.js + billing.js MUST load before game.js (see docs/NATIVE_PACK_READY.md) -->
+  <!-- Playable first: levels.js + game.js, then monetization/analytics (sync; ads/billing init on DOMContentLoaded; game typeof-guards optional globals) -->
   <script src="assets/js/levels.js"></script>
+  <script src="assets/js/game.js"></script>
   <script src="assets/js/ads.js"></script>
   <script src="assets/js/billing.js"></script>
   <script src="assets/js/analytics.js"></script>
   <script src="assets/js/analytics-config.js"></script>
   <script src="assets/js/analytics-ga4.js"></script>
-  <script src="assets/js/game.js"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
