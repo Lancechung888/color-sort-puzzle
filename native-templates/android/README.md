@@ -15,11 +15,11 @@ bash scripts/patch-android-admob.sh
 
 腳本會**冪等**確保：
 
-1. `android/app/src/main/res/values/strings.xml` 有 `admob_app_id` = Google 示範 `ca-app-pub-3940256099942544~3347511713`
+1. `android/app/src/main/res/values/strings.xml` 有 `admob_app_id` = **`capacitor.config.json` → `plugins.AdMob.appIdAndroid`**（正式：`ca-app-pub-3904450574947460~6670970617`；會覆寫殘留的 Google sample `3940…`）
 2. `AndroidManifest.xml` `<application>` 內有 `com.google.android.gms.ads.APPLICATION_ID` → `@string/admob_app_id`
 3. `<uses-permission android:name="com.android.vending.BILLING" />`
 
-已存在則略過；無 `android/` 時安全 exit 0。  
+已存在則**同步 value**（正式切換必須覆寫 sample）；無 `android/` 時安全 exit 0。  
 `npm run aab:internal`（`scripts/build-internal-aab.sh`）在 `npx cap sync` **之後**會自動再跑本腳本，並接著跑 `scripts/patch-android-portrait.sh`（MainActivity `android:screenOrientation="portrait"`）。
 
 ## 1. AdMob Application ID（不是廣告單元 ID）
@@ -35,11 +35,11 @@ bash scripts/patch-android-admob.sh
 `android/app/src/main/res/values/strings.xml`：
 
 ```xml
-<!-- 開發：Google 示範 App ID。正式包改成 AdMob 後台真實 App ID -->
-<string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+<!-- 正式 Android App ID（來源 capacitor.config.json；patch 會同步覆寫） -->
+<string name="admob_app_id">ca-app-pub-3904450574947460~6670970617</string>
 ```
 
-`capacitor.config.json` → `plugins.AdMob.appIdAndroid` 與上列字串保持一致（示範 ID 階段）。正式包兩者一併替換。
+`capacitor.config.json` → `plugins.AdMob.appIdAndroid` 與上列字串保持一致。**REAL-ADMOB-IDS** 後正式 Android 包不得殘留 sample `3940…`。
 
 ## 2. Play Billing 權限
 
@@ -760,6 +760,23 @@ bash scripts/patch-android-version.sh
 
 `npm run aab:internal` 在 Billing-8 patch **之後**、AdMob Manifest patch **之前**自動跑。
 
+## 2ak. Android versionCode ≥3（ANDROID-VERSION-CODE-3）
+
+Play internal testing rejects reused `versionCode`. After vc2 (`1.0.1-internal-vc2-testids`) upload, the next signed AAB must bump:
+
+1. `versionCode` → **3**
+2. `versionName` → **"1.0.2"**
+
+Pairs with **REAL-ADMOB-IDS** (`USE_TEST_ADS=false` + prod Android App/unit IDs). Does **not** claim MILLION_USER_BAR **#7 Pass** — still need device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore).
+
+一鍵補丁（冪等；無 `android/` 時 exit 0；override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`）：
+
+```bash
+bash scripts/patch-android-version.sh
+```
+
+`npm run aab:internal` 在 Billing-8 patch **之後**、AdMob Manifest patch **之前**自動跑。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:
@@ -810,4 +827,4 @@ cd android && ./gradlew bundleRelease
 - 本機一鍵內測 AAB：`npm run aab:internal`（→ `scripts/build-internal-aab.sh`；sync 後自動 patch AdMob；無 JDK／SDK／android/ 時明確非 0 失敗）
 - 測 ID 配線自檢（不需 `android/`）：`npm run native:check`
 
-**誠實邊界：** 本模板＋腳本只保證測試 App ID 寫進 Manifest，**不**宣稱 ship-ready、**不**把 #7 AdMob 標 Pass；正式單元與 `remove_ads` 實機 Billing 仍待 Play 過審。
+**誠實邊界：** 腳本從 `capacitor.config.json` 注入 **正式 Android App ID**（REAL-ADMOB-IDS）；**不**宣稱 ship-ready、**不**把 #7 AdMob 標 Pass，直到實機三綠燈（interstitial／rewarded full-watch／remove_ads purchase+restore）。iOS 仍可暫留 sample App ID。

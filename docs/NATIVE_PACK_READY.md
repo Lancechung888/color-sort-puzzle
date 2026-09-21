@@ -3,7 +3,7 @@
 > AppId: `com.lancechung.colortubesort` · Capacitor 6 · **Play developer account APPROVED** (2026-09-21 Asia/Taipei).  
 > Verified in packaging environment: **2026-09-21** (Asia/Taipei). Packaging checklist itself still needs **no** real AdMob / real Billing IDs.  
 > Out of scope here: UA creatives, real unit IDs, enabling fake free `remove_ads`, production publish.  
-> Aligns with `docs/PLAY_POST_APPROVAL_CHECKLIST.md` / `MILLION_USER_BAR` — **#7 AdMob remains Fail** (test IDs only; three green lights not met).  
+> Aligns with `docs/PLAY_POST_APPROVAL_CHECKLIST.md` / `MILLION_USER_BAR` — **#7 AdMob remains Fail**. **REAL-ADMOB-IDS** (2026-09-21): Android prod App/unit IDs + `USE_TEST_ADS=false` wired in repo; **still Fail** until device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore). Do **not** mark #7 Pass from wiring alone.  
 > **Do not claim ship-ready** from this doc alone.
 > Marker: **NATIVE-INTERNAL-TESTING-SYNC** (internal testing testids uploaded; #7 still Fail).
 
@@ -17,7 +17,9 @@
 | `npm run build:www` (`scripts/sync-www.sh`) | **DONE** |
 | Web load order: `levels.js` → `game.js` then ads/billing/analytics (**SCRIPT-ORDER**) | **DONE** |
 | Test AdMob App IDs in `capacitor.config.json` | **DONE** (Google sample) |
-| Test AdMob unit IDs + `USE_TEST_ADS=true` in `assets/js/ads.js` | **DONE** |
+| Test AdMob unit IDs + `USE_TEST_ADS=true` in `assets/js/ads.js` | **DONE** (historical; superseded by REAL-ADMOB-IDS) |
+| **REAL-ADMOB-IDS** Android prod App ID + interstitial/rewarded + `USE_TEST_ADS=false` | **DONE in repo** (2026-09-21 Asia/Taipei). Device three-green **not** met → **#7 still Fail** |
+| Play `versionCode` 3 / `versionName` 1.0.2 (`ANDROID-VERSION-CODE-3`) | **SCRIPT READY** (`scripts/patch-android-version.sh` defaults) |
 | Billing skeleton (`assets/js/billing.js`, product `remove_ads`) | **DONE** (no fake grant) |
 | `npx cap add android` in this environment | **DONE** (local `android/` generated; **gitignored**) |
 | `npx cap sync` + plugins discovered | **DONE** (AdMob + NativePurchases) |
@@ -26,10 +28,10 @@
 | Launcher ICON A + branded splash (vs stock Capacitor) | **DONE** (`scripts/apply-android-icons.sh` ← `native-templates/android/res/` from finals ICON A; hooked in `aab:internal`) |
 | JDK 17 + Android SDK on this packaging box | **DONE** (`JAVA_HOME=/home/box/sdk/jdk-17.0.20.1+1`, `ANDROID_HOME=/home/box/sdk/android`) |
 | Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19 + **2026-09-21**): `npm run aab:internal` → signed AABs (upload keystore local/gitignored). Durable copies under `/workspace/colortube-artifacts/` including **versionCode 2** / Billing≥8 / test-IDs builds (e.g. `ColorTubeSort-internal-20260921-1312-vc2-billing8-testids-release.aab`, `…-1309-vc2-testids-release.aab`) |
-| Play `versionCode` / `versionName` | **SCRIPT READY** (`scripts/patch-android-version.sh` → **versionCode 2** / **versionName 1.0.1**; accept `ANDROID-VERSION-CODE-2`; hooked in `aab:internal` after Billing-8, before AdMob) |
+| Play `versionCode` / `versionName` | **SCRIPT READY** (`scripts/patch-android-version.sh` → **versionCode 3** / **versionName 1.0.2**; accept `ANDROID-VERSION-CODE-3`; hooked in `aab:internal` after Billing-8, before AdMob). Prior internal upload used **vc2** / 1.0.1-testids. |
 | Play developer account | **APPROVED** (2026-09-21 Asia/Taipei) — see `docs/PLAY_POST_APPROVAL_CHECKLIST.md` |
 | Play **internal testing** track | **UPLOADED** (2026-09-21 Asia/Taipei): release `1.0.1-internal-vc2-testids` / **versionCode 2** / Google sample AdMob IDs — see `docs/ADMOB_POST_LINK_CHECKLIST.md`. **Not** production. **#7 still Fail.** |
-| Play Console real AdMob / real IAP IDs / production publish | **OUT OF SCOPE** (post-approval ops; #7 still Fail — test IDs only) |
+| Play Console real AdMob / real IAP IDs / production publish | **Android AdMob IDs wired (REAL-ADMOB-IDS)**; IAP device verify + production publish still open. **#7 still Fail** until three green lights. |
 
 ---
 
@@ -49,7 +51,8 @@
   - iOS: `ca-app-pub-3940256099942544~1458002511`
   - `initializeForTesting: true`
   - Notes: `capacitor.config.notes.md`
-- [x] **Test AdMob unit IDs** in `assets/js/ads.js` (`TEST_UNITS`, `USE_TEST_ADS = true`); `PROD_UNITS` placeholders only.
+- [x] **Test AdMob unit IDs** (historical) in `assets/js/ads.js` (`TEST_UNITS`).
+- [x] **REAL-ADMOB-IDS** (2026-09-21): `PROD_UNITS` Android interstitial `…/2731725604` + rewarded `…/8768677032`; `USE_TEST_ADS = false`; `capacitor.config.json` Android App ID `…~6670970617`; `initializeForTesting: false`; iOS App ID still Google sample (no iOS app yet).
 - [x] **Billing skeleton** in `assets/js/billing.js`:
   - Product ID constant `remove_ads` (matches config / Play checklist)
   - Non-native / missing plugin → **does not** grant `removeAds`
@@ -107,7 +110,8 @@ bash scripts/patch-android-admob.sh
 ### Still external (intentionally not done — not Pass for #7)
 
 - [ ] Play Console **store listing** / open testing / production (internal testing **testids** AAB already live; tester invites / license-tester Gmail may still need user)
-- [ ] Real AdMob App ID + interstitial/rewarded unit IDs (`USE_TEST_ADS=false`) — three green lights not met
+- [x] Real AdMob Android App ID + interstitial/rewarded unit IDs (`USE_TEST_ADS=false`) — **wired in repo (REAL-ADMOB-IDS)**
+- [ ] Device three green lights (interstitial / rewarded full-watch / remove_ads purchase+restore) — **not met; #7 still Fail**
 - [ ] Play product `remove_ads` enabled + license testers + **device-verified** Billing purchase path
 - [ ] Device-verified SDK ads (no mid-pour ads) + real unit wiring
 - [ ] Production / open testing publish (forbidden until monetization green lights)

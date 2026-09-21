@@ -1,8 +1,8 @@
 # AdMob checklist — after Play package link
 
-**Context (2026-09-21):** Internal testing AAB live as `1.0.1-internal-vc2-testids` / vc2 (Google **sample** AdMob IDs). Play package `com.lancechung.colortubesort`. CEO creating `remove_ads` @ $2.99 in Console. Support email / license-tester Gmail still pending user.
+**Context (2026-09-21):** Internal testing previously uploaded `1.0.1-internal-vc2-testids` / vc2 (Google **sample** AdMob IDs). **REAL-ADMOB-IDS** now wires Android prod App ID `ca-app-pub-3904450574947460~6670970617` + interstitial `…/2731725604` + rewarded `…/8768677032` with `USE_TEST_ADS=false` / `initializeForTesting=false` (versionCode **3** / 1.0.2 AAB). Play package `com.lancechung.colortubesort`. CEO creating `remove_ads` @ $2.99 in Console. Support email / license-tester Gmail still pending user.
 
-**Rule:** Do **not** mark monetization Pass / #7 until real unit IDs are in a non-testids AAB and QA green.
+**Rule:** Do **not** mark monetization Pass / #7 until device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore) — repo wiring alone is **not** enough.
 
 ---
 
