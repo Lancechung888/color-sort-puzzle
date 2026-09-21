@@ -160,3 +160,7 @@ Do this on the machine that can run Gradle.
 ---
 
 Also see operational acceptance: [`docs/NATIVE_ACCEPTANCE.md`](NATIVE_ACCEPTANCE.md) (`npm run native:check` / `npm run aab:internal`).
+
+### versionCode (Play uploads)
+
+- Play rejects reuse of the same `versionCode`. After `cap sync`, run `bash scripts/patch-android-version.sh` (hooked in `npm run aab:internal`) to set **versionCode 2** / **versionName 1.0.1** (override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`).
