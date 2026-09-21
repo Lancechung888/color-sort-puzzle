@@ -4818,6 +4818,125 @@ block(
   }
 }
 
+// --- PWA-SCREENSHOTS: manifest scope + launch_handler + narrow screenshots; sync www/play; no soft-arm ---
+{
+  const rootManifestPath = path.join(root, 'site.webmanifest');
+  const docsManifestPath = path.join(root, 'docs/site.webmanifest');
+  const playManifestPath = path.join(root, 'docs/play/site.webmanifest');
+  const wwwManifestPath = path.join(root, 'www/site.webmanifest');
+  const rootShotDir = path.join(root, 'assets/screenshots');
+  const docsShotDir = path.join(root, 'docs/screenshots');
+  const expectedLabels = {
+    'narrow-01-lid.png': 'Gold lids block pours — uncap to pour',
+    'narrow-02-uncap.png': 'Uncap, then sort matching colors',
+    'narrow-03-daily.png': 'Daily Challenge — Crowded, Remixed, or Pressure',
+  };
+
+  function scopeOk(scope) {
+    return typeof scope === 'string' && (scope === './' || scope === '.' || scope === '/');
+  }
+
+  function launchOk(m) {
+    const lh = m && m.launch_handler;
+    if (!lh || typeof lh !== 'object') return false;
+    const modes = Array.isArray(lh.client_mode)
+      ? lh.client_mode
+      : typeof lh.client_mode === 'string'
+        ? [lh.client_mode]
+        : [];
+    return modes.some((x) => x === 'focus-existing');
+  }
+
+  function screenshotsOk(m, srcIncludes) {
+    const shots = Array.isArray(m && m.screenshots) ? m.screenshots : [];
+    if (shots.length < 3) return false;
+    const basenames = Object.keys(expectedLabels);
+    return basenames.every((bn) =>
+      shots.some(
+        (s) =>
+          s &&
+          typeof s === 'object' &&
+          s.form_factor === 'narrow' &&
+          typeof s.src === 'string' &&
+          s.src.includes(bn) &&
+          srcIncludes.some((n) => s.src.includes(n)) &&
+          (s.sizes === '1080x1920' || !s.sizes) &&
+          (!s.type || s.type === 'image/png') &&
+          typeof s.label === 'string' &&
+          s.label.includes(expectedLabels[bn].slice(0, 12))
+      )
+    );
+  }
+
+  function parseManifest(filePath) {
+    if (!fs.existsSync(filePath)) return null;
+    try {
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function filesOk(dir, basenames) {
+    return basenames.every((bn) => fs.existsSync(path.join(dir, bn)));
+  }
+
+  const basenames = Object.keys(expectedLabels);
+  const rootM = parseManifest(rootManifestPath);
+  const docsM = parseManifest(docsManifestPath);
+  const playM = parseManifest(playManifestPath);
+  const wwwM = parseManifest(wwwManifestPath);
+
+  const rootOk =
+    !!rootM &&
+    scopeOk(rootM.scope) &&
+    launchOk(rootM) &&
+    screenshotsOk(rootM, ['assets/screenshots/']) &&
+    filesOk(rootShotDir, basenames);
+  const docsOk =
+    !!docsM &&
+    scopeOk(docsM.scope) &&
+    launchOk(docsM) &&
+    screenshotsOk(docsM, ['screenshots/']) &&
+    filesOk(docsShotDir, basenames);
+  const playOk =
+    !playM ||
+    (scopeOk(playM.scope) &&
+      launchOk(playM) &&
+      screenshotsOk(playM, ['assets/screenshots/', 'screenshots/']));
+  const wwwOk =
+    !wwwM ||
+    (scopeOk(wwwM.scope) &&
+      launchOk(wwwM) &&
+      screenshotsOk(wwwM, ['assets/screenshots/', 'screenshots/']));
+
+  const rootRaw = fs.existsSync(rootManifestPath)
+    ? fs.readFileSync(rootManifestPath, 'utf8')
+    : '';
+  const docsRaw = fs.existsSync(docsManifestPath)
+    ? fs.readFileSync(docsManifestPath, 'utf8')
+    : '';
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse|pwa-screenshot-arm|screenshot-arm/.test(rootRaw) &&
+    !/soft-arm|claim-juice|hud-pulse|pwa-screenshot-arm|screenshot-arm/.test(docsRaw);
+
+  const swPath = path.join(root, 'sw.js');
+  const swRaw = fs.existsSync(swPath) ? fs.readFileSync(swPath, 'utf8') : '';
+  const noPrecacheShots = !/screenshots\/narrow-/.test(swRaw);
+
+  if (rootOk && docsOk && playOk && wwwOk && noSoft && noPrecacheShots) {
+    pass(
+      'PWA-SCREENSHOTS',
+      'manifest scope ./ + launch_handler focus-existing + ≥3 narrow screenshots; assets+docs files on disk; sync www/play; not in sw PRECACHE; no soft-arm'
+    );
+  } else {
+    fail(
+      'PWA-SCREENSHOTS',
+      `missing screenshots/scope/launch_handler (root=${rootOk} docs=${docsOk} play=${playOk} www=${wwwOk} noSoft=${noSoft} noPrecache=${noPrecacheShots})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
