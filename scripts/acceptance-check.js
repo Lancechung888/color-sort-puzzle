@@ -4415,6 +4415,94 @@ block(
   }
 }
 
+// --- PWA-CHROME-META: mobile-web-app-capable + application-name + og:site_name/locale; sync www/play + docs; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const docsHtml = read('docs/index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const wwwHtmlPath = path.join(root, 'www/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const wwwHtml = fs.existsSync(wwwHtmlPath) ? fs.readFileSync(wwwHtmlPath, 'utf8') : '';
+  const nativePack = read('docs/NATIVE_PACK_READY.md') || '';
+
+  const markerOk = /PWA-CHROME-META/.test(htmlRaw);
+  const chromeCapable =
+    /<meta\s+name=["']mobile-web-app-capable["']\s+content=["']yes["']\s*\/>/i.test(htmlRaw) ||
+    /<meta\s+content=["']yes["']\s+name=["']mobile-web-app-capable["']\s*\/>/i.test(htmlRaw);
+  const appName =
+    /<meta\s+name=["']application-name["']\s+content=["']ColorTube Sort["']\s*\/>/i.test(htmlRaw) ||
+    /<meta\s+content=["']ColorTube Sort["']\s+name=["']application-name["']\s*\/>/i.test(htmlRaw);
+  const ogSite =
+    /property=["']og:site_name["'][^>]*content=["']ColorTube Sort["']/i.test(htmlRaw) ||
+    /content=["']ColorTube Sort["'][^>]*property=["']og:site_name["']/i.test(htmlRaw);
+  const ogLocale =
+    /property=["']og:locale["'][^>]*content=["']en_US["']/i.test(htmlRaw) ||
+    /content=["']en_US["'][^>]*property=["']og:locale["']/i.test(htmlRaw);
+
+  const docsOk =
+    /PWA-CHROME-META/.test(docsHtml) &&
+    /mobile-web-app-capable/.test(docsHtml) &&
+    /application-name/.test(docsHtml) &&
+    /og:site_name/.test(docsHtml) &&
+    /og:locale/.test(docsHtml) &&
+    /en_US/.test(docsHtml);
+
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/PWA-CHROME-META/.test(playHtml) &&
+      /mobile-web-app-capable/.test(playHtml) &&
+      /application-name/.test(playHtml) &&
+      /og:site_name/.test(playHtml) &&
+      /og:locale/.test(playHtml));
+  const wwwOk =
+    !fs.existsSync(wwwHtmlPath) ||
+    (/PWA-CHROME-META/.test(wwwHtml) &&
+      /mobile-web-app-capable/.test(wwwHtml) &&
+      /application-name/.test(wwwHtml) &&
+      /og:site_name/.test(wwwHtml) &&
+      /og:locale/.test(wwwHtml));
+
+  const packOrderOk =
+    /levels\.js\s*→\s*game\.js/.test(nativePack) &&
+    !/levels\.js\s*→\s*ads\.js\s*→\s*billing\.js\s*→\s*analytics\.js\s*→\s*game\.js/.test(
+      nativePack
+    );
+
+  const headSlice = htmlRaw.slice(0, 4500);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse|chrome-arm|pwa-arm/.test(headSlice);
+
+  if (
+    markerOk &&
+    chromeCapable &&
+    appName &&
+    ogSite &&
+    ogLocale &&
+    docsOk &&
+    playOk &&
+    wwwOk &&
+    packOrderOk &&
+    noSoft
+  ) {
+    pass(
+      'PWA-CHROME-META',
+      'mobile-web-app-capable=yes + application-name + og:site_name/locale en_US; docs+www/play synced; NATIVE_PACK_READY SCRIPT-ORDER; no soft-arm'
+    );
+    pass(
+      'OG-SITE-LOCALE',
+      'og:site_name ColorTube Sort + og:locale en_US on playable + docs landing; no soft-arm'
+    );
+  } else {
+    fail(
+      'PWA-CHROME-META',
+      `missing chrome/PWA metas (marker=${markerOk} capable=${chromeCapable} appName=${appName} ogSite=${ogSite} ogLocale=${ogLocale} docs=${docsOk} play=${playOk} www=${wwwOk} packOrder=${packOrderOk} noSoft=${noSoft})`
+    );
+    fail(
+      'OG-SITE-LOCALE',
+      `og:site_name/locale missing (ogSite=${ogSite} ogLocale=${ogLocale} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- COLOR-SCHEME-DARK: meta + CSS color-scheme dark; brand stays #1a1a2e; no soft-arm ---
 {
   const htmlRaw = read('index.html') || '';

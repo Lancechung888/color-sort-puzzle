@@ -13,7 +13,7 @@
 |------|--------|
 | Capacitor / AdMob / Billing npm deps present | **DONE** |
 | `npm run build:www` (`scripts/sync-www.sh`) | **DONE** |
-| Web load order: `ads.js` / `billing.js` before `game.js` | **DONE** |
+| Web load order: `levels.js` → `game.js` then ads/billing/analytics (**SCRIPT-ORDER**) | **DONE** |
 | Test AdMob App IDs in `capacitor.config.json` | **DONE** (Google sample) |
 | Test AdMob unit IDs + `USE_TEST_ADS=true` in `assets/js/ads.js` | **DONE** |
 | Billing skeleton (`assets/js/billing.js`, product `remove_ads`) | **DONE** (no fake grant) |
@@ -50,8 +50,9 @@
   - Fake IAP only via `localStorage.colorTubeSort_devIap===1` (game.js; default off)
 - [x] **Script order** in `index.html` / synced `www/index.html`:
   ```text
-  levels.js → ads.js → billing.js → analytics.js → game.js
+  levels.js → game.js → ads.js → billing.js → analytics*.js
   ```
+  Playable first (SCRIPT-ORDER); monetization/analytics load after game.js.
 - [x] **Native templates** for post-`cap add` Manifest / Billing / build: `native-templates/android/README.md`
 - [x] **Idempotent patch script**: `scripts/patch-android-admob.sh` (strings `admob_app_id` + Manifest `APPLICATION_ID` + `BILLING` permission)
 - [x] **Post-approval ops** (when Play/AdMob ready): `docs/PLAY_POST_APPROVAL_CHECKLIST.md`
