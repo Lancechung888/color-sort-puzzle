@@ -68,10 +68,48 @@ Download ColorTube Sort and turn messy tubes into clean colors.
 
 ## 3) App content declarations
 
-- [ ] **Ads:** Yes, contains ads  
+<!-- PLAY-CONTENT-RATING -->
+### PLAY-CONTENT-RATING — paste-ready answers (EN; honest for free hybrid-casual color-sort + AdMob + optional `remove_ads`)
+
+Complete these in Play Console → **App content**. Answers below are truthful suggestions for ColorTube Sort — **not** a fabricated IARC certificate. User must submit the official Console questionnaire.
+
+| Declaration | Paste / select |
+|-------------|----------------|
+| **Ads** | **Yes, my app contains ads** |
+| **In-app purchases** | **Yes** |
+| **Advertising ID** | **Yes** — app uses advertising ID for advertising / ads measurement (AdMob). **Do not claim "No".** |
+| **News app** | **No** |
+| **COVID-19 contact tracing / status apps** | **No** |
+| **Privacy policy URL** | paste URL in §1 |
+| **Data safety** | Follow `docs/PLAY_DATA_SAFETY.md` (and §4 below) |
+| **Target audience** | **Not primarily children**; **not** Designed for Families / Designed for children (prefer 18+ or mixed adults) |
+
+#### Content rating (IARC questionnaire) — suggested truthful answers
+
+Water-sort / lid-puzzle hybrid-casual; soft currency coins; ads + optional remove_ads IAP; no UGC.
+
+| Topic | Suggested answer |
+|-------|------------------|
+| Violence | None / no realistic violence |
+| Sexual content | None |
+| Language | None / mild if any UI copy (there is none) |
+| Controlled substances | None |
+| Fear / horror | None |
+| Gambling | None (coins are soft currency; **not** real-money gambling) |
+| User interaction / UGC / location sharing | No UGC; no social features; ads may use approximate location via ad SDK |
+| Expected rating band | Suitable for everyone / PEGI 3 / ESRB Everyone–style — **complete the official Console questionnaire**; these are guidance only |
+
+Checklist:
+
+- [ ] **Ads:** Yes, my app contains ads  
 - [ ] **In-app purchases:** Yes  
+- [ ] **Advertising ID:** Yes (AdMob advertising / measurement) — do **not** answer No  
+- [ ] **News app:** No  
+- [ ] **COVID-19 contact tracing / status:** No  
 - [ ] **Privacy policy URL:** paste URL in §1  
-- [ ] Target audience: **not** Designed for children (prefer 18+ or mixed / not primarily children)
+- [ ] **Data safety:** `docs/PLAY_DATA_SAFETY.md`  
+- [ ] **Target audience:** not primarily children; not Designed for Families / Designed for children  
+- [ ] **Content rating (IARC):** complete questionnaire with answers above  
 
 ---
 
