@@ -120,13 +120,16 @@
   --modal-bg: linear-gradient(165deg, #fff8fa 0%, #ffe4ec 100%);
 }
 
+/* TOUCH-CALLOUT: deny iOS Safari/WKWebView/PWA long-press callout (Copy/Look Up/Share) on HUD/tubes */
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
   user-select: none;
 }
 
 html, body {
+  -webkit-touch-callout: none;
   color-scheme: dark;
   margin: 0;
   padding: 0;
