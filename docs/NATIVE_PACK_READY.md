@@ -5,6 +5,7 @@
 > Out of scope here: UA creatives, real unit IDs, enabling fake free `remove_ads`, production publish.  
 > Aligns with `docs/PLAY_POST_APPROVAL_CHECKLIST.md` / `MILLION_USER_BAR` — **#7 AdMob remains Fail** (test IDs only; three green lights not met).  
 > **Do not claim ship-ready** from this doc alone.
+> Marker: **NATIVE-INTERNAL-TESTING-SYNC** (internal testing testids uploaded; #7 still Fail).
 
 ---
 
@@ -27,6 +28,7 @@
 | Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19 + **2026-09-21**): `npm run aab:internal` → signed AABs (upload keystore local/gitignored). Durable copies under `/workspace/colortube-artifacts/` including **versionCode 2** / Billing≥8 / test-IDs builds (e.g. `ColorTubeSort-internal-20260921-1312-vc2-billing8-testids-release.aab`, `…-1309-vc2-testids-release.aab`) |
 | Play `versionCode` / `versionName` | **SCRIPT READY** (`scripts/patch-android-version.sh` → **versionCode 2** / **versionName 1.0.1**; accept `ANDROID-VERSION-CODE-2`; hooked in `aab:internal` after Billing-8, before AdMob) |
 | Play developer account | **APPROVED** (2026-09-21 Asia/Taipei) — see `docs/PLAY_POST_APPROVAL_CHECKLIST.md` |
+| Play **internal testing** track | **UPLOADED** (2026-09-21 Asia/Taipei): release `1.0.1-internal-vc2-testids` / **versionCode 2** / Google sample AdMob IDs — see `docs/ADMOB_POST_LINK_CHECKLIST.md`. **Not** production. **#7 still Fail.** |
 | Play Console real AdMob / real IAP IDs / production publish | **OUT OF SCOPE** (post-approval ops; #7 still Fail — test IDs only) |
 
 ---
@@ -83,7 +85,7 @@
   - 2026-09-19: `ColorTubeSort-internal-20260919-release.aab` (~6.1 MB; early build)
   - 2026-09-21: **versionCode 2** / **versionName 1.0.1** + Billing Library ≥8 + **test AdMob IDs** — e.g. `ColorTubeSort-internal-20260921-1312-vc2-billing8-testids-release.aab` (+ 1309 vc2 copy)
 - [x] **Play developer account APPROVED** (2026-09-21 Asia/Taipei). Prior internal upload attempt blocked because **versionCode 1** was already used — rebuild with versionCode 2 done.
-- [ ] Play **internal testing** track upload / Console ops may be in progress or still need Console action — **do not invent “uploaded successfully”** from this doc alone. Test AdMob IDs only (`USE_TEST_ADS=true`) — do **not** mark MILLION_USER_BAR **#7 Pass**.
+- [x] Play **internal testing** track **UPLOADED** (2026-09-21 Asia/Taipei): release name `1.0.1-internal-vc2-testids` / **versionCode 2** / **versionName 1.0.1** / Billing≥8 / **test AdMob IDs** (`USE_TEST_ADS=true`). Package `com.lancechung.colortubesort`. Source of truth also in `docs/ADMOB_POST_LINK_CHECKLIST.md`. Tester group / license-tester Gmail may still need user. **Do not** mark MILLION_USER_BAR **#7 Pass** from testids internal build alone.
 
 ### Still required on each machine that owns `android/`
 
@@ -104,7 +106,7 @@ bash scripts/patch-android-admob.sh
 
 ### Still external (intentionally not done — not Pass for #7)
 
-- [ ] Play Console app listing + **internal testing** track (account approved; Console upload / tester group may still be pending)
+- [ ] Play Console **store listing** / open testing / production (internal testing **testids** AAB already live; tester invites / license-tester Gmail may still need user)
 - [ ] Real AdMob App ID + interstitial/rewarded unit IDs (`USE_TEST_ADS=false`) — three green lights not met
 - [ ] Play product `remove_ads` enabled + license testers + **device-verified** Billing purchase path
 - [ ] Device-verified SDK ads (no mid-pour ads) + real unit wiring
