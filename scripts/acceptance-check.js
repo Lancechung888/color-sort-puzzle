@@ -6562,6 +6562,46 @@ block(
   }
 }
 
+
+// --- PLAY-DATA-SAFETY-PASTE: Device or other IDs deep form + paste pack status; no soft-arm ---
+{
+  const paste = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
+  const safety = read('docs/PLAY_DATA_SAFETY.md') || '';
+  const checklist = read('docs/PLAY_POST_APPROVAL_CHECKLIST.md') || '';
+  const markerOk = /PLAY-DATA-SAFETY-PASTE/.test(paste) && /PLAY-DATA-SAFETY-PASTE/.test(safety);
+  const section = paste.includes('PLAY-DATA-SAFETY-PASTE')
+    ? paste.slice(paste.indexOf('PLAY-DATA-SAFETY-PASTE'))
+    : '';
+  const deviceDeep =
+    /Device or other IDs/i.test(section) &&
+    (/Collected/.test(section) && /Shared/.test(section)) &&
+    (/Advertising or marketing/i.test(section) || /\*\*Advertising or marketing\*\*/.test(section)) &&
+    (/Fraud prevention/i.test(section)) &&
+    (/Optional/i.test(section)) &&
+    (!/check Analytics until/i.test(section) || /not.*Analytics until/i.test(section) || /leave unchecked until real GA4/i.test(section) || /do not.*Analytics until/i.test(section) || /\*\*not\*\* Analytics until/i.test(section));
+  const noCreateNext = !/Create the Play app next/i.test(paste);
+  const appIdOk = /4972040404691889159/.test(paste) || /Play app ID/i.test(paste);
+  const safetyC2 =
+    /PLAY-DATA-SAFETY-PASTE/.test(safety) &&
+    /Device or other IDs/i.test(safety) &&
+    /Advertising or marketing/i.test(safety) &&
+    /Fraud prevention/i.test(safety);
+  const checklistOk = /PLAY-DATA-SAFETY-PASTE/.test(checklist);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(paste + safety + checklist);
+
+  if (markerOk && deviceDeep && noCreateNext && appIdOk && safetyC2 && checklistOk && noSoft) {
+    pass(
+      'PLAY-DATA-SAFETY-PASTE',
+      'Paste pack Device or other IDs deep form + app-exists status; PLAY_DATA_SAFETY C2; post-approval checklist; no soft-arm'
+    );
+  } else {
+    fail(
+      'PLAY-DATA-SAFETY-PASTE',
+      `missing data-safety paste (marker=${markerOk} deviceDeep=${deviceDeep} noCreateNext=${noCreateNext} appIdOk=${appIdOk} safetyC2=${safetyC2} checklist=${checklistOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- NATIVE-INTERNAL-TESTING-SYNC: internal testing testids uploaded; #7 still Fail; no soft-arm ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';

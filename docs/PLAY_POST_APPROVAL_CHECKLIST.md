@@ -15,7 +15,7 @@
    - 繁中標題／短述／長述
    - 英文標題／短述／長述
 4. **隱私權政策**：填公開 HTTPS URL（政策內容需涵蓋 AdMob、可選 IAP、本機存檔、無帳號）→ https://lancechung888.github.io/color-sort-puzzle/privacy/
-5. **App 內容 → 資料安全**：依 `STORE.md`「Play 資料安全／隱私勾選注意清單」勾選（大致位置、裝置 ID、購買紀錄、含廣告等）。詳見 `docs/PLAY_DATA_SAFETY.md`。
+5. <!-- PLAY-DATA-SAFETY-PASTE --> **App 內容 → 資料安全**：依 `STORE.md`「Play 資料安全／隱私勾選注意清單」勾選（大致位置、**裝置或其他 ID**、應用程式互動、購買紀錄、含廣告等）。**Device or other IDs** 深表答案見 `docs/PLAY_CONSOLE_PASTE_PACK.md` §4 **PLAY-DATA-SAFETY-PASTE**＋ `docs/PLAY_DATA_SAFETY.md` §C2（Collected+Shared／非 ephemeral／Optional／Advertising＋Fraud — 未接 GA4 勿勾 Analytics）。勿發明 Crashlytics／GA4 列。
 6. **聲明**：勾「含廣告」、勾「應用程式內購」。
 7. <!-- PLAY-CONTENT-RATING --> **App 內容 → Content rating（IARC）＋ Advertising ID**（若尚未完成）：
    - **Content rating**：依 `docs/PLAY_CONSOLE_PASTE_PACK.md` §3 **PLAY-CONTENT-RATING** 建議答案填官方問卷（暴力／性／語言／藥物／恐懼／賭博＝無；非真錢賭博；無 UGC）。預期 Everyone／PEGI 3 等級帶 — 須在 Console 正式送出，勿虛構證書。
