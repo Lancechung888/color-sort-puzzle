@@ -5518,6 +5518,117 @@ block(
   }
 }
 
+// --- PWA-SCREENSHOTS-WIDE: ≥3 wide 1920x1080 form_factor screenshots; sync www/play; not in sw PRECACHE; no soft-arm ---
+{
+  const rootManifestPath = path.join(root, 'site.webmanifest');
+  const docsManifestPath = path.join(root, 'docs/site.webmanifest');
+  const playManifestPath = path.join(root, 'docs/play/site.webmanifest');
+  const wwwManifestPath = path.join(root, 'www/site.webmanifest');
+  const rootShotDir = path.join(root, 'assets/screenshots');
+  const docsShotDir = path.join(root, 'docs/screenshots');
+  const expectedLabels = {
+    'wide-01-lid.png': 'Gold lids block pours — uncap to pour',
+    'wide-02-uncap.png': 'Uncap, then sort matching colors',
+    'wide-03-daily.png': 'Daily Challenge — Crowded, Remixed, or Pressure',
+  };
+
+  function parseManifest(filePath) {
+    if (!fs.existsSync(filePath)) return null;
+    try {
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function pngSizeOk(filePath) {
+    if (!fs.existsSync(filePath)) return false;
+    try {
+      const buf = fs.readFileSync(filePath);
+      if (buf.length < 24) return false;
+      // PNG IHDR: width/height at bytes 16..23 (big-endian)
+      const w = buf.readUInt32BE(16);
+      const h = buf.readUInt32BE(20);
+      return w === 1920 && h === 1080;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function screenshotsWideOk(m, srcIncludes) {
+    const shots = Array.isArray(m && m.screenshots) ? m.screenshots : [];
+    const basenames = Object.keys(expectedLabels);
+    return basenames.every((bn) =>
+      shots.some(
+        (s) =>
+          s &&
+          typeof s === 'object' &&
+          s.form_factor === 'wide' &&
+          typeof s.src === 'string' &&
+          s.src.includes(bn) &&
+          srcIncludes.some((n) => s.src.includes(n)) &&
+          (s.sizes === '1920x1080' || !s.sizes) &&
+          (!s.type || s.type === 'image/png') &&
+          typeof s.label === 'string' &&
+          s.label.includes(expectedLabels[bn].slice(0, 12))
+      )
+    );
+  }
+
+  function filesOk(dir, basenames) {
+    return basenames.every((bn) => pngSizeOk(path.join(dir, bn)));
+  }
+
+  const basenames = Object.keys(expectedLabels);
+  const rootM = parseManifest(rootManifestPath);
+  const docsM = parseManifest(docsManifestPath);
+  const playM = parseManifest(playManifestPath);
+  const wwwM = parseManifest(wwwManifestPath);
+
+  const rootOk =
+    !!rootM &&
+    screenshotsWideOk(rootM, ['assets/screenshots/']) &&
+    filesOk(rootShotDir, basenames);
+  const docsOk =
+    !!docsM &&
+    screenshotsWideOk(docsM, ['screenshots/']) &&
+    filesOk(docsShotDir, basenames);
+  const playOk =
+    !playM || screenshotsWideOk(playM, ['assets/screenshots/', 'screenshots/']);
+  const wwwOk =
+    !wwwM || screenshotsWideOk(wwwM, ['assets/screenshots/', 'screenshots/']);
+
+  const rootRaw = fs.existsSync(rootManifestPath)
+    ? fs.readFileSync(rootManifestPath, 'utf8')
+    : '';
+  const docsRaw = fs.existsSync(docsManifestPath)
+    ? fs.readFileSync(docsManifestPath, 'utf8')
+    : '';
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse|pwa-screenshot-arm|screenshot-arm|wide-arm/.test(
+      rootRaw
+    ) &&
+    !/soft-arm|claim-juice|hud-pulse|pwa-screenshot-arm|screenshot-arm|wide-arm/.test(
+      docsRaw
+    );
+
+  const swPath = path.join(root, 'sw.js');
+  const swRaw = fs.existsSync(swPath) ? fs.readFileSync(swPath, 'utf8') : '';
+  const noPrecacheShots = !/screenshots\/wide-/.test(swRaw);
+
+  if (rootOk && docsOk && playOk && wwwOk && noSoft && noPrecacheShots) {
+    pass(
+      'PWA-SCREENSHOTS-WIDE',
+      '≥3 wide form_factor 1920x1080 screenshots in root+docs manifests; assets+docs files on disk; sync www/play; not in sw PRECACHE; no soft-arm'
+    );
+  } else {
+    fail(
+      'PWA-SCREENSHOTS-WIDE',
+      `missing wide screenshots (root=${rootOk} docs=${docsOk} play=${playOk} www=${wwwOk} noSoft=${noSoft} noPrecache=${noPrecacheShots})`
+    );
+  }
+}
+
 // --- PWA-DISPLAY-OVERRIDE: display_override + handle_links preferred; sync www/play; no soft-arm ---
 {
   const rootManifestPath = path.join(root, 'site.webmanifest');
