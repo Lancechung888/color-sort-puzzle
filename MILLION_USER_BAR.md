@@ -146,6 +146,8 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**NATIVE-INTERNAL-TESTING-SYNC**已上 — 對齊 `docs/NATIVE_PACK_READY.md` 與 `docs/ADMOB_POST_LINK_CHECKLIST.md`：Play **internal testing** 已上傳 `1.0.1-internal-vc2-testids`（versionCode **2**／Billing≥8／測 AdMob IDs）；移除過時「upload may be in progress／do not invent uploaded」敘述；**#7 仍 Fail**（三綠燈未過；測 ID 不變）；accept `NATIVE-INTERNAL-TESTING-SYNC`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**A11Y-PREFER-CONTRAST / PLAY-CONTENT-RATING**已上 — `assets/css/style.css` `@media (prefers-contrast: more)` 加厚 `.tube-glass`／lid／`.btn`／chip／HUD 邊框＋`@media (forced-colors: active)` `forced-color-adjust: none` 保留液色；`index.html` marker；`docs/PLAY_CONSOLE_PASTE_PACK.md` §3 PLAY-CONTENT-RATING（Ads／IAP／**Advertising ID Yes**／IARC 建議答案）＋`PLAY_POST_APPROVAL_CHECKLIST` Content rating＋Advertising ID；accept 兩項；**無** soft-arm／claim-juice／HUD pulse；測 AdMob IDs／`USE_TEST_ADS=true` 不變；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**NATIVE-PACK-READY-SYNC**已上 — 同步 `docs/NATIVE_PACK_READY.md`：Play developer account **APPROVED**（2026-09-21 Asia/Taipei）；Billing≥8＋**versionCode 2**／`versionName 1.0.1`（`ANDROID-VERSION-CODE-2`）腳本就緒；簽章內測 AAB（含 vc2 billing8+testids）於 `/workspace/colortube-artifacts/`；移除過時「account still in review／Not uploaded」敘述；內測上傳／Console 仍可能進行中（不虛構 uploaded successfully）；`package.json` version **1.0.1**；accept `NATIVE-PACK-READY-SYNC`；**無** soft-arm／claim-juice／HUD pulse；測 AdMob IDs／`USE_TEST_ADS=true` 不變；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**

@@ -6562,6 +6562,37 @@ block(
   }
 }
 
+// --- NATIVE-INTERNAL-TESTING-SYNC: internal testing testids uploaded; #7 still Fail; no soft-arm ---
+{
+  const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
+  const admobRaw = read('docs/ADMOB_POST_LINK_CHECKLIST.md') || '';
+  const uploadedOk =
+    /NATIVE-INTERNAL-TESTING-SYNC/.test(packRaw) &&
+    /internal testing/i.test(packRaw) &&
+    (/UPLOADED/.test(packRaw) || /1\.0\.1-internal-vc2-testids/.test(packRaw));
+  const noInventStale =
+    !/may be in progress or still need Console action/i.test(packRaw) &&
+    !/do not invent .uploaded successfully./i.test(packRaw);
+  const fail7Ok =
+    /#7/.test(packRaw) &&
+    (/still Fail/i.test(packRaw) || /remains Fail/i.test(packRaw));
+  const admobAlign =
+    /1\.0\.1-internal-vc2-testids/.test(admobRaw) ||
+    /Internal testing AAB live/i.test(admobRaw);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(packRaw);
+  if (uploadedOk && noInventStale && fail7Ok && admobAlign && noSoft) {
+    pass(
+      'NATIVE-INTERNAL-TESTING-SYNC',
+      'NATIVE_PACK_READY: internal testing 1.0.1-internal-vc2-testids UPLOADED; #7 still Fail; aligns ADMOB checklist; no soft-arm'
+    );
+  } else {
+    fail(
+      'NATIVE-INTERNAL-TESTING-SYNC',
+      `missing internal-testing truth sync (uploadedOk=${uploadedOk} noInventStale=${noInventStale} fail7Ok=${fail7Ok} admobAlign=${admobAlign} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- 5) Delegate native wiring ---
 const native = spawnSync('node', [path.join(root, 'scripts/native-wiring-check.js')], {
   cwd: root,
