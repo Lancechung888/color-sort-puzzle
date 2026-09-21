@@ -165,6 +165,8 @@
   let persistentStorageRequested = false;
   /** STORAGE-ESTIMATE: once-per-session low-quota Backup toast. */
   let storageEstimateWarned = false;
+  /** OFFLINE-TOAST: web/PWA saw offline this session (skip Back-online on first load). */
+  let networkWasOffline = false;
   /** Fail-sheet primary hint CTA soft-arm cue timer (once per open). */
   let failHintArmTimer = 0;
   /** CAP-TEACH-ARM: once-per-load soft lid nudge cue timer on teach:cap. */
@@ -6408,6 +6410,34 @@
     });
   }
 
+  // OFFLINE-TOAST — web/PWA network status toasts (skip native; pairs with sw.js + SAVE-BACKUP)
+  function bindOfflineStatus() {
+    try {
+      if (isCapacitorNativePlatform()) return;
+      window.addEventListener('offline', function () {
+        try {
+          networkWasOffline = true;
+          toast('Offline — progress saved on this device', 3600);
+        } catch (_) { /* ignore */ }
+      });
+      window.addEventListener('online', function () {
+        try {
+          if (!networkWasOffline) return;
+          toast('Back online', 2800);
+          networkWasOffline = false;
+        } catch (_) { /* ignore */ }
+      });
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        networkWasOffline = true;
+        setTimeout(function () {
+          try {
+            toast('Offline — progress saved on this device', 3600);
+          } catch (_) { /* ignore */ }
+        }, 900);
+      }
+    } catch (_) { /* ignore */ }
+  }
+
   function init() {
     // Ad creative capture: ?ad=1 or body.ad-capture hides chrome, scales playfield
     // PWA-DAILY-SHORTCUT / DAILY-DEEPLINK: ?daily=1 opens today's challenge (manifest shortcut)
@@ -6472,6 +6502,8 @@
     applyReducedMotionClass();
     // PWA-INSTALL
     bindPwaInstall();
+    // OFFLINE-TOAST
+    bindOfflineStatus();
     refreshHud();
     refreshMetaTeasers();
     if (pendingStreakMilestone) {
