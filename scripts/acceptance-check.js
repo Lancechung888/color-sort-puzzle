@@ -4141,9 +4141,16 @@ block(
         /type=["']font\/woff2["']/.test(l) &&
         /\bcrossorigin\b/.test(l)
     );
+  const sheetIdx = (() => {
+    const m = [...htmlRaw.matchAll(/<link\b[^>]*>/gi)].find(
+      (x) => /rel=["']stylesheet["']/.test(x[0]) && /assets\/css\/style\.css/.test(x[0])
+    );
+    return m ? m.index : -1;
+  })();
   const beforeCss =
     htmlRaw.indexOf('noto-sans-latin-700-normal.woff2') >= 0 &&
-    htmlRaw.indexOf('noto-sans-latin-700-normal.woff2') < htmlRaw.indexOf('assets/css/style.css');
+    sheetIdx >= 0 &&
+    htmlRaw.indexOf('noto-sans-latin-700-normal.woff2') < sheetIdx;
   const noSoft = !/soft-arm|claim-juice|hud-pulse|font-arm/.test(htmlRaw.slice(0, 2500));
   if (preload700 && preload800 && preload900 && attrsOk && beforeCss && noSoft) {
     pass(
@@ -4203,11 +4210,18 @@ block(
   const attrsOk =
     scriptLinks.length >= 2 &&
     scriptLinks.every((l) => /\bas=["']script["']/.test(l));
+  const sheetIdx = (() => {
+    const m = [...htmlRaw.matchAll(/<link\b[^>]*>/gi)].find(
+      (x) => /rel=["']stylesheet["']/.test(x[0]) && /assets\/css\/style\.css/.test(x[0])
+    );
+    return m ? m.index : -1;
+  })();
   const beforeCss =
+    sheetIdx >= 0 &&
     htmlRaw.indexOf('assets/js/levels.js') >= 0 &&
-    htmlRaw.indexOf('assets/js/levels.js') < htmlRaw.indexOf('assets/css/style.css') &&
+    htmlRaw.indexOf('assets/js/levels.js') < sheetIdx &&
     htmlRaw.indexOf('assets/js/game.js') >= 0 &&
-    htmlRaw.indexOf('assets/js/game.js') < htmlRaw.indexOf('assets/css/style.css');
+    htmlRaw.indexOf('assets/js/game.js') < sheetIdx;
   const noAdsBilling =
     !links.some((l) => /assets\/js\/(ads|billing)\.js/.test(l));
   const playOk =
@@ -4263,6 +4277,54 @@ block(
     fail(
       'INLINE-CRITICAL-BG',
       `missing critical bg (bg=${bgOk} early=${early} play=${playOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- CSS-PRELOAD: style.css as=style before font/script preload; docs/play synced; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const links = [...htmlRaw.matchAll(/<link\b[^>]*>/gi)].map((m) => m[0]);
+  const cssPre = links.find(
+    (l) =>
+      /rel=["']preload["']/.test(l) &&
+      /href=["']assets\/css\/style\.css["']/.test(l) &&
+      /\bas=["']style["']/.test(l)
+  );
+  const sheetOk = links.some(
+    (l) => /rel=["']stylesheet["']/.test(l) && /href=["']assets\/css\/style\.css["']/.test(l)
+  );
+  const preIdx = htmlRaw.indexOf('CSS-PRELOAD');
+  const fontIdx = htmlRaw.indexOf('FONT-PRELOAD');
+  const scriptIdx = htmlRaw.indexOf('SCRIPT-PRELOAD');
+  const bgIdx = htmlRaw.indexOf('INLINE-CRITICAL-BG');
+  const orderOk =
+    preIdx >= 0 &&
+    bgIdx >= 0 &&
+    bgIdx < preIdx &&
+    fontIdx >= 0 &&
+    preIdx < fontIdx &&
+    scriptIdx >= 0 &&
+    preIdx < scriptIdx;
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/CSS-PRELOAD/.test(playHtml) &&
+      (/rel=["']preload["'][^>]*href=["']assets\/css\/style\.css["']/.test(playHtml) ||
+        /href=["']assets\/css\/style\.css["'][^>]*rel=["']preload["']/.test(playHtml)) &&
+      /\bas=["']style["']/.test(playHtml));
+  const snippet = htmlRaw.slice(0, 2800);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(snippet);
+  if (cssPre && sheetOk && orderOk && playOk && noSoft) {
+    pass(
+      'CSS-PRELOAD',
+      'index preload style.css as=style after critical bg before font/script preload; stylesheet retained; docs/play synced; no soft-arm'
+    );
+  } else {
+    fail(
+      'CSS-PRELOAD',
+      `missing css preload (pre=${!!cssPre} sheet=${sheetOk} order=${orderOk} play=${playOk} noSoft=${noSoft})`
     );
   }
 }

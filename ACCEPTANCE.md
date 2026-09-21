@@ -166,6 +166,8 @@
 （已補）**INLINE-CRITICAL-BG**已上 — `index.html` font／script preload 前 inline brand dark `#1a1a2e`／text `#f5f5f7`；`sync-www`；accept `INLINE-CRITICAL-BG`；**無** soft-arm；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 ## P0（一票否決）— ①–④ 對照
 
+（已補）**CSS-PRELOAD**已上 — `index.html` 在 INLINE-CRITICAL-BG 之後、FONT／SCRIPT preload 之前 `preload` `assets/css/style.css` `as=style`（提早發現樣式，縮短無樣式閃爍；stylesheet 連結保留）；`sync-www` → www／docs/play；accept `CSS-PRELOAD`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 | ID | 檢查項 | 狀態 | 重現／備註 |
 |----|--------|------|------------|
 | **P0①** | 商店假 IAP | **Pass** | 點「去除廣告」→ toast「即將開放／需商店帳號」；`removeAds` 維持 false（除非 `localStorage.colorTubeSort_devIap=1`） |
