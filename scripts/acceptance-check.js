@@ -4378,6 +4378,83 @@ block(
   }
 }
 
+// --- PWA-DAILY-SHORTCUT: manifest Daily shortcut → ?daily=1 + game deeplink boot; docs/play synced; no soft-arm ---
+{
+  const rootManifestPath = path.join(root, 'site.webmanifest');
+  const docsManifestPath = path.join(root, 'docs/site.webmanifest');
+  const playManifestPath = path.join(root, 'docs/play/site.webmanifest');
+  const wwwManifestPath = path.join(root, 'www/site.webmanifest');
+  const gameJs = read('assets/js/game.js') || '';
+  const playGamePath = path.join(root, 'docs/play/assets/js/game.js');
+  const playGame = fs.existsSync(playGamePath) ? fs.readFileSync(playGamePath, 'utf8') : '';
+
+  function shortcutOk(filePath, urlNeedle, iconNeedle) {
+    if (!fs.existsSync(filePath)) return false;
+    try {
+      const m = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      const shortcuts = Array.isArray(m.shortcuts) ? m.shortcuts : [];
+      return shortcuts.some((s) => {
+        if (!s || typeof s !== 'object') return false;
+        const nameOk =
+          typeof s.name === 'string' && /daily challenge/i.test(s.name);
+        const urlOk = typeof s.url === 'string' && s.url.includes(urlNeedle);
+        const icons = Array.isArray(s.icons) ? s.icons : [];
+        const iconOk =
+          icons.length === 0 ||
+          icons.some(
+            (i) => i && typeof i.src === 'string' && i.src.includes(iconNeedle)
+          );
+        return nameOk && urlOk && iconOk;
+      });
+    } catch (_) {
+      return false;
+    }
+  }
+
+  const rootOk = shortcutOk(rootManifestPath, '?daily=1', 'icon-192.png');
+  const docsOk = shortcutOk(docsManifestPath, 'play/?daily=1', 'icon-192.png');
+  const playOk =
+    !fs.existsSync(playManifestPath) ||
+    shortcutOk(playManifestPath, '?daily=1', 'icon-192.png');
+  const wwwOk =
+    !fs.existsSync(wwwManifestPath) ||
+    shortcutOk(wwwManifestPath, '?daily=1', 'icon-192.png');
+  const bootOk =
+    /PWA-DAILY-SHORTCUT/.test(gameJs) &&
+    /bootDaily/.test(gameJs) &&
+    /dailyParam === '1'/.test(gameJs) &&
+    /startDailyChallenge/.test(gameJs) &&
+    /history\.replaceState/.test(gameJs);
+  const playBootOk =
+    !fs.existsSync(playGamePath) ||
+    (/PWA-DAILY-SHORTCUT/.test(playGame) && /bootDaily/.test(playGame));
+  const manifestRaw = fs.existsSync(rootManifestPath)
+    ? fs.readFileSync(rootManifestPath, 'utf8')
+    : '';
+  const docsManifestRaw = fs.existsSync(docsManifestPath)
+    ? fs.readFileSync(docsManifestPath, 'utf8')
+    : '';
+  // Only gate NEW surfaces (manifest shortcuts + bootDaily block) — game.js already has soft-arm elsewhere
+  const bootSliceMatch = gameJs.match(/PWA-DAILY-SHORTCUT[\s\S]{0,1200}?bootDaily[\s\S]{0,800}?startDailyChallenge/);
+  const bootSlice = bootSliceMatch ? bootSliceMatch[0] : '';
+  const noSoft =
+    !!bootSlice &&
+    !/soft-arm|claim-juice|hud-pulse|pwa-daily-arm/.test(bootSlice) &&
+    !/soft-arm|claim-juice|hud-pulse|pwa-daily-arm/.test(manifestRaw) &&
+    !/soft-arm|claim-juice|hud-pulse|pwa-daily-arm/.test(docsManifestRaw);
+  if (rootOk && docsOk && playOk && wwwOk && bootOk && playBootOk && noSoft) {
+    pass(
+      'PWA-DAILY-SHORTCUT',
+      'manifest Daily Challenge shortcut → ?daily=1; game bootDaily deeplink + strip query; docs brand → play/?daily=1; sync www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'PWA-DAILY-SHORTCUT',
+      `missing daily shortcut/deeplink (root=${rootOk} docs=${docsOk} play=${playOk} www=${wwwOk} boot=${bootOk} playBoot=${playBootOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');

@@ -6179,10 +6179,22 @@
 
   function init() {
     // Ad creative capture: ?ad=1 or body.ad-capture hides chrome, scales playfield
+    // PWA-DAILY-SHORTCUT / DAILY-DEEPLINK: ?daily=1 opens today's challenge (manifest shortcut)
+    let bootDaily = false;
     try {
       const q = new URLSearchParams(location.search);
       if (q.get('ad') === '1' || q.has('ad')) {
         document.body.classList.add('ad-capture');
+      }
+      const dailyParam = q.get('daily');
+      // Accept ?daily=1 / ?daily=true (PWA shortcut); ignore ?daily=0/false
+      if (dailyParam === '1' || dailyParam === 'true') {
+        bootDaily = true;
+        try {
+          q.delete('daily');
+          const next = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
+          history.replaceState(null, '', next);
+        } catch (_) { /* ignore */ }
       }
     } catch (e) { /* ignore */ }
 
@@ -6521,6 +6533,13 @@
     refreshDailyCta({ cue: true });
     refreshStartPlayCta({ cue: true });
     updateChrome();
+
+    // PWA-DAILY-SHORTCUT: after chrome ready, honor ?daily=1 (stripped above) once
+    if (bootDaily) {
+      setTimeout(function () {
+        try { startDailyChallenge(); } catch (_) { /* ignore */ }
+      }, 0);
+    }
   }
 
   if (document.readyState === 'loading') {
