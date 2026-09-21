@@ -187,6 +187,9 @@
 
 （已補）**CRASH-GUARD**已上 — `bindCrashGuard`：`error`／`unhandledrejection` 一次／session flush persist＋mid-run draft；toast「Something went wrong — progress was saved」；`trackEvent('client_error')`；swallow errors；`sync-www` → www／docs/play；accept `CRASH-GUARD`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**PAGE-LIFECYCLE**已上 — web／PWA `bindPageLifecycle`：`pageshow`＋`event.persisted`（bfcache）→ `clearPendingUncap`＋mid-run `persistRunDraft`＋`syncScreenWakeLock`＋`resumeAudio`；offline／online 僅在相對 `networkWasOffline` 真翻轉時 toast（對齊 OFFLINE-TOAST；native 跳過）；`document` `freeze`→清 uncap＋flush draft；`resume`→wake＋audio（對齊 visibility show，不 clearPendingUncap）；try／catch no-op；`sync-www` → www／docs/play；accept `PAGE-LIFECYCLE`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
+
 
 | ID | 檢查項 | 狀態 | 重現／備註 |
 |----|--------|------|------------|

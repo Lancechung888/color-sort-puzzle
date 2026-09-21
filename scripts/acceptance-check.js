@@ -4882,6 +4882,57 @@ block(
   }
 }
 
+
+// --- PAGE-LIFECYCLE: bfcache pageshow + freeze/resume re-sync; sync www/play; no soft-arm ---
+{
+  const gameJs = read('assets/js/game.js') || '';
+  const playGamePath = path.join(root, 'docs/play/assets/js/game.js');
+  const wwwGamePath = path.join(root, 'www/assets/js/game.js');
+  const playGame = fs.existsSync(playGamePath) ? fs.readFileSync(playGamePath, 'utf8') : '';
+  const wwwGame = fs.existsSync(wwwGamePath) ? fs.readFileSync(wwwGamePath, 'utf8') : '';
+
+  const helperOk =
+    /function bindPageLifecycle\s*\(/.test(gameJs) &&
+    /PAGE-LIFECYCLE/.test(gameJs) &&
+    /addEventListener\(\s*['"]pageshow['"]/.test(gameJs) &&
+    /event\.persisted|persisted/.test(gameJs) &&
+    /addEventListener\(\s*['"]freeze['"]/.test(gameJs) &&
+    /addEventListener\(\s*['"]resume['"]/.test(gameJs) &&
+    /clearPendingUncap\s*\(/.test(gameJs) &&
+    /persistRunDraft\s*\(/.test(gameJs) &&
+    /syncScreenWakeLock\s*\(/.test(gameJs);
+
+  const initOk = /bindPageLifecycle\s*\(\s*\)/.test(gameJs);
+
+  const playOk =
+    !fs.existsSync(playGamePath) ||
+    (/function bindPageLifecycle\s*\(/.test(playGame) &&
+      /pageshow/.test(playGame) &&
+      /PAGE-LIFECYCLE/.test(playGame));
+  const wwwOk =
+    !fs.existsSync(wwwGamePath) ||
+    (/function bindPageLifecycle\s*\(/.test(wwwGame) &&
+      /pageshow/.test(wwwGame) &&
+      /PAGE-LIFECYCLE/.test(wwwGame));
+
+  const helperSlice = (gameJs.match(/function bindPageLifecycle[\s\S]{0,2800}/) || [''])[0];
+  const noSoft =
+    !!helperSlice &&
+    !/soft-arm|claim-juice|hud-pulse|page-lifecycle-arm/.test(helperSlice);
+
+  if (helperOk && initOk && playOk && wwwOk && noSoft) {
+    pass(
+      'PAGE-LIFECYCLE',
+      'bindPageLifecycle + pageshow(persisted)/freeze/resume re-sync; sync www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'PAGE-LIFECYCLE',
+      `missing page lifecycle helper/init/sync (helper=${helperOk} init=${initOk} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-TEACH-ARM: tip dismiss does not set capTeachDone; uncap does; load soft-arm ---
 {
   const gameSrc = read('assets/js/game.js') || '';
