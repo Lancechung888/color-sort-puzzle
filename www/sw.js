@@ -1,11 +1,17 @@
 /* ColorTube Sort — offline service worker (PWA-OFFLINE + PWA-UPDATE) */
-const CACHE_NAME = 'colortube-offline-v2';
+const CACHE_NAME = 'colortube-offline-v3';
 
 const PRECACHE_URLS = [
   './',
   './index.html',
   './site.webmanifest',
   './assets/css/style.css',
+  './assets/fonts/noto-sans-latin-400-normal.woff2',
+  './assets/fonts/noto-sans-latin-500-normal.woff2',
+  './assets/fonts/noto-sans-latin-600-normal.woff2',
+  './assets/fonts/noto-sans-latin-700-normal.woff2',
+  './assets/fonts/noto-sans-latin-800-normal.woff2',
+  './assets/fonts/noto-sans-latin-900-normal.woff2',
   './assets/js/levels.js',
   './assets/js/ads.js',
   './assets/js/billing.js',
