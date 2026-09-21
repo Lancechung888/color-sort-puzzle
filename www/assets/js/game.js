@@ -161,6 +161,8 @@
   let dailyReadyCueFired = false;
   /** Once-per-session soft cue when start shows Continue · Level N. */
   let playContinueCueFired = false;
+  /** STORAGE-PERSIST: once-per-session navigator.storage.persist() attempt. */
+  let persistentStorageRequested = false;
   /** Fail-sheet primary hint CTA soft-arm cue timer (once per open). */
   let failHintArmTimer = 0;
   /** CAP-TEACH-ARM: once-per-load soft lid nudge cue timer on teach:cap. */
@@ -465,6 +467,62 @@
     updateStreakOnLogin();
     levelIndex = Math.min(save.level || 0, LEVELS.length - 1);
     applyTheme(save.activeTheme || 'classic');
+    // STORAGE-PERSIST
+    if (saveHasMeaningfulProgress()) requestPersistentStorage();
+  }
+
+  function saveHasMeaningfulProgress() {
+    if ((save.maxUnlocked || 0) > 0) return true;
+    if ((save.level || 0) > 0) return true;
+    if ((save.coins || 0) !== START_COINS) return true;
+    if (save.stars && typeof save.stars === 'object' && !Array.isArray(save.stars)) {
+      for (const k in save.stars) {
+        if (Object.prototype.hasOwnProperty.call(save.stars, k) && save.stars[k]) return true;
+      }
+    }
+    if ((save.streak || 0) > 0) return true;
+    if (save.dailyDoneDate) return true;
+    if (save.removeAds === true) return true;
+    return false;
+  }
+
+  // STORAGE-PERSIST — ask Chrome/Android not to evict localStorage under pressure
+  function requestPersistentStorage() {
+    if (persistentStorageRequested) return;
+    if (
+      typeof navigator === 'undefined' ||
+      !navigator.storage ||
+      typeof navigator.storage.persist !== 'function'
+    ) {
+      persistentStorageRequested = true;
+      return;
+    }
+    persistentStorageRequested = true;
+    try {
+      const stor = navigator.storage;
+      const askPersist = function () {
+        try {
+          const r = stor.persist();
+          if (r && typeof r.then === 'function') {
+            r.catch(function () { /* ignore */ });
+          }
+        } catch (_) { /* ignore */ }
+      };
+      if (typeof stor.persisted === 'function') {
+        try {
+          const p = stor.persisted();
+          if (p && typeof p.then === 'function') {
+            p.then(function (already) {
+              if (already) return;
+              askPersist();
+            }).catch(function () { /* ignore */ });
+            return;
+          }
+          if (p) return;
+        } catch (_) { /* fall through */ }
+      }
+      askPersist();
+    } catch (_) { /* ignore */ }
   }
 
   function persist() {
@@ -476,12 +534,16 @@
       try {
         localStorage.setItem(STORAGE_BAK_KEY, payload);
       } catch (_) { /* bak optional */ }
+      // STORAGE-PERSIST
+      if (saveHasMeaningfulProgress()) requestPersistentStorage();
     } catch (err) {
       // Quota / private mode: drop bak + legacy, retry once
       try {
         localStorage.removeItem(STORAGE_BAK_KEY);
         localStorage.removeItem(LEGACY_PROGRESS_KEY);
         localStorage.setItem(STORAGE_KEY, payload);
+        // STORAGE-PERSIST
+        if (saveHasMeaningfulProgress()) requestPersistentStorage();
       } catch (_) { /* ignore — session continues in memory */ }
     }
   }
@@ -1232,6 +1294,8 @@
     // refresh mid-level before first pour resumes the same board; restart clears first.
     try {
       localStorage.setItem(RUN_STORAGE_KEY, JSON.stringify(buildRunDraft()));
+      // STORAGE-PERSIST
+      if (moves > 0 || history.length > 0) requestPersistentStorage();
     } catch (_) {
       try {
         localStorage.removeItem(RUN_STORAGE_KEY);
