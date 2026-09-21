@@ -2,8 +2,8 @@
 # Idempotent: set Play versionCode/versionName after cap sync (android/ is gitignored).
 # Cap sync / fresh cap add resets defaultConfig to versionCode 1 — always re-apply before bundleRelease.
 # Play internal testing rejects reused versionCode (prior upload used 1).
-# Defaults: VERSION_CODE=3, VERSION_NAME=1.0.2. Does NOT touch AdMob test IDs / USE_TEST_ADS.
-# ANDROID-VERSION-CODE-2
+# Defaults: VERSION_CODE=3, VERSION_NAME=1.0.2 (ANDROID-VERSION-CODE-3). Does NOT claim #7 Pass.
+# ANDROID-VERSION-CODE-3 (was CODE-2 for vc2)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

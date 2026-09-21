@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
- * 測 ID 階段配線自檢（不需 android/、不需 SDK）。
- * exit 0 = 測試 ID 階段配線 OK；否則非 0。
+ * AdMob / Billing wiring self-check (no android/ / SDK required).
+ * REAL-ADMOB-IDS phase: Android prod App ID + USE_TEST_ADS=false.
+ * exit 0 = wiring OK; else non-zero.
+ * Does NOT claim MILLION_USER_BAR #7 Pass (device three-green still required).
  */
 'use strict';
 
@@ -11,6 +13,11 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const lines = [];
 let fails = 0;
+
+const REAL_ANDROID_APP = 'ca-app-pub-3904450574947460~6670970617';
+const REAL_INTERSTITIAL = 'ca-app-pub-3904450574947460/2731725604';
+const REAL_REWARDED = 'ca-app-pub-3904450574947460/8768677032';
+const SAMPLE_PREFIX = 'ca-app-pub-3940256099942544';
 
 function pass(msg) {
   lines.push(`- PASS: ${msg}`);
@@ -47,17 +54,29 @@ if (cap) {
   const androidId = admob.appIdAndroid || '';
   const iosId = admob.appIdIos || '';
   const testing = admob.initializeForTesting === true;
-  const testAndroid = /~3347511713/.test(androidId) || /3940256099942544~/.test(androidId);
-  const testIos = /~1458002511/.test(iosId) || /3940256099942544~/.test(iosId);
 
-  if (testAndroid) pass(`capacitor.config.json AdMob appIdAndroid 為測試 App ID (${androidId})`);
-  else fail(`capacitor.config.json appIdAndroid 非預期測試 ID: ${androidId || '(空)'}`);
+  if (androidId === REAL_ANDROID_APP) {
+    pass(`capacitor.config.json AdMob appIdAndroid 為正式 App ID (${androidId})`);
+  } else if (androidId.includes('3940256099942544')) {
+    fail(`capacitor.config.json appIdAndroid 仍為 Google sample: ${androidId}`);
+  } else {
+    fail(`capacitor.config.json appIdAndroid 非預期正式 ID: ${androidId || '(空)'}`);
+  }
 
-  if (testIos) pass(`capacitor.config.json AdMob appIdIos 為測試 App ID (${iosId})`);
-  else fail(`capacitor.config.json appIdIos 非預期測試 ID: ${iosId || '(空)'}`);
+  // iOS: OK to keep Google sample until real iOS app exists
+  if (iosId.includes('3940256099942544') || /~1458002511/.test(iosId)) {
+    pass(`capacitor.config.json AdMob appIdIos 仍為測試 App ID（尚無 iOS 正式包；OK）(${iosId})`);
+  } else if (iosId) {
+    info(`capacitor.config.json appIdIos = ${iosId}（非 sample；確認為正式 iOS App ID）`);
+  } else {
+    fail('capacitor.config.json appIdIos 空白');
+  }
 
-  if (testing) pass('capacitor.config.json initializeForTesting === true');
-  else fail('capacitor.config.json initializeForTesting 應為 true（測 ID 階段）');
+  if (testing === false || admob.initializeForTesting === false) {
+    pass('capacitor.config.json initializeForTesting === false');
+  } else {
+    fail('capacitor.config.json initializeForTesting 應為 false（正式 Android 包）');
+  }
 
   const pid =
     (cap.plugins &&
@@ -70,14 +89,30 @@ if (cap) {
 
 const adsRaw = read('assets/js/ads.js');
 if (adsRaw) {
-  if (/USE_TEST_ADS\s*=\s*true/.test(adsRaw)) pass('assets/js/ads.js USE_TEST_ADS === true');
-  else if (/USE_TEST_ADS\s*=\s*false/.test(adsRaw)) fail('assets/js/ads.js USE_TEST_ADS === false（測 ID 階段應為 true）');
+  if (/USE_TEST_ADS\s*=\s*false/.test(adsRaw)) pass('assets/js/ads.js USE_TEST_ADS === false');
+  else if (/USE_TEST_ADS\s*=\s*true/.test(adsRaw)) fail('assets/js/ads.js USE_TEST_ADS === true（正式 Android 應為 false）');
   else fail('assets/js/ads.js 找不到 USE_TEST_ADS 賦值');
 
-  if (/1033173712/.test(adsRaw) && /5224354917/.test(adsRaw)) {
-    pass('assets/js/ads.js 含 Google sample interstitial／rewarded 單元');
+  if (adsRaw.includes(REAL_INTERSTITIAL) && adsRaw.includes(REAL_REWARDED)) {
+    pass('assets/js/ads.js PROD_UNITS Android interstitial／rewarded 為正式單元');
   } else {
-    fail('assets/js/ads.js 缺少 Google sample interstitial／rewarded 單元 ID');
+    fail('assets/js/ads.js 缺少正式 Android interstitial／rewarded 單元 ID');
+  }
+
+  // Keep sample TEST_UNITS for local flip-back; must not be selected when USE_TEST_ADS=false
+  if (/1033173712/.test(adsRaw) && /5224354917/.test(adsRaw)) {
+    pass('assets/js/ads.js 仍保留 Google sample TEST_UNITS（僅 USE_TEST_ADS=true 時用）');
+  } else {
+    info('assets/js/ads.js 無 sample TEST_UNITS（可接受；正式路徑不依賴）');
+  }
+}
+
+const esmRaw = read('assets/js/ads.esm.js');
+if (esmRaw) {
+  if (/USE_TEST_ADS\s*=\s*false/.test(esmRaw) && esmRaw.includes(REAL_INTERSTITIAL) && esmRaw.includes(REAL_REWARDED)) {
+    pass('assets/js/ads.esm.js USE_TEST_ADS=false + 正式 Android 單元對齊');
+  } else {
+    fail('assets/js/ads.esm.js 未對齊正式 Android 單元／USE_TEST_ADS=false');
   }
 }
 
@@ -97,16 +132,39 @@ if (billRaw) {
   }
 }
 
-const hasAndroid = fs.existsSync(path.join(root, 'android'));
-if (hasAndroid) info('本機存在 android/（可選；測 ID 階段不強制）');
-else info('本機無 android/（預期：gitignore；需 SDK 時再 npm run cap:add:android）');
+const patchRaw = read('scripts/patch-android-admob.sh');
+if (patchRaw) {
+  if (/capacitor\.config\.json/.test(patchRaw) && /appIdAndroid/.test(patchRaw)) {
+    pass('patch-android-admob.sh 從 capacitor.config.json 讀取 appIdAndroid');
+  } else {
+    fail('patch-android-admob.sh 未從 capacitor.config 注入 App ID');
+  }
+}
 
-console.log('## native:check（測試 ID 階段）\n');
+const hasAndroid = fs.existsSync(path.join(root, 'android'));
+if (hasAndroid) {
+  const strings = path.join(root, 'android/app/src/main/res/values/strings.xml');
+  if (fs.existsSync(strings)) {
+    const s = fs.readFileSync(strings, 'utf8');
+    if (s.includes(REAL_ANDROID_APP)) {
+      pass('local android strings.xml admob_app_id = 正式 App ID（無 3940 sample）');
+    } else if (s.includes(SAMPLE_PREFIX)) {
+      fail('local android strings.xml 仍含 Google sample 3940 App ID');
+    } else {
+      info('local android strings.xml admob_app_id 非預期字串 — 跑 patch-android-admob.sh');
+    }
+  }
+  info('本機存在 android/（gitignore；正式 ID 應經 patch 注入）');
+} else {
+  info('本機無 android/（預期：gitignore；需 SDK 時再 npm run cap:add:android）');
+}
+
+console.log('## native:check（REAL-ADMOB-IDS · Android prod wiring）\n');
 console.log(lines.join('\n'));
 console.log('');
 if (fails > 0) {
   console.log(`結果: FAIL（${fails} 項）`);
   process.exit(1);
 }
-console.log('結果: PASS — 測 ID 配線可驗收（不要求 android/ 或實產 AAB）');
+console.log('結果: PASS — Android 正式 AdMob 配線 OK（#7 仍需實機三綠燈；不標 Pass）');
 process.exit(0);

@@ -128,6 +128,6 @@ else
   log_zh "已補上 com.android.vending.BILLING 權限。"
 fi
 
-log "Done. Manifest + strings ready for AdMob native init (test App ID)."
-log_zh "完成。Manifest／strings 已就緒（測試 App ID；正式 ID 待 Play 過審後替換）。"
+log "Done. Manifest + strings ready for AdMob native init (appId=${SAMPLE_APP_ID})."
+log_zh "完成。Manifest／strings 已就緒（appId=${SAMPLE_APP_ID}；來源 capacitor.config.json）。"
 exit 0
