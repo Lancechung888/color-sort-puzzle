@@ -5804,6 +5804,77 @@ block(
   }
 }
 
+// --- APPLE-SPLASH-MODERN: +5 portrait (iPhone 16 Pro/Max + iPad mini 6 / Air 10.9 / Pro 10.5); sync www/play; not in sw PRECACHE; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const swRaw = read('sw.js') || '';
+  const modern = [
+    'apple-1206x2622.png',
+    'apple-1320x2868.png',
+    'apple-1488x2266.png',
+    'apple-1640x2360.png',
+    'apple-1668x2224.png',
+  ];
+  const splashLinks = (htmlRaw.match(/rel=["']apple-touch-startup-image["'][^>]*>/gi) || []).length;
+  const hrefOk = modern.every((f) => htmlRaw.includes('assets/splash/' + f));
+  const mediaOk =
+    /device-width:\s*402px/.test(htmlRaw) &&
+    /device-height:\s*874px/.test(htmlRaw) &&
+    /device-width:\s*440px/.test(htmlRaw) &&
+    /device-height:\s*956px/.test(htmlRaw) &&
+    /device-width:\s*744px/.test(htmlRaw) &&
+    /device-height:\s*1133px/.test(htmlRaw) &&
+    /device-width:\s*820px/.test(htmlRaw) &&
+    /device-height:\s*1180px/.test(htmlRaw) &&
+    /device-height:\s*1112px/.test(htmlRaw);
+  const linkOk =
+    /APPLE-SPLASH-MODERN/.test(htmlRaw) &&
+    splashLinks >= 19 &&
+    hrefOk &&
+    mediaOk &&
+    /orientation:\s*portrait/.test(htmlRaw);
+  const filesOk = modern.every((f) =>
+    fs.existsSync(path.join(root, 'assets/splash', f))
+  );
+  const notPrecached =
+    !/assets\/splash\//.test(swRaw) &&
+    !/apple-1206x2622|apple-1320x2868|apple-1488x2266|apple-1640x2360|apple-1668x2224/.test(
+      swRaw
+    );
+  const playHtml = path.join(root, 'docs/play/index.html');
+  const playSplashDir = path.join(root, 'docs/play/assets/splash');
+  const wwwSplashDir = path.join(root, 'www/assets/splash');
+  let playOk = true;
+  if (fs.existsSync(playHtml)) {
+    const playRaw = fs.readFileSync(playHtml, 'utf8');
+    playOk =
+      /APPLE-SPLASH-MODERN/.test(playRaw) &&
+      modern.every((f) => playRaw.includes('assets/splash/' + f)) &&
+      modern.every((f) => fs.existsSync(path.join(playSplashDir, f)));
+  }
+  let wwwOk = true;
+  if (fs.existsSync(path.join(root, 'www/index.html'))) {
+    const wwwRaw = fs.readFileSync(path.join(root, 'www/index.html'), 'utf8');
+    wwwOk =
+      /APPLE-SPLASH-MODERN/.test(wwwRaw) &&
+      modern.every((f) => wwwRaw.includes('assets/splash/' + f)) &&
+      modern.every((f) => fs.existsSync(path.join(wwwSplashDir, f)));
+  }
+  const noSoft =
+    !/apple-splash-arm|splash-arm|soft-arm|claim-juice|hud-pulse/.test(htmlRaw);
+  if (linkOk && filesOk && notPrecached && playOk && wwwOk && noSoft) {
+    pass(
+      'APPLE-SPLASH-MODERN',
+      '+5 apple-touch-startup-image (iPhone 16 Pro/Max + iPad mini 6 / Air / Pro 10.5) + assets; sync www/play; not in sw PRECACHE; no soft-arm'
+    );
+  } else {
+    fail(
+      'APPLE-SPLASH-MODERN',
+      `missing modern iOS splash coverage (linkOk=${linkOk} filesOk=${filesOk} notPrecached=${notPrecached} playOk=${playOk} wwwOk=${wwwOk} noSoft=${noSoft} splashLinks=${splashLinks})`
+    );
+  }
+}
+
 // --- PWA-DISPLAY-OVERRIDE: display_override + handle_links preferred; sync www/play; no soft-arm ---
 {
   const rootManifestPath = path.join(root, 'site.webmanifest');
