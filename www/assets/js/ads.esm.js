@@ -13,7 +13,7 @@ import {
 } from '@capacitor-community/admob';
 
 const STORAGE_KEY = 'colorTubeSort_v2';
-const USE_TEST_ADS = false; // 上架前改 false
+const USE_TEST_ADS = false; // Android prod IDs live 2026-09-21
 
 const TEST = {
   interstitial: {
