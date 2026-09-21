@@ -7100,6 +7100,70 @@ block(
 }
 
 
+
+// --- IAP-PURCHASE-BUSY: in-flight guard on remove_ads purchase+restore; finally clear; no soft-arm; #7 still Fail ---
+{
+  const gameJs = read('assets/js/game.js') || '';
+  const indexHtml = read('index.html') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const markerOk =
+    /IAP-PURCHASE-BUSY/.test(gameJs) &&
+    /IAP-PURCHASE-BUSY/.test(indexHtml) &&
+    /IAP-PURCHASE-BUSY/.test(barRaw) &&
+    /IAP-PURCHASE-BUSY/.test(accMd);
+  const busyFlagOk =
+    /let iapBusy\s*=\s*false/.test(gameJs) &&
+    /function setIapBusy/.test(gameJs);
+  const guardOk =
+    /if\s*\(\s*iapBusy\s*\)/.test(gameJs) &&
+    /Purchase in progress/.test(gameJs);
+  const finallyOk =
+    /\.finally\s*\(\s*\(\s*\)\s*=>\s*\{\s*setIapBusy\s*\(\s*false\s*\)/.test(gameJs);
+  const disableOk =
+    /btn-buy-remove-ads/.test(gameJs) &&
+    /btn-fail-remove-ads/.test(gameJs) &&
+    /btn-restore-purchases/.test(gameJs) &&
+    /disabled\s*=\s*true/.test(
+      (gameJs.match(/function setIapBusy[\s\S]{0,800}/) || [''])[0]
+    );
+  const noGrantOnBusy =
+    !/iapBusy[\s\S]{0,200}removeAds\s*=\s*true/.test(
+      (gameJs.match(/if\s*\(\s*iapBusy\s*\)[\s\S]{0,250}/g) || []).join('\n')
+    );
+  const webHonest =
+    /Coming soon \/ needs store account/.test(gameJs) &&
+    /ACCEPTANCE P0①: normal shop click must NOT grant removeAds/.test(gameJs);
+  const fail7Ok =
+    /#7/.test(barRaw) &&
+    (/still Fail/i.test(barRaw) || /\*\*Fail\*\*/.test(barRaw));
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(
+      (gameJs.match(/IAP-PURCHASE-BUSY[\s\S]{0,2500}/) || [''])[0]
+    );
+  if (
+    markerOk &&
+    busyFlagOk &&
+    guardOk &&
+    finallyOk &&
+    disableOk &&
+    noGrantOnBusy &&
+    webHonest &&
+    fail7Ok &&
+    noSoft
+  ) {
+    pass(
+      'IAP-PURCHASE-BUSY',
+      'iapBusy + finally clear; disable buy/fail/restore; busy ignore no grant; web Coming soon; #7 still Fail; no soft-arm'
+    );
+  } else {
+    fail(
+      'IAP-PURCHASE-BUSY',
+      `missing in-flight IAP guard (markerOk=${markerOk} busyFlagOk=${busyFlagOk} guardOk=${guardOk} finallyOk=${finallyOk} disableOk=${disableOk} noGrantOnBusy=${noGrantOnBusy} webHonest=${webHonest} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- REMOVE-ADS-SHOP-LIVE: Play remove_ads Active $2.99 → live shop/fail CTA + Restore when Billing ready; web Coming soon; #7 still Fail ---
 {
   const gameJs = read('assets/js/game.js') || '';

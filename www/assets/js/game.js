@@ -2859,9 +2859,32 @@
   // REMOVE-ADS-SHOP-LIVE: Play Console remove_ads Active @ $2.99 — show live CTA when Billing ready
   const REMOVE_ADS_PRICE_LABEL = '$2.99';
 
+  // IAP-PURCHASE-BUSY: block re-entrant Play Billing purchase+restore (honest CTA disable only; no fake grant)
+  let iapBusy = false;
+
+  function setIapBusy(busy) {
+    iapBusy = !!busy;
+    const btnRemove = $('#btn-buy-remove-ads');
+    const btnFailRemove = $('#btn-fail-remove-ads');
+    const btnRestore = $('#btn-restore-purchases');
+    if (iapBusy) {
+      if (btnRemove) btnRemove.disabled = true;
+      if (btnFailRemove) btnFailRemove.disabled = true;
+      if (btnRestore) btnRestore.disabled = true;
+      return;
+    }
+    // Re-enable from owned / billing-ready / Coming soon state (web path unchanged)
+    refreshShopButtons();
+  }
+
   function restoreRemoveAdsPurchases() {
     if (save.removeAds) {
       toast('Ads already removed');
+      return;
+    }
+    // IAP-PURCHASE-BUSY: ignore re-entrant restore; must NOT grant removeAds
+    if (iapBusy) {
+      toast('Purchase in progress…');
       return;
     }
     const billing = window.ColorTubeBilling;
@@ -2874,6 +2897,7 @@
       toast('Coming soon / needs store account');
       return;
     }
+    setIapBusy(true);
     toast('Restoring…');
     Promise.resolve(billing.restorePurchases())
       .then((ok) => {
@@ -2891,6 +2915,9 @@
       .catch((e) => {
         console.warn('[IAP] restoreRemoveAdsPurchases', e);
         toast('Restore failed — try again later');
+      })
+      .finally(() => {
+        setIapBusy(false);
       });
   }
 
@@ -2901,6 +2928,11 @@
       toast('Ads removed');
       return;
     }
+    // IAP-PURCHASE-BUSY: ignore re-entrant purchase; must NOT grant removeAds
+    if (iapBusy) {
+      toast('Purchase in progress…');
+      return;
+    }
     const billing = window.ColorTubeBilling;
     const canNative =
       billing &&
@@ -2908,6 +2940,7 @@
       billing.isBillingReady() &&
       typeof billing.purchaseRemoveAds === 'function';
     if (canNative) {
+      setIapBusy(true);
       toast('Opening purchase…');
       Promise.resolve(billing.purchaseRemoveAds())
         .then((ok) => {
@@ -2925,10 +2958,14 @@
         .catch((e) => {
           console.warn('[IAP] purchaseRemoveAds', e);
           toast('Purchase failed — try again later');
+        })
+        .finally(() => {
+          setIapBusy(false);
         });
       return;
     }
     // Plugin missing / web / billing not ready → gated mock only (dev flag OFF by default)
+    // Coming soon / web path unchanged (no iapBusy)
     if (!isDevIapEnabled()) {
       toast('Coming soon / needs store account');
       return;
@@ -5564,6 +5601,12 @@
       btnRemove.disabled = false;
       if (removeCard) removeCard.classList.remove('owned');
     }
+    // IAP-PURCHASE-BUSY: keep CTAs disabled while native purchase/restore in flight
+    if (iapBusy) {
+      if (btnRemove) btnRemove.disabled = true;
+      if (btnFailRemove) btnFailRemove.disabled = true;
+      if (btnRestore) btnRestore.disabled = true;
+    }
 
     updateThemeButtons('classic', '#btn-theme-classic', null, null);
     updateThemeButtons('neon', null, '#btn-buy-neon-coins', '#btn-buy-neon-iap');
@@ -6228,6 +6271,12 @@
     $('#btn-buy-remove-ads').addEventListener('click', () => {
       purchaseRemoveAds();
     });
+    const btnRestorePurchases = $('#btn-restore-purchases');
+    if (btnRestorePurchases) {
+      btnRestorePurchases.addEventListener('click', () => {
+        restoreRemoveAdsPurchases();
+      });
+    }
 
     $('#btn-buy-hints-coins').addEventListener('click', () => {
       confirmShopSpendThen('hints-pack', HINT_PACK_COIN_COST, function () {
