@@ -146,6 +146,8 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**NATIVE-VC5-INTERNAL-SYNC**／**PLAY-PASTE-VC5-SYNC**已上 — Play **internal testing** 現況對齊為 `1.0.4-internal-vc5-uncap1tap`／versionCode **5**／versionName **1.0.4**／Billing≥8／prod AdMob／**UNCAP-ONE-TAP**；歷史 vc4／`1.0.2-internal-vc3-prodAdMob`／vc2-testids 標 superseded；Active vc5 AAB **不含** IAP-PURCHASE-BUSY（tip main／#237；下次上傳需新 versionCode）；accept 兩項；**#7 仍 Fail**（缺實機三綠燈）；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**IAP-PURCHASE-BUSY**已上 — native `remove_ads` purchase＋restore 飛行中鎖（`iapBusy`／finally 清；busy 忽略不授獎；停用 buy／fail／Restore CTA）；web Coming soon 不變；accept 項；**#7 仍 Fail**；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**UNCAP-ONE-TAP**已上 — 蓋子**單點即揭**（持液點有蓋＝清選取＋揭蓋）；移除雙點 arm／pendingUncap；EN tip／howto／hint 改 Tap the lid；accept `UNCAP-ONE-TAP`；#1 維持 Partial；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**

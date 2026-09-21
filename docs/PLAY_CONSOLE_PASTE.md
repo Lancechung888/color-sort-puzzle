@@ -2,9 +2,10 @@
 
 > **EN first** (primary listing). Traditional Chinese secondary below.  
 > Play developer account: **APPROVED** (2026-09-21 Asia/Taipei).  
-> **Current** internal testing: `1.0.2-internal-vc3-prodAdMob` / versionCode **3** / prod AdMob (`USE_TEST_ADS=false`). Historical vc2-testids superseded.  
-> **Do not** claim live / #7 Pass until device three green lights (interstitial, rewarded full-watch, `remove_ads` purchase+restore). Production untouched.  
-> Marker: **PLAY-PASTE-VC3-SYNC** (paste honesty after **REAL-ADMOB-IDS** / **NATIVE-VC3-INTERNAL-SYNC**).
+> **Current** internal testing: `1.0.4-internal-vc5-uncap1tap` / versionCode **5** / versionName **1.0.4** / Billing≥8 / prod AdMob (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded); vc2-testids superseded.  
+> **Do not** claim live / #7 Pass until device three green lights (interstitial, rewarded full-watch, `remove_ads` purchase+restore). **#7 still Fail**. Production untouched.  
+> Active vc5 AAB does **not** include **IAP-PURCHASE-BUSY** (tip main / #237; next upload needs new versionCode).  
+> Marker: **PLAY-PASTE-VC5-SYNC** (paste honesty after **NATIVE-VC5-INTERNAL-SYNC**; historical **PLAY-PASTE-VC3-SYNC** / **NATIVE-VC3-INTERNAL-SYNC**).
 
 Source of truth: `STORE.md` · `docs/PRIVACY_README.md` · `docs/PLAY_POST_APPROVAL_CHECKLIST.md` · `docs/ADMOB_POST_LINK_CHECKLIST.md`
 
@@ -18,7 +19,7 @@ Source of truth: `STORE.md` · `docs/PRIVACY_README.md` · `docs/PLAY_POST_APPRO
 | **Play listing title (EN)** | ColorTube Sort: Lid Puzzle |
 | **Package name / appId** | `com.lancechung.colortubesort` |
 | **Play app ID** | `4972040404691889159` |
-| **Internal testing (current)** | `1.0.2-internal-vc3-prodAdMob` / versionCode **3** / versionName **1.0.2** / Billing≥8 / prod AdMob |
+| **Internal testing (current)** | `1.0.4-internal-vc5-uncap1tap` / versionCode **5** / versionName **1.0.4** / Billing≥8 / prod AdMob / UNCAP-ONE-TAP |
 | **Privacy policy URL (HTTPS)** | https://lancechung888.github.io/color-sort-puzzle/privacy/ |
 
 Verified live on GitHub Pages (`main` → `/docs`). Use this exact URL in the Play form.
@@ -81,7 +82,8 @@ Keywords: color sort, water sort, tube puzzle, pour puzzle, color sorting, relax
 
 ## AdMob — **REAL-ADMOB-IDS** (wired; #7 still Fail)
 
-<!-- PLAY-PASTE-VC3-SYNC -->
+<!-- PLAY-PASTE-VC5-SYNC -->
+<!-- PLAY-PASTE-VC3-SYNC (historical) -->
 Android prod IDs are **already wired** in repo (`USE_TEST_ADS=false`). Do **not** invent new `ca-app-pub` values — match existing **REAL-ADMOB-IDS** / `docs/ADMOB_POST_LINK_CHECKLIST.md` only. Historical sample IDs + `USE_TEST_ADS=true` + `1.0.1-internal-vc2-testids` are **superseded** (not current advice).
 
 | Role | Value | Maps to |
@@ -141,7 +143,7 @@ Android prod IDs are **already wired** in repo (`USE_TEST_ADS=false`). Do **not*
 
 ## Still open (honest; not done by paste alone) — **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**
 
-1. **Play app / internal testing / AdMob Android IDs** — **DONE** (app ID `4972040404691889159`; internal `1.0.2-internal-vc3-prodAdMob`; **REAL-ADMOB-IDS**).  
+1. **Play app / internal testing / AdMob Android IDs** — **DONE** (app ID `4972040404691889159`; internal `1.0.4-internal-vc5-uncap1tap`; **REAL-ADMOB-IDS**).  
 2. **Internal testers** — list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`.  
 3. **Device three green lights** — interstitial / rewarded full-watch / `remove_ads` purchase+restore → **#7 still Fail**.  
 4. **Still external placeholders** — support email; GA4 `MEASUREMENT_ID`; Merchant / Data Safety Device IDs deep form may still be incomplete. Do not invent.

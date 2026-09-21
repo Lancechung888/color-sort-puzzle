@@ -1,6 +1,6 @@
 # AdMob checklist — after Play package link
 
-**Context (2026-09-21):** **Current** Play internal testing = `1.0.2-internal-vc3-prodAdMob` / **versionCode 3** / **versionName 1.0.2** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`). Historical: `1.0.1-internal-vc2-testids` / vc2 / sample IDs (superseded; **NATIVE-INTERNAL-TESTING-SYNC**). **REAL-ADMOB-IDS** wires Android prod App ID `ca-app-pub-3904450574947460~6670970617` + interstitial `…/2731725604` + rewarded `…/8768677032` with `initializeForTesting=false`. Play package `com.lancechung.colortubesort`. `remove_ads` IAP Active @ $2.99 in Console (device purchase+restore still open). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for vc3 prodAdMob); license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921` (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**). Support email / GA4 `MEASUREMENT_ID` still external placeholders. Markers: **NATIVE-VC3-INTERNAL-SYNC** · **PLAY-PASTE-VC3-SYNC** · **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**.
+**Context (2026-09-21):** **Current** Play internal testing = `1.0.4-internal-vc5-uncap1tap` / **versionCode 5** / **versionName 1.0.4** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` / vc2 (superseded; **NATIVE-INTERNAL-TESTING-SYNC**). **REAL-ADMOB-IDS** wires Android prod App ID `ca-app-pub-3904450574947460~6670970617` + interstitial `…/2731725604` + rewarded `…/8768677032` with `initializeForTesting=false`. Play package `com.lancechung.colortubesort`. `remove_ads` IAP Active @ $2.99 in Console (device purchase+restore still open). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921` (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**). Support email / GA4 `MEASUREMENT_ID` still external placeholders. Active vc5 AAB does **not** include **IAP-PURCHASE-BUSY** (tip main / #237; next upload needs new versionCode). Markers: **NATIVE-VC5-INTERNAL-SYNC** · **PLAY-PASTE-VC5-SYNC** (historical **NATIVE-VC3-INTERNAL-SYNC** · **PLAY-PASTE-VC3-SYNC**) · **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**.
 
 **Rule:** Do **not** mark monetization Pass / #7 until device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore) — repo wiring alone is **not** enough.
 
@@ -9,9 +9,9 @@
 ## 0) Preconditions
 
 - [x] Play app exists + package fixed: `com.lancechung.colortubesort`
-- [x] Internal testing track has a build (**current:** `1.0.2-internal-vc3-prodAdMob` / vc3 / prod AdMob)
+- [x] Internal testing track has a build (**current:** `1.0.4-internal-vc5-uncap1tap` / vc5 / 1.0.4 / prod AdMob / UNCAP-ONE-TAP)
 - [x] License testers Gmail added — `lancechung@gmail.com` + `hanwen16888@gmail.com` / **RESPOND_NORMALLY** (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**)
-- [x] Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for vc3 prodAdMob); opt-in `https://play.google.com/apps/internaltest/4701709602422954921`
+- [x] Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for vc5-uncap1tap); opt-in `https://play.google.com/apps/internaltest/4701709602422954921`
 - [x] `remove_ads` product Active @ **$2.99** (Console); device purchase+restore still open → **#7 still Fail**
 - [ ] Support email for privacy page (user)
 
@@ -82,14 +82,15 @@ No placeholders. No sample `3940256099942544` IDs.
 
 See also: `docs/PLAY_IAP_ADMOB_SETUP.md` (full IAP + AdMob), `docs/PLAY_CONSOLE_PASTE_PACK.md`.
 
-## Status update (2026-09-21) — **NATIVE-VC3-INTERNAL-SYNC** + **INTERNAL-TESTER-SYNC** / **INTERNAL-TESTER-HANWEN-SYNC** / **PLAY-PASTE-VC3-SYNC**
+## Status update (2026-09-21) — **NATIVE-VC5-INTERNAL-SYNC** + **INTERNAL-TESTER-SYNC** / **INTERNAL-TESTER-HANWEN-SYNC** / **PLAY-PASTE-VC5-SYNC**
 
 - Android AdMob App ID + interstitial + rewarded **wired in repo** (Play store link may still 404 until listing public).
 - `USE_TEST_ADS=false`, `initializeForTesting=false`.
-- Play **internal testing** **UPLOADED**: `1.0.2-internal-vc3-prodAdMob` / versionCode **3** / 1.0.2 (no `testids` in name). Historical vc2-testids superseded.
-- Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for vc3 prodAdMob); license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`.
+- Play **internal testing** **UPLOADED current**: `1.0.4-internal-vc5-uncap1tap` / versionCode **5** / **1.0.4** / Billing≥8 / prod AdMob / **UNCAP-ONE-TAP** (no `testids` in name). Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); vc2-testids (superseded).
+- Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`.
+- Active vc5 AAB does **not** include **IAP-PURCHASE-BUSY** (tip main / #237; next upload needs new versionCode).
 - Device QA still open (**#7 still Fail**):
   - [ ] Interstitial only fail-loop / clear  
   - [ ] Rewarded grants only after complete  
   - [ ] `remove_ads` purchase + restore; owned → no interstitial  
-- **Do not** mark #7 Pass until those three green lights. Production untouched. Paste pack / PLAY_CONSOLE_PASTE synced under **PLAY-PASTE-VC3-SYNC** (no “keep sample IDs + USE_TEST_ADS=true” as current advice).
+- **Do not** mark #7 Pass until those three green lights. Production untouched. Paste pack / PLAY_CONSOLE_PASTE synced under **PLAY-PASTE-VC5-SYNC** (historical **PLAY-PASTE-VC3-SYNC**; no “keep sample IDs + USE_TEST_ADS=true” as current advice).

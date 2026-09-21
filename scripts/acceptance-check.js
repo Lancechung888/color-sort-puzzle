@@ -6797,7 +6797,8 @@ block(
     /internal testing/i.test(packRaw) &&
     (/UPLOADED/.test(packRaw) ||
       /1\.0\.1-internal-vc2-testids/.test(packRaw) ||
-      /1\.0\.2-internal-vc3-prodAdMob/.test(packRaw));
+      /1\.0\.2-internal-vc3-prodAdMob/.test(packRaw) ||
+      /1\.0\.4-internal-vc5-uncap1tap/.test(packRaw));
   const noInventStale =
     !/may be in progress or still need Console action/i.test(packRaw) &&
     !/do not invent .uploaded successfully./i.test(packRaw);
@@ -6807,6 +6808,7 @@ block(
   const admobAlign =
     /1\.0\.1-internal-vc2-testids/.test(admobRaw) ||
     /1\.0\.2-internal-vc3-prodAdMob/.test(admobRaw) ||
+    /1\.0\.4-internal-vc5-uncap1tap/.test(admobRaw) ||
     /Internal testing AAB live/i.test(admobRaw);
   const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(packRaw);
   if (uploadedOk && noInventStale && fail7Ok && admobAlign && noSoft) {
@@ -6822,16 +6824,17 @@ block(
   }
 }
 
-// --- NATIVE-VC3-INTERNAL-SYNC: current internal = vc3 prodAdMob; #7 still Fail; no soft-arm ---
+// --- NATIVE-VC3-INTERNAL-SYNC: historical vc3 prodAdMob still documented; #7 still Fail; no soft-arm ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
   const admobRaw = read('docs/ADMOB_POST_LINK_CHECKLIST.md') || '';
   const designRaw = read('DESIGN.md') || '';
   const markerOk = /NATIVE-VC3-INTERNAL-SYNC/.test(packRaw) && /NATIVE-VC3-INTERNAL-SYNC/.test(admobRaw);
-  const currentOk =
+  const histOk =
     /1\.0\.2-internal-vc3-prodAdMob/.test(packRaw) &&
     /1\.0\.2-internal-vc3-prodAdMob/.test(admobRaw) &&
-    (/versionCode\s*3/.test(packRaw) || /ANDROID-VERSION-CODE-3/.test(packRaw));
+    (/historical/i.test(packRaw) || /superseded/i.test(packRaw)) &&
+    (/historical/i.test(admobRaw) || /superseded/i.test(admobRaw));
   const prodOk =
     (/USE_TEST_ADS\s*=\s*false/.test(packRaw) || /prod AdMob/i.test(packRaw)) &&
     (/USE_TEST_ADS\s*=\s*false/.test(admobRaw) || /prod AdMob/i.test(admobRaw));
@@ -6852,29 +6855,28 @@ block(
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(packRaw) &&
     !/soft-arm|claim-juice|hud-pulse/.test(admobRaw);
-  if (markerOk && currentOk && prodOk && noNextStale && noUntilSample && fail7Ok && designOk && noSoft) {
+  if (markerOk && histOk && prodOk && noNextStale && noUntilSample && fail7Ok && designOk && noSoft) {
     pass(
       'NATIVE-VC3-INTERNAL-SYNC',
-      'NATIVE_PACK_READY + ADMOB checklist: current internal 1.0.2-internal-vc3-prodAdMob / vc3 / prod AdMob; DESIGN honest; #7 still Fail; no soft-arm'
+      'NATIVE_PACK_READY + ADMOB checklist: historical 1.0.2-internal-vc3-prodAdMob / vc3 documented; DESIGN honest; #7 still Fail; no soft-arm'
     );
   } else {
     fail(
       'NATIVE-VC3-INTERNAL-SYNC',
-      `missing vc3 internal truth (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} noNextStale=${noNextStale} noUntilSample=${noUntilSample} fail7Ok=${fail7Ok} designOk=${designOk} noSoft=${noSoft})`
+      `missing vc3 historical truth (markerOk=${markerOk} histOk=${histOk} prodOk=${prodOk} noNextStale=${noNextStale} noUntilSample=${noUntilSample} fail7Ok=${fail7Ok} designOk=${designOk} noSoft=${noSoft})`
     );
   }
 }
 
-// --- PLAY-PASTE-VC3-SYNC: paste pack/docs = vc3 prodAdMob; no stale sample-ID current advice; #7 Fail ---
+// --- PLAY-PASTE-VC3-SYNC: historical vc3 still documented; no stale sample-ID current advice; #7 Fail ---
 {
   const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
   const paste = read('docs/PLAY_CONSOLE_PASTE.md') || '';
   const markerOk =
     /PLAY-PASTE-VC3-SYNC/.test(pastePack) && /PLAY-PASTE-VC3-SYNC/.test(paste);
-  const currentOk =
+  const histVc3Ok =
     /1\.0\.2-internal-vc3-prodAdMob/.test(pastePack) &&
-    (/USE_TEST_ADS\s*=\s*false/.test(pastePack) || /prod AdMob/i.test(pastePack)) &&
-    (/versionCode\s*\*?\*?3\*?\*?/.test(pastePack) || /versionCode\s+3/.test(pastePack));
+    (/historical/i.test(pastePack) || /superseded/i.test(pastePack));
   const idsOk =
     /ca-app-pub-3904450574947460~6670970617/.test(pastePack) &&
     (/2731725604/.test(pastePack) || /…\/2731725604/.test(pastePack)) &&
@@ -6893,15 +6895,131 @@ block(
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(pastePack) &&
     !/soft-arm|claim-juice|hud-pulse/.test(paste);
-  if (markerOk && currentOk && idsOk && noStaleSampleAdvice && histOk && fail7Ok && noSoft) {
+  if (markerOk && histVc3Ok && idsOk && noStaleSampleAdvice && histOk && fail7Ok && noSoft) {
     pass(
       'PLAY-PASTE-VC3-SYNC',
-      'PLAY_CONSOLE_PASTE(_PACK): vc3 prodAdMob / USE_TEST_ADS=false; no stale sample-ID current advice; #7 still Fail; no soft-arm'
+      'PLAY_CONSOLE_PASTE(_PACK): historical vc3 prodAdMob documented; no stale sample-ID current advice; #7 still Fail; no soft-arm'
     );
   } else {
     fail(
       'PLAY-PASTE-VC3-SYNC',
-      `missing paste vc3 sync (markerOk=${markerOk} currentOk=${currentOk} idsOk=${idsOk} noStaleSampleAdvice=${noStaleSampleAdvice} histOk=${histOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+      `missing paste vc3 historical sync (markerOk=${markerOk} histVc3Ok=${histVc3Ok} idsOk=${idsOk} noStaleSampleAdvice=${noStaleSampleAdvice} histOk=${histOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+    );
+  }
+}
+
+
+// --- NATIVE-VC5-INTERNAL-SYNC: current internal = vc5-uncap1tap; #7 still Fail; no soft-arm ---
+{
+  const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
+  const admobRaw = read('docs/ADMOB_POST_LINK_CHECKLIST.md') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const markerOk = /NATIVE-VC5-INTERNAL-SYNC/.test(packRaw) && /NATIVE-VC5-INTERNAL-SYNC/.test(admobRaw);
+  const currentOk =
+    /1\.0\.4-internal-vc5-uncap1tap/.test(packRaw) &&
+    /1\.0\.4-internal-vc5-uncap1tap/.test(admobRaw) &&
+    (/versionCode\s*5/.test(packRaw) || /ANDROID-VERSION-CODE-5/.test(packRaw)) &&
+    (/versionName\s*\*?\*?1\.0\.4\*?\*?/.test(packRaw) || /1\.0\.4/.test(packRaw));
+  const prodOk =
+    (/USE_TEST_ADS\s*=\s*false/.test(packRaw) || /prod AdMob/i.test(packRaw)) &&
+    (/USE_TEST_ADS\s*=\s*false/.test(admobRaw) || /prod AdMob/i.test(admobRaw));
+  const uncapOk = /UNCAP-ONE-TAP/.test(packRaw) && /UNCAP-ONE-TAP/.test(admobRaw);
+  const histOk =
+    (/historical/i.test(packRaw) || /superseded/i.test(packRaw)) &&
+    (/1\.0\.2-internal-vc3-prodAdMob/.test(packRaw) || /vc3/.test(packRaw)) &&
+    (/vc4/.test(packRaw) || /versionCode 4/.test(packRaw) || /1\.0\.3/.test(packRaw));
+  const noBusyInActive =
+    /IAP-PURCHASE-BUSY/.test(packRaw) &&
+    (/does \*\*not\*\* include/.test(packRaw) || /not\) include/.test(packRaw) || /does not include/i.test(packRaw) || /不含/.test(packRaw) || /not include/i.test(packRaw));
+  const fail7Ok =
+    (/#7/.test(packRaw) && (/still Fail/i.test(packRaw) || /remains Fail/i.test(packRaw))) &&
+    (/#7/.test(admobRaw) &&
+      (/still Fail/i.test(admobRaw) ||
+        /Do \*\*not\*\* mark #7/i.test(admobRaw) ||
+        /not.*mark #7/i.test(admobRaw) ||
+        /Do not.*mark #7/i.test(admobRaw)));
+  const designOk =
+    /REAL-ADMOB-IDS/.test(designRaw) &&
+    !/AdMob interstitial \+ rewarded \(Capacitor plugin \+ publisher account\)/.test(designRaw);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(packRaw) &&
+    !/soft-arm|claim-juice|hud-pulse/.test(admobRaw);
+  if (
+    markerOk &&
+    currentOk &&
+    prodOk &&
+    uncapOk &&
+    histOk &&
+    noBusyInActive &&
+    fail7Ok &&
+    designOk &&
+    noSoft
+  ) {
+    pass(
+      'NATIVE-VC5-INTERNAL-SYNC',
+      'NATIVE_PACK_READY + ADMOB checklist: current internal 1.0.4-internal-vc5-uncap1tap / vc5 / 1.0.4 / UNCAP-ONE-TAP; IAP-PURCHASE-BUSY not in Active AAB; #7 still Fail; no soft-arm'
+    );
+  } else {
+    fail(
+      'NATIVE-VC5-INTERNAL-SYNC',
+      `missing vc5 internal truth (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} uncapOk=${uncapOk} histOk=${histOk} noBusyInActive=${noBusyInActive} fail7Ok=${fail7Ok} designOk=${designOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- PLAY-PASTE-VC5-SYNC: paste pack/docs = vc5-uncap1tap; #7 Fail ---
+{
+  const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
+  const paste = read('docs/PLAY_CONSOLE_PASTE.md') || '';
+  const post = read('docs/PLAY_POST_APPROVAL_CHECKLIST.md') || '';
+  const markerOk =
+    /PLAY-PASTE-VC5-SYNC/.test(pastePack) && /PLAY-PASTE-VC5-SYNC/.test(paste);
+  const currentOk =
+    /1\.0\.4-internal-vc5-uncap1tap/.test(pastePack) &&
+    /1\.0\.4-internal-vc5-uncap1tap/.test(paste) &&
+    (/USE_TEST_ADS\s*=\s*false/.test(pastePack) || /prod AdMob/i.test(pastePack)) &&
+    (/versionCode\s*\*?\*?5\*?\*?/.test(pastePack) || /versionCode\s+5/.test(pastePack));
+  const uncapOk = /UNCAP-ONE-TAP/.test(pastePack) || /uncap1tap/i.test(pastePack);
+  const idsOk =
+    /ca-app-pub-3904450574947460~6670970617/.test(pastePack) &&
+    (/2731725604/.test(pastePack) || /…\/2731725604/.test(pastePack)) &&
+    (/8768677032/.test(pastePack) || /…\/8768677032/.test(pastePack));
+  const noStaleSampleAdvice =
+    !/Until then:\s*keep Google\s+\*\*sample\*\*\s*IDs\s*\+\s*`USE_TEST_ADS=true`/i.test(pastePack) &&
+    !/Until units exist:\s*keep Google\s+\*\*sample\*\*\s*IDs\s*\+\s*`USE_TEST_ADS\s*=\s*true`/i.test(
+      paste
+    ) &&
+    !/\*\*Do not invent\*\*\s+real\s+`ca-app-pub/i.test(paste);
+  const histOk =
+    (/superseded/i.test(pastePack) || /historical/i.test(pastePack)) &&
+    (/1\.0\.2-internal-vc3-prodAdMob/.test(pastePack) || /vc3/.test(pastePack)) &&
+    /1\.0\.1-internal-vc2-testids/.test(pastePack);
+  const postOk = /1\.0\.4-internal-vc5-uncap1tap/.test(post);
+  const fail7Ok =
+    (/#7/.test(pastePack) && /still Fail/i.test(pastePack)) &&
+    (/#7/.test(paste) && /still Fail/i.test(paste));
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(pastePack) &&
+    !/soft-arm|claim-juice|hud-pulse/.test(paste);
+  if (
+    markerOk &&
+    currentOk &&
+    uncapOk &&
+    idsOk &&
+    noStaleSampleAdvice &&
+    histOk &&
+    postOk &&
+    fail7Ok &&
+    noSoft
+  ) {
+    pass(
+      'PLAY-PASTE-VC5-SYNC',
+      'PLAY_CONSOLE_PASTE(_PACK): vc5-uncap1tap / USE_TEST_ADS=false; historical vc3/vc2; #7 still Fail; no soft-arm'
+    );
+  } else {
+    fail(
+      'PLAY-PASTE-VC5-SYNC',
+      `missing paste vc5 sync (markerOk=${markerOk} currentOk=${currentOk} uncapOk=${uncapOk} idsOk=${idsOk} noStaleSampleAdvice=${noStaleSampleAdvice} histOk=${histOk} postOk=${postOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
     );
   }
 }
