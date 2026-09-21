@@ -146,6 +146,8 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**ACCEPTANCE-P0-ADMOB-HONESTY**／**INTERNAL-TESTER-HANWEN-SYNC**已上 — ACCEPTANCE P0② 改誠實：**REAL-ADMOB-IDS** 配線／`USE_TEST_ADS=false`／仍 Blocked 僅待實機三綠燈；內測＋license 另含 `hanwen16888@gmail.com`（同 ColorTube-internal／RESPOND_NORMALLY／opt-in）；accept 兩項；**#7 仍 Fail**；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 （已補）**PLAY-PASTE-VC3-SYNC**／**INTERNAL-TESTER-SYNC**已上 — `docs/PLAY_CONSOLE_PASTE_PACK.md`／`docs/PLAY_CONSOLE_PASTE.md` 對齊：Play **internal testing** 現況為 `1.0.2-internal-vc3-prodAdMob`／versionCode **3**／prod AdMob（`USE_TEST_ADS=false`）；移除過時「keep sample IDs + USE_TEST_ADS=true」／「Do not invent real ca-app-pub」作為現況指引；歷史 vc2-testids 標 superseded；內測名單 **ColorTube-internal** 含 `lancechung@gmail.com`、license **RESPOND_NORMALLY**、opt-in `https://play.google.com/apps/internaltest/4701709602422954921`；`NATIVE_PACK_READY`／`ADMOB_POST_LINK_CHECKLIST`／`PLAY_POST_APPROVAL_CHECKLIST` 測者敘述同步；accept `PLAY-PASTE-VC3-SYNC`／`INTERNAL-TESTER-SYNC`；**#7 仍 Fail**（缺實機三綠燈）；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**NATIVE-VC3-INTERNAL-SYNC**已上 — `docs/NATIVE_PACK_READY.md`／`docs/ADMOB_POST_LINK_CHECKLIST.md` 對齊：Play **internal testing** 現況為 `1.0.2-internal-vc3-prodAdMob`／versionCode **3**／prod AdMob（`USE_TEST_ADS=false`）；歷史 `1.0.1-internal-vc2-testids` 標 superseded；`DESIGN.md` AdMob TODO 改誠實；accept `NATIVE-VC3-INTERNAL-SYNC`；**#7 仍 Fail**（缺實機三綠燈）；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**

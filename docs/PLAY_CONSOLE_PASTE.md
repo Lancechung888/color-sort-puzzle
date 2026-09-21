@@ -139,9 +139,9 @@ Android prod IDs are **already wired** in repo (`USE_TEST_ADS=false`). Do **not*
 
 ---
 
-## Still open (honest; not done by paste alone) — **INTERNAL-TESTER-SYNC**
+## Still open (honest; not done by paste alone) — **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**
 
 1. **Play app / internal testing / AdMob Android IDs** — **DONE** (app ID `4972040404691889159`; internal `1.0.2-internal-vc3-prodAdMob`; **REAL-ADMOB-IDS**).  
-2. **Internal testers** — list **ColorTube-internal** includes `lancechung@gmail.com`; license tester **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`.  
+2. **Internal testers** — list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`.  
 3. **Device three green lights** — interstitial / rewarded full-watch / `remove_ads` purchase+restore → **#7 still Fail**.  
 4. **Still external placeholders** — support email; GA4 `MEASUREMENT_ID`; Merchant / Data Safety Device IDs deep form may still be incomplete. Do not invent.
