@@ -1723,6 +1723,12 @@
     tap() { playSfx('ui_tap', 0.55); },
   };
 
+  // AUDIO-EARLY-WARM: fetch SFX buffers at boot (no play) — first gesture hits cache
+  detectSfxExt();
+  SFX_STEMS.forEach((stem) => {
+    try { warmSfx(stem); } catch (_) {}
+  });
+
   /**
    * Native-first haptics: Capacitor Haptics on Android/iOS, navigator.vibrate on web.
    * Never throws if plugin/platform missing (web / stub builds stay silent-safe).

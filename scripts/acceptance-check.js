@@ -4278,6 +4278,58 @@ block(
   }
 }
 
+
+// --- AUDIO-EARLY-WARM: boot fetch SFX buffers (no play); resumeAudio still warms; sync www/play; no soft-arm ---
+{
+  const gameJs = read('assets/js/game.js') || '';
+  const playGamePath = path.join(root, 'docs/play/assets/js/game.js');
+  const wwwGamePath = path.join(root, 'www/assets/js/game.js');
+  const playGame = fs.existsSync(playGamePath) ? fs.readFileSync(playGamePath, 'utf8') : '';
+  const wwwGame = fs.existsSync(wwwGamePath) ? fs.readFileSync(wwwGamePath, 'utf8') : '';
+
+  const markerOk = /AUDIO-EARLY-WARM/.test(gameJs);
+  const bootWarmOk =
+    /AUDIO-EARLY-WARM[\s\S]{0,400}?detectSfxExt\s*\([\s\S]{0,200}?SFX_STEMS\.forEach[\s\S]{0,200}?warmSfx/.test(
+      gameJs
+    );
+  // Boot warm must not live only inside resumeAudio: require SFX_STEMS.forEach+warmSfx outside that fn
+  const resumeSlice = (gameJs.match(/function resumeAudio\s*\([\s\S]*?\n  \}/) || [''])[0];
+  const warmForEachCount = (gameJs.match(/SFX_STEMS\.forEach[\s\S]{0,160}?warmSfx/g) || []).length;
+  const resumeHasWarm =
+    /function resumeAudio\s*\(/.test(gameJs) &&
+    /sfxUnlocked/.test(resumeSlice) &&
+    /warmSfx/.test(resumeSlice);
+  const bootOutsideResume = warmForEachCount >= 2 && bootWarmOk;
+
+  const playOk =
+    !fs.existsSync(playGamePath) ||
+    (/AUDIO-EARLY-WARM/.test(playGame) &&
+      /SFX_STEMS\.forEach[\s\S]{0,160}?warmSfx/.test(playGame) &&
+      /function resumeAudio\s*\(/.test(playGame));
+  const wwwOk =
+    !fs.existsSync(wwwGamePath) ||
+    (/AUDIO-EARLY-WARM/.test(wwwGame) &&
+      /SFX_STEMS\.forEach[\s\S]{0,160}?warmSfx/.test(wwwGame) &&
+      /function resumeAudio\s*\(/.test(wwwGame));
+
+  const region =
+    (gameJs.match(/AUDIO-EARLY-WARM[\s\S]{0,500}/) || [''])[0] +
+    (gameJs.match(/function resumeAudio[\s\S]{0,400}/) || [''])[0];
+  const noSoft = !!region && !/soft-arm|claim-juice|hud-pulse|audio-arm/.test(region);
+
+  if (markerOk && bootOutsideResume && resumeHasWarm && playOk && wwwOk && noSoft) {
+    pass(
+      'AUDIO-EARLY-WARM',
+      'boot detectSfxExt+SFX_STEMS.forEach warmSfx (no play); resumeAudio still warms; sync www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'AUDIO-EARLY-WARM',
+      `missing early SFX warm (marker=${markerOk} bootOutside=${bootOutsideResume} resume=${resumeHasWarm} play=${playOk} www=${wwwOk} noSoft=${noSoft} warmN=${warmForEachCount})`
+    );
+  }
+}
+
 // --- COLOR-SCHEME-DARK: meta + CSS color-scheme dark; brand stays #1a1a2e; no soft-arm ---
 {
   const htmlRaw = read('index.html') || '';
