@@ -5629,6 +5629,69 @@ block(
   }
 }
 
+
+// --- APPLE-SPLASH: iOS apple-touch-startup-image (≥5 portrait sizes) + assets; sync www/play; not in sw PRECACHE; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const swRaw = read('sw.js') || '';
+  const syncWww = fs.existsSync(path.join(root, 'scripts/sync-www.sh'))
+    ? fs.readFileSync(path.join(root, 'scripts/sync-www.sh'), 'utf8')
+    : '';
+  const required = [
+    'apple-750x1334.png',
+    'apple-828x1792.png',
+    'apple-1170x2532.png',
+    'apple-1179x2556.png',
+    'apple-1284x2778.png',
+    'apple-1290x2796.png',
+    'apple-1668x2388.png',
+  ];
+  const splashLinks = (htmlRaw.match(/rel=["']apple-touch-startup-image["'][^>]*>/gi) || []).length;
+  const hrefOk = required.every((f) => htmlRaw.includes('assets/splash/' + f));
+  const linkOk =
+    /APPLE-SPLASH/.test(htmlRaw) &&
+    splashLinks >= 7 &&
+    hrefOk &&
+    /orientation:\s*portrait/.test(htmlRaw) &&
+    /-webkit-device-pixel-ratio/.test(htmlRaw);
+  const filesOk = required.every((f) =>
+    fs.existsSync(path.join(root, 'assets/splash', f))
+  );
+  // Must NOT bloat offline precache with splash (launch-only; Safari loads via link tags)
+  const notPrecached =
+    !/assets\/splash\//.test(swRaw) &&
+    !/apple-750x1334|apple-1170x2532|apple-1290x2796/.test(swRaw);
+  const playHtml = path.join(root, 'docs/play/index.html');
+  const playSplashDir = path.join(root, 'docs/play/assets/splash');
+  const wwwSplashDir = path.join(root, 'www/assets/splash');
+  let playOk = true;
+  if (fs.existsSync(playHtml)) {
+    const playRaw = fs.readFileSync(playHtml, 'utf8');
+    playOk =
+      /APPLE-SPLASH/.test(playRaw) &&
+      /apple-touch-startup-image/.test(playRaw) &&
+      required.every((f) => fs.existsSync(path.join(playSplashDir, f)));
+  }
+  let wwwOk = true;
+  if (fs.existsSync(path.join(root, 'www/index.html'))) {
+    wwwOk = required.every((f) => fs.existsSync(path.join(wwwSplashDir, f)));
+  }
+  const syncOk = /cp\s+-R\s+"\$ROOT\/assets"/.test(syncWww) || /assets\//.test(syncWww);
+  const noSoft =
+    !/apple-splash-arm|splash-arm|soft-arm|claim-juice|hud-pulse/.test(htmlRaw);
+  if (linkOk && filesOk && notPrecached && playOk && wwwOk && syncOk && noSoft) {
+    pass(
+      'APPLE-SPLASH',
+      '≥7 apple-touch-startup-image portrait links + assets/splash PNGs; sync www/play; not in sw PRECACHE; no soft-arm'
+    );
+  } else {
+    fail(
+      'APPLE-SPLASH',
+      `missing iOS splash links/files/sync or splash leaked into sw PRECACHE (linkOk=${linkOk} filesOk=${filesOk} notPrecached=${notPrecached} playOk=${playOk} wwwOk=${wwwOk} syncOk=${syncOk} noSoft=${noSoft} splashLinks=${splashLinks})`
+    );
+  }
+}
+
 // --- PWA-DISPLAY-OVERRIDE: display_override + handle_links preferred; sync www/play; no soft-arm ---
 {
   const rootManifestPath = path.join(root, 'site.webmanifest');
