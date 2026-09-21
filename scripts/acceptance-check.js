@@ -6882,6 +6882,78 @@ block(
   }
 }
 
+// --- ACCEPTANCE-P0-ADMOB-HONESTY: P0② row not stale stub/USE_TEST_ADS-as-current; REAL-ADMOB + Blocked + device/三綠燈 ---
+{
+  const accRaw = read('ACCEPTANCE.md') || '';
+  const markerOk =
+    /ACCEPTANCE-P0-ADMOB-HONESTY/.test(accRaw) &&
+    /ACCEPTANCE-P0-ADMOB-HONESTY/.test(read('MILLION_USER_BAR.md') || '');
+  const p02Match = accRaw.match(/^\|\s*\*\*P0②\*\*.*$/m);
+  const p02Row = p02Match ? p02Match[0] : '';
+  const staleStub =
+    /仍 stub/.test(p02Row) ||
+    /等出版社帳號＋正式單元/.test(p02Row);
+  const honestyOk =
+    (/REAL-ADMOB-IDS/.test(p02Row) || /prod wired|正式.*配線|已配線/.test(p02Row)) &&
+    /\*\*Blocked\*\*|Blocked/.test(p02Row) &&
+    (/三綠燈|three green|device/.test(p02Row));
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(p02Row);
+  if (markerOk && p02Match && !staleStub && honestyOk && noSoft) {
+    pass(
+      'ACCEPTANCE-P0-ADMOB-HONESTY',
+      'P0② row: REAL-ADMOB-IDS / prod wired + Blocked + device/三綠燈; not stale stub/USE_TEST_ADS-as-current; no soft-arm'
+    );
+  } else {
+    fail(
+      'ACCEPTANCE-P0-ADMOB-HONESTY',
+      `P0② honesty failed (markerOk=${markerOk} hasRow=${!!p02Match} staleStub=${staleStub} honestyOk=${honestyOk} noSoft=${noSoft} row=${JSON.stringify(p02Row.slice(0, 160))})`
+    );
+  }
+}
+
+// --- INTERNAL-TESTER-HANWEN-SYNC: hanwen16888@gmail.com in NATIVE_PACK_READY + ADMOB + PASTE_PACK (+ paste); #7 still Fail ---
+{
+  const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
+  const admobRaw = read('docs/ADMOB_POST_LINK_CHECKLIST.md') || '';
+  const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
+  const paste = read('docs/PLAY_CONSOLE_PASTE.md') || '';
+  const checklist = read('docs/PLAY_POST_APPROVAL_CHECKLIST.md') || '';
+  const markerOk =
+    /INTERNAL-TESTER-HANWEN-SYNC/.test(packRaw) &&
+    /INTERNAL-TESTER-HANWEN-SYNC/.test(admobRaw) &&
+    (/INTERNAL-TESTER-HANWEN-SYNC/.test(pastePack) || /INTERNAL-TESTER-HANWEN-SYNC/.test(paste));
+  const hanwenOk =
+    /hanwen16888@gmail\.com/.test(packRaw) &&
+    /hanwen16888@gmail\.com/.test(admobRaw) &&
+    /hanwen16888@gmail\.com/.test(pastePack) &&
+    (/hanwen16888@gmail\.com/.test(paste) || /hanwen16888@gmail\.com/.test(checklist));
+  const listOk =
+    /ColorTube-internal/.test(packRaw) &&
+    /ColorTube-internal/.test(admobRaw) &&
+    /ColorTube-internal/.test(pastePack);
+  const optInOk =
+    /https:\/\/play\.google\.com\/apps\/internaltest\/4701709602422954921/.test(packRaw) &&
+    /https:\/\/play\.google\.com\/apps\/internaltest\/4701709602422954921/.test(admobRaw);
+  const fail7Ok =
+    (/#7/.test(packRaw) && /still Fail/i.test(packRaw)) &&
+    (/#7/.test(admobRaw) &&
+      (/still Fail/i.test(admobRaw) || /Do \*\*not\*\* mark #7/i.test(admobRaw)));
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(packRaw) &&
+    !/soft-arm|claim-juice|hud-pulse/.test(admobRaw);
+  if (markerOk && hanwenOk && listOk && optInOk && fail7Ok && noSoft) {
+    pass(
+      'INTERNAL-TESTER-HANWEN-SYNC',
+      'NATIVE_PACK_READY + ADMOB + paste: hanwen16888@gmail.com / ColorTube-internal / opt-in; #7 still Fail; no soft-arm'
+    );
+  } else {
+    fail(
+      'INTERNAL-TESTER-HANWEN-SYNC',
+      `missing hanwen tester sync (markerOk=${markerOk} hanwenOk=${hanwenOk} listOk=${listOk} optInOk=${optInOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- REAL-ADMOB-IDS: Android prod App ID + units + USE_TEST_ADS=false; #7 still Fail; no soft-arm ---
 {
   const capRaw = read('capacitor.config.json') || '';

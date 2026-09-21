@@ -2,8 +2,8 @@
 
 **App ID (package):** `com.lancechung.colortubesort`  
 **Play app ID:** `4972040404691889159`  
-**Status:** Developer account **APPROVED** (2026-09-21 Asia/Taipei). Play app exists. **Current** internal testing: `1.0.2-internal-vc3-prodAdMob` / **versionCode 3** / **versionName 1.0.2** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`). Historical `1.0.1-internal-vc2-testids` (vc2 / sample IDs) **superseded**. Android prod App ID `ca-app-pub-3904450574947460~6670970617`; interstitial `…/2731725604`; rewarded `…/8768677032` (see **REAL-ADMOB-IDS** / `docs/ADMOB_POST_LINK_CHECKLIST.md`). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` (selected for vc3 prodAdMob); license tester **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`. **Data safety** Device IDs deep form may still be incomplete (use §4 PLAY-DATA-SAFETY-PASTE). Merchant / support email / GA4 `MEASUREMENT_ID` still external placeholders — do not invent. **#7 still Fail** until device three green lights. Production untouched.  
-**Markers:** **PLAY-PASTE-VC3-SYNC** · **INTERNAL-TESTER-SYNC** (alongside **NATIVE-VC3-INTERNAL-SYNC**).  
+**Status:** Developer account **APPROVED** (2026-09-21 Asia/Taipei). Play app exists. **Current** internal testing: `1.0.2-internal-vc3-prodAdMob` / **versionCode 3** / **versionName 1.0.2** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`). Historical `1.0.1-internal-vc2-testids` (vc2 / sample IDs) **superseded**. Android prod App ID `ca-app-pub-3904450574947460~6670970617`; interstitial `…/2731725604`; rewarded `…/8768677032` (see **REAL-ADMOB-IDS** / `docs/ADMOB_POST_LINK_CHECKLIST.md`). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for vc3 prodAdMob); license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`. **Data safety** Device IDs deep form may still be incomplete (use §4 PLAY-DATA-SAFETY-PASTE). Merchant / support email / GA4 `MEASUREMENT_ID` still external placeholders — do not invent. **#7 still Fail** until device three green lights. Production untouched.  
+**Markers:** **PLAY-PASTE-VC3-SYNC** · **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC** (alongside **NATIVE-VC3-INTERNAL-SYNC**).  
 **Do not** claim #7 Pass from paste/docs alone.
 
 ---
@@ -233,11 +233,11 @@ Play Console → Monetize → Products → In-app products → Create:
 | **Default price** | **USD $2.99** (local equivalents OK) |
 | **Status** | Activate |
 
-### License testers (authorized test accounts) — **INTERNAL-TESTER-SYNC**
+### License testers (authorized test accounts) — **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**
 
 Play Console → Settings → License testing / Internal testing → Testers:
 
-1. Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` (selected for `1.0.2-internal-vc3-prodAdMob`)  
+1. Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for `1.0.2-internal-vc3-prodAdMob`)  
 2. License response: **RESPOND_NORMALLY**  
 3. Opt-in URL: `https://play.google.com/apps/internaltest/4701709602422954921`  
 4. Those accounts can buy `remove_ads` under license testing; **Never** enable `colorTubeSort_devIap` / fake IAP in release or internal-test AAB  
@@ -274,4 +274,4 @@ Source of truth: `docs/ADMOB_POST_LINK_CHECKLIST.md` · marker **REAL-ADMOB-IDS*
 
 ---
 
-*Generated for post-approval sprint 2026-09-21 · **PLAY-PASTE-VC3-SYNC** / **INTERNAL-TESTER-SYNC** (vc3 prodAdMob paste honesty) · PLAY-DATA-SAFETY-PASTE Device IDs deep form. Source of truth: `STORE.md` + `docs/PLAY_DATA_SAFETY.md` + `docs/ADMOB_POST_LINK_CHECKLIST.md`.*
+*Generated for post-approval sprint 2026-09-21 · **PLAY-PASTE-VC3-SYNC** / **INTERNAL-TESTER-SYNC** / **INTERNAL-TESTER-HANWEN-SYNC** (vc3 prodAdMob paste honesty + hanwen tester) · PLAY-DATA-SAFETY-PASTE Device IDs deep form. Source of truth: `STORE.md` + `docs/PLAY_DATA_SAFETY.md` + `docs/ADMOB_POST_LINK_CHECKLIST.md`.*

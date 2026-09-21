@@ -54,7 +54,7 @@
 2. 產品 ID：`remove_ads`（須與 `assets/js/billing.js` 常數 `REMOVE_ADS` 一致）。
 3. 類型：**非消耗型（Managed / One-time）**。
 4. 名稱／說明可寫「Remove Ads／去除插頁廣告」；建議價 **$2.99** → **啟用**。
-5. **設定 → 授權測試** → License testers：**已加** `lancechung@gmail.com`／**RESPOND_NORMALLY**（**INTERNAL-TESTER-SYNC**）。內測名單 **ColorTube-internal** 已含該 Gmail；opt-in：`https://play.google.com/apps/internaltest/4701709602422954921`。**#7 仍 Fail**（缺實機三綠燈）。
+5. **設定 → 授權測試** → License testers：**已加** `lancechung@gmail.com` + `hanwen16888@gmail.com`／**RESPOND_NORMALLY**（**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**）。內測名單 **ColorTube-internal** 已含兩帳；opt-in：`https://play.google.com/apps/internaltest/4701709602422954921`。**#7 仍 Fail**（缺實機三綠燈）。
 
 ---
 
@@ -69,7 +69,7 @@
 4. `npx cap sync`
 5. 依 `native-templates/android/README.md` 確認 AdMob App ID、Billing 權限；簽名步驟見 `docs/NATIVE_ACCEPTANCE.md` §1。
 6. 設定簽章（keystore）後跑 `npm run aab:internal`（或手動 `./gradlew bundleRelease`）產出 AAB。
-7. Play Console → **內部測試** → **current** AAB `1.0.2-internal-vc3-prodAdMob`／vc3／prod AdMob 已上傳；tester `lancechung@gmail.com` 已在 **ColorTube-internal**。仍須實機驗證：
+7. Play Console → **內部測試** → **current** AAB `1.0.2-internal-vc3-prodAdMob`／vc3／prod AdMob 已上傳；testers `lancechung@gmail.com` + `hanwen16888@gmail.com` 已在 **ColorTube-internal**。仍須實機驗證：
    - 正式廣告 interstitial／rewarded full-watch
    - `remove_ads` 購買成功後 `removeAds` 才為 true；一般點擊不得白送 → **#7 仍 Fail** 直到三綠燈
 
@@ -78,7 +78,7 @@
 ## F. 明確禁令（驗收／對外溝通）
 
 1. **未完成真 AdMob ID／`remove_ads` Billing 內測驗證前：勿宣稱已上架／勿標 #7 Pass。**
-2. 開發階段使用 **Google 示範 AdMob ID**（`USE_TEST_ADS === true`）；正式包再關。
+2. **REAL-ADMOB-IDS** 已配線正式 Android 單元（`USE_TEST_ADS=false`）；歷史示範／sample ID 僅作 superseded 參考，**勿**當現況。#7 仍 Fail 直至實機三綠燈。
 3. 假 IAP：`colorTubeSort_devIap` **預設維持關閉**；僅本機手動設 `1` 才可 mock 給獎。
 4. 商店點「去除廣告」在無真 Billing 成功時必須維持「即將開放／需商店帳號」，**不可**寫入 `removeAds`。
 
