@@ -17,7 +17,7 @@
 | 上架 | **僅內部測試**；**未** production；勿宣稱已上架 |
 | 假 IAP | **關**（`colorTubeSort_devIap` 預設關閉；無 native Billing 不 grant） |
 | #7 | **仍 Fail** — 需實機三綠燈（interstitial／rewarded 完整看完／`remove_ads` 購買＋還原） |
-| Active AAB | `1.0.4-internal-vc5-uncap1tap`／vc5／1.0.4／Billing≥8／prod AdMob／**UNCAP-ONE-TAP**；**不含** tip 的 **IAP-PURCHASE-BUSY**（下次上傳需 versionCode **>5**） |
+| Active AAB | `1.0.4-internal-vc5-uncap1tap`／vc5／1.0.4／Billing≥8／prod AdMob／**UNCAP-ONE-TAP**；**不含** tip 的 **IAP-PURCHASE-BUSY**（下次上傳 **versionCode ≥6**／腳本 `ANDROID-VERSION-CODE-6` 就緒） |
 | 本文件 | **可驗收**：與 `NATIVE_PACK_READY`／paste 對齊；歷史測 ID 階段標 superseded |
 
 驗收以：**文件齊、現況不說謊、有 SDK 時可產出簽名 AAB、#7 不因配線／上傳 alone 標 Pass**。
@@ -130,7 +130,7 @@ npm run aab:internal
 | 本文件＋`scripts/build-internal-aab.sh`＋`package.json` 的 `aab:internal` 齊 | **流程就緒** |
 | agent／CI 箱無 JDK 或無 Android SDK | 腳本 **exit ≠ 0** 並印缺什麼＝**預期** |
 | 包裝箱（JDK17＋SDK＋keystore＋已 `cap add`） | **已驗證**可產出 signed AAB（含現況 vc5） |
-| Play internal 上傳 | **已上傳 current** vc5（見 `NATIVE_PACK_READY`）；下次含 IAP-PURCHASE-BUSY 需 **versionCode >5** |
+| Play internal 上傳 | **已上傳 current** vc5（見 `NATIVE_PACK_READY`）；下次含 IAP-PURCHASE-BUSY 需 **versionCode ≥6**（腳本預設就緒） |
 
 輔助核對配線（不需完整 `android/` 樹進 git）：
 
@@ -148,7 +148,7 @@ npm run native:check
   路徑：`capacitor.config.json`、`assets/js/ads.js`；詳見 `docs/ADMOB_POST_LINK_CHECKLIST.md`／`docs/PLAY_CONSOLE_PASTE.md`
 - [x] **billing.js** 產品 `remove_ads`＋無 web／無 plugin 時不 grant；**IAP-PURCHASE-BUSY** 在 tip main（Active vc5 AAB **尚未**含此碼）
 - [x] **Play Billing ≥8**：`scripts/patch-android-billing-8.sh`（`billing:8.3.0`＋`PendingPurchasesParams`＋`minSdk 23`）；`aab:internal` 在 `cap sync` 後呼叫
-- [x] **versionCode 5／versionName 1.0.4**：`scripts/patch-android-version.sh`（下次上傳覆寫 `COLOR_TUBE_VERSION_CODE`＞5）
+- [x] **versionCode 腳本**：Active 仍為 **5／1.0.4**；`scripts/patch-android-version.sh` 預設已升 **6／1.0.5**（`ANDROID-VERSION-CODE-6`；env 可覆寫）
 - [x] **game.js** 點擊不白送 `removeAds`（僅 `isBillingReady()` 走真購買；devIap 預設關）
 - [x] **native-templates** Manifest／Billing snippets  
   路徑：`native-templates/android/README.md`
@@ -165,7 +165,7 @@ npm run native:check
   (1) interstitial 實機播出  
   (2) rewarded **完整看完**發獎  
   (3) `remove_ads` 購買＋還原  
-- [ ] 下次內測 AAB：**versionCode >5**，把 tip 的 **IAP-PURCHASE-BUSY** 打進 Active 包  
+- [ ] 下次內測 AAB：**versionCode ≥6**（>5；腳本 `ANDROID-VERSION-CODE-6` 就緒），把 tip 的 **IAP-PURCHASE-BUSY** 打進 Active 包  
 - [ ] Production／公開軌道 — **未動**；過審後清單見 `docs/PLAY_POST_APPROVAL_CHECKLIST.md`
 
 ---
