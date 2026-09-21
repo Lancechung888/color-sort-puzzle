@@ -1609,17 +1609,6 @@ html, body {
   transform: none;
 }
 
-/* First-tap arm: pulse lid until second tap / timeout */
-.tube.cap-pending .tube-lid {
-  animation: lidPendingPulse 0.65s ease-in-out infinite;
-  filter: drop-shadow(0 0 8px rgba(255, 200, 80, 0.85));
-}
-.tube.cap-pending {
-  outline: 2px solid rgba(255, 193, 7, 0.75);
-  outline-offset: 3px;
-}
-@keyframes lidPendingPulse {
-  0%, 100% { transform: translateX(-50%) scale(1); filter: brightness(1) drop-shadow(0 0 4px rgba(255,200,80,0.4)); }
   50% { transform: translateX(-50%) scale(1.08); filter: brightness(1.35) drop-shadow(0 0 12px rgba(255,220,100,0.95)); }
 }
 
@@ -1634,7 +1623,6 @@ html, body {
   100% { transform: translateX(-50%) scale(1) rotate(0deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tube.cap-pending .tube-lid { animation: none; }
   .tube.lid-arm-nudge .tube-lid {
     animation: none;
     filter: drop-shadow(0 0 10px rgba(255, 200, 80, 0.95));
@@ -3453,7 +3441,6 @@ html.reduced-motion .streak-pulse,
 html.reduced-motion .theme-unlock-pulse,
 html.reduced-motion .hints-pack-pulse,
 html.reduced-motion .undo-level-pulse,
-html.reduced-motion .tube.cap-pending .tube-lid,
 html.reduced-motion .tube.lid-arm-nudge .tube-lid,
 html.reduced-motion .tube.invalid-shake,
 html.reduced-motion .tube.pouring-tilt,
