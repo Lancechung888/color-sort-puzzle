@@ -55,10 +55,12 @@ if [[ ! -d "$ROOT/android" ]]; then
   echo "   （需要已安裝 Android SDK；完成後再跑 npm run aab:internal）" >&2
   exit 1
 fi
-echo "[aab:internal] 找到 android/ ，開始 build:www → cap sync → AdMob patch → bundleRelease"
+echo "[aab:internal] 找到 android/ ，開始 build:www → cap sync → Billing8 patch → AdMob patch → bundleRelease"
 
 npm run build:www
 npx cap sync
+# Play requires Billing Library ≥8.0.0; Cap6 @capgo/native-purchases pins 6.2.1 — patch node_modules + force + minSdk 23.
+bash "$ROOT/scripts/patch-android-billing-8.sh"
 # After sync so Capacitor cannot wipe custom Manifest / strings patches.
 bash "$ROOT/scripts/patch-android-admob.sh"
 # Lock MainActivity to portrait (hybrid-casual; web already portrait-primary).

@@ -20,6 +20,7 @@
 | `npx cap add android` in this environment | **DONE** (local `android/` generated; **gitignored**) |
 | `npx cap sync` + plugins discovered | **DONE** (AdMob + NativePurchases) |
 | AdMob `APPLICATION_ID` Manifest patch | **SCRIPT READY** (`scripts/patch-android-admob.sh`; run after sync / via `aab:internal`) |
+| Play Billing Library ≥8 (Cap6 plugin pin 6.2.1) | **SCRIPT READY** (`scripts/patch-android-billing-8.sh` → 8.3.0 + PendingPurchasesParams + QueryProductDetailsResult + minSdk 23; hooked in `aab:internal`) |
 | Launcher ICON A + branded splash (vs stock Capacitor) | **DONE** (`scripts/apply-android-icons.sh` ← `native-templates/android/res/` from finals ICON A; hooked in `aab:internal`) |
 | JDK 17 + Android SDK on this packaging box | **DONE** (`JAVA_HOME=/home/box/sdk/jdk-17.0.20.1+1`, `ANDROID_HOME=/home/box/sdk/android`) |
 | Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19): `npm run aab:internal` → signed `app-release.aab` (~6.1 MB; upload keystore local/gitignored). Copy: `/workspace/colortube-artifacts/ColorTubeSort-internal-20260919-release.aab` |
@@ -55,6 +56,7 @@
   Playable first (SCRIPT-ORDER); monetization/analytics load after game.js.
 - [x] **Native templates** for post-`cap add` Manifest / Billing / build: `native-templates/android/README.md`
 - [x] **Idempotent patch script**: `scripts/patch-android-admob.sh` (strings `admob_app_id` + Manifest `APPLICATION_ID` + `BILLING` permission)
+- [x] **Play Billing Library ≥8** (Play Console rejects <8.0.0): Cap6 `@capgo/native-purchases@6.0.42` pins `billing:6.2.1` + deprecated Billing 6 APIs. Idempotent `scripts/patch-android-billing-8.sh` bumps to `8.3.0`, applies Cap7-style `PendingPurchasesParams` + `QueryProductDetailsResult`, forces the dep in `android/app/build.gradle`, and raises `minSdkVersion` to 23 (Billing 8 requirement). Hooked after `cap sync` in `scripts/build-internal-aab.sh`. **Does not** upgrade Capacitor to 7/8.
 - [x] **Post-approval ops** (when Play/AdMob ready): `docs/PLAY_POST_APPROVAL_CHECKLIST.md`
 
 ### DONE in this packaging environment (local only)
