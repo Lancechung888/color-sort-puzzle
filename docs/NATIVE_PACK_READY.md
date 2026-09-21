@@ -20,7 +20,7 @@
 | Test AdMob App IDs in `capacitor.config.json` | **DONE** (Google sample) |
 | Test AdMob unit IDs + `USE_TEST_ADS=true` in `assets/js/ads.js` | **DONE** (historical; superseded by REAL-ADMOB-IDS) |
 | **REAL-ADMOB-IDS** Android prod App ID + interstitial/rewarded + `USE_TEST_ADS=false` | **DONE in repo** (2026-09-21 Asia/Taipei). Device three-green **not** met → **#7 still Fail** |
-| Play `versionCode` 3 / `versionName` 1.0.2 (`ANDROID-VERSION-CODE-3`) | **SCRIPT READY** (`scripts/patch-android-version.sh` defaults) |
+| Play `versionCode` 4 / `versionName` 1.0.3 (`ANDROID-VERSION-CODE-4`) | **SCRIPT READY** (`scripts/patch-android-version.sh` defaults; next theme1tap AAB). Prior Play upload used **vc3** / 1.0.2 (`ANDROID-VERSION-CODE-3`) |
 | Billing skeleton (`assets/js/billing.js`, product `remove_ads`) | **DONE** (no fake grant) |
 | `npx cap add android` in this environment | **DONE** (local `android/` generated; **gitignored**) |
 | `npx cap sync` + plugins discovered | **DONE** (AdMob + NativePurchases) |
@@ -29,7 +29,7 @@
 | Launcher ICON A + branded splash (vs stock Capacitor) | **DONE** (`scripts/apply-android-icons.sh` ← `native-templates/android/res/` from finals ICON A; hooked in `aab:internal`) |
 | JDK 17 + Android SDK on this packaging box | **DONE** (`JAVA_HOME=/home/box/sdk/jdk-17.0.20.1+1`, `ANDROID_HOME=/home/box/sdk/android`) |
 | Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19 + **2026-09-21**): `npm run aab:internal` → signed AABs. Durable copies under `/workspace/colortube-artifacts/` including **vc3 prodAdMob** (`ColorTubeSort-internal-20260921-1420-prodAdMob-vc3-release.aab`, `…-1424-vc3-prodadmob-release.aab`) and historical **vc2 testids** (`…-1312-vc2-billing8-testids-release.aab`) |
-| Play `versionCode` / `versionName` | **SCRIPT READY** (`scripts/patch-android-version.sh` → **versionCode 3** / **versionName 1.0.2**; accept `ANDROID-VERSION-CODE-3`; hooked in `aab:internal` after Billing-8, before AdMob). Prior internal upload used **vc2** / 1.0.1-testids. |
+| Play `versionCode` / `versionName` | **SCRIPT READY** (`scripts/patch-android-version.sh` → **versionCode 4** / **versionName 1.0.3**; accept `ANDROID-VERSION-CODE-4`; hooked in `aab:internal` after Billing-8, before AdMob). Prior Play internal upload used **vc3** / 1.0.2 (`ANDROID-VERSION-CODE-3`); earlier **vc2** / 1.0.1-testids. |
 | Play developer account | **APPROVED** (2026-09-21 Asia/Taipei) — see `docs/PLAY_POST_APPROVAL_CHECKLIST.md` |
 | Play **internal testing** track | **UPLOADED current** (2026-09-21 Asia/Taipei): release `1.0.2-internal-vc3-prodAdMob` / **versionCode 3** / **versionName 1.0.2** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`). Historical prior: `1.0.1-internal-vc2-testids` / vc2 / sample IDs (superseded). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for vc3 prodAdMob); license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921` (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**). **Not** production. **#7 still Fail** (device three green lights open). |
 | Play Console real AdMob / real IAP IDs / production publish | **Android AdMob IDs wired (REAL-ADMOB-IDS)**; IAP device verify + production publish still open. **#7 still Fail** until three green lights. |
@@ -166,7 +166,7 @@ Do this on the machine that can run Gradle.
 
 ## DONE vs NOT Pass (acceptance for this packaging track)
 
-**DONE (repo + this env):** Capacitor deps, **REAL-ADMOB-IDS** (Android prod App/units + `USE_TEST_ADS=false`), billing skeleton, `index.html` script order, `build:www`, `cap add android` + `cap sync` with both plugins, idempotent Manifest / Billing≥8 / **versionCode 3** patch scripts, JDK 17 + ANDROID_HOME on this box, signing steps documented, signed internal AABs including **vc3 prodAdMob** (current) and historical **vc2 + billing8 + testids**, **Play developer account APPROVED** (2026-09-21 Asia/Taipei).
+**DONE (repo + this env):** Capacitor deps, **REAL-ADMOB-IDS** (Android prod App/units + `USE_TEST_ADS=false`), billing skeleton, `index.html` script order, `build:www`, `cap add android` + `cap sync` with both plugins, idempotent Manifest / Billing≥8 / **versionCode 4** patch scripts (prior vc3 uploaded), JDK 17 + ANDROID_HOME on this box, signing steps documented, signed internal AABs including **vc3 prodAdMob** (current) and historical **vc2 + billing8 + testids**, **Play developer account APPROVED** (2026-09-21 Asia/Taipei).
 
 **NOT ship-ready / #7 still Fail:** Device three green lights (interstitial, rewarded full-watch, `remove_ads` purchase+restore). Repo wiring + internal AAB + tester Gmail ≠ #7 Pass. Production untouched. Testers configured (`lancechung@gmail.com` + `hanwen16888@gmail.com` / ColorTube-internal / RESPOND_NORMALLY) — **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**.
 
@@ -176,6 +176,6 @@ Do this on the machine that can run Gradle.
 
 Also see operational acceptance: [`docs/NATIVE_ACCEPTANCE.md`](NATIVE_ACCEPTANCE.md) (`npm run native:check` / `npm run aab:internal`).
 
-### versionCode (Play uploads) — ANDROID-VERSION-CODE-3
+### versionCode (Play uploads) — ANDROID-VERSION-CODE-4
 
-- Play rejects reuse of the same `versionCode` (prior uploads used **1** then **2**). After `cap sync`, run `bash scripts/patch-android-version.sh` (hooked in `npm run aab:internal` after Billing-8, before AdMob) to set **versionCode 3** / **versionName 1.0.2** (override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`). Repo `package.json` `"version"` aligns to **1.0.2**. Accept gate: `ANDROID-VERSION-CODE-3`.
+- Play rejects reuse of the same `versionCode` (prior uploads used **1**, **2**, then **3**). After `cap sync`, run `bash scripts/patch-android-version.sh` (hooked in `npm run aab:internal` after Billing-8, before AdMob) to set **versionCode 4** / **versionName 1.0.3** (override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`). Repo `package.json` `"version"` aligns to **1.0.3**. Accept gate: `ANDROID-VERSION-CODE-4`. Does **not** claim MILLION_USER_BAR **#7 Pass**. Historical Play current remains `ANDROID-VERSION-CODE-3` / vc3 until the next internal upload.
