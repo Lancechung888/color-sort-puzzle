@@ -52,6 +52,25 @@ Check **Yes, collected** then add rows. Confirm against your live AdMob / UMP co
 
 ---
 
+
+---
+
+## C2. Device or other IDs — Console deep form (PLAY-DATA-SAFETY-PASTE)
+
+<!-- PLAY-DATA-SAFETY-PASTE -->
+Paste-ready answers for Play Console → App content → **Data safety** when the **Device or other IDs** row expands (often left incomplete mid-form). Mirror in `docs/PLAY_CONSOLE_PASTE_PACK.md` §4.
+
+| Console field | Answer |
+|---------------|--------|
+| Collected / shared | **Collected** and **Shared** (Google / ad partners via AdMob) |
+| Processed ephemerally? | **No** |
+| Required or optional? | **Optional** (ads path; Limit Ad Tracking / Remove Ads reduces ads) |
+| Collection purposes | **Advertising or marketing** · **Fraud prevention, security, and compliance** — **do not** check Analytics until a real GA4 `G-…` is in `analytics-config.js` |
+| Sharing purposes | Same two purposes |
+| Short note (if asked) | Advertising identifiers (e.g. AAID) via Google AdMob when ads are shown; shared with Google / ad partners to serve/measure ads and prevent fraud. Progress stays on-device. |
+
+Also declare **Approximate location** (optional, Advertising) and **Purchase history** (optional, App functionality via Play). **Crash logs: No** until Crashlytics exists. **App interactions: Yes** via AdMob ads measurement only (not first-party GA4).
+
 ## D. Data safety — narrative snippets (paste-friendly)
 
 **Data collected:** Advertising identifiers and related device/app signals via Google AdMob when ads are shown; approximate region from IP; optional purchase records via Google Play for Remove Ads and other IAPs. Game progress stays on-device.

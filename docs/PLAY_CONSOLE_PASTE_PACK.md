@@ -1,7 +1,7 @@
 # Play Console paste pack — ColorTube Sort (post-approval)
 
 **App ID (package):** `com.lancechung.colortubesort`  
-**Status:** Developer account approved (2026-09-21). Create the Play app next, then paste below.  
+**Status:** Developer account **APPROVED** (2026-09-21 Asia/Taipei). Play app exists — package `com.lancechung.colortubesort` · Play app ID `4972040404691889159` · internal testing `1.0.1-internal-vc2-testids` UPLOADED (test AdMob IDs). **Data safety form still incomplete** (Device or other IDs — use §4 PLAY-DATA-SAFETY-PASTE). Merchant / real AdMob / `remove_ads` still external.  
 **Do not** claim AdMob production units or #7 Pass until real IDs exist.
 
 ---
@@ -64,6 +64,38 @@ Download ColorTube Sort and turn messy tubes into clean colors.
 | **Title** | `彩管分類：揭蓋倒水益智` |
 | **Short** | `有蓋倒不出。揭蓋、倒水、三星過關。今日挑戰免費解壓！` |
 
+**Full description (zh-Hant)** — secondary locale only; default listing stays EN:
+
+```
+先看到蓋子，再決定倒水。《彩管分類 ColorTube Sort》——有蓋鎖定不能倒，點蓋揭開（不占步數），再一指倒水分類。
+
+【怎麼玩】
+• 點選彩管拿起頂層液體，點另一支合法彩管倒下
+• 只能倒進空管，或頂色相同且有空位的管子
+• 把每支管子變成「空管」或「單一純色」即過關
+• 同色連續層會一起倒下，節奏乾脆、手感解壓
+
+【為什麼好玩】
+• 玻璃管＋倒水飛濺＋整管發光＋過關撒花，視覺爽感一次到位
+• 三星評分：少步數、少撤銷挑戰滿分，適合反覆挑戰
+• 金幣經濟＋提示／主題商店，進度會留在本機
+• 「今日挑戰」＋登入連勝，每天都有理由回來
+• 無計時、無生命限制，節奏由你決定，適合通勤與睡前
+
+【內容】
+• 80+ 關：前期教規則，後期加顏色、高度與管數
+• 主題：Classic Glass、Neon Club、Cozy Cat（可解鎖）
+• 撤銷／重開／提示
+
+【免費遊玩＋可選購買】
+• 完整解謎循環免費
+• 可選獎勵廣告換提示或繼續
+• 可選一次買斷「去除廣告」（跳過插頁；獎勵廣告仍可選）
+• 可選主題包與提示包
+
+下載《彩管分類》，把亂管倒成乾淨純色。
+```
+
 ---
 
 ## 3) App content declarations
@@ -113,29 +145,78 @@ Checklist:
 
 ---
 
-## 4) Data safety — overview (paste answers)
+## 4) Data safety — overview + Device IDs paste (PLAY-DATA-SAFETY-PASTE)
+
+<!-- PLAY-DATA-SAFETY-PASTE -->
+### PLAY-DATA-SAFETY-PASTE — Console click-path (EN; honest for AdMob + optional `remove_ads`; GA4 Measurement ID still empty)
+
+Aligned with `docs/PLAY_DATA_SAFETY.md` · live privacy: https://lancechung888.github.io/color-sort-puzzle/privacy/  
+**Do not** invent GA4 / Crashlytics rows while `assets/js/analytics-config.js` `MEASUREMENT_ID` is empty and Crashlytics is absent.  
+**Do not** mark MILLION_USER_BAR #7 Pass from completing this form alone.
+
+#### Overview answers
 
 | Question | Answer |
 |----------|--------|
 | Collect / share user data? | **Yes** |
 | Encrypted in transit? | **Yes** |
-| Users can request deletion? | **Yes** (clear app data / uninstall; ads/billing per Google) |
+| Users can request deletion? | **Yes** (clear app data / uninstall for on-device progress; ads/billing per Google) |
 
-### Data types (typical AdMob + IAP — confirm vs live SDK)
+#### Data types checklist (add rows in Console)
 
-| Type | Collect | Share | Purposes |
-|------|---------|-------|----------|
-| Device or other IDs | Yes | Yes (Google/ad partners) | Advertising; Fraud prevention |
-| Approximate location | Yes (often via ads/IP) | Yes | Advertising |
-| App interactions | Yes if AdMob analytics | Per SDK | Advertising / Analytics |
-| Purchase history | Yes (if IAP) | Via Play | App functionality |
-| Name / Email / Precise location / Mic / Camera | **No** | — | — |
+| Type | Collect | Share | Ephemeral? | Required / Optional | Purposes (collect + share) |
+|------|---------|-------|------------|---------------------|----------------------------|
+| **Device or other IDs** | **Yes** | **Yes** (Google / ad partners) | **No** | **Optional** (ads path; Limit Ad Tracking / Remove Ads reduces ads) | **Advertising or marketing**; **Fraud prevention, security, and compliance** — **not** Analytics until GA4 id is real |
+| **Approximate location** | **Yes** (often IP-based via ads) | **Yes** | **No** | **Optional** | **Advertising or marketing** |
+| **App interactions** | **Yes** (via AdMob ads measurement — not first-party GA4) | **Yes** (Google / ad partners) | **No** | **Optional** | **Advertising or marketing** |
+| **Purchase history** | **Yes** (if user buys IAP) | **Yes** (via Google Play as processor — do **not** claim sold to brokers) | **No** | **Optional** (only if user buys) | **App functionality** |
+| Crash logs / Diagnostics | **No** (no Crashlytics / first-party crash SDK yet) | — | — | — | — |
+| Name / Email / Precise location / Mic / Camera / Photos / Contacts | **No** | — | — | — | — |
 
-Purposes must include **Advertising or marketing**.
+#### Device or other IDs — deep form (paste when Console expands this type)
+
+This is the section often left incomplete mid-form. Use these exact selections:
+
+| Console field | Select / paste |
+|---------------|----------------|
+| Is this data collected, shared, or both? | **Collected** and **Shared** |
+| Is this data processed ephemerally? | **No** |
+| Is this data required for your app, or can users choose whether it's collected? | **Users can choose whether this data is collected** (Optional) |
+| Why is this user data collected? | ☑ **Advertising or marketing** · ☑ **Fraud prevention, security, and compliance** · ☐ Analytics (leave unchecked until real GA4 `G-…`) · ☐ App functionality · ☐ Developer communications · ☐ Account management · ☐ Personalization |
+| Why is this user data shared? | Same two purposes: **Advertising or marketing** + **Fraud prevention, security, and compliance** |
+| What for? (short note if asked) | Advertising identifiers (e.g. AAID) via Google AdMob when ads are shown; shared with Google / ad partners to serve and measure ads and prevent fraud. Game progress stays on-device. |
+
+#### Approximate location — deep form (if not already saved)
+
+| Console field | Select / paste |
+|---------------|----------------|
+| Collected / shared | **Collected** and **Shared** |
+| Ephemeral? | **No** |
+| Required / optional | **Optional** |
+| Purposes (collect + share) | **Advertising or marketing** only (IP-derived region via ads SDK — **not** precise GPS; we do not request location permission) |
+
+#### Purchase history — deep form
+
+| Console field | Select / paste |
+|---------------|----------------|
+| Collected / shared | **Collected**; **Shared** with Google Play as the payment processor (not sold as a data product) |
+| Ephemeral? | **No** |
+| Required / optional | **Optional** (only if the user buys) |
+| Purposes | **App functionality** (deliver / restore `remove_ads` and other IAPs) |
+
+#### Narrative snippets (optional free-text fields)
+
+**Data collected:** Advertising identifiers and related device/app signals via Google AdMob when ads are shown; approximate region from IP; optional purchase records via Google Play for Remove Ads and other IAPs. Game progress stays on-device. First-party GA4 is **not** enabled yet (`MEASUREMENT_ID` empty).
+
+**Why:** Serve and measure ads, prevent fraud, process optional purchases, operate the game.
+
+**Sharing:** Shared with Google (AdMob / Play) as needed to provide those services. No developer-operated user account cloud.
+
+**Deletion:** Uninstall or clear app storage removes on-device progress. Ad and purchase records follow Google’s retention policies.
+
+Purposes must include **Advertising or marketing**. Support email placeholder in privacy policy remains external (`[replace with public support email]`).
 
 Full checklist: `docs/PLAY_DATA_SAFETY.md`
-
----
 
 ## 5) After Play app exists — create `remove_ads` IAP
 
@@ -191,4 +272,4 @@ Until then: keep Google **sample** IDs + `USE_TEST_ADS=true`.
 
 ---
 
-*Generated for post-approval sprint 2026-09-21. Source of truth: `STORE.md` + `docs/PLAY_DATA_SAFETY.md`.*
+*Generated for post-approval sprint 2026-09-21 · PLAY-DATA-SAFETY-PASTE Device IDs deep form. Source of truth: `STORE.md` + `docs/PLAY_DATA_SAFETY.md`.*
