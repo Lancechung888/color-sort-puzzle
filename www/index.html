@@ -265,9 +265,13 @@
           <div class="shop-card" id="shop-remove-ads">
             <div class="shop-card-info">
               <strong>Remove interstitial ads forever</strong>
-              <span class="shop-desc">Needs a store account; unlock not simulated yet</span>
+              <!-- REMOVE-ADS-SHOP-LIVE: desc refreshes when Play Billing ready ($2.99 Active) -->
+              <span class="shop-desc" id="shop-remove-ads-desc">One-time · available in the Play Store app</span>
             </div>
-            <button type="button" class="btn btn-iap" id="btn-buy-remove-ads">Coming soon</button>
+            <div class="shop-card-actions">
+              <button type="button" class="btn btn-iap" id="btn-buy-remove-ads">Coming soon</button>
+              <button type="button" class="btn btn-sm btn-ghost" id="btn-restore-purchases" hidden aria-label="Restore purchases">Restore purchases</button>
+            </div>
           </div>
         </section>
 
@@ -391,7 +395,7 @@
           </div>
         </section>
 
-        <p class="shop-footnote">Cash unlocks need a store account — Coming soon. Coin purchases work now.</p>
+        <p class="shop-footnote" id="shop-footnote">Theme cash unlocks Coming soon. Remove ads lives in the Play Store app. Coin purchases work now.</p>
         <p class="privacy-row shop-privacy">
           <a
             class="privacy-link"
@@ -426,6 +430,7 @@
         <div class="modal-actions stacked">
           <button type="button" class="btn btn-primary" id="btn-fail-hint" aria-label="Get a hint" aria-keyshortcuts="Enter h">💡 Get a hint</button>
           <button type="button" class="btn" id="btn-fail-ad">📺 Watch ad &amp; restart fresh</button>
+          <!-- REMOVE-ADS-SHOP-LIVE: fail CTA text refreshed when billing ready -->
           <button type="button" class="btn btn-iap" id="btn-fail-remove-ads">Remove ads (coming soon)</button>
           <button type="button" class="btn btn-ghost" id="btn-fail-skip" aria-label="Keep restarting" aria-keyshortcuts="r">Keep restarting</button>
           <button type="button" class="btn btn-ghost" id="btn-fail-home" aria-label="Home" aria-keyshortcuts="b">Home</button>

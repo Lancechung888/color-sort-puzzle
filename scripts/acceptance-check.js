@@ -2097,7 +2097,7 @@ block(
 );
 block(
   'M-IAP',
-  'Live remove_ads Play Billing / StoreKit — shop stays Coming soon until store account + real product.'
+  'Live remove_ads Play Billing — product Active $2.99 + shop live CTA when Billing ready; device purchase+restore still Blocked (not Pass).'
 );
 
 
@@ -7011,6 +7011,60 @@ block(
     fail(
       'REAL-ADMOB-IDS',
       `missing real AdMob wiring (appOk=${appOk} initOk=${initOk} iosTestOk=${iosTestOk} unitsOk=${unitsOk} esmOk=${esmOk} patchOk=${patchOk} notesOk=${notesOk} fail7Ok=${fail7Ok} noSample=${noSampleInCapAndroid} noSoft=${noSoft})`
+    );
+  }
+}
+
+
+// --- REMOVE-ADS-SHOP-LIVE: Play remove_ads Active $2.99 → live shop/fail CTA + Restore when Billing ready; web Coming soon; #7 still Fail ---
+{
+  const gameJs = read('assets/js/game.js') || '';
+  const indexHtml = read('index.html') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const markerOk =
+    /REMOVE-ADS-SHOP-LIVE/.test(gameJs) &&
+    /REMOVE-ADS-SHOP-LIVE/.test(indexHtml) &&
+    /REMOVE-ADS-SHOP-LIVE/.test(barRaw) &&
+    /REMOVE-ADS-SHOP-LIVE/.test(accMd);
+  const priceOk = /REMOVE_ADS_PRICE_LABEL\s*=\s*['"]\$2\.99['"]/.test(gameJs);
+  const restoreFnOk =
+    /function restoreRemoveAdsPurchases/.test(gameJs) &&
+    /btn-restore-purchases/.test(gameJs) &&
+    /id="btn-restore-purchases"/.test(indexHtml);
+  const liveCtaOk =
+    /billingReady/.test(gameJs) &&
+    /REMOVE_ADS_PRICE_LABEL \+ ' · Remove ads'/.test(gameJs) &&
+    /Remove ads · ' \+ REMOVE_ADS_PRICE_LABEL/.test(gameJs);
+  const webGateOk =
+    /Coming soon \/ needs store account/.test(gameJs) &&
+    /ACCEPTANCE P0①: normal shop click must NOT grant removeAds/.test(gameJs);
+  const descOk = /id="shop-remove-ads-desc"/.test(indexHtml);
+  const fail7Ok =
+    /#7/.test(barRaw) &&
+    (/still Fail/i.test(barRaw) || /\*\*Fail\*\*/.test(barRaw));
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(
+      (gameJs.match(/REMOVE-ADS-SHOP-LIVE[\s\S]{0,2500}/) || [''])[0]
+    );
+  if (
+    markerOk &&
+    priceOk &&
+    restoreFnOk &&
+    liveCtaOk &&
+    webGateOk &&
+    descOk &&
+    fail7Ok &&
+    noSoft
+  ) {
+    pass(
+      'REMOVE-ADS-SHOP-LIVE',
+      'shop/fail live $2.99 CTA + Restore when Billing ready; web Coming soon + P0①; #7 still Fail; no soft-arm'
+    );
+  } else {
+    fail(
+      'REMOVE-ADS-SHOP-LIVE',
+      `missing live IAP shop (markerOk=${markerOk} priceOk=${priceOk} restoreFnOk=${restoreFnOk} liveCtaOk=${liveCtaOk} webGateOk=${webGateOk} descOk=${descOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
     );
   }
 }
