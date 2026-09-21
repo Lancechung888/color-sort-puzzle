@@ -179,6 +179,8 @@
 （已補）**CAP-TEACH-ARM**已上 — L3 `teach:cap` 首分鐘揭蓋教學：`capTeachDone` **僅**在真實 uncap 成功路徑寫入（`uncapTube`＋`persist`）；tip dismiss／howto 只隱藏、不清／不誤設 teach flag；load 後 once-per-load 首蓋管 `.lid-arm-nudge`～420ms＋`haptic('arm')`／`SFX.tap` @～300ms（reduced-motion 靜態光、不 spam）；uncap／`loadLevel` leave／`goHome` 清 timer／class；EN tip 縮短「Double-tap the gold lid」；`sync-www` → www／docs/play；accept `CAP-TEACH-ARM`；#1 維持 Partial（產品側首分鐘 USP teach）；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 （已補）**PWA-SCREENSHOTS**已上 — `site.webmanifest`＋docs brand `scope: "./"`＋`launch_handler.client_mode` `["focus-existing","auto"]`＋`screenshots`×3 （narrow 1080×1920：lid／uncap／daily；EN store finals）；root `assets/screenshots/`、docs `docs/screenshots/`；`sync-www` → www／docs/play；accept `PWA-SCREENSHOTS`；**未**進 sw PRECACHE；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**STORAGE-PERSIST**已上 — `navigator.storage.persist()` 於有意義進度時請求一次／session（`saveHasMeaningfulProgress`：maxUnlocked／stars／coins≠default／draft moves；load／persist／draft 呼叫點）；缺 API 或已 persisted 則 no-op；swallow errors；`sync-www` → www／docs/play；accept `STORAGE-PERSIST`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 | ID | 檢查項 | 狀態 | 重現／備註 |
 |----|--------|------|------------|

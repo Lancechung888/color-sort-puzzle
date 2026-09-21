@@ -4690,6 +4690,52 @@ block(
 }
 
 
+// --- STORAGE-PERSIST: navigator.storage.persist once when progress exists; sync www/play; no soft-arm ---
+{
+  const gameJs = read('assets/js/game.js') || '';
+  const playGamePath = path.join(root, 'docs/play/assets/js/game.js');
+  const wwwGamePath = path.join(root, 'www/assets/js/game.js');
+  const playGame = fs.existsSync(playGamePath) ? fs.readFileSync(playGamePath, 'utf8') : '';
+  const wwwGame = fs.existsSync(wwwGamePath) ? fs.readFileSync(wwwGamePath, 'utf8') : '';
+
+  const helperOk =
+    /function requestPersistentStorage\s*\(/.test(gameJs) &&
+    /function saveHasMeaningfulProgress\s*\(/.test(gameJs) &&
+    /persistentStorageRequested/.test(gameJs) &&
+    /navigator\.storage\.persist/.test(gameJs) &&
+    /\.persisted\s*===\s*['"]function['"]|navigator\.storage\.persisted|stor\.persisted/.test(gameJs) &&
+    /STORAGE-PERSIST/.test(gameJs);
+
+  const callSites =
+    (gameJs.match(/\/\/ STORAGE-PERSIST/g) || []).length >= 3 &&
+    /saveHasMeaningfulProgress\(\)\s*\)\s*requestPersistentStorage\s*\(/.test(gameJs) &&
+    /moves\s*>\s*0\s*\|\|\s*history\.length\s*>\s*0\)\s*requestPersistentStorage\s*\(/.test(gameJs);
+
+  const playOk =
+    !fs.existsSync(playGamePath) ||
+    (/function requestPersistentStorage\s*\(/.test(playGame) && /STORAGE-PERSIST/.test(playGame));
+  const wwwOk =
+    !fs.existsSync(wwwGamePath) ||
+    (/function requestPersistentStorage\s*\(/.test(wwwGame) && /STORAGE-PERSIST/.test(wwwGame));
+
+  const helperSlice = (gameJs.match(/function requestPersistentStorage[\s\S]{0,1200}/) || [''])[0];
+  const noSoft =
+    !!helperSlice &&
+    !/soft-arm|claim-juice|hud-pulse|storage-persist-arm/.test(helperSlice);
+
+  if (helperOk && callSites && playOk && wwwOk && noSoft) {
+    pass(
+      'STORAGE-PERSIST',
+      'requestPersistentStorage + saveHasMeaningfulProgress; once-per-session navigator.storage.persist when progress; call sites in load/persist/draft; sync www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'STORAGE-PERSIST',
+      `missing persist helper/call sites (helper=${helperOk} calls=${callSites} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-TEACH-ARM: tip dismiss does not set capTeachDone; uncap does; load soft-arm ---
 {
   const gameSrc = read('assets/js/game.js') || '';
