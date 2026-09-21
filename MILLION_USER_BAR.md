@@ -146,6 +146,8 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**NATIVE-VC7-INTERNAL-SYNC**／**NATIVE-VC7-LOCAL-AAB-SYNC**／**PLAY-PASTE-VC7-SYNC**已上 — Play **internal testing Active** 現為 `1.0.6-internal-vc7-adUnavailable`／versionCode **7**／versionName **1.0.6**／Billing≥8／prod AdMob／**UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**＋**AD-REWARD-UNAVAILABLE**；本機 signed `ColorTubeSort-internal-20260921-2117-prodAdMob-vc7-adUnavailable-release.aab`（+ latest + `play-upload/ColorTubeSort-vc7-adUnavailable.aab`）已上傳為該 Active（**無 AAB rebuild**）；歷史 vc6／`1.0.5-internal-vc6-iapBusy` 標 superseded；docs／accept 誠實同步；**#7 Pass**（DEVICE-THREE-GREEN）不變；閘門仍 **7 Pass／2 Partial／0 Fail**（#1／#3 Partial）；**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3 標 Pass。**Production／soft-launch 仍禁止**。**不宣稱 ship-ready。**
+
 （已補）**ANDROID-VERSION-CODE-7**已上 — `scripts/patch-android-version.sh` 預設 **versionCode 7**／`versionName 1.0.6`；`package.json` **1.0.6**；README §2ak；accept `ANDROID-VERSION-CODE-7`／`NATIVE-PACK-READY-SYNC`（Active Play 仍 vc6／1.0.5／`1.0.5-internal-vc6-iapBusy`；腳本就緒下次含 **AD-REWARD-UNAVAILABLE**）；**#7 Pass**（DEVICE-THREE-GREEN）不變；閘門仍 **7 Pass／2 Partial／0 Fail**（#1／#3 Partial）；**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3 標 Pass。**不宣稱** vc7 已上傳／ship-ready。**Production／soft-launch 仍禁止**。
 
 （已補）**AD-REWARD-UNAVAILABLE**已上 — native rewarded 失敗／unavailable 時 EN toast「Ad unavailable — try again」＋`rewarded_unavailable`（不授 hint／restart）；`showRewarded` Promise `true` only on reward；accept `AD-REWARD-UNAVAILABLE`；**DESIGN** 誠實同步 **#7 Pass**（DEVICE-THREE-GREEN）；**無** soft-arm／claim-juice／HUD pulse；閘門仍 **7 Pass／2 Partial／0 Fail**（#1／#3 Partial 不變）。**Production／soft-launch 仍禁止**。**不宣稱 ship-ready。**

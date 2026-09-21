@@ -4,8 +4,8 @@
 
 **App ID (package):** `com.lancechung.colortubesort`
 **Play app ID:** `4972040404691889159`
-**Status:** Developer account **APPROVED** (2026-09-21 Asia/Taipei). Play app exists. **Current Active** internal testing: `1.0.5-internal-vc6-iapBusy` / **versionCode 6** / **versionName 1.0.5** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` (vc2 / sample IDs) **superseded**. Android prod App ID `ca-app-pub-3904450574947460~6670970617`; interstitial `…/2731725604`; rewarded `…/8768677032` (see **REAL-ADMOB-IDS** / `docs/ADMOB_POST_LINK_CHECKLIST.md`). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`. **Data safety** Device IDs deep form may still be incomplete (use §4 PLAY-DATA-SAFETY-PASTE). Merchant / support email / GA4 `MEASUREMENT_ID` still external placeholders — do not invent. Active vc6 AAB **includes** **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** (tip main / #237; the already-built ~18:26 AAB `…-1826-prodAdMob-vc6-iapBusy-release.aab` / `play-upload/ColorTubeSort-vc6-iapBusy.aab` is uploaded as `1.0.5-internal-vc6-iapBusy`; **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**). Active **lacks** tip **AD-REWARD-UNAVAILABLE** (#244; next upload = versionCode ≥7 / script default ANDROID-VERSION-CODE-7 (Active remains vc6 until upload); do **not** claim vc7 uploaded). **#7 Pass** (DEVICE-THREE-GREEN Seeker). Production untouched.
-**Markers:** **PLAY-PASTE-VC6-SYNC** · **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC** · **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC** (historical **PLAY-PASTE-VC5-SYNC** / **NATIVE-VC5-INTERNAL-SYNC** / **PLAY-PASTE-VC3-SYNC** / **NATIVE-VC3-INTERNAL-SYNC**).
+**Status:** Developer account **APPROVED** (2026-09-21 Asia/Taipei). Play app exists. **Current Active** internal testing: `1.0.6-internal-vc7-adUnavailable` / **versionCode 7** / **versionName 1.0.6** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE**. Historical: `1.0.5-internal-vc6-iapBusy` / vc6 (superseded; **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**); vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` (vc2 / sample IDs) **superseded**. Android prod App ID `ca-app-pub-3904450574947460~6670970617`; interstitial `…/2731725604`; rewarded `…/8768677032` (see **REAL-ADMOB-IDS** / `docs/ADMOB_POST_LINK_CHECKLIST.md`). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`. **Data safety** Device IDs deep form may still be incomplete (use §4 PLAY-DATA-SAFETY-PASTE). Merchant / support email / GA4 `MEASUREMENT_ID` still external placeholders — do not invent. Active vc7 AAB **includes** **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE** (the already-built ~21:17 AAB `…-2117-prodAdMob-vc7-adUnavailable-release.aab` / `play-upload/ColorTubeSort-vc7-adUnavailable.aab` is uploaded as `1.0.6-internal-vc7-adUnavailable`; **NATIVE-VC7-INTERNAL-SYNC** · **NATIVE-VC7-LOCAL-AAB-SYNC**). **#7 Pass** (DEVICE-THREE-GREEN Seeker). Production untouched.
+**Markers:** **PLAY-PASTE-VC7-SYNC** · **NATIVE-VC7-INTERNAL-SYNC** · **NATIVE-VC7-LOCAL-AAB-SYNC** · **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC** (historical **PLAY-PASTE-VC6-SYNC** / **NATIVE-VC6-INTERNAL-SYNC** / **NATIVE-VC6-LOCAL-AAB-SYNC** / **PLAY-PASTE-VC5-SYNC** / **NATIVE-VC5-INTERNAL-SYNC** / **PLAY-PASTE-VC3-SYNC** / **NATIVE-VC3-INTERNAL-SYNC**).
 **Do not** claim #7 Pass from paste/docs alone.
 
 ---
@@ -239,7 +239,7 @@ Play Console → Monetize → Products → In-app products → Create:
 
 Play Console → Settings → License testing / Internal testing → Testers:
 
-1. Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for `1.0.5-internal-vc6-iapBusy`)
+1. Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for `1.0.6-internal-vc7-adUnavailable`)
 2. License response: **RESPOND_NORMALLY**
 3. Opt-in URL: `https://play.google.com/apps/internaltest/4701709602422954921`
 4. Those accounts can buy `remove_ads` under license testing; **Never** enable `colorTubeSort_devIap` / fake IAP in release or internal-test AAB
@@ -250,7 +250,8 @@ Play Console → Settings → License testing / Internal testing → Testers:
 
 ## 6) AdMob — **REAL-ADMOB-IDS** wired (current = prod; #7 Pass (DEVICE-THREE-GREEN Seeker))
 
-<!-- PLAY-PASTE-VC6-SYNC -->
+<!-- PLAY-PASTE-VC7-SYNC -->
+<!-- PLAY-PASTE-VC6-SYNC (historical) -->
 <!-- PLAY-PASTE-VC3-SYNC (historical) -->
 **Done in repo (2026-09-21 Asia/Taipei):** Android prod App ID + units + `USE_TEST_ADS=false` / `initializeForTesting=false`. Do **not** roll back to Google sample IDs as current guidance. Historical vc2-testids / sample IDs superseded.
 
@@ -260,7 +261,7 @@ Play Console → Settings → License testing / Internal testing → Testers:
 | Interstitial | `ca-app-pub-3904450574947460/2731725604` |
 | Rewarded | `ca-app-pub-3904450574947460/8768677032` |
 | Flag | `USE_TEST_ADS=false` |
-| Internal AAB (Active) | `1.0.5-internal-vc6-iapBusy` / versionCode **6** / 1.0.5 / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY |
+| Internal AAB (Active) | `1.0.6-internal-vc7-adUnavailable` / versionCode **7** / 1.0.6 / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + AD-REWARD-UNAVAILABLE |
 
 Source of truth: `docs/ADMOB_POST_LINK_CHECKLIST.md` · marker **REAL-ADMOB-IDS**. iOS App ID still Google sample (no iOS app yet).
 **#7 Pass** (DEVICE-THREE-GREEN Seeker) until device interstitial / rewarded full-watch / `remove_ads` purchase+restore. Production untouched. Do **not** invent new `ca-app-pub` values — match existing wired IDs only.
@@ -277,4 +278,4 @@ Source of truth: `docs/ADMOB_POST_LINK_CHECKLIST.md` · marker **REAL-ADMOB-IDS*
 
 ---
 
-*Generated for post-approval sprint 2026-09-21 · **PLAY-PASTE-VC6-SYNC** / **INTERNAL-TESTER-SYNC** / **INTERNAL-TESTER-HANWEN-SYNC** (vc6-iapBusy paste honesty + hanwen tester; historical **PLAY-PASTE-VC5-SYNC** / **PLAY-PASTE-VC3-SYNC**) · PLAY-DATA-SAFETY-PASTE Device IDs deep form. Source of truth: `STORE.md` + `docs/PLAY_DATA_SAFETY.md` + `docs/ADMOB_POST_LINK_CHECKLIST.md`.*
+*Generated for post-approval sprint 2026-09-21 · **PLAY-PASTE-VC7-SYNC** / **INTERNAL-TESTER-SYNC** / **INTERNAL-TESTER-HANWEN-SYNC** (vc7-adUnavailable paste honesty + hanwen tester; historical **PLAY-PASTE-VC6-SYNC** / **PLAY-PASTE-VC5-SYNC** / **PLAY-PASTE-VC3-SYNC**) · PLAY-DATA-SAFETY-PASTE Device IDs deep form. Source of truth: `STORE.md` + `docs/PLAY_DATA_SAFETY.md` + `docs/ADMOB_POST_LINK_CHECKLIST.md`.*
