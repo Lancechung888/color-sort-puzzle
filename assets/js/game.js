@@ -163,6 +163,8 @@
   let playContinueCueFired = false;
   /** STORAGE-PERSIST: once-per-session navigator.storage.persist() attempt. */
   let persistentStorageRequested = false;
+  /** STORAGE-ESTIMATE: once-per-session low-quota Backup toast. */
+  let storageEstimateWarned = false;
   /** Fail-sheet primary hint CTA soft-arm cue timer (once per open). */
   let failHintArmTimer = 0;
   /** CAP-TEACH-ARM: once-per-load soft lid nudge cue timer on teach:cap. */
@@ -469,6 +471,8 @@
     applyTheme(save.activeTheme || 'classic');
     // STORAGE-PERSIST
     if (saveHasMeaningfulProgress()) requestPersistentStorage();
+    // STORAGE-ESTIMATE
+    if (saveHasMeaningfulProgress()) maybeWarnStoragePressure();
   }
 
   function saveHasMeaningfulProgress() {
@@ -525,6 +529,36 @@
     } catch (_) { /* ignore */ }
   }
 
+  // STORAGE-ESTIMATE — once-per-session low-quota toast → Settings → Backup progress
+  function maybeWarnStoragePressure() {
+    if (storageEstimateWarned) return;
+    if (
+      typeof navigator === 'undefined' ||
+      !navigator.storage ||
+      typeof navigator.storage.estimate !== 'function'
+    ) {
+      return;
+    }
+    if (!saveHasMeaningfulProgress()) return;
+    try {
+      const estPromise = navigator.storage.estimate();
+      if (estPromise && typeof estPromise.then === 'function') {
+        estPromise
+          .then(function (est) {
+            if (storageEstimateWarned) return;
+            if (!est || !est.quota) return;
+            const usage = typeof est.usage === 'number' ? est.usage : 0;
+            const quota = est.quota;
+            if (usage / quota >= 0.85 || quota - usage < 256 * 1024) {
+              storageEstimateWarned = true;
+              toast('Storage low — Backup progress in Settings', 4000);
+            }
+          })
+          .catch(function () { /* ignore */ });
+      }
+    } catch (_) { /* ignore */ }
+  }
+
   function persist() {
     save.v = SAVE_VERSION;
     ensureMetaSaveArrays();
@@ -536,6 +570,8 @@
       } catch (_) { /* bak optional */ }
       // STORAGE-PERSIST
       if (saveHasMeaningfulProgress()) requestPersistentStorage();
+      // STORAGE-ESTIMATE
+      if (saveHasMeaningfulProgress()) maybeWarnStoragePressure();
     } catch (err) {
       // Quota / private mode: drop bak + legacy, retry once
       try {
@@ -544,6 +580,8 @@
         localStorage.setItem(STORAGE_KEY, payload);
         // STORAGE-PERSIST
         if (saveHasMeaningfulProgress()) requestPersistentStorage();
+        // STORAGE-ESTIMATE
+        if (saveHasMeaningfulProgress()) maybeWarnStoragePressure();
       } catch (_) { /* ignore — session continues in memory */ }
     }
   }
@@ -1296,6 +1334,8 @@
       localStorage.setItem(RUN_STORAGE_KEY, JSON.stringify(buildRunDraft()));
       // STORAGE-PERSIST
       if (moves > 0 || history.length > 0) requestPersistentStorage();
+      // STORAGE-ESTIMATE
+      if (moves > 0 || history.length > 0) maybeWarnStoragePressure();
     } catch (_) {
       try {
         localStorage.removeItem(RUN_STORAGE_KEY);
