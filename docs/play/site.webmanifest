@@ -3,6 +3,7 @@
   "short_name": "ColorTube Sort",
   "description": "Gold lids block pours until you uncap. Pour matching colors into the same tube. Uncap, pour, sort.",
   "start_url": "./",
+  "id": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#1a1a2e",

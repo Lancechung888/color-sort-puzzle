@@ -6177,6 +6177,68 @@
     }
   }
 
+
+  // PWA-INSTALL: beforeinstallprompt → show #btn-install; never in standalone / Capacitor native
+  function isPwaStandalone() {
+    try {
+      if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) return true;
+      if (typeof navigator !== 'undefined' && navigator.standalone === true) return true;
+    } catch (_) { /* ignore */ }
+    return false;
+  }
+
+  function isCapacitorNativePlatform() {
+    try {
+      const cap = typeof window !== 'undefined' ? window.Capacitor : null;
+      return !!(cap && typeof cap.isNativePlatform === 'function' && cap.isNativePlatform());
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /** Wire Install CTA once per session; hide when installed / native / standalone. */
+  function bindPwaInstall() {
+    const btn = $('#btn-install');
+    if (!btn) return;
+    btn.hidden = true;
+    if (isPwaStandalone() || isCapacitorNativePlatform()) return;
+
+    let deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      btn.hidden = false;
+    });
+
+    btn.addEventListener('click', function () {
+      if (!deferredPrompt) return;
+      const ev = deferredPrompt;
+      deferredPrompt = null;
+      try {
+        ev.prompt();
+      } catch (_) {
+        btn.hidden = true;
+        return;
+      }
+      Promise.resolve(ev.userChoice)
+        .then(function (choice) {
+          if (choice && choice.outcome === 'accepted') {
+            btn.hidden = true;
+          }
+          // dismissed: keep hidden deferred; button may stay visible until appinstalled / next event
+        })
+        .catch(function () {
+          btn.hidden = true;
+        });
+    });
+
+    window.addEventListener('appinstalled', function () {
+      deferredPrompt = null;
+      btn.hidden = true;
+    });
+  }
+
   function init() {
     // Ad creative capture: ?ad=1 or body.ad-capture hides chrome, scales playfield
     // PWA-DAILY-SHORTCUT / DAILY-DEEPLINK: ?daily=1 opens today's challenge (manifest shortcut)
@@ -6239,6 +6301,8 @@
 
     loadSave();
     applyReducedMotionClass();
+    // PWA-INSTALL
+    bindPwaInstall();
     refreshHud();
     refreshMetaTeasers();
     if (pendingStreakMilestone) {

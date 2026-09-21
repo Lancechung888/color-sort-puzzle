@@ -4689,6 +4689,96 @@ block(
   }
 }
 
+// --- PWA-INSTALL: beforeinstallprompt Install CTA + manifest id; sync docs/play; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const gameJs = read('assets/js/game.js') || '';
+  const rootManifestPath = path.join(root, 'site.webmanifest');
+  const docsManifestPath = path.join(root, 'docs/site.webmanifest');
+  const playManifestPath = path.join(root, 'docs/play/site.webmanifest');
+  const wwwManifestPath = path.join(root, 'www/site.webmanifest');
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const playGamePath = path.join(root, 'docs/play/assets/js/game.js');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const playGame = fs.existsSync(playGamePath) ? fs.readFileSync(playGamePath, 'utf8') : '';
+
+  function manifestIdOk(filePath) {
+    if (!fs.existsSync(filePath)) return false;
+    try {
+      const m = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      return m && typeof m.id === 'string' && (m.id === './' || m.id === './?source=pwa');
+    } catch (_) {
+      return false;
+    }
+  }
+
+  const btnOk =
+    /id=["']btn-install["']/.test(htmlRaw) &&
+    /Install ColorTube Sort/.test(htmlRaw) &&
+    />Install</.test(htmlRaw) &&
+    /hidden/.test((htmlRaw.match(/id=["']btn-install["'][^>]*>/) || [''])[0]);
+  const noSoftOnBtn =
+    !/soft-arm|claim-juice|hud-pulse|install-arm|pwa-install-arm/.test(
+      (htmlRaw.match(/id=["']btn-install["'][^>]*>/) || [''])[0]
+    );
+  const cssSlice = (cssRaw.match(/PWA-INSTALL[\s\S]{0,900}/) || [''])[0];
+  const cssOk =
+    /PWA-INSTALL/.test(cssRaw) &&
+    /#btn-install/.test(cssRaw) &&
+    !/\.(soft-arm|claim-juice|hud-pulse|install-arm|pwa-install-arm)/.test(cssSlice) &&
+    !/animation:\s*[^;]*(pulse|arm)/i.test(cssSlice);
+  const bootOk =
+    /PWA-INSTALL/.test(gameJs) &&
+    /beforeinstallprompt/.test(gameJs) &&
+    /preventDefault/.test(gameJs) &&
+    /\.prompt\s*\(/.test(gameJs) &&
+    /appinstalled/.test(gameJs) &&
+    /display-mode:\s*standalone/.test(gameJs) &&
+    /isNativePlatform/.test(gameJs) &&
+    /bindPwaInstall/.test(gameJs) &&
+    /btn-install/.test(gameJs);
+  const bootSliceMatch = gameJs.match(/PWA-INSTALL[\s\S]{0,2200}?bindPwaInstall[\s\S]{0,1800}?appinstalled/);
+  const bootSlice = bootSliceMatch ? bootSliceMatch[0] : '';
+  const noSoftBoot =
+    !!bootSlice &&
+    !/soft-arm|claim-juice|hud-pulse|install-arm|pwa-install-arm|haptic\(['"]arm['"]\)/.test(bootSlice);
+  const rootId = manifestIdOk(rootManifestPath);
+  const docsId = manifestIdOk(docsManifestPath);
+  const playId =
+    !fs.existsSync(playManifestPath) || manifestIdOk(playManifestPath);
+  const wwwId =
+    !fs.existsSync(wwwManifestPath) || manifestIdOk(wwwManifestPath);
+  const playSyncOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/id=["']btn-install["']/.test(playHtml) &&
+      /PWA-INSTALL/.test(playGame) &&
+      /beforeinstallprompt/.test(playGame) &&
+      /\.prompt\s*\(/.test(playGame));
+  if (
+    btnOk &&
+    noSoftOnBtn &&
+    cssOk &&
+    bootOk &&
+    noSoftBoot &&
+    rootId &&
+    docsId &&
+    playId &&
+    wwwId &&
+    playSyncOk
+  ) {
+    pass(
+      'PWA-INSTALL',
+      'start #btn-install + beforeinstallprompt/prompt/appinstalled; standalone/native hide; manifest id ./; sync www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'PWA-INSTALL',
+      `missing install CTA/wiring (btn=${btnOk} noSoftBtn=${noSoftOnBtn} css=${cssOk} boot=${bootOk} noSoftBoot=${noSoftBoot} id root=${rootId} docs=${docsId} play=${playId} www=${wwwId} playSync=${playSyncOk})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
