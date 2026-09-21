@@ -2912,6 +2912,44 @@
     if (onSuccess) onSuccess();
   }
 
+  // REMOVE-ADS-SHOP-LIVE: Play Console remove_ads Active @ $2.99 — show live CTA when Billing ready
+  const REMOVE_ADS_PRICE_LABEL = '$2.99';
+
+  function restoreRemoveAdsPurchases() {
+    if (save.removeAds) {
+      toast('Ads already removed');
+      return;
+    }
+    const billing = window.ColorTubeBilling;
+    const canNative =
+      billing &&
+      typeof billing.isBillingReady === 'function' &&
+      billing.isBillingReady() &&
+      typeof billing.restorePurchases === 'function';
+    if (!canNative) {
+      toast('Coming soon / needs store account');
+      return;
+    }
+    toast('Restoring…');
+    Promise.resolve(billing.restorePurchases())
+      .then((ok) => {
+        if (ok || (billing.isRemoveAdsOwned && billing.isRemoveAdsOwned())) {
+          save.removeAds = true;
+          persist();
+          refreshHud();
+          refreshShopButtons();
+          trackEvent('iap_remove_ads', { product_id: 'remove_ads', source: 'restore_btn' });
+          toast('Ads removed');
+        } else {
+          toast('No prior purchase found');
+        }
+      })
+      .catch((e) => {
+        console.warn('[IAP] restoreRemoveAdsPurchases', e);
+        toast('Restore failed — try again later');
+      });
+  }
+
   function purchaseRemoveAds() {
     // ACCEPTANCE P0①: normal shop click must NOT grant removeAds.
     // Real grant only via Play Billing success, or explicit DEV flag.
@@ -5527,25 +5565,77 @@
   }
 
   function refreshShopButtons() {
+    // REMOVE-ADS-SHOP-LIVE: live $2.99 + Restore when Play Billing ready; web stays Coming soon (no fake grant)
     const removeCard = $('#shop-remove-ads');
     const btnRemove = $('#btn-buy-remove-ads');
+    const removeDesc = $('#shop-remove-ads-desc');
+    const btnFailRemove = $('#btn-fail-remove-ads');
+    const btnRestore = $('#btn-restore-purchases');
+    const shopFoot = $('#shop-footnote');
+    const billingReady =
+      window.ColorTubeBilling &&
+      typeof window.ColorTubeBilling.isBillingReady === 'function' &&
+      window.ColorTubeBilling.isBillingReady();
     if (save.removeAds) {
       if (btnRemove) {
         btnRemove.textContent = 'Ads removed';
         btnRemove.disabled = true;
       }
       if (removeCard) removeCard.classList.add('owned');
+      if (removeDesc) removeDesc.textContent = 'Interstitial ads skipped on this device';
+      if (btnFailRemove) {
+        btnFailRemove.textContent = 'Ads removed';
+        btnFailRemove.disabled = true;
+      }
+      if (btnRestore) btnRestore.hidden = true;
+      if (shopFoot) {
+        shopFoot.textContent =
+          'Ads removed on this device. Theme cash unlocks Coming soon. Coin purchases work now.';
+      }
     } else if (btnRemove) {
-      const billingReady =
-        window.ColorTubeBilling &&
-        typeof window.ColorTubeBilling.isBillingReady === 'function' &&
-        window.ColorTubeBilling.isBillingReady();
       if (isDevIapEnabled()) {
         btnRemove.textContent = '$0.99 · DEV buy';
+        if (removeDesc) removeDesc.textContent = 'DEV mock grant only (flag on)';
+        if (btnFailRemove) {
+          btnFailRemove.textContent = 'Remove ads · DEV';
+          btnFailRemove.disabled = false;
+        }
+        if (btnRestore) btnRestore.hidden = true;
+        if (shopFoot) {
+          shopFoot.textContent =
+            'DEV IAP flag on — mock grants only. Coin purchases work now.';
+        }
       } else if (billingReady) {
-        btnRemove.textContent = 'Remove ads';
+        btnRemove.textContent = REMOVE_ADS_PRICE_LABEL + ' · Remove ads';
+        if (removeDesc) {
+          removeDesc.textContent =
+            'One-time · skips interstitial ads (Play Billing · ' + REMOVE_ADS_PRICE_LABEL + ')';
+        }
+        if (btnFailRemove) {
+          btnFailRemove.textContent = 'Remove ads · ' + REMOVE_ADS_PRICE_LABEL;
+          btnFailRemove.disabled = false;
+        }
+        if (btnRestore) btnRestore.hidden = false;
+        if (shopFoot) {
+          shopFoot.textContent =
+            'Remove ads is live via Play Billing (' +
+            REMOVE_ADS_PRICE_LABEL +
+            '). Theme cash unlocks Coming soon. Coin purchases work now.';
+        }
       } else {
         btnRemove.textContent = 'Coming soon';
+        if (removeDesc) {
+          removeDesc.textContent = 'One-time · available in the Play Store app';
+        }
+        if (btnFailRemove) {
+          btnFailRemove.textContent = 'Remove ads (coming soon)';
+          btnFailRemove.disabled = false;
+        }
+        if (btnRestore) btnRestore.hidden = true;
+        if (shopFoot) {
+          shopFoot.textContent =
+            'Theme cash unlocks Coming soon. Remove ads lives in the Play Store app. Coin purchases work now.';
+        }
       }
       btnRemove.disabled = false;
       if (removeCard) removeCard.classList.remove('owned');
@@ -5820,6 +5910,8 @@
       fail_reason: 'restart_loop',
       restart_count: restartFailCount,
     });
+    // REMOVE-ADS-SHOP-LIVE: keep fail CTA in sync with Billing readiness
+    try { refreshShopButtons(); } catch (_) { /* ignore */ }
     clearFailHintArm();
     const hintBtn = $('#btn-fail-hint');
     if (hintBtn) {
