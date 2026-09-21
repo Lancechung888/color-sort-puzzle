@@ -1990,8 +1990,9 @@
   }
 
   /**
-   * Two-tap confirm before big shop coin spends (hints pack / undo / theme).
-   * Same key armed within window → proceed; else arm + toast (no soft-arm CSS).
+   * Two-tap confirm before big shop coin spends (hints pack / undo-level).
+   * Theme coin unlock is one-tap (buyThemeWithCoins). Same key armed within
+   * window → proceed; else arm + toast (no soft-arm CSS).
    */
   function confirmShopSpendThen(key, cost, proceedFn) {
     const now = Date.now();
@@ -5722,13 +5723,12 @@
       applyTheme(id);
       return;
     }
-    confirmShopSpendThen('theme:' + id, THEME_COIN_COST, function () {
-      if (!spendCoins(THEME_COIN_COST)) {
-        toast('Not enough coins');
-        return;
-      }
-      unlockTheme(id, 'coins');
-    });
+    // Theme unlock is one-tap (Neon/Cat); hints-pack + undo-level keep two-tap confirm.
+    if (!spendCoins(THEME_COIN_COST)) {
+      toast('Not enough coins');
+      return;
+    }
+    unlockTheme(id, 'coins');
   }
 
   function playfieldOverlayBlocking() {
