@@ -529,7 +529,14 @@ if (gameRaw) {
     fail('LEAVE-RUN-CONFIRM', 'missing pendingLeave / Tap again to leave / draftHasProgress / confirmLeaveRunThen, or soft-arm CSS slipped in');
   }
 
-  // Shop big coin-spend two-tap confirm (toast only — no soft-arm CSS)
+  // Shop big coin-spend two-tap confirm (toast only — no soft-arm CSS).
+  // hints-pack + undo-level keep confirm; theme coin unlock is one-tap.
+  const themeBuyOneTap =
+    /function buyThemeWithCoins\s*\(/.test(gameRaw) &&
+    /spendCoins\s*\(\s*THEME_COIN_COST\s*\)/.test(gameRaw) &&
+    /unlockTheme\s*\(/.test(gameRaw) &&
+    !/confirmShopSpendThen\s*\(\s*['"]theme:/.test(gameRaw) &&
+    !/confirmShopSpendThen\s*\(\s*'theme:'\s*\+/.test(gameRaw);
   if (
     /function clearPendingSpend\s*\(/.test(gameRaw) &&
     /function armPendingSpend\s*\(/.test(gameRaw) &&
@@ -537,15 +544,15 @@ if (gameRaw) {
     /pendingSpendUntil/.test(gameRaw) &&
     /function confirmShopSpendThen\s*\(/.test(gameRaw) &&
     /Tap again to spend/.test(gameRaw) &&
-    (/theme:'\s*\+|theme:\s*'\s*\+|['"]theme:/.test(gameRaw) || /THEME_COIN_COST/.test(gameRaw)) &&
-    (/hints-pack/.test(gameRaw) || /HINT_PACK_COIN_COST/.test(gameRaw)) &&
-    (/undo-level/.test(gameRaw) || /UNDO_LEVEL_COIN_COST/.test(gameRaw)) &&
+    /confirmShopSpendThen\s*\(\s*['"]hints-pack['"]/.test(gameRaw) &&
+    /confirmShopSpendThen\s*\(\s*['"]undo-level['"]/.test(gameRaw) &&
+    themeBuyOneTap &&
     /shop_spend_confirm_arm/.test(gameRaw) &&
     !/spend-arm|spendArm|\.spend-arm|shop-spend-arm/.test(gameRaw)
   ) {
-    pass('SHOP-SPEND-CONFIRM', 'shop coin spend ≥80 two-tap confirm (toast); theme/hints-pack/undo; no soft-arm CSS');
+    pass('SHOP-SPEND-CONFIRM', 'shop coin spend two-tap confirm (toast) for hints-pack/undo; theme unlock one-tap; no soft-arm CSS');
   } else {
-    fail('SHOP-SPEND-CONFIRM', 'missing confirmShopSpendThen / pendingSpend / Tap again to spend / theme|hints-pack|undo wiring, or soft-arm CSS slipped in');
+    fail('SHOP-SPEND-CONFIRM', 'missing confirmShopSpendThen for hints-pack/undo, or theme still uses confirm / missing one-tap buyThemeWithCoins, or soft-arm CSS slipped in');
   }
 
   // Settings Reset progress two-tap confirm (toast only — no soft-arm CSS)
