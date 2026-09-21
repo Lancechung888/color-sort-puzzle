@@ -17,7 +17,7 @@
 | 上架 | **僅內部測試**；**未** production；勿宣稱已上架 |
 | 假 IAP | **關**（`colorTubeSort_devIap` 預設關閉；無 native Billing 不 grant） |
 | #7 | **Pass** — DEVICE-THREE-GREEN 實機三綠燈已過（interstitial／rewarded 完整看完／`remove_ads` 購買＋還原） |
-| Active AAB | `1.0.5-internal-vc6-iapBusy`／vc6／1.0.5／Billing≥8／prod AdMob／**UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**；已由本機 ~18:26 建置的 signed AAB 上傳並在 Play Active。**NATIVE-VC6-INTERNAL-SYNC**（建置來源：**NATIVE-VC6-LOCAL-AAB-SYNC**） |
+| Active AAB | `1.0.5-internal-vc6-iapBusy`／vc6／1.0.5／Billing≥8／prod AdMob／**UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**；**不含** tip 的 **AD-REWARD-UNAVAILABLE**（下次上傳 **versionCode ≥7**／腳本 `ANDROID-VERSION-CODE-7` 就緒）；已由本機 ~18:26 建置的 signed AAB 上傳並在 Play Active。**NATIVE-VC6-INTERNAL-SYNC**（建置來源：**NATIVE-VC6-LOCAL-AAB-SYNC**） |
 | 本文件 | **可驗收**：與 `NATIVE_PACK_READY`／paste 對齊；歷史測 ID 階段標 superseded |
 
 驗收以：**文件齊、現況不說謊、有 SDK 時可產出簽名 AAB、#7 不因配線／上傳 alone 標 Pass**。
@@ -130,7 +130,7 @@ npm run aab:internal
 | 本文件＋`scripts/build-internal-aab.sh`＋`package.json` 的 `aab:internal` 齊 | **流程就緒** |
 | agent／CI 箱無 JDK 或無 Android SDK | 腳本 **exit ≠ 0** 並印缺什麼＝**預期** |
 | 包裝箱（JDK17＋SDK＋keystore＋已 `cap add`） | **已驗證**可產出 signed AAB（含現況 vc6） |
-| Play internal 上傳 | **已上傳 current** vc6：`1.0.5-internal-vc6-iapBusy`／versionCode **6**／versionName **1.0.5**，含 **UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**（**NATIVE-VC6-INTERNAL-SYNC**）。無 AAB rebuild；建置來源為已建 AAB（**NATIVE-VC6-LOCAL-AAB-SYNC**） |
+| Play internal 上傳 | **已上傳 current** vc6：`1.0.5-internal-vc6-iapBusy`／versionCode **6**／versionName **1.0.5**，含 **UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**（**NATIVE-VC6-INTERNAL-SYNC**）。下次含 **AD-REWARD-UNAVAILABLE** 需 **versionCode ≥7**（腳本預設就緒）。無 AAB rebuild；建置來源為已建 AAB（**NATIVE-VC6-LOCAL-AAB-SYNC**） |
 
 輔助核對配線（不需完整 `android/` 樹進 git）：
 
@@ -148,7 +148,7 @@ npm run native:check
   路徑：`capacitor.config.json`、`assets/js/ads.js`；詳見 `docs/ADMOB_POST_LINK_CHECKLIST.md`／`docs/PLAY_CONSOLE_PASTE.md`
 - [x] **billing.js** 產品 `remove_ads`＋無 web／無 plugin 時不 grant；**IAP-PURCHASE-BUSY** 已在 Active vc6 AAB（與 **UNCAP-ONE-TAP** 同包）
 - [x] **Play Billing ≥8**：`scripts/patch-android-billing-8.sh`（`billing:8.3.0`＋`PendingPurchasesParams`＋`minSdk 23`）；`aab:internal` 在 `cap sync` 後呼叫
-- [x] **versionCode 腳本**：Active 為 **6／1.0.5**；`scripts/patch-android-version.sh` 預設 **6／1.0.5**（`ANDROID-VERSION-CODE-6`）；Active AAB 含 **UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**（**NATIVE-VC6-INTERNAL-SYNC**）
+- [x] **versionCode 腳本**：Active 仍為 **6／1.0.5**；`scripts/patch-android-version.sh` 預設已升 **7／1.0.6**（`ANDROID-VERSION-CODE-7`；env 可覆寫）；Active AAB 含 **UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**、**不含** tip **AD-REWARD-UNAVAILABLE**（**NATIVE-VC6-INTERNAL-SYNC**）
 - [x] **game.js** 點擊不白送 `removeAds`（僅 `isBillingReady()` 走真購買；devIap 預設關）
 - [x] **native-templates** Manifest／Billing snippets
   路徑：`native-templates/android/README.md`
@@ -166,6 +166,7 @@ npm run native:check
   (2) rewarded **完整看完**發獎
   (3) `remove_ads` 購買＋還原
 - [x] 上傳本機已建內測 AAB：**versionCode 6**／**1.0.5**／`1.0.5-internal-vc6-iapBusy`（`/workspace/colortube-artifacts/ColorTubeSort-internal-20260921-1826-prodAdMob-vc6-iapBusy-release.aab`；**NATIVE-VC6-LOCAL-AAB-SYNC**）— 已在 Play Active；**無 AAB rebuild**
+- [ ] 下次內測 AAB：**versionCode ≥7**（>6；腳本 `ANDROID-VERSION-CODE-7` 就緒），把 tip 的 **AD-REWARD-UNAVAILABLE** 打進 Active 包（**不**宣稱 vc7 已上傳）
 - [ ] Production／公開軌道 — **未動**；過審後清單見 `docs/PLAY_POST_APPROVAL_CHECKLIST.md`
 
 ---
