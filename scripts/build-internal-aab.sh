@@ -55,14 +55,17 @@ if [[ ! -d "$ROOT/android" ]]; then
   echo "   （需要已安裝 Android SDK；完成後再跑 npm run aab:internal）" >&2
   exit 1
 fi
-echo "[aab:internal] 找到 android/ ，開始 build:www → cap sync → Billing8 patch → AdMob patch → bundleRelease"
+echo "[aab:internal] 找到 android/ ，開始 build:www → cap sync → Billing8 patch → versionCode patch → AdMob patch → bundleRelease"
 
 npm run build:www
 npx cap sync
 # Play requires Billing Library ≥8.0.0; Cap6 @capgo/native-purchases pins 6.2.1 — patch node_modules + force + minSdk 23.
 bash "$ROOT/scripts/patch-android-billing-8.sh"
+# Play rejects reused versionCode; Cap defaults are versionCode 1 / "1.0" — re-bump after sync.
+bash "$ROOT/scripts/patch-android-version-code.sh"
 # After sync so Capacitor cannot wipe custom Manifest / strings patches.
 bash "$ROOT/scripts/patch-android-admob.sh"
+bash "$ROOT/scripts/patch-android-version.sh"
 # Lock MainActivity to portrait (hybrid-casual; web already portrait-primary).
 bash "$ROOT/scripts/patch-android-portrait.sh"
 # Native keep-awake (WebView often lacks navigator.wakeLock; Settings syncs via ColorTubeNative).
@@ -136,6 +139,6 @@ bash "$ROOT/scripts/apply-android-icons.sh"
   ./gradlew bundleRelease
 )
 
-echo "✅ AAB 建置流程已跑完。產物通常在："
-echo "   android/app/build/outputs/bundle/release/app-release.aab"
-echo "   （若未設定 signingConfigs，可能是 unsigned；正式上傳請依 docs/NATIVE_ACCEPTANCE.md §1 簽名。）"
+echo "[aab:internal] DONE. Artifact:"
+echo "  android/app/build/outputs/bundle/release/app-release.aab"
+echo "  (If signingConfigs missing, bundle may be unsigned; see docs/NATIVE_ACCEPTANCE.md §1.)"
