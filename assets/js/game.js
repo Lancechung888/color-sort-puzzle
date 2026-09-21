@@ -6483,6 +6483,61 @@
     } catch (_) { /* ignore */ }
   }
 
+
+  // PAGE-LIFECYCLE — bfcache pageshow + Page Lifecycle freeze/resume re-sync
+  // Complements visibilitychange + CAP-APP-STATE (web/PWA restore paths).
+  function bindPageLifecycle() {
+    try {
+      window.addEventListener('pageshow', function (event) {
+        try {
+          if (!event || !event.persisted) return;
+          // PAGE-LIFECYCLE: bfcache restore
+          clearPendingUncap();
+          if (isRunActive()) persistRunDraft();
+          syncScreenWakeLock();
+          try {
+            if (typeof resumeAudio === 'function') resumeAudio();
+          } catch (_) { /* ignore */ }
+          // OFFLINE-TOAST re-check: toast only if status flipped vs last known
+          try {
+            if (typeof isCapacitorNativePlatform === 'function' && isCapacitorNativePlatform()) {
+              /* native: CAP-APP-STATE owns foreground; skip offline toast spam */
+            } else if (typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean') {
+              const offlineNow = navigator.onLine === false;
+              if (offlineNow && !networkWasOffline) {
+                networkWasOffline = true;
+                toast('Offline — progress saved on this device', 3600);
+              } else if (!offlineNow && networkWasOffline) {
+                networkWasOffline = false;
+                toast('Back online', 2800);
+              }
+            }
+          } catch (_) { /* ignore */ }
+        } catch (_) { /* swallow handler errors */ }
+      });
+    } catch (_) { /* ignore */ }
+    try {
+      document.addEventListener('freeze', function () {
+        try {
+          // PAGE-LIFECYCLE: same spirit as hide
+          clearPendingUncap();
+          if (isRunActive()) persistRunDraft();
+        } catch (_) { /* ignore */ }
+      });
+    } catch (_) { /* ignore — freeze unsupported */ }
+    try {
+      document.addEventListener('resume', function () {
+        try {
+          // PAGE-LIFECYCLE: match visibility show — wake + audio; no clearPendingUncap
+          syncScreenWakeLock();
+          try {
+            if (typeof resumeAudio === 'function') resumeAudio();
+          } catch (_) { /* ignore */ }
+        } catch (_) { /* ignore */ }
+      });
+    } catch (_) { /* ignore — resume unsupported */ }
+  }
+
   function init() {
     // Ad creative capture: ?ad=1 or body.ad-capture hides chrome, scales playfield
     // PWA-DAILY-SHORTCUT / DAILY-DEEPLINK: ?daily=1 opens today's challenge (manifest shortcut)
@@ -6551,6 +6606,8 @@
     bindCrashGuard();
     // OFFLINE-TOAST
     bindOfflineStatus();
+    // PAGE-LIFECYCLE
+    bindPageLifecycle();
     refreshHud();
     refreshMetaTeasers();
     if (pendingStreakMilestone) {
