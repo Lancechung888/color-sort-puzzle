@@ -4187,6 +4187,50 @@ block(
   }
 }
 
+// --- SCRIPT-PRELOAD: critical gameplay JS (levels+game) before CSS; no ads/billing; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const preloadLevels =
+    /rel=["']preload["'][^>]*href=["']assets\/js\/levels\.js["']/.test(htmlRaw) ||
+    /href=["']assets\/js\/levels\.js["'][^>]*rel=["']preload["']/.test(htmlRaw);
+  const preloadGame =
+    /rel=["']preload["'][^>]*href=["']assets\/js\/game\.js["']/.test(htmlRaw) ||
+    /href=["']assets\/js\/game\.js["'][^>]*rel=["']preload["']/.test(htmlRaw);
+  const links = [...htmlRaw.matchAll(/<link\b[^>]*rel=["']preload["'][^>]*>/gi)].map((m) => m[0]);
+  const scriptLinks = links.filter((l) => /assets\/js\/(levels|game)\.js/.test(l));
+  const attrsOk =
+    scriptLinks.length >= 2 &&
+    scriptLinks.every((l) => /\bas=["']script["']/.test(l));
+  const beforeCss =
+    htmlRaw.indexOf('assets/js/levels.js') >= 0 &&
+    htmlRaw.indexOf('assets/js/levels.js') < htmlRaw.indexOf('assets/css/style.css') &&
+    htmlRaw.indexOf('assets/js/game.js') >= 0 &&
+    htmlRaw.indexOf('assets/js/game.js') < htmlRaw.indexOf('assets/css/style.css');
+  const noAdsBilling =
+    !links.some((l) => /assets\/js\/(ads|billing)\.js/.test(l));
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    ((/rel=["']preload["'][^>]*href=["']assets\/js\/levels\.js["']/.test(playHtml) ||
+      /href=["']assets\/js\/levels\.js["'][^>]*rel=["']preload["']/.test(playHtml)) &&
+      (/rel=["']preload["'][^>]*href=["']assets\/js\/game\.js["']/.test(playHtml) ||
+        /href=["']assets\/js\/game\.js["'][^>]*rel=["']preload["']/.test(playHtml)));
+  const snippet = htmlRaw.slice(0, 2800);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(snippet);
+  if (preloadLevels && preloadGame && attrsOk && beforeCss && noAdsBilling && playOk && noSoft) {
+    pass(
+      'SCRIPT-PRELOAD',
+      'index preload levels.js+game.js as=script before stylesheet; docs/play synced; no ads/billing preload; no soft-arm'
+    );
+  } else {
+    fail(
+      'SCRIPT-PRELOAD',
+      `missing script preload (levels=${preloadLevels} game=${preloadGame} attrs=${attrsOk} beforeCss=${beforeCss} noAdsBilling=${noAdsBilling} play=${playOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
