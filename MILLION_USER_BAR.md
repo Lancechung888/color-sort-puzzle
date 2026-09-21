@@ -350,6 +350,7 @@
 
 （已補）**PWA-CONTINUE-SHORTCUT**已上 — `site.webmanifest` shortcuts「Continue」→ `./?continue=1`（docs brand → `./play/?continue=1`）；`game.js` `bootContinue` 讀 `?continue=1`／`true` 後 `history.replaceState` 清 query、再 `startGame()`（resume mid-run／frontier；`bootDaily` 優先）；`sync-www` → www／docs/play；accept `PWA-CONTINUE-SHORTCUT`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 （已補）**PWA-LEVELS-SHORTCUT**已上 — `site.webmanifest` shortcuts「Levels」→ `./?levels=1`（docs brand → `./play/?levels=1`）；`game.js` `bootLevels` 讀 `?levels=1`／`true` 後 `history.replaceState` 清 query、再 `openLevels()`（★ mastery revisit；`bootDaily` → `bootContinue` 優先）；`sync-www` → www／docs/play；accept `PWA-LEVELS-SHORTCUT`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+（已補）**PWA-SHOP-SHORTCUT**已上 — `site.webmanifest` shortcuts「Shop」→ `./?shop=1`（docs brand → `./play/?shop=1`）；`game.js` `bootShop` 讀 `?shop=1`／`true` 後 `history.replaceState` 清 query、再 `openShop()`（`bootDaily` → `bootContinue` → `bootLevels` 優先）；`sync-www` → www／docs/play；accept `PWA-SHOP-SHORTCUT`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 
 1. **真變現** — Play 過審後換正式 AdMob／Billing 單元；`remove_ads` 真接線（維持不打斷倒水）。勿把測 ID／Coming soon 標 Done。  

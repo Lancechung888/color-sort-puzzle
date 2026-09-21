@@ -6182,9 +6182,11 @@
     // PWA-DAILY-SHORTCUT / DAILY-DEEPLINK: ?daily=1 opens today's challenge (manifest shortcut)
     // PWA-CONTINUE-SHORTCUT: ?continue=1 resumes mid-run or frontier (manifest shortcut)
     // PWA-LEVELS-SHORTCUT: ?levels=1 opens Levels overlay for ★ mastery revisit (manifest shortcut)
+    // PWA-SHOP-SHORTCUT: ?shop=1 opens Shop overlay (manifest shortcut; coins / hints / themes)
     let bootDaily = false;
     let bootContinue = false;
     let bootLevels = false;
+    let bootShop = false;
     try {
       const q = new URLSearchParams(location.search);
       if (q.get('ad') === '1' || q.has('ad')) {
@@ -6218,6 +6220,17 @@
         bootLevels = true;
         try {
           q.delete('levels');
+          const next = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
+          history.replaceState(null, '', next);
+        } catch (_) { /* ignore */ }
+      }
+      const shopParam = q.get('shop');
+      // Accept ?shop=1 / ?shop=true (PWA shortcut); ignore ?shop=0/false
+      // PWA-SHOP-SHORTCUT
+      if (shopParam === '1' || shopParam === 'true') {
+        bootShop = true;
+        try {
+          q.delete('shop');
           const next = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
           history.replaceState(null, '', next);
         } catch (_) { /* ignore */ }
@@ -6563,6 +6576,7 @@
     // PWA-DAILY-SHORTCUT: after chrome ready, honor ?daily=1 (stripped above) once
     // PWA-CONTINUE-SHORTCUT: else honor ?continue=1 → startGame() (resume mid-run or frontier)
     // PWA-LEVELS-SHORTCUT: else honor ?levels=1 → openLevels() (★ mastery revisit)
+    // PWA-SHOP-SHORTCUT: else honor ?shop=1 → openShop() (coins / hints / themes)
     if (bootDaily) {
       setTimeout(function () {
         try { startDailyChallenge(); } catch (_) { /* ignore */ }
@@ -6574,6 +6588,10 @@
     } else if (bootLevels) {
       setTimeout(function () {
         try { openLevels(); } catch (_) { /* ignore */ }
+      }, 0);
+    } else if (bootShop) {
+      setTimeout(function () {
+        try { openShop(); } catch (_) { /* ignore */ }
       }, 0);
     }
   }
