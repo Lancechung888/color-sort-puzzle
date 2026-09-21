@@ -146,6 +146,7 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**NATIVE-VC6-LOCAL-AAB-SYNC**已上 — 本機已建 signed `ColorTubeSort-internal-20260921-1826-prodAdMob-vc6-iapBusy-release.aab`（+ latest + `play-upload/ColorTubeSort-vc6-iapBusy.aab`）**尚未上傳** Play；Active 仍 `1.0.4-internal-vc5-uncap1tap`／vc5；tip＋腳本＝vc6／1.0.5＋IAP-PURCHASE-BUSY；docs／accept 誠實同步；**#7 仍 Fail**；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 （已補）**ANDROID-VERSION-CODE-6**已上 — `scripts/patch-android-version.sh` 預設 **versionCode 6**／`versionName 1.0.5`；`package.json` **1.0.5**；README §2ak；accept `ANDROID-VERSION-CODE-6`／`NATIVE-PACK-READY-SYNC`（Active Play 仍 vc5／1.0.4；腳本就緒下次含 IAP-PURCHASE-BUSY）；**#7 仍 Fail**；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
 （已補）**NATIVE-VC5-INTERNAL-SYNC**／**PLAY-PASTE-VC5-SYNC**已上 — Play **internal testing** 現況對齊為 `1.0.4-internal-vc5-uncap1tap`／versionCode **5**／versionName **1.0.4**／Billing≥8／prod AdMob／**UNCAP-ONE-TAP**；歷史 vc4／`1.0.2-internal-vc3-prodAdMob`／vc2-testids 標 superseded；Active vc5 AAB **不含** IAP-PURCHASE-BUSY（tip main／#237；下次上傳需新 versionCode）；accept 兩項；**#7 仍 Fail**（缺實機三綠燈）；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**

@@ -4,8 +4,8 @@
 > Play developer account: **APPROVED** (2026-09-21 Asia/Taipei).  
 > **Current** internal testing: `1.0.4-internal-vc5-uncap1tap` / versionCode **5** / versionName **1.0.4** / Billing≥8 / prod AdMob (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP**. Historical: vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded); vc2-testids superseded.  
 > **Do not** claim live / #7 Pass until device three green lights (interstitial, rewarded full-watch, `remove_ads` purchase+restore). **#7 still Fail**. Production untouched.  
-> Active vc5 AAB does **not** include **IAP-PURCHASE-BUSY** (tip main / #237; next upload = versionCode ≥6 / script default ANDROID-VERSION-CODE-6 (Active remains vc5 until upload)).  
-> Marker: **PLAY-PASTE-VC5-SYNC** (paste honesty after **NATIVE-VC5-INTERNAL-SYNC**; historical **PLAY-PASTE-VC3-SYNC** / **NATIVE-VC3-INTERNAL-SYNC**).
+> Active vc5 AAB does **not** include **IAP-PURCHASE-BUSY** (tip main / #237; **local vc6-iapBusy AAB built ~18:26, NOT uploaded** — `…-1826-prodAdMob-vc6-iapBusy-release.aab` / `play-upload/ColorTubeSort-vc6-iapBusy.aab`; suggested release `1.0.5-internal-vc6-iapBusy`; Active remains vc5 until Console upload; **NATIVE-VC6-LOCAL-AAB-SYNC**).  
+> Marker: **PLAY-PASTE-VC5-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC** (paste honesty after **NATIVE-VC5-INTERNAL-SYNC**; historical **PLAY-PASTE-VC3-SYNC** / **NATIVE-VC3-INTERNAL-SYNC**).
 
 Source of truth: `STORE.md` · `docs/PRIVACY_README.md` · `docs/PLAY_POST_APPROVAL_CHECKLIST.md` · `docs/ADMOB_POST_LINK_CHECKLIST.md`
 

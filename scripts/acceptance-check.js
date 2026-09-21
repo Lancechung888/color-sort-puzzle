@@ -6972,6 +6972,63 @@ block(
 }
 
 
+
+// --- NATIVE-VC6-LOCAL-AAB-SYNC: local vc6-iapBusy AAB built, NOT uploaded; Active still vc5; #7 Fail ---
+{
+  const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
+  const na = read('docs/NATIVE_ACCEPTANCE.md') || '';
+  const paste = read('docs/PLAY_CONSOLE_PASTE.md') || '';
+  const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
+  const markerOk =
+    /NATIVE-VC6-LOCAL-AAB-SYNC/.test(packRaw) &&
+    /NATIVE-VC6-LOCAL-AAB-SYNC/.test(na) &&
+    /NATIVE-VC6-LOCAL-AAB-SYNC/.test(paste) &&
+    /NATIVE-VC6-LOCAL-AAB-SYNC/.test(pastePack);
+  const localAabOk =
+    /1826-prodAdMob-vc6-iapBusy/.test(packRaw) &&
+    (/ColorTubeSort-vc6-iapBusy\.aab/.test(packRaw) || /play-upload\/ColorTubeSort-vc6-iapBusy/.test(packRaw)) &&
+    (/NOT uploaded/i.test(packRaw) || /not uploaded/i.test(packRaw) || /尚未上傳/.test(packRaw));
+  const activeStillVc5 =
+    /1\.0\.4-internal-vc5-uncap1tap/.test(packRaw) &&
+    (/Active.*vc5/i.test(packRaw) || /Active track remains vc5/i.test(packRaw) || /Active Play.*vc5/i.test(packRaw));
+  const noClaimActiveVc6 =
+    !/Play Active[`*\s]+1\.0\.5-internal-vc6/i.test(packRaw) &&
+    !/\*\*UPLOADED current\*\*[^*\n]*versionCode\s*\*?\*?6/i.test(packRaw) &&
+    !/current internal = `?1\.0\.5-internal-vc6/i.test(packRaw) &&
+    !/(?<![Nn]ot claim )Active (track |Play )?(is |= |AAB is ).{0,40}vc6/i.test(packRaw) &&
+    !/(?<![Nn]ot claim )Play Active = vc6/i.test(packRaw);
+  const busyHonesty =
+    /IAP-PURCHASE-BUSY/.test(packRaw) &&
+    (/does \*\*not\*\* include/.test(packRaw) || /does not include/i.test(packRaw) || /不含/.test(packRaw));
+  const fail7Ok =
+    /#7/.test(packRaw) && (/still Fail/i.test(packRaw) || /remains Fail/i.test(packRaw));
+  const naOk =
+    /1826-prodAdMob-vc6-iapBusy/.test(na) &&
+    (/尚未上傳/.test(na) || /NOT uploaded/i.test(na));
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(packRaw + na + paste + pastePack);
+  if (
+    markerOk &&
+    localAabOk &&
+    activeStillVc5 &&
+    noClaimActiveVc6 &&
+    busyHonesty &&
+    fail7Ok &&
+    naOk &&
+    noSoft
+  ) {
+    pass(
+      'NATIVE-VC6-LOCAL-AAB-SYNC',
+      'docs: local vc6-iapBusy AAB built (~1826 path) NOT uploaded; Active still vc5-uncap1tap; IAP-PURCHASE-BUSY not in Active; #7 still Fail; no soft-arm'
+    );
+  } else {
+    fail(
+      'NATIVE-VC6-LOCAL-AAB-SYNC',
+      `missing vc6 local AAB honesty (markerOk=${markerOk} localAabOk=${localAabOk} activeStillVc5=${activeStillVc5} noClaimActiveVc6=${noClaimActiveVc6} busyHonesty=${busyHonesty} fail7Ok=${fail7Ok} naOk=${naOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- NATIVE-ACCEPTANCE-VC5-SYNC: NATIVE_ACCEPTANCE honesty vs vc5/prod AdMob; #7 Fail ---
 {
   const na = read('docs/NATIVE_ACCEPTANCE.md') || '';
@@ -6988,7 +7045,12 @@ block(
     !/AdMob／Billing 測 ID：\*\*接線打勾已過關\*\*/.test(na);
   const openOk =
     (/三綠燈/.test(na) || /three green/i.test(na)) &&
-    (/IAP-PURCHASE-BUSY/.test(na) && (/versionCode\s*>\s*5/.test(na) || /versionCode \*\*>5\*\*/.test(na) || />5/.test(na)));
+    (/IAP-PURCHASE-BUSY/.test(na) &&
+      (/versionCode\s*>\s*5/.test(na) ||
+        /versionCode \*\*>5\*\*/.test(na) ||
+        />5/.test(na) ||
+        (/1826-prodAdMob-vc6-iapBusy/.test(na) &&
+          (/尚未上傳/.test(na) || /NOT uploaded/i.test(na)))));
   const fail7Ok = /#7/.test(na) && (/仍 Fail/.test(na) || /still Fail/i.test(na));
   const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(na);
   if (markerOk && currentOk && prodOk && noStaleTestStage && openOk && fail7Ok && noSoft) {
