@@ -167,6 +167,8 @@
   let storageEstimateWarned = false;
   /** OFFLINE-TOAST: web/PWA saw offline this session (skip Back-online on first load). */
   let networkWasOffline = false;
+  /** CRASH-GUARD: once-per-session unexpected error / unhandledrejection flush + toast. */
+  let crashGuardFired = false;
   /** Fail-sheet primary hint CTA soft-arm cue timer (once per open). */
   let failHintArmTimer = 0;
   /** CAP-TEACH-ARM: once-per-load soft lid nudge cue timer on teach:cap. */
@@ -6410,6 +6412,49 @@
     });
   }
 
+  // CRASH-GUARD — once-per-session unexpected error / unhandledrejection: flush progress + toast
+  function bindCrashGuard() {
+    try {
+      function onClientCrash(source, errLike) {
+        try {
+          if (crashGuardFired) return;
+          crashGuardFired = true;
+          try {
+            if (typeof persist === 'function') persist();
+          } catch (_) { /* ignore */ }
+          try {
+            const draft = activeOrStoredProgressDraft();
+            if (draft && draftHasProgress(draft) && isRunActive()) persistRunDraft();
+          } catch (_) { /* ignore */ }
+          try {
+            toast('Something went wrong — progress was saved', 4200);
+          } catch (_) { /* ignore */ }
+          try {
+            let message = '';
+            if (source === 'error') {
+              message =
+                (errLike && (errLike.message || (errLike.error && errLike.error.message))) ||
+                String(errLike || 'error');
+            } else {
+              const reason = errLike && errLike.reason;
+              if (reason == null) message = 'unhandledrejection';
+              else if (typeof reason === 'string') message = reason;
+              else message = (reason && reason.message) || String(reason);
+            }
+            message = String(message || source).slice(0, 160);
+            trackEvent('client_error', { message: message, source: source });
+          } catch (_) { /* ignore */ }
+        } catch (_) { /* swallow handler errors */ }
+      }
+      window.addEventListener('error', function (event) {
+        onClientCrash('error', event);
+      });
+      window.addEventListener('unhandledrejection', function (event) {
+        onClientCrash('unhandledrejection', event);
+      });
+    } catch (_) { /* ignore */ }
+  }
+
   // OFFLINE-TOAST — web/PWA network status toasts (skip native; pairs with sw.js + SAVE-BACKUP)
   function bindOfflineStatus() {
     try {
@@ -6502,6 +6547,8 @@
     applyReducedMotionClass();
     // PWA-INSTALL
     bindPwaInstall();
+    // CRASH-GUARD
+    bindCrashGuard();
     // OFFLINE-TOAST
     bindOfflineStatus();
     refreshHud();

@@ -4834,6 +4834,54 @@ block(
   }
 }
 
+// --- CRASH-GUARD: once-per-session error/unhandledrejection flush + toast; sync www/play; no soft-arm ---
+{
+  const gameJs = read('assets/js/game.js') || '';
+  const playGamePath = path.join(root, 'docs/play/assets/js/game.js');
+  const wwwGamePath = path.join(root, 'www/assets/js/game.js');
+  const playGame = fs.existsSync(playGamePath) ? fs.readFileSync(playGamePath, 'utf8') : '';
+  const wwwGame = fs.existsSync(wwwGamePath) ? fs.readFileSync(wwwGamePath, 'utf8') : '';
+
+  const helperOk =
+    /function bindCrashGuard\s*\(/.test(gameJs) &&
+    /CRASH-GUARD/.test(gameJs) &&
+    /addEventListener\(\s*['"]error['"]/.test(gameJs) &&
+    /unhandledrejection/.test(gameJs) &&
+    /Something went wrong — progress was saved/.test(gameJs) &&
+    /trackEvent\(\s*['"]client_error['"]/.test(gameJs) &&
+    /crashGuardFired/.test(gameJs);
+
+  const initOk = /bindCrashGuard\s*\(\s*\)/.test(gameJs);
+
+  const playOk =
+    !fs.existsSync(playGamePath) ||
+    (/function bindCrashGuard\s*\(/.test(playGame) &&
+      /Something went wrong — progress was saved/.test(playGame) &&
+      /CRASH-GUARD/.test(playGame));
+  const wwwOk =
+    !fs.existsSync(wwwGamePath) ||
+    (/function bindCrashGuard\s*\(/.test(wwwGame) &&
+      /Something went wrong — progress was saved/.test(wwwGame) &&
+      /CRASH-GUARD/.test(wwwGame));
+
+  const helperSlice = (gameJs.match(/function bindCrashGuard[\s\S]{0,2200}/) || [''])[0];
+  const noSoft =
+    !!helperSlice &&
+    !/soft-arm|claim-juice|hud-pulse|crash-guard-arm/.test(helperSlice);
+
+  if (helperOk && initOk && playOk && wwwOk && noSoft) {
+    pass(
+      'CRASH-GUARD',
+      'bindCrashGuard + error/unhandledrejection flush persist/draft + toast + client_error; sync www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'CRASH-GUARD',
+      `missing crash guard helper/init/sync (helper=${helperOk} init=${initOk} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- CAP-TEACH-ARM: tip dismiss does not set capTeachDone; uncap does; load soft-arm ---
 {
   const gameSrc = read('assets/js/game.js') || '';

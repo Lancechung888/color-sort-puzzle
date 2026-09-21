@@ -28,6 +28,7 @@ Boot events (auto on script load):
 | `daily_start` | `startDailyChallenge` / daily `loadLevel` | `mode: "daily"`, `daily_key` (YYYY-MM-DD), `level_id` (source board index if known) | |
 | `daily_clear` | `showWin` in daily mode | `mode: "daily"`, `daily_key`, `stars`, `moves` | |
 | `board_stuck` | True deadlock toast (`maybeNotifyStuck`) | `level_id`, `mode`, `moves`, `undos_used`, `can_undo` | No legal pour + no lids; once per stuck state; not a soft-arm |
+| `client_error` | Unexpected `window` `error` / `unhandledrejection` (`bindCrashGuard`) | `message` (truncated), `source` (`error` \| `unhandledrejection`) | Once per session; flushes persist + mid-run draft; not a soft-arm |
 | `restart_confirm_arm` | Mid-level Restart first tap (confirm arm) | `level_id`, `mode`, `moves` | Toast-only; second tap proceeds; not a soft-arm |
 
 ## Meta / retention

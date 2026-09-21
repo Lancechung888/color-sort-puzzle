@@ -185,6 +185,8 @@
 
 （已補）**OFFLINE-TOAST**已上 — web／PWA `bindOfflineStatus`：`offline` → toast「Offline — progress saved on this device」；曾 offline 後 `online` →「Back online」；boot `navigator.onLine===false` 延遲～900ms（避 SAVE-RECOVER 700ms）；`isCapacitorNativePlatform` 全跳過；swallow errors；`sync-www` → www／docs/play；accept `OFFLINE-TOAST`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**CRASH-GUARD**已上 — `bindCrashGuard`：`error`／`unhandledrejection` 一次／session flush persist＋mid-run draft；toast「Something went wrong — progress was saved」；`trackEvent('client_error')`；swallow errors；`sync-www` → www／docs/play；accept `CRASH-GUARD`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 
 | ID | 檢查項 | 狀態 | 重現／備註 |
 |----|--------|------|------------|
