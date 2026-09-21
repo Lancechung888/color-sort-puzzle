@@ -4074,6 +4074,50 @@ block(
   }
 }
 
+// --- SELF-HOST-FONTS: local Noto Sans woff2; no Google Fonts CDN; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const cssRawLocal = read('assets/css/style.css') || '';
+  const swPath = path.join(root, 'sw.js');
+  const swRaw = fs.existsSync(swPath) ? fs.readFileSync(swPath, 'utf8') : '';
+  const noCdn =
+    !/fonts\.googleapis\.com/.test(htmlRaw) &&
+    !/fonts\.gstatic\.com/.test(htmlRaw);
+  const faceOk =
+    /@font-face/.test(cssRawLocal) &&
+    /font-family:\s*["']Noto Sans["']/.test(cssRawLocal) &&
+    /noto-sans-latin-400-normal\.woff2/.test(cssRawLocal) &&
+    /noto-sans-latin-700-normal\.woff2/.test(cssRawLocal) &&
+    /noto-sans-latin-900-normal\.woff2/.test(cssRawLocal) &&
+    /font-display:\s*swap/.test(cssRawLocal);
+  const fontsDir = path.join(root, 'assets/fonts');
+  const filesOk =
+    fs.existsSync(path.join(fontsDir, 'noto-sans-latin-400-normal.woff2')) &&
+    fs.existsSync(path.join(fontsDir, 'noto-sans-latin-500-normal.woff2')) &&
+    fs.existsSync(path.join(fontsDir, 'noto-sans-latin-600-normal.woff2')) &&
+    fs.existsSync(path.join(fontsDir, 'noto-sans-latin-700-normal.woff2')) &&
+    fs.existsSync(path.join(fontsDir, 'noto-sans-latin-800-normal.woff2')) &&
+    fs.existsSync(path.join(fontsDir, 'noto-sans-latin-900-normal.woff2'));
+  const precacheFonts =
+    /colortube-offline-v3/.test(swRaw) &&
+    /assets\/fonts\/noto-sans-latin-400-normal\.woff2/.test(swRaw) &&
+    /assets\/fonts\/noto-sans-latin-900-normal\.woff2/.test(swRaw);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse|font-arm/.test(
+    cssRawLocal.slice(0, 2500) + htmlRaw.slice(0, 1200)
+  );
+  if (noCdn && faceOk && filesOk && precacheFonts && noSoft) {
+    pass(
+      'SELF-HOST-FONTS',
+      'local Noto Sans latin woff2 @font-face; index has no Google Fonts CDN; sw v3 precaches fonts; no soft-arm'
+    );
+  } else {
+    fail(
+      'SELF-HOST-FONTS',
+      `missing self-host fonts (noCdn=${noCdn} face=${faceOk} files=${filesOk} precache=${precacheFonts} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
@@ -4083,7 +4127,7 @@ block(
     ? fs.readFileSync(path.join(root, 'scripts/sync-www.sh'), 'utf8')
     : '';
   const swExists = fs.existsSync(swPath);
-  const cacheNameOk = /colortube-offline-v2/.test(swRaw);
+  const cacheNameOk = /colortube-offline-v3/.test(swRaw);
   const precacheOk =
     /game\.js/.test(swRaw) &&
     /style\.css/.test(swRaw) &&
@@ -4100,7 +4144,7 @@ block(
   if (swExists && cacheNameOk && precacheOk && registerOk && syncOk && noSoft) {
     pass(
       'PWA-OFFLINE',
-      'sw.js colortube-offline-v2 precache (game.js/style) + index serviceWorker.register + sync-www copies sw.js; no soft-arm'
+      'sw.js colortube-offline-v3 precache (game.js/style/fonts) + index serviceWorker.register + sync-www copies sw.js; no soft-arm'
     );
   } else {
     fail(
@@ -4116,7 +4160,7 @@ block(
   const swRaw = fs.existsSync(swPath) ? fs.readFileSync(swPath, 'utf8') : '';
   const htmlRaw = read('index.html') || '';
   const regSnippet = (htmlRaw.match(/serviceWorker[\s\S]{0,1600}/) || [''])[0];
-  const cacheV2 = /colortube-offline-v2/.test(swRaw);
+  const cacheV2 = /colortube-offline-v3/.test(swRaw);
   // SWR: on cache hit still background fetch + cache.put (not pure cache-first)
   const swrOk =
     /isSameOriginAsset/.test(swRaw) &&
@@ -4135,12 +4179,12 @@ block(
   if (cacheV2 && swrOk && updateUxOk && noSoft) {
     pass(
       'PWA-UPDATE',
-      'sw.js v2 stale-while-revalidate assets + SKIP_WAITING; index updatefound/controllerchange toast Update ready; no soft-arm'
+      'sw.js v3 stale-while-revalidate assets + SKIP_WAITING; index updatefound/controllerchange toast Update ready; no soft-arm'
     );
   } else {
     fail(
       'PWA-UPDATE',
-      `missing v2/SWR/update UX or soft-arm (v2=${cacheV2} swr=${swrOk} ux=${updateUxOk} noSoft=${noSoft})`
+      `missing v3/SWR/update UX or soft-arm (v3=${cacheV2} swr=${swrOk} ux=${updateUxOk} noSoft=${noSoft})`
     );
   }
 }
