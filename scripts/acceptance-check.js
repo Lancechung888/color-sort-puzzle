@@ -349,11 +349,11 @@ if (gameRaw) {
     /\.chip:focus-visible/.test(cssRaw) &&
     /\.btn-icon:focus-visible/.test(cssRaw) &&
     /visibilitychange/.test(gameRaw) &&
-    /clearPendingUncap/.test(gameRaw)
+    /persistRunDraft/.test(gameRaw)
   ) {
-    pass('A11Y-HUD', 'toolbar/chip aria-labels + focus-visible; uncap arm clears on hide');
+    pass('A11Y-HUD', 'toolbar/chip aria-labels + focus-visible; hide flushes run draft');
   } else {
-    fail('A11Y-HUD', 'missing HUD aria-labels, focus-visible rings, and/or visibilitychange uncap clear');
+    fail('A11Y-HUD', 'missing HUD aria-labels, focus-visible rings, and/or visibilitychange draft flush');
   }
 
   // Color assist (CVD patterns/glyphs) — Settings toggle + persist + layer marks
@@ -4200,7 +4200,6 @@ block(
     /function bindAppState\s*\(/.test(gameRaw) &&
     /App\.addListener\s*\(\s*['"]appStateChange['"]/.test(gameRaw) &&
     /bindAppState\s*\(\)/.test(gameRaw) &&
-    /clearPendingUncap/.test(binder) &&
     /persistRunDraft/.test(binder) &&
     (/requestScreenWakeLock/.test(binder) || /syncNativeKeepScreenOn/.test(binder));
   const noSoft =
@@ -4208,7 +4207,7 @@ block(
   if (depOk && gameOk && noSoft) {
     pass(
       'CAP-APP-STATE',
-      '@capacitor/app ^6 + bindAppState App.addListener(appStateChange) flush draft/clearPendingUncap/wake sync; no soft-arm'
+      '@capacitor/app ^6 + bindAppState App.addListener(appStateChange) flush draft/wake sync; no soft-arm'
     );
   } else {
     fail(
@@ -5426,7 +5425,6 @@ block(
     /event\.persisted|persisted/.test(gameJs) &&
     /addEventListener\(\s*['"]freeze['"]/.test(gameJs) &&
     /addEventListener\(\s*['"]resume['"]/.test(gameJs) &&
-    /clearPendingUncap\s*\(/.test(gameJs) &&
     /persistRunDraft\s*\(/.test(gameJs) &&
     /syncScreenWakeLock\s*\(/.test(gameJs);
 
@@ -5498,6 +5496,46 @@ block(
     );
   }
 }
+
+// --- UNCAP-ONE-TAP: single tap opens lid; holding+capped dest clears selection + uncaps; no double-tap arm ---
+{
+  const gameSrc = read('assets/js/game.js') || '';
+  const selectSlice = (gameSrc.match(/function selectTube\s*\([\s\S]{0,900}/) || [''])[0];
+  const oneTapOk =
+    /UNCAP-ONE-TAP/.test(gameSrc) &&
+    /isCapped\s*\(\s*idx\s*\)/.test(selectSlice) &&
+    /uncapTube\s*\(\s*idx\s*\)/.test(selectSlice) &&
+    !/pendingUncapIdx/.test(gameSrc) &&
+    !/armPendingUncap/.test(gameSrc) &&
+    !/clearPendingUncap/.test(gameSrc) &&
+    !/PENDING_UNCAP_MS/.test(gameSrc) &&
+    !/Tap again to uncap/.test(gameSrc) &&
+    !/[Dd]ouble-tap/.test(gameSrc);
+  const copyOk =
+    (/Tap<\/strong> the gold lid/.test(gameSrc) || /<strong>Tap<\/strong> the gold lid/.test(gameSrc)) &&
+    /tap the lid/.test(gameSrc) &&
+    !/[Dd]ouble-tap/.test(gameSrc);
+  const holdOk =
+    /selected\s*=\s*-1/.test(selectSlice) &&
+    /uncapTube\s*\(\s*idx\s*\)/.test(selectSlice);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse|cap-pending/.test(selectSlice);
+  const accMd = read('ACCEPTANCE.md') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const noteOk = /UNCAP-ONE-TAP/.test(accMd) && /UNCAP-ONE-TAP/.test(barRaw);
+  if (oneTapOk && copyOk && holdOk && noSoft && noteOk) {
+    pass(
+      'UNCAP-ONE-TAP',
+      'selectTube one-tap uncapTube; holding+capped clears selection+uncaps; no pendingUncap/double-tap copy; ACCEPTANCE+BAR notes; no soft-arm'
+    );
+  } else {
+    fail(
+      'UNCAP-ONE-TAP',
+      `missing one-tap uncap (oneTap=${oneTapOk} copy=${copyOk} hold=${holdOk} noSoft=${noSoft} note=${noteOk})`
+    );
+  }
+}
+
 
 // --- PWA-INSTALL: beforeinstallprompt Install CTA + manifest id; sync docs/play; no soft-arm ---
 {

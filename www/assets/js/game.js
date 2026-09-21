@@ -89,11 +89,7 @@
   let tubes = [];
   let caps = []; // parallel to tubes; true = lid on
   let selected = -1;
-  /** Two-tap uncap: first tap arms, second within window confirms (free move). */
-  let pendingUncapIdx = -1;
-  let pendingUncapUntil = 0;
-  let pendingUncapTimer = 0;
-  const PENDING_UNCAP_MS = 2000;
+  /** UNCAP-ONE-TAP: lids open on first tap (no pending arm). */
   /** Two-tap Restart confirm when board has progress (toast only — no soft-arm CSS). */
   let pendingRestartUntil = 0;
   let pendingRestartTimer = 0;
@@ -1131,17 +1127,14 @@
     }, ms || 1800);
   }
 
-  // Drop armed uncap when the tab/app hides — stale double-tap invites mis-taps on return.
-  // Also flush mid-level run draft so kill/background can resume the board.
+  // Flush mid-level run draft so kill/background can resume the board.
   function flushRunDraftOnHide() {
     if (document.hidden || document.visibilityState === 'hidden') {
-      clearPendingUncap();
       if (isRunActive()) persistRunDraft();
     }
   }
   document.addEventListener('visibilitychange', flushRunDraftOnHide);
   window.addEventListener('pagehide', function () {
-    clearPendingUncap();
     if (isRunActive()) persistRunDraft();
   });
 
@@ -1408,7 +1401,6 @@
     history = cloneHistory(draft.history);
     infiniteUndoLevel = !!draft.infiniteUndoLevel;
     selected = -1;
-    clearPendingUncap();
     clearPendingRestart();
     clearPendingLeave();
     clearPendingSpend();
@@ -1497,7 +1489,6 @@
     tubes = cloneTubes(def.tubes);
     caps = hydrateCaps(def, tubes.length);
     selected = -1;
-    clearPendingUncap();
     clearPendingRestart();
     clearPendingLeave();
     clearPendingSpend();
@@ -1927,13 +1918,6 @@
   }
 
   // --- Actions ---
-  function clearPendingUncap() {
-    pendingUncapIdx = -1;
-    pendingUncapUntil = 0;
-    clearTimeout(pendingUncapTimer);
-    pendingUncapTimer = 0;
-  }
-
   function clearPendingRestart() {
     pendingRestartUntil = 0;
     clearTimeout(pendingRestartTimer);
@@ -2078,7 +2062,6 @@
     applyReducedMotionClass();
     syncScreenWakeLock();
 
-    clearPendingUncap();
     clearPendingRestart();
     clearPendingLeave();
     clearPendingSpend();
@@ -2265,7 +2248,6 @@
       clearRunDraft();
     }
 
-    clearPendingUncap();
     clearPendingRestart();
     clearPendingLeave();
     clearPendingSpend();
@@ -2447,55 +2429,17 @@
     proceedFn();
   }
 
-  function armPendingUncap(idx) {
-    pendingUncapIdx = idx;
-    pendingUncapUntil = Date.now() + PENDING_UNCAP_MS;
-    clearTimeout(pendingUncapTimer);
-    pendingUncapTimer = setTimeout(() => {
-      if (pendingUncapIdx === idx) {
-        clearPendingUncap();
-        render();
-      }
-    }, PENDING_UNCAP_MS + 30);
-  }
-
   function selectTube(idx) {
     if (pouring) return;
     clearPendingLeave();
 
-    // Cap module: destination while holding liquid → never uncap; two-tap self to uncap.
+    // UNCAP-ONE-TAP: capped tube opens on this tap (never pour into a lid).
+    // Holding liquid + capped dest: drop selection and open lid in one gesture.
     if (isCapped(idx)) {
-      if (selected >= 0 && selected !== idx) {
-        // Holding liquid: capped destination is locked (signature: capped = can't pour)
-        clearPendingUncap();
-        shakeTube(idx);
-        toast("Capped — can't pour");
-        return;
-      }
-      const now = Date.now();
-      if (pendingUncapIdx === idx && now <= pendingUncapUntil) {
-        clearPendingUncap();
-        uncapTube(idx);
-        return;
-      }
-      // First tap: arm + lid pulse + tip; do not uncap yet
       selected = -1;
-      armPendingUncap(idx);
-      if (!save.uncapArmTipDone) {
-        // Strengthen first-time teach only — later taps stay short (no spam)
-        toast('Double-tap the lid to open it — free move (doesn\'t cost a pour)');
-        save.uncapArmTipDone = true;
-        persist();
-      } else {
-        toast('Tap again to uncap (free move)');
-      }
-      render();
-      // Soft invite only — never illegal SFX/haptic (that reserved for blocked pours)
-      pulseLidArm(idx);
+      uncapTube(idx);
       return;
     }
-
-    clearPendingUncap();
 
     if (selected === idx) {
       selected = -1;
@@ -2703,7 +2647,6 @@
     caps = prev.caps ? cloneCaps(prev.caps) : hydrateCaps({}, tubes.length);
     moves = prev.moves;
     selected = -1;
-    clearPendingUncap();
     if (!infiniteUndoLevel) undosUsed++;
     persistRunDraft();
     updateChrome();
@@ -2837,7 +2780,7 @@
       }
       haptic('hint');
       playSfx('tap', 0.35);
-      toast('Hint: double-tap to uncap (free move)');
+      toast('Hint: tap the lid to uncap (free move)');
       return true;
     }
     selected = move.from;
@@ -3303,8 +3246,7 @@
         (pourTarget ? ' pour-target' : '') +
         (complete ? ' complete' : '') +
         (nearComplete ? ' near-complete' : '') +
-        (capped ? ' capped' : '') +
-        (capped && pendingUncapIdx === idx && Date.now() <= pendingUncapUntil ? ' cap-pending' : '');
+        (capped ? ' capped' : '');
       el.style.width = tubeW + 'px';
       el.dataset.index = idx;
       el.setAttribute('role', 'button');
@@ -3445,22 +3387,6 @@
       .map((i) => `<span class="${i <= s ? '' : 'empty'}">★</span>`)
       .join('');
     el.title = `Best ${s}★ · Now on track for ${nowTrack}★`;
-  }
-
-  /**
-   * First tap on a capped tube: soft lid nudge + tap — teaches double-tap uncap.
-   * Must NOT use shakeTube (illegal blocked SFX/ERROR haptic).
-   */
-  function pulseLidArm(idx) {
-    const el = tubesWrap.children[idx];
-    if (el) {
-      el.classList.remove('lid-arm-nudge');
-      void el.offsetWidth;
-      el.classList.add('lid-arm-nudge');
-      setTimeout(() => el.classList.remove('lid-arm-nudge'), 420);
-    }
-    SFX.tap();
-    haptic('arm');
   }
 
   function shakeTube(idx) {
@@ -4407,13 +4333,12 @@
    * Return to start screen without wiping meta save OR mid-level run draft.
    * Home acts as pause: flush draft so Continue / Play Level N / Daily can resume
    * via tryResumeOrLoad. Restart / win / cold load still clearRunDraft.
-   * Clears mid-play selection / pending uncap; refreshes start CTAs + HUD.
+   * Clears mid-play selection; refreshes start CTAs + HUD.
    */
   function goHome() {
     if (pouring) return;
     // Flush before showing start screen (isRunActive() becomes false once shown).
     if (isRunActive()) persistRunDraft();
-    clearPendingUncap();
     clearPendingRestart();
     clearPendingLeave();
     clearPendingReset();
@@ -4470,9 +4395,8 @@
     // Playing board (not start)
     if (startScreen && !startScreen.classList.contains('show')) {
       if (pouring) return true;
-      if (selected >= 0 || pendingUncapIdx >= 0) {
+      if (selected >= 0) {
         selected = -1;
-        clearPendingUncap();
         render();
         return true;
       }
@@ -4515,7 +4439,7 @@
   /**
    * CAP-APP-STATE: native background/foreground via Capacitor App.appStateChange.
    * visibilitychange alone is flaky on some Android WebViews — flush mid-run draft,
-   * clear pending uncap, and re-sync wake lock / native keep-screen-on on resume.
+   * and re-sync wake lock / native keep-screen-on on resume.
    * Same App plugin resolution as bindSystemBack.
    */
   function bindAppState() {
@@ -4526,7 +4450,6 @@
       if (!App || typeof App.addListener !== 'function') return;
       App.addListener('appStateChange', function (state) {
         if (!state || !state.isActive) {
-          clearPendingUncap();
           if (isRunActive()) persistRunDraft();
           try { persist(); } catch (_) { /* ignore */ }
           releaseScreenWakeLock();
@@ -5963,7 +5886,7 @@
     if (tipP) {
       tipP.innerHTML =
         '🧢 <strong>Gold lids block pours.</strong><br />' +
-        '<strong>Double-tap</strong> the gold lid to uncap (free — doesn\'t use a move).';
+        '<strong>Tap</strong> the gold lid to uncap (free — doesn\'t use a move).';
     }
     activeTipKind = 'cap';
     onboardingTip.hidden = false;
@@ -6028,7 +5951,7 @@
       tipP.innerHTML =
         '👆 Tap a colored tube to lift, then tap another to pour.<br />' +
         'Goal: every tube is one solid color (or empty).<br />' +
-        '🧢 Gold lids block pours — <strong>double-tap</strong> to uncap (free — doesn\'t use a move).';
+        '🧢 Gold lids block pours — <strong>tap the lid</strong> to uncap (free — doesn\'t use a move).';
     }
     activeTipKind = 'howto';
     onboardingTip.hidden = false;
@@ -6590,7 +6513,6 @@
         try {
           if (!event || !event.persisted) return;
           // PAGE-LIFECYCLE: bfcache restore
-          clearPendingUncap();
           if (isRunActive()) persistRunDraft();
           syncScreenWakeLock();
           try {
@@ -6618,7 +6540,6 @@
       document.addEventListener('freeze', function () {
         try {
           // PAGE-LIFECYCLE: same spirit as hide
-          clearPendingUncap();
           if (isRunActive()) persistRunDraft();
         } catch (_) { /* ignore */ }
       });
@@ -6626,7 +6547,7 @@
     try {
       document.addEventListener('resume', function () {
         try {
-          // PAGE-LIFECYCLE: match visibility show — wake + audio; no clearPendingUncap
+          // PAGE-LIFECYCLE: match visibility show — wake + audio
           syncScreenWakeLock();
           try {
             if (typeof resumeAudio === 'function') resumeAudio();
@@ -6885,16 +6806,12 @@
           goHome();
           return;
         }
-        // Playing: Escape clears selection / pending uncap (does not dismiss start)
-        if (
-          selected >= 0 ||
-          pendingUncapIdx >= 0
-        ) {
+        // Playing: Escape clears selection (does not dismiss start)
+        if (selected >= 0) {
           if (pouring) return;
           if (startScreen && startScreen.classList.contains('show')) return;
           e.preventDefault();
           selected = -1;
-          clearPendingUncap();
           render();
         }
         return;
@@ -7028,7 +6945,7 @@
 
     // Hardware / browser back: dismiss overlays → pause Home (draft kept); start allows exit
     bindSystemBack();
-    // Native appStateChange: flush draft + clear pending uncap on background; wake sync on resume
+    // Native appStateChange: flush draft on background; wake sync on resume
     bindAppState();
 
     window.addEventListener('resize', () => {
