@@ -200,6 +200,8 @@
 
 （已補）**PWA-CHROME-META**已上 — 可玩端／品牌 landing `mobile-web-app-capable=yes`＋`application-name=ColorTube Sort`（Chrome／Android 安裝信號，並存 apple-mobile-web-app-*）；`og:site_name`＋`og:locale=en_US`；修正 `docs/NATIVE_PACK_READY.md` 腳本順序為 levels→game→ads／billing／analytics（SCRIPT-ORDER）；`sync-www` → www／docs/play；accept `PWA-CHROME-META`／`OG-SITE-LOCALE`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
 
+（已補）**PWA-DISPLAY-OVERRIDE**已上 — 可玩端／品牌 landing `display_override: ["standalone","minimal-ui"]`（保留 `display: "standalone"`）＋`handle_links: "preferred"`（安裝後偏好捕捉 in-scope 導航）；`sync-www` → www／docs/play；accept `PWA-DISPLAY-OVERRIDE`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 5 Pass／3 Partial／1 Fail（#7 AdMob）；#9 維持 Partial（P0②③）。**未**把 #1／#3／#7／#9 標新 Pass。**不宣稱 ship-ready。**
+
 | ID | 檢查項 | 狀態 | 重現／備註 |
 |----|--------|------|------------|
 | **P0①** | 商店假 IAP | **Pass** | 點「去除廣告」→ toast「即將開放／需商店帳號」；`removeAds` 維持 false（除非 `localStorage.colorTubeSort_devIap=1`） |

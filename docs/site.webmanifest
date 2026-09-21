@@ -6,6 +6,11 @@
   "id": "./",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "handle_links": "preferred",
   "orientation": "portrait-primary",
   "background_color": "#1a1a2e",
   "theme_color": "#1a1a2e",

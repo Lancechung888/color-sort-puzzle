@@ -5518,6 +5518,75 @@ block(
   }
 }
 
+// --- PWA-DISPLAY-OVERRIDE: display_override + handle_links preferred; sync www/play; no soft-arm ---
+{
+  const rootManifestPath = path.join(root, 'site.webmanifest');
+  const docsManifestPath = path.join(root, 'docs/site.webmanifest');
+  const playManifestPath = path.join(root, 'docs/play/site.webmanifest');
+  const wwwManifestPath = path.join(root, 'www/site.webmanifest');
+
+  function parseManifest(filePath) {
+    if (!fs.existsSync(filePath)) return null;
+    try {
+      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function overrideOk(m) {
+    const o = m && m.display_override;
+    if (!Array.isArray(o) || o.length < 2) return false;
+    return o[0] === 'standalone' && o[1] === 'minimal-ui';
+  }
+
+  function fieldsOk(m) {
+    return (
+      !!m &&
+      m.display === 'standalone' &&
+      overrideOk(m) &&
+      m.handle_links === 'preferred'
+    );
+  }
+
+  const rootM = parseManifest(rootManifestPath);
+  const docsM = parseManifest(docsManifestPath);
+  const playM = parseManifest(playManifestPath);
+  const wwwM = parseManifest(wwwManifestPath);
+
+  const rootOk = fieldsOk(rootM);
+  const docsOk = fieldsOk(docsM);
+  // sync-www copies root site.webmanifest → www/ + docs/play/
+  const playOk = !playM || fieldsOk(playM);
+  const wwwOk = !wwwM || fieldsOk(wwwM);
+
+  const rootRaw = fs.existsSync(rootManifestPath)
+    ? fs.readFileSync(rootManifestPath, 'utf8')
+    : '';
+  const docsRaw = fs.existsSync(docsManifestPath)
+    ? fs.readFileSync(docsManifestPath, 'utf8')
+    : '';
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse|display-override-arm|handle-links-arm/.test(
+      rootRaw
+    ) &&
+    !/soft-arm|claim-juice|hud-pulse|display-override-arm|handle-links-arm/.test(
+      docsRaw
+    );
+
+  if (rootOk && docsOk && playOk && wwwOk && noSoft) {
+    pass(
+      'PWA-DISPLAY-OVERRIDE',
+      'display_override [standalone,minimal-ui] + handle_links preferred + display standalone; root+docs+sync www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'PWA-DISPLAY-OVERRIDE',
+      `missing display_override/handle_links (root=${rootOk} docs=${docsOk} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- PWA-OFFLINE: service worker precache + register + sync-www; no soft-arm ---
 {
   const swPath = path.join(root, 'sw.js');
