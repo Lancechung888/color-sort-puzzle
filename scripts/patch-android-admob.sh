@@ -7,7 +7,15 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ANDROID_DIR="$ROOT/android"
 MANIFEST="$ANDROID_DIR/app/src/main/AndroidManifest.xml"
 STRINGS="$ANDROID_DIR/app/src/main/res/values/strings.xml"
+CAP_CFG="$ROOT/capacitor.config.json"
+# Prefer live App ID from capacitor.config.json (prod after Play link); fallback Google sample.
 SAMPLE_APP_ID="ca-app-pub-3940256099942544~3347511713"
+if [[ -f "$CAP_CFG" ]] && command -v node >/dev/null 2>&1; then
+  _from_cfg="$(node -e "try{const c=require(process.argv[1]);const id=c&&c.plugins&&c.plugins.AdMob&&c.plugins.AdMob.appIdAndroid; if(id) process.stdout.write(String(id))}catch(e){}" "$CAP_CFG" 2>/dev/null || true)"
+  if [[ -n "${_from_cfg:-}" ]]; then
+    SAMPLE_APP_ID="$_from_cfg"
+  fi
+fi
 
 log() { echo "[patch-android-admob] $*"; }
 log_zh() { echo "[patch-android-admob] $*"; }
@@ -36,8 +44,12 @@ STRINGS_EOF
   log "Created strings.xml with admob_app_id (Google sample)."
   log_zh "已建立 strings.xml 並寫入 admob_app_id（Google 示範 ID）。"
 elif grep -q 'name="admob_app_id"' "$STRINGS"; then
-  log "admob_app_id already present in strings.xml — ok."
-  log_zh "strings.xml 已有 admob_app_id — 略過。"
+  # Always sync value to SAMPLE_APP_ID (prod switch must overwrite Google sample).
+  tmp="$(mktemp)"
+  sed -E "s|(<string name=\"admob_app_id\">)[^<]*(</string>)|\1${SAMPLE_APP_ID}\2|" "$STRINGS" > "$tmp"
+  mv "$tmp" "$STRINGS"
+  log "Synced admob_app_id → ${SAMPLE_APP_ID}"
+  log_zh "已同步 admob_app_id → ${SAMPLE_APP_ID}"
 else
   # Insert before </resources>
   if grep -q '</resources>' "$STRINGS"; then
