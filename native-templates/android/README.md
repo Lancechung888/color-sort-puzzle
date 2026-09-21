@@ -743,6 +743,23 @@ bash scripts/patch-android-billing-8.sh
 
 `npm run aab:internal` 在 `npx cap sync` **之後**、AdMob Manifest patch **之前**自動跑（sync 會還原 `node_modules` 連結的 plugin 樹，必須每次重補）。
 
+## 2aj. Android versionCode ≥2（ANDROID-VERSION-CODE-2）
+
+Play **internal testing** rejects an AAB whose `versionCode` was already used by a prior upload. Stock Capacitor `android/app/build.gradle` ships `versionCode 1` / `versionName "1.0"`. Fresh `cap add android` or a wiped `android/` resets those defaults — bump after every sync:
+
+1. `versionCode` → **2**
+2. `versionName` → **"1.0.1"**
+
+Does **not** flip `USE_TEST_ADS` or invent real AdMob IDs. Does **not** claim #7 Pass.
+
+一鍵補丁（冪等；無 `android/` 時 exit 0）：
+
+```bash
+bash scripts/patch-android-version.sh
+```
+
+`npm run aab:internal` 在 Billing-8 patch **之後**、AdMob Manifest patch **之前**自動跑。
+
 ## 4. Launcher icon + splash (finals ICON A)
 
 Stock `npx cap add android` leaves the **default Capacitor** launcher. Brand assets live in:

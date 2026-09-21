@@ -62,10 +62,9 @@ npx cap sync
 # Play requires Billing Library ≥8.0.0; Cap6 @capgo/native-purchases pins 6.2.1 — patch node_modules + force + minSdk 23.
 bash "$ROOT/scripts/patch-android-billing-8.sh"
 # Play rejects reused versionCode; Cap defaults are versionCode 1 / "1.0" — re-bump after sync.
-bash "$ROOT/scripts/patch-android-version-code.sh"
+bash "$ROOT/scripts/patch-android-version.sh"
 # After sync so Capacitor cannot wipe custom Manifest / strings patches.
 bash "$ROOT/scripts/patch-android-admob.sh"
-bash "$ROOT/scripts/patch-android-version.sh"
 # Lock MainActivity to portrait (hybrid-casual; web already portrait-primary).
 bash "$ROOT/scripts/patch-android-portrait.sh"
 # Native keep-awake (WebView often lacks navigator.wakeLock; Settings syncs via ColorTubeNative).
