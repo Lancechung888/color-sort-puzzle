@@ -5507,6 +5507,74 @@ if (billRaw) {
   }
 }
 
+// --- AD-REWARD-UNAVAILABLE: showRewarded Promise false on fail + EN toast; DESIGN #7 honesty; sync www/play; no soft-arm ---
+{
+  const adsJs = read('assets/js/ads.js') || '';
+  const gameJs = read('assets/js/game.js') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const playAdsPath = path.join(root, 'docs/play/assets/js/ads.js');
+  const wwwAdsPath = path.join(root, 'www/assets/js/ads.js');
+  const playGamePath = path.join(root, 'docs/play/assets/js/game.js');
+  const wwwGamePath = path.join(root, 'www/assets/js/game.js');
+  const playAds = fs.existsSync(playAdsPath) ? fs.readFileSync(playAdsPath, 'utf8') : '';
+  const wwwAds = fs.existsSync(wwwAdsPath) ? fs.readFileSync(wwwAdsPath, 'utf8') : '';
+  const playGame = fs.existsSync(playGamePath) ? fs.readFileSync(playGamePath, 'utf8') : '';
+  const wwwGame = fs.existsSync(wwwGamePath) ? fs.readFileSync(wwwGamePath, 'utf8') : '';
+
+  const adsOk =
+    /AD-REWARD-UNAVAILABLE/.test(adsJs) &&
+    /async function showRewarded\s*\(/.test(adsJs) &&
+    /return new Promise\s*\(/.test(adsJs) &&
+    /return false/.test(adsJs) &&
+    /resolve\(true\)/.test(adsJs);
+
+  const gameOk =
+    /AD-REWARD-UNAVAILABLE/.test(gameJs) &&
+    /function showRewardedStub\s*\(/.test(gameJs) &&
+    /Ad unavailable — try again/.test(gameJs) &&
+    /trackEvent\(\s*['"]rewarded_unavailable['"]/.test(gameJs) &&
+    /result\.then/.test(gameJs);
+
+  const designOk =
+    !/#7\s+still\s+Fail/i.test(designRaw) &&
+    !/\*\*#7 still Fail\*\*/.test(designRaw) &&
+    (/DEVICE-THREE-GREEN/.test(designRaw) || /#7 Pass/i.test(designRaw)) &&
+    /REAL-ADMOB-IDS/.test(designRaw);
+
+  const playOk =
+    !fs.existsSync(playAdsPath) ||
+    (/AD-REWARD-UNAVAILABLE/.test(playAds) &&
+      /return false/.test(playAds) &&
+      /Ad unavailable — try again/.test(playGame) &&
+      /rewarded_unavailable/.test(playGame));
+  const wwwOk =
+    !fs.existsSync(wwwAdsPath) ||
+    (/AD-REWARD-UNAVAILABLE/.test(wwwAds) &&
+      /return false/.test(wwwAds) &&
+      /Ad unavailable — try again/.test(wwwGame) &&
+      /rewarded_unavailable/.test(wwwGame));
+
+  const adsSlice = (adsJs.match(/async function showRewarded[\s\S]{0,2200}/) || [''])[0];
+  const stubSlice = (gameJs.match(/function showRewardedStub[\s\S]{0,1600}/) || [''])[0];
+  const noSoft =
+    !!adsSlice &&
+    !!stubSlice &&
+    !/soft-arm|claim-juice|hud-pulse|reward-arm|ad-reward-arm/.test(adsSlice) &&
+    !/soft-arm|claim-juice|hud-pulse|reward-arm|ad-reward-arm/.test(stubSlice);
+
+  if (adsOk && gameOk && designOk && playOk && wwwOk && noSoft) {
+    pass(
+      'AD-REWARD-UNAVAILABLE',
+      'showRewarded Promise true-only-on-reward / false on unavailable; toast Ad unavailable — try again + rewarded_unavailable; DESIGN #7 Pass honesty; sync www/play; no soft-arm'
+    );
+  } else {
+    fail(
+      'AD-REWARD-UNAVAILABLE',
+      `missing rewarded-unavailable toast/Promise/DESIGN sync (ads=${adsOk} game=${gameOk} design=${designOk} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 
 // --- PAGE-LIFECYCLE: bfcache pageshow + freeze/resume re-sync; sync www/play; no soft-arm ---
 {

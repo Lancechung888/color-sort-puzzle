@@ -204,31 +204,43 @@
     }
   }
 
-  /** 對齊 showRewardedStub(onReward, label) — 只有賺到獎勵才呼叫 onReward */
+  /**
+   * 對齊 showRewardedStub(onReward, label) — 只有賺到獎勵才呼叫 onReward。
+   * AD-REWARD-UNAVAILABLE: returns Promise; resolves true only when onReward fired;
+   * resolves false on native unavailable / !rewardedReady / catch / no reward.
+   */
   async function showRewarded(onReward, label) {
     if (!isNative()) {
       console.info('[Ads stub] Rewarded', label || '');
-      setTimeout(function () {
-        if (onReward) onReward();
-      }, 400);
-      return;
+      return new Promise(function (resolve) {
+        setTimeout(function () {
+          if (onReward) onReward();
+          resolve(true);
+        }, 400);
+      });
     }
     const AdMob = getAdMob();
     if (!AdMob || !state.canRequestAds) {
       console.warn('[Ads] rewarded unavailable', label);
-      return;
+      return false;
     }
     try {
       if (!state.rewardedReady) await prepareRewarded(AdMob);
-      if (!state.rewardedReady) return;
+      if (!state.rewardedReady) return false;
       const reward = await AdMob.showRewardVideoAd();
       state.rewardedReady = false;
-      if (reward && onReward) onReward(reward);
+      let granted = false;
+      if (reward && onReward) {
+        onReward(reward);
+        granted = true;
+      }
       await prepareRewarded(AdMob);
+      return granted;
     } catch (e) {
       console.warn('[Ads] showRewardVideoAd', label, e);
       state.rewardedReady = false;
       prepareRewarded(AdMob);
+      return false;
     }
   }
 

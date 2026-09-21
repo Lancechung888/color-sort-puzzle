@@ -2989,11 +2989,12 @@
       console.info('[Ads stub] skipped (removeAds)', reason);
       return;
     }
-    // TODO: wire @capacitor-community/admob interstitial
+    // Fallback when ads.js missing — web demo toast only (interstitial no-fill stays silent on native)
     console.info('[Ads stub] Interstitial', reason);
     toast('(Demo) Interstitial · ' + (reason || ''));
   }
 
+  /** AD-REWARD-UNAVAILABLE: toast once when native rewarded fails; never grant on false. */
   function showRewardedStub(onReward, label) {
     const placement = label || 'unknown';
     const wrapped = function (reward) {
@@ -3001,9 +3002,19 @@
       if (onReward) onReward(reward);
     };
     if (window.ColorTubeAds && typeof window.ColorTubeAds.showRewarded === 'function') {
-      return window.ColorTubeAds.showRewarded(wrapped, label);
+      const result = window.ColorTubeAds.showRewarded(wrapped, label);
+      if (result && typeof result.then === 'function') {
+        return result.then(function (ok) {
+          if (!ok) {
+            toast('Ad unavailable — try again');
+            trackEvent('rewarded_unavailable', { placement: placement });
+          }
+          return ok;
+        });
+      }
+      return result;
     }
-    // TODO: AdMob rewarded via ads.js; call onReward only after earn
+    // Web demo when ads.js missing — Coming soon honesty; simulate reward after ~400ms
     console.info('[Ads stub] Rewarded', label || '');
     toast('(Demo) Rewarded ad' + (label ? ' · ' + label : ''));
     setTimeout(() => wrapped(), 400);
