@@ -5,7 +5,7 @@
 > Out of scope here: UA creatives, real unit IDs, enabling fake free `remove_ads`, production publish.  
 > Aligns with `docs/PLAY_POST_APPROVAL_CHECKLIST.md` / `MILLION_USER_BAR` — **#7 AdMob remains Fail**. **REAL-ADMOB-IDS** (2026-09-21): Android prod App/unit IDs + `USE_TEST_ADS=false` wired in repo; **still Fail** until device three green lights (interstitial, rewarded full-watch, remove_ads purchase+restore). Do **not** mark #7 Pass from wiring alone.  
 > **Do not claim ship-ready** from this doc alone.
-> Marker: **NATIVE-INTERNAL-TESTING-SYNC** (internal testing testids uploaded; #7 still Fail).
+> Marker: **NATIVE-VC3-INTERNAL-SYNC** (current internal = `1.0.2-internal-vc3-prodAdMob` / vc3 / prod AdMob; historical **NATIVE-INTERNAL-TESTING-SYNC** = `1.0.1-internal-vc2-testids`; #7 still Fail).
 
 ---
 
@@ -27,10 +27,10 @@
 | Play Billing Library ≥8 (Cap6 plugin pin 6.2.1) | **SCRIPT READY** (`scripts/patch-android-billing-8.sh` → 8.3.0 + PendingPurchasesParams + QueryProductDetailsResult + minSdk 23; hooked in `aab:internal`) |
 | Launcher ICON A + branded splash (vs stock Capacitor) | **DONE** (`scripts/apply-android-icons.sh` ← `native-templates/android/res/` from finals ICON A; hooked in `aab:internal`) |
 | JDK 17 + Android SDK on this packaging box | **DONE** (`JAVA_HOME=/home/box/sdk/jdk-17.0.20.1+1`, `ANDROID_HOME=/home/box/sdk/android`) |
-| Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19 + **2026-09-21**): `npm run aab:internal` → signed AABs (upload keystore local/gitignored). Durable copies under `/workspace/colortube-artifacts/` including **versionCode 2** / Billing≥8 / test-IDs builds (e.g. `ColorTubeSort-internal-20260921-1312-vc2-billing8-testids-release.aab`, `…-1309-vc2-testids-release.aab`) |
+| Release signing + `bundleRelease` AAB | **DONE on this packaging box** (2026-09-19 + **2026-09-21**): `npm run aab:internal` → signed AABs. Durable copies under `/workspace/colortube-artifacts/` including **vc3 prodAdMob** (`ColorTubeSort-internal-20260921-1420-prodAdMob-vc3-release.aab`, `…-1424-vc3-prodadmob-release.aab`) and historical **vc2 testids** (`…-1312-vc2-billing8-testids-release.aab`) |
 | Play `versionCode` / `versionName` | **SCRIPT READY** (`scripts/patch-android-version.sh` → **versionCode 3** / **versionName 1.0.2**; accept `ANDROID-VERSION-CODE-3`; hooked in `aab:internal` after Billing-8, before AdMob). Prior internal upload used **vc2** / 1.0.1-testids. |
 | Play developer account | **APPROVED** (2026-09-21 Asia/Taipei) — see `docs/PLAY_POST_APPROVAL_CHECKLIST.md` |
-| Play **internal testing** track | **UPLOADED** (2026-09-21 Asia/Taipei): release `1.0.1-internal-vc2-testids` / **versionCode 2** / Google sample AdMob IDs — see `docs/ADMOB_POST_LINK_CHECKLIST.md`. **Not** production. **#7 still Fail.** |
+| Play **internal testing** track | **UPLOADED current** (2026-09-21 Asia/Taipei): release `1.0.2-internal-vc3-prodAdMob` / **versionCode 3** / **versionName 1.0.2** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`). Historical prior: `1.0.1-internal-vc2-testids` / vc2 / sample IDs (superseded). Testers / license-tester Gmail may still need user. **Not** production. **#7 still Fail.** |
 | Play Console real AdMob / real IAP IDs / production publish | **Android AdMob IDs wired (REAL-ADMOB-IDS)**; IAP device verify + production publish still open. **#7 still Fail** until three green lights. |
 
 ---
@@ -81,14 +81,15 @@
 
 ### DONE this packaging box — signed internal AAB (2026-09-19 + 2026-09-21 Asia/Taipei)
 
-- [x] `npm install` + `npm run aab:internal` (build:www → `cap sync` → Billing≥8 patch → versionCode 2 patch → AdMob Manifest patch → `bundleRelease`)
+- [x] `npm install` + `npm run aab:internal` (build:www → `cap sync` → Billing≥8 patch → versionCode **3** patch → AdMob Manifest patch → `bundleRelease`)
 - [x] Plugins on sync: AdMob 6.2.0, App 6.0.3, Haptics 6.0.3, NativePurchases 6.0.42
 - [x] `validateSigningRelease` / `signReleaseBundle` succeeded (upload keystore via local `android/keystore.properties`)
 - [x] Artifacts under `/workspace/colortube-artifacts/`:
   - 2026-09-19: `ColorTubeSort-internal-20260919-release.aab` (~6.1 MB; early build)
-  - 2026-09-21: **versionCode 2** / **versionName 1.0.1** + Billing Library ≥8 + **test AdMob IDs** — e.g. `ColorTubeSort-internal-20260921-1312-vc2-billing8-testids-release.aab` (+ 1309 vc2 copy)
-- [x] **Play developer account APPROVED** (2026-09-21 Asia/Taipei). Prior internal upload attempt blocked because **versionCode 1** was already used — rebuild with versionCode 2 done.
-- [x] Play **internal testing** track **UPLOADED** (2026-09-21 Asia/Taipei): release name `1.0.1-internal-vc2-testids` / **versionCode 2** / **versionName 1.0.1** / Billing≥8 / **test AdMob IDs** (`USE_TEST_ADS=true`). Package `com.lancechung.colortubesort`. Source of truth also in `docs/ADMOB_POST_LINK_CHECKLIST.md`. Tester group / license-tester Gmail may still need user. **Do not** mark MILLION_USER_BAR **#7 Pass** from testids internal build alone.
+  - 2026-09-21 (historical): **versionCode 2** / **versionName 1.0.1** + Billing≥8 + **test AdMob IDs** — e.g. `ColorTubeSort-internal-20260921-1312-vc2-billing8-testids-release.aab` (+ 1309 vc2 copy)
+  - 2026-09-21 (**current**): **versionCode 3** / **versionName 1.0.2** + Billing≥8 + **prod AdMob** — `ColorTubeSort-internal-20260921-1420-prodAdMob-vc3-release.aab`, `ColorTubeSort-internal-20260921-1424-vc3-prodadmob-release.aab`
+- [x] **Play developer account APPROVED** (2026-09-21 Asia/Taipei). Prior internal upload attempt blocked because **versionCode 1** was already used — rebuild with versionCode 2 done; then **vc3 prodAdMob**.
+- [x] Play **internal testing** track **UPLOADED** (2026-09-21 Asia/Taipei): **current** release name `1.0.2-internal-vc3-prodAdMob` / **versionCode 3** / **versionName 1.0.2** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`). Historical: `1.0.1-internal-vc2-testids` / vc2 / sample IDs (superseded; **NATIVE-INTERNAL-TESTING-SYNC**). Package `com.lancechung.colortubesort`. Tester group / license-tester Gmail may still need user. **Do not** mark MILLION_USER_BAR **#7 Pass** from AAB upload alone — need device three green lights.
 
 ### Still required on each machine that owns `android/`
 
@@ -109,7 +110,7 @@ bash scripts/patch-android-admob.sh
 
 ### Still external (intentionally not done — not Pass for #7)
 
-- [ ] Play Console **store listing** / open testing / production (internal testing **testids** AAB already live; tester invites / license-tester Gmail may still need user)
+- [ ] Play Console **store listing** / open testing / production (internal testing **vc3 prodAdMob** AAB already live; tester invites / license-tester Gmail may still need user; device three green lights open)
 - [x] Real AdMob Android App ID + interstitial/rewarded unit IDs (`USE_TEST_ADS=false`) — **wired in repo (REAL-ADMOB-IDS)**
 - [ ] Device three green lights (interstitial / rewarded full-watch / remove_ads purchase+restore) — **not met; #7 still Fail**
 - [ ] Play product `remove_ads` enabled + license testers + **device-verified** Billing purchase path
@@ -163,16 +164,16 @@ Do this on the machine that can run Gradle.
 
 ## DONE vs NOT Pass (acceptance for this packaging track)
 
-**DONE (repo + this env):** Capacitor deps, test AdMob IDs in config + `ads.js`, billing skeleton, `index.html` script order, `build:www`, `cap add android` + `cap sync` with both plugins, idempotent Manifest / Billing≥8 / versionCode 2 patch scripts, JDK 17 + ANDROID_HOME on this box, signing steps documented, signed internal AABs including **vc2 + billing8 + testids**, **Play developer account APPROVED** (2026-09-21 Asia/Taipei).
+**DONE (repo + this env):** Capacitor deps, **REAL-ADMOB-IDS** (Android prod App/units + `USE_TEST_ADS=false`), billing skeleton, `index.html` script order, `build:www`, `cap add android` + `cap sync` with both plugins, idempotent Manifest / Billing≥8 / **versionCode 3** patch scripts, JDK 17 + ANDROID_HOME on this box, signing steps documented, signed internal AABs including **vc3 prodAdMob** (current) and historical **vc2 + billing8 + testids**, **Play developer account APPROVED** (2026-09-21 Asia/Taipei).
 
-**NOT ship-ready / #7 still Fail:** Device-verified AdMob SDK ads, real `remove_ads` IAP, real unit IDs, three green lights. Manifest patch prevents init crash with the **Google sample** App ID only. Account approval ≠ #7 Pass.
+**NOT ship-ready / #7 still Fail:** Device three green lights (interstitial, rewarded full-watch, `remove_ads` purchase+restore). Repo wiring + internal AAB ≠ #7 Pass. Production untouched. Testers may still need user.
 
-**OUT OF SCOPE:** Real AdMob/Billing IDs, production publish, UA creatives, enabling free/fake `remove_ads`.
+**OUT OF SCOPE:** Production publish, UA creatives, enabling free/fake `remove_ads`, Bus Jam.
 
 ---
 
 Also see operational acceptance: [`docs/NATIVE_ACCEPTANCE.md`](NATIVE_ACCEPTANCE.md) (`npm run native:check` / `npm run aab:internal`).
 
-### versionCode (Play uploads) — ANDROID-VERSION-CODE-2
+### versionCode (Play uploads) — ANDROID-VERSION-CODE-3
 
-- Play rejects reuse of the same `versionCode` (prior internal attempt used **1**). After `cap sync`, run `bash scripts/patch-android-version.sh` (hooked in `npm run aab:internal` after Billing-8, before AdMob) to set **versionCode 2** / **versionName 1.0.1** (override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`). Repo `package.json` `"version"` aligns to **1.0.1**. Accept gate: `ANDROID-VERSION-CODE-2`.
+- Play rejects reuse of the same `versionCode` (prior uploads used **1** then **2**). After `cap sync`, run `bash scripts/patch-android-version.sh` (hooked in `npm run aab:internal` after Billing-8, before AdMob) to set **versionCode 3** / **versionName 1.0.2** (override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`). Repo `package.json` `"version"` aligns to **1.0.2**. Accept gate: `ANDROID-VERSION-CODE-3`.

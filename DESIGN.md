@@ -36,7 +36,7 @@ Select → Pour (legal) → Sort → Win (stars + coins) → Next level. Undo / 
 | Fail-loop (tiered) | Soft sheet | Early levels (index **&lt; 15**): after **5** restarts; L16+ (index ≥ 15): after **2**. 「看廣告繼續」vs「去除廣告（即將開放）」vs skip |
 | Hint button (no free) | Paywall sheet | Rewarded ad / **25** coins / buy pack |
 
-**TODO in code (not ship-ready):** Google Play Billing / StoreKit 2; AdMob interstitial + rewarded (Capacitor plugin + publisher account). Shop「去除廣告」shows **即將開放／需商店帳號** and does **not** set `removeAds` unless DEV flag `localStorage.colorTubeSort_devIap=1`.
+**TODO / honesty (not ship-ready):** AdMob Capacitor plugin + Android **prod** App/unit IDs are wired (**REAL-ADMOB-IDS**; `USE_TEST_ADS=false`). Play Billing / StoreKit paths exist in `billing.js` but **device** purchase+restore + AdMob three green lights still open → MILLION_USER_BAR **#7 still Fail**. Shop「去除廣告」stays **即將開放／需商店帳號** and does **not** set `removeAds` unless a real Billing success (DEV flag `localStorage.colorTubeSort_devIap=1` must stay OFF in uploaded AABs). iOS AdMob App ID still Google sample until an iOS app exists.
 
 ## Economy (accepted ruling)
 
