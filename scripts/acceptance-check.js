@@ -4503,6 +4503,52 @@ block(
   }
 }
 
+// --- OG-LOCALE-ALT: og:locale:alternate zh_TW (EN-first; zh-Hant secondary); sync www/play + docs; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const docsHtml = read('docs/index.html') || '';
+  const playHtmlPath = path.join(root, 'docs/play/index.html');
+  const wwwHtmlPath = path.join(root, 'www/index.html');
+  const playHtml = fs.existsSync(playHtmlPath) ? fs.readFileSync(playHtmlPath, 'utf8') : '';
+  const wwwHtml = fs.existsSync(wwwHtmlPath) ? fs.readFileSync(wwwHtmlPath, 'utf8') : '';
+
+  const markerOk = /OG-LOCALE-ALT/.test(htmlRaw);
+  const altOk =
+    /property=["']og:locale:alternate["'][^>]*content=["']zh_TW["']/i.test(htmlRaw) ||
+    /content=["']zh_TW["'][^>]*property=["']og:locale:alternate["']/i.test(htmlRaw);
+  const primaryOk =
+    /property=["']og:locale["'][^>]*content=["']en_US["']/i.test(htmlRaw) ||
+    /content=["']en_US["'][^>]*property=["']og:locale["']/i.test(htmlRaw);
+  const docsOk =
+    /OG-LOCALE-ALT/.test(docsHtml) &&
+    (/property=["']og:locale:alternate["'][^>]*content=["']zh_TW["']/i.test(docsHtml) ||
+      /content=["']zh_TW["'][^>]*property=["']og:locale:alternate["']/i.test(docsHtml));
+  const playOk =
+    !fs.existsSync(playHtmlPath) ||
+    (/OG-LOCALE-ALT/.test(playHtml) &&
+      (/property=["']og:locale:alternate["'][^>]*content=["']zh_TW["']/i.test(playHtml) ||
+        /content=["']zh_TW["'][^>]*property=["']og:locale:alternate["']/i.test(playHtml)));
+  const wwwOk =
+    !fs.existsSync(wwwHtmlPath) ||
+    (/OG-LOCALE-ALT/.test(wwwHtml) &&
+      (/property=["']og:locale:alternate["'][^>]*content=["']zh_TW["']/i.test(wwwHtml) ||
+        /content=["']zh_TW["'][^>]*property=["']og:locale:alternate["']/i.test(wwwHtml)));
+  const headSlice = htmlRaw.slice(0, 5000) + docsHtml.slice(0, 2000);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(headSlice);
+
+  if (markerOk && altOk && primaryOk && docsOk && playOk && wwwOk && noSoft) {
+    pass(
+      'OG-LOCALE-ALT',
+      'og:locale en_US + og:locale:alternate zh_TW on playable + docs landing; www/play synced; no soft-arm'
+    );
+  } else {
+    fail(
+      'OG-LOCALE-ALT',
+      `missing og:locale:alternate zh_TW (marker=${markerOk} alt=${altOk} primary=${primaryOk} docs=${docsOk} play=${playOk} www=${wwwOk} noSoft=${noSoft})`
+    );
+  }
+}
+
 // --- COLOR-SCHEME-DARK: meta + CSS color-scheme dark; brand stays #1a1a2e; no soft-arm ---
 {
   const htmlRaw = read('index.html') || '';
