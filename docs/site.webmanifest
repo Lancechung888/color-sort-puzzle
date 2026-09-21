@@ -72,6 +72,27 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Daily Challenge — Crowded, Remixed, or Pressure"
+    },
+    {
+      "src": "screenshots/wide-01-lid.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Gold lids block pours — uncap to pour"
+    },
+    {
+      "src": "screenshots/wide-02-uncap.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Uncap, then sort matching colors"
+    },
+    {
+      "src": "screenshots/wide-03-daily.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Daily Challenge — Crowded, Remixed, or Pressure"
     }
   ],
   "shortcuts": [
