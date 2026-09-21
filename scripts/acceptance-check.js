@@ -5692,6 +5692,72 @@ block(
   }
 }
 
+
+// --- APPLE-SPLASH-MORE: +7 portrait sizes (SE/6+/X/XS Max/mini/iPad/12.9); sync www/play; not in sw PRECACHE; no soft-arm ---
+{
+  const htmlRaw = read('index.html') || '';
+  const swRaw = read('sw.js') || '';
+  const more = [
+    'apple-640x1136.png',
+    'apple-1242x2208.png',
+    'apple-1125x2436.png',
+    'apple-1242x2688.png',
+    'apple-1080x2340.png',
+    'apple-1536x2048.png',
+    'apple-2048x2732.png',
+  ];
+  const splashLinks = (htmlRaw.match(/rel=["']apple-touch-startup-image["'][^>]*>/gi) || []).length;
+  const hrefOk = more.every((f) => htmlRaw.includes('assets/splash/' + f));
+  const mediaOk =
+    /device-height:\s*812px/.test(htmlRaw) &&
+    /device-height:\s*780px/.test(htmlRaw) &&
+    /device-height:\s*1366px/.test(htmlRaw) &&
+    /device-height:\s*568px/.test(htmlRaw);
+  const linkOk =
+    /APPLE-SPLASH-MORE/.test(htmlRaw) &&
+    splashLinks >= 14 &&
+    hrefOk &&
+    mediaOk &&
+    /orientation:\s*portrait/.test(htmlRaw);
+  const filesOk = more.every((f) =>
+    fs.existsSync(path.join(root, 'assets/splash', f))
+  );
+  const notPrecached =
+    !/assets\/splash\//.test(swRaw) &&
+    !/apple-1125x2436|apple-2048x2732|apple-640x1136/.test(swRaw);
+  const playHtml = path.join(root, 'docs/play/index.html');
+  const playSplashDir = path.join(root, 'docs/play/assets/splash');
+  const wwwSplashDir = path.join(root, 'www/assets/splash');
+  let playOk = true;
+  if (fs.existsSync(playHtml)) {
+    const playRaw = fs.readFileSync(playHtml, 'utf8');
+    playOk =
+      /APPLE-SPLASH-MORE/.test(playRaw) &&
+      more.every((f) => playRaw.includes('assets/splash/' + f)) &&
+      more.every((f) => fs.existsSync(path.join(playSplashDir, f)));
+  }
+  let wwwOk = true;
+  if (fs.existsSync(path.join(root, 'www/index.html'))) {
+    const wwwRaw = fs.readFileSync(path.join(root, 'www/index.html'), 'utf8');
+    wwwOk =
+      /APPLE-SPLASH-MORE/.test(wwwRaw) &&
+      more.every((f) => fs.existsSync(path.join(wwwSplashDir, f)));
+  }
+  const noSoft =
+    !/apple-splash-arm|splash-arm|soft-arm|claim-juice|hud-pulse/.test(htmlRaw);
+  if (linkOk && filesOk && notPrecached && playOk && wwwOk && noSoft) {
+    pass(
+      'APPLE-SPLASH-MORE',
+      '+7 apple-touch-startup-image (SE/6+/X/XS Max/mini/iPad/12.9) + assets; sync www/play; not in sw PRECACHE; no soft-arm'
+    );
+  } else {
+    fail(
+      'APPLE-SPLASH-MORE',
+      `missing more iOS splash coverage (linkOk=${linkOk} filesOk=${filesOk} notPrecached=${notPrecached} playOk=${playOk} wwwOk=${wwwOk} noSoft=${noSoft} splashLinks=${splashLinks})`
+    );
+  }
+}
+
 // --- PWA-DISPLAY-OVERRIDE: display_override + handle_links preferred; sync www/play; no soft-arm ---
 {
   const rootManifestPath = path.join(root, 'site.webmanifest');
