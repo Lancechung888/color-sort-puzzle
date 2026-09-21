@@ -4689,6 +4689,45 @@ block(
   }
 }
 
+
+// --- CAP-TEACH-ARM: tip dismiss does not set capTeachDone; uncap does; load soft-arm ---
+{
+  const gameSrc = read('assets/js/game.js') || '';
+  const dismissSlice = (gameSrc.match(/btn-dismiss-tip[\s\S]{0,900}/) || [''])[0];
+  const capBranch = (dismissSlice.match(/activeTipKind\s*===\s*['"]cap['"][\s\S]{0,320}/) || [''])[0];
+  const tipDismissOk =
+    /activeTipKind\s*===\s*['"]cap['"]/.test(dismissSlice) &&
+    !!capBranch &&
+    !/capTeachDone\s*=\s*true/.test(capBranch) &&
+    /CAP-TEACH-ARM/.test(capBranch);
+  const uncapSlice = (gameSrc.match(/function uncapTube\s*\([\s\S]{0,1100}/) || [''])[0];
+  const uncapOk =
+    /clearCapTeachArm\s*\(/.test(uncapSlice) &&
+    /save\.capTeachDone\s*=\s*true/.test(uncapSlice) &&
+    /persist\s*\(/.test(uncapSlice);
+  const armOk =
+    /function clearCapTeachArm\s*\(/.test(gameSrc) &&
+    /function maybeArmCapTeach\s*\(/.test(gameSrc) &&
+    /lid-arm-nudge/.test(gameSrc) &&
+    /maybeArmCapTeach\s*\(\s*def\s*\)/.test(gameSrc) &&
+    /haptic\s*\(\s*['"]arm['"]\s*\)/.test(
+      (gameSrc.match(/function maybeArmCapTeach[\s\S]{0,900}/) || [''])[0]
+    ) &&
+    /CAP-TEACH-ARM/.test(gameSrc);
+  const howtoOk = /activeTipKind\s*===\s*['"]howto['"]/.test(dismissSlice);
+  if (tipDismissOk && uncapOk && armOk && howtoOk) {
+    pass(
+      'CAP-TEACH-ARM',
+      'cap tip dismiss hides only (no capTeachDone); uncapTube sets capTeachDone+persist; maybeArmCapTeach lid-arm-nudge + haptic/SFX; howto dismiss still safe'
+    );
+  } else {
+    fail(
+      'CAP-TEACH-ARM',
+      `missing teach-arm wiring (tipDismiss=${tipDismissOk} uncap=${uncapOk} arm=${armOk} howto=${howtoOk})`
+    );
+  }
+}
+
 // --- PWA-INSTALL: beforeinstallprompt Install CTA + manifest id; sync docs/play; no soft-arm ---
 {
   const htmlRaw = read('index.html') || '';

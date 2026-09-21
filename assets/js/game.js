@@ -163,6 +163,10 @@
   let playContinueCueFired = false;
   /** Fail-sheet primary hint CTA soft-arm cue timer (once per open). */
   let failHintArmTimer = 0;
+  /** CAP-TEACH-ARM: once-per-load soft lid nudge cue timer on teach:cap. */
+  let capTeachArmTimer = 0;
+  /** CAP-TEACH-ARM: class-clear timeout for auto lid-arm-nudge. */
+  let capTeachArmClassTimer = 0;
   /** Hint-paywall primary CTA soft-arm cue timer (once per open). */
   let hintPayArmTimer = 0;
   /** Levels overlay continue-cell soft-arm cue timer (once per open). */
@@ -1389,6 +1393,7 @@
     clearPendingRestart();
     clearPendingLeave();
     clearPendingSpend();
+    clearCapTeachArm();
     history = [];
     moves = 0;
     pouring = false;
@@ -1407,6 +1412,7 @@
     hideWin();
     maybeShowOnboarding();
     maybeShowCapTeach(def);
+    maybeArmCapTeach(def);
     syncScreenWakeLock();
     if (opts.daily) {
       trackEvent('daily_start', {
@@ -2423,6 +2429,16 @@
     caps[idx] = false;
     selected = -1;
     persistRunDraft();
+    // CAP-TEACH-ARM: real uncap completes lid teach (tip dismiss must not)
+    clearCapTeachArm();
+    if (!save.capTeachDone) {
+      save.capTeachDone = true;
+      persist();
+    }
+    if (activeTipKind === 'cap') {
+      activeTipKind = null;
+      if (onboardingTip) onboardingTip.hidden = true;
+    }
     const firstUncapOfLevel = !levelFirstUncapDone;
     if (firstUncapOfLevel) levelFirstUncapDone = true;
     SFX.uncap();
@@ -4248,6 +4264,7 @@
     clearPendingRestart();
     clearPendingLeave();
     clearPendingReset();
+    clearCapTeachArm();
     selected = -1;
     const levelsOv = $('#levels-overlay');
     if (levelsOv && levelsOv.classList.contains('show')) closeLevels();
@@ -5739,12 +5756,60 @@
     const tipP = onboardingTip.querySelector('p');
     if (tipP) {
       tipP.innerHTML =
-        '🧢 <strong>New: lids!</strong> A capped tube can\'t pour in or out.<br />' +
-        '<strong>Double-tap</strong> the lid to open it (free — doesn\'t use a move).<br />' +
-        'Try pouring onto a lid → shake + toast <em>"Capped — can\'t pour"</em>.';
+        '🧢 <strong>Gold lids block pours.</strong><br />' +
+        '<strong>Double-tap</strong> the gold lid to uncap (free — doesn\'t use a move).';
     }
     activeTipKind = 'cap';
     onboardingTip.hidden = false;
+  }
+
+  /** CAP-TEACH-ARM: clear once-per-load teach lid nudge + cue timer. */
+  function clearCapTeachArm() {
+    if (capTeachArmTimer) {
+      clearTimeout(capTeachArmTimer);
+      capTeachArmTimer = 0;
+    }
+    if (capTeachArmClassTimer) {
+      clearTimeout(capTeachArmClassTimer);
+      capTeachArmClassTimer = 0;
+    }
+    if (tubesWrap) {
+      tubesWrap.querySelectorAll('.lid-arm-nudge').forEach(function (el) {
+        el.classList.remove('lid-arm-nudge');
+      });
+    }
+  }
+
+  /**
+   * CAP-TEACH-ARM: once-per-load soft-arm first capped tube on teach:cap
+   * when lid teach not done. Class always applied (reduced-motion → static CSS);
+   * haptic+SFX once @~300ms (mirror fail-hint-arm).
+   */
+  function maybeArmCapTeach(def) {
+    clearCapTeachArm();
+    if (!def || def.teach !== 'cap') return;
+    if (save.capTeachDone) return;
+    if (!tubesWrap || !caps) return;
+    let armEl = null;
+    for (let i = 0; i < caps.length; i++) {
+      if (isCapped(i)) {
+        armEl = tubesWrap.children[i];
+        break;
+      }
+    }
+    if (!armEl) return;
+    armEl.classList.remove('lid-arm-nudge');
+    void armEl.offsetWidth;
+    armEl.classList.add('lid-arm-nudge');
+    capTeachArmClassTimer = setTimeout(function () {
+      capTeachArmClassTimer = 0;
+      if (armEl) armEl.classList.remove('lid-arm-nudge');
+    }, 420);
+    capTeachArmTimer = setTimeout(function () {
+      capTeachArmTimer = 0;
+      haptic('arm');
+      try { SFX.tap(); } catch (_) { /* ignore */ }
+    }, 300);
   }
 
   /** Re-open pour + lid teach from Settings — does not force tip on level load. */
@@ -6542,7 +6607,7 @@
     $('#btn-start-daily').addEventListener('click', startDailyChallenge);
     $('#btn-dismiss-tip').addEventListener('click', () => {
       if (activeTipKind === 'cap') {
-        save.capTeachDone = true;
+        // CAP-TEACH-ARM: hide only — capTeachDone set on real uncap, not tip dismiss
       } else if (activeTipKind === 'howto') {
         // How to play re-open: just hide — do not force-clear teach flags
       } else {
