@@ -1511,9 +1511,10 @@ if (gameRaw) {
     const ogExists = fs.existsSync(ogPath);
     const landing = landingExists ? fs.readFileSync(landingPath, 'utf8') : '';
     const hasTitle = /ColorTube Sort/.test(landing);
+    // INSTANT-CLARITY-P0: USP lead flipped to action-first Uncap copy
     const hasUsp =
-      /Gold lids block pours/.test(landing) &&
-      (/uncap/.test(landing) || /Uncap/.test(landing));
+      /Uncap the gold lid\. Then pour/.test(landing) &&
+      (/Gold lids block/.test(landing) || /lids block until you uncap/.test(landing));
     const hasOgImage =
       /og:image/.test(landing) &&
       /https:\/\/lancechung888\.github\.io\/color-sort-puzzle\/og\.png/.test(landing);
