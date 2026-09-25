@@ -2598,13 +2598,17 @@
     }
     const willWinLevel = winPreview.every(isTubeComplete);
 
-    animatePour(fromIdx, toIdx, color, amount, () => {
+    // POUR-FEEL-MIDLAND: commit board when stream reaches dest mouth (not after
+    // stream vanishes) so fill-rise plays under a live stream — kills teleport liquid.
+    let committed = false;
+    const commitPour = () => {
+      if (committed) return;
+      committed = true;
       for (let i = 0; i < amount; i++) {
         tubes[toIdx].push(tubes[fromIdx].pop());
       }
       moves++;
       selected = -1;
-      pouring = false;
       if (isWon()) clearRunDraft();
       else persistRunDraft();
       updateChrome();
@@ -2613,8 +2617,19 @@
       if (firstPourOfLevel) {
         pulseFirstPourSuccess(toIdx);
       }
+      // Re-arm anticipatory glow on post-render nodes for the remaining stream
+      if (willComplete && !isWon()) {
+        const toNow = tubesWrap.children[toIdx];
+        if (toNow) toNow.classList.add('completing-pour');
+      }
+      if (willWinLevel) app.classList.add('winning-pour');
+    };
 
-      // Juice: newly completed filled tube
+    animatePour(fromIdx, toIdx, color, amount, () => {
+      commitPour(); // safety if land callback skipped
+      pouring = false;
+
+      // Juice: newly completed filled tube (fires on stream land / splash beat)
       if (isFilledComplete(tubes[toIdx]) && !wasCompleteBefore[toIdx]) {
         lightScreenShake();
         glowPulse(toIdx);
@@ -2634,7 +2649,7 @@
         // Soft toast only — no soft-arm / HUD pulse (matrix already dense)
         setTimeout(maybeNotifyStuck, 160);
       }
-    }, firstPourOfLevel, willComplete, willWinLevel);
+    }, firstPourOfLevel, willComplete, willWinLevel, commitPour);
   }
 
   function undo() {
@@ -3528,10 +3543,11 @@
   }
 
   // --- Pour animation + splash ---
-  function animatePour(fromIdx, toIdx, color, amount, done, firstPour, willComplete, willWinLevel) {
+  function animatePour(fromIdx, toIdx, color, amount, done, firstPour, willComplete, willWinLevel, onLand) {
     const fromEl = tubesWrap.children[fromIdx];
     const toEl = tubesWrap.children[toIdx];
     if (!fromEl || !toEl) {
+      if (typeof onLand === 'function') onLand();
       done();
       return;
     }
@@ -3539,6 +3555,7 @@
     // A11Y-POUR / POUR-REDUCED: skip stream/tilt/splash; keep SFX + haptic; finish quickly
     if (prefersReducedMotion()) {
       SFX.pour();
+      if (typeof onLand === 'function') onLand();
       setTimeout(() => {
         SFX.land();
         if (willWinLevel) haptic('winPour');
@@ -3570,11 +3587,15 @@
     // CSS stream grows downward; rotate from vertical so length reaches target mouth
     const angleDeg = Math.atan2(dx, dy) * (180 / Math.PI);
 
+    // POUR-FEEL: slightly longer stream (~460ms) + mid-land commit (~250ms)
+    const POUR_MS = 460;
+    const LAND_MS = 250;
+
     const stream = document.createElement('div');
     stream.className = 'pour-stream';
     stream.style.background = fill;
     stream.style.color = hex;
-    stream.style.left = startX - 6 + 'px';
+    stream.style.left = startX - 7 + 'px';
     stream.style.top = startY + 'px';
     stream.style.setProperty('--stream-h', dist + 'px');
     stream.style.transform = 'rotate(' + angleDeg + 'deg)';
@@ -3593,7 +3614,16 @@
     if (willWinLevel) app.classList.add('winning-pour');
     SFX.pour();
 
+    let landed = false;
+    const fireLand = () => {
+      if (landed) return;
+      landed = true;
+      if (typeof onLand === 'function') onLand();
+    };
+    setTimeout(fireLand, LAND_MS);
+
     setTimeout(() => {
+      fireLand(); // safety: never finish without board commit
       // Winning pour: denser splash (~32) + short gold rim sparkle; else completing ~26 / first 24
       const splashN = willWinLevel ? 32 : (willComplete ? 26 : (firstPour ? 24 : null));
       spawnSplash(endX, endY, hex, splashN);
@@ -3605,12 +3635,16 @@
       else if (firstPour) haptic('firstPour');
       else haptic('land');
       stream.remove();
-      fromEl.style.transform = '';
-      fromEl.classList.remove('pouring-tilt');
-      if (willComplete) toEl.classList.remove('completing-pour');
-      if (willWinLevel) app.classList.remove('winning-pour');
+      // fromEl may be detached after mid-land render() — only clear if still live
+      if (fromEl.isConnected) {
+        fromEl.style.transform = '';
+        fromEl.classList.remove('pouring-tilt');
+      }
+      const toNow = tubesWrap.children[toIdx];
+      if (toNow) toNow.classList.remove('completing-pour');
+      app.classList.remove('winning-pour');
       done();
-    }, 380);
+    }, POUR_MS);
   }
 
   /** Short gold rim sparkle for level-clearing pour — tasteful, not confetti (confetti stays in showWin). */

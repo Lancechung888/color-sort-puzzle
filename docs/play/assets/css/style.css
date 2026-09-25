@@ -1082,10 +1082,10 @@ html, body {
   }
 }
 
-/* Completing-pour resolve — anticipatory rim/glass glow during ~380ms pour */
+/* Completing-pour resolve — anticipatory rim/glass glow during ~460ms pour (POUR-FEEL-MIDLAND) */
 .tube.completing-pour {
   z-index: 3;
-  animation: completingPourGlow 0.38s ease-out;
+  animation: completingPourGlow 0.46s ease-out;
 }
 .tube.completing-pour .tube-rim {
   box-shadow: 0 0 0 1px rgba(255, 230, 160, 0.75), 0 0 16px rgba(255, 214, 120, 0.55);
@@ -1108,9 +1108,9 @@ html, body {
   }
 }
 
-/* Winning-pour — board-wide soft gold/warm rim glow during level-clearing ~380ms pour */
+/* Winning-pour — board-wide soft gold/warm rim glow during level-clearing ~460ms pour (POUR-FEEL-MIDLAND) */
 #app.winning-pour {
-  animation: winningPourGlow 0.38s ease-out;
+  animation: winningPourGlow 0.46s ease-out;
 }
 #app.winning-pour::before {
   content: '';
@@ -1361,7 +1361,7 @@ html, body {
 }
 
 .tube.dest-receive .tube-glass {
-  animation: destReceive 0.38s ease-out;
+  animation: destReceive 0.46s ease-out;
 }
 
 @keyframes destReceive {
@@ -1638,7 +1638,8 @@ html, body {
   z-index: 50;
   opacity: 0.95;
   transform-origin: top center; /* rotate + height grow along aim axis */
-  animation: streamFall 0.38s ease-in forwards;
+  /* POUR-FEEL-MIDLAND: streamFall synced to JS POUR_MS 460 */
+  animation: streamFall 0.46s ease-in forwards;
   box-shadow: 0 0 10px currentColor, 0 0 2px rgba(255,255,255,0.35) inset;
 }
 

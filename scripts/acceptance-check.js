@@ -7677,6 +7677,65 @@ if (billRaw) {
   }
 }
 
+
+// --- POUR-FEEL-MIDLAND: mid-land commit (~250ms) + POUR_MS 460 + CSS streamFall/glow 0.46s; #1/#3 stay Partial; no soft-arm ---
+{
+  const gameRaw = read('assets/js/game.js') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const htmlRaw = read('index.html') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const pourIdx = gameRaw.indexOf('function animatePour');
+  const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 3600) : '';
+  const jsOk =
+    /POUR-FEEL-MIDLAND/.test(gameRaw) &&
+    /const POUR_MS\s*=\s*460/.test(pourSlice) &&
+    /const LAND_MS\s*=\s*250/.test(pourSlice) &&
+    /setTimeout\(\s*fireLand\s*,\s*LAND_MS\s*\)/.test(pourSlice) &&
+    /onLand/.test(pourSlice) &&
+    /commitPour/.test(gameRaw);
+  const cssOk =
+    /POUR-FEEL-MIDLAND/.test(cssRaw) &&
+    /animation:\s*streamFall\s+0\.46s/.test(cssRaw) &&
+    /animation:\s*completingPourGlow\s+0\.46s/.test(cssRaw) &&
+    /animation:\s*winningPourGlow\s+0\.46s/.test(cssRaw) &&
+    /animation:\s*destReceive\s+0\.46s/.test(cssRaw) &&
+    /animation:\s*screenShake\s+0\.38s/.test(cssRaw) &&
+    /animation:\s*lidPop\s+0\.38s/.test(cssRaw);
+  const htmlOk = /POUR-FEEL-MIDLAND/.test(htmlRaw);
+  const docsOk =
+    /POUR-FEEL-MIDLAND/.test(barRaw) &&
+    /POUR-FEEL-MIDLAND/.test(accMd) &&
+    /\*\*Partial\*\*/.test(barRaw) &&
+    /#1/.test(barRaw) &&
+    /#3/.test(barRaw);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse|POUR-FEEL-MIDLAND-arm/.test(
+    (gameRaw.match(/POUR-FEEL-MIDLAND[\s\S]{0,1200}/) || [''])[0] +
+      (cssRaw.match(/POUR-FEEL-MIDLAND[\s\S]{0,400}/) || [''])[0]
+  );
+  // www/play mirrors (post sync-www)
+  const wwwJs = read('www/assets/js/game.js') || '';
+  const wwwCss = read('www/assets/css/style.css') || '';
+  const wwwHtml = read('www/index.html') || '';
+  const wwwOk =
+    !wwwJs ||
+    (/POUR-FEEL-MIDLAND/.test(wwwJs) &&
+      /POUR_MS\s*=\s*460/.test(wwwJs) &&
+      /streamFall\s+0\.46s/.test(wwwCss) &&
+      /POUR-FEEL-MIDLAND/.test(wwwHtml));
+  if (jsOk && cssOk && htmlOk && docsOk && noSoft && wwwOk) {
+    pass(
+      'POUR-FEEL-MIDLAND',
+      'mid-land commit LAND_MS=250 + POUR_MS=460; CSS streamFall/glow/destReceive 0.46s; docs honesty; #1/#3 Partial; no soft-arm'
+    );
+  } else {
+    fail(
+      'POUR-FEEL-MIDLAND',
+      `missing mid-land pour sync (js=${jsOk} css=${cssOk} html=${htmlOk} docs=${docsOk} noSoft=${noSoft} www=${wwwOk})`
+    );
+  }
+}
+
 // --- 5) Delegate native wiring ---
 const native = spawnSync('node', [path.join(root, 'scripts/native-wiring-check.js')], {
   cwd: root,
