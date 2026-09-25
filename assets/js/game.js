@@ -171,6 +171,10 @@
   let capTeachArmTimer = 0;
   /** CAP-TEACH-ARM: class-clear timeout for auto lid-arm-nudge. */
   let capTeachArmClassTimer = 0;
+  /** INSTANT-CLARITY-P0 T1: L3 pain-then-joy — lid block felt before uncap arm. */
+  let capTeachPainFelt = false;
+  /** Active level def (for teach:cap pain path + post-pain arm). */
+  let loadedLevelDef = null;
   /** Hint-paywall primary CTA soft-arm cue timer (once per open). */
   let hintPayArmTimer = 0;
   /** Levels overlay continue-cell soft-arm cue timer (once per open). */
@@ -1493,6 +1497,8 @@
     clearPendingLeave();
     clearPendingSpend();
     clearCapTeachArm();
+    capTeachPainFelt = false;
+    loadedLevelDef = def;
     history = [];
     moves = 0;
     pouring = false;
@@ -2435,7 +2441,25 @@
 
     // UNCAP-ONE-TAP: capped tube opens on this tap (never pour into a lid).
     // Holding liquid + capped dest: drop selection and open lid in one gesture.
+    // INSTANT-CLARITY-P0 T1: on teach:cap, first capped tap = pain (block) then uncap tip+arm.
     if (isCapped(idx)) {
+      if (
+        loadedLevelDef &&
+        loadedLevelDef.teach === 'cap' &&
+        !save.capTeachDone &&
+        !capTeachPainFelt
+      ) {
+        capTeachPainFelt = true;
+        selected = -1;
+        shakeTube(idx);
+        try { SFX.illegal(); } catch (_) { /* ignore */ }
+        haptic('illegal');
+        toast('Lid blocks pour');
+        revealCapTeachUncap();
+        maybeArmCapTeach(loadedLevelDef);
+        render();
+        return;
+      }
       selected = -1;
       uncapTube(idx);
       return;
@@ -3968,7 +3992,7 @@
     }
     return (
       line +
-      '\nGold lids block pours — uncap, then sort.\n' +
+      '\nUncap the gold lid. Then pour.\n' +
       'https://lancechung888.github.io/color-sort-puzzle/play/'
     );
   }
@@ -5970,14 +5994,28 @@
   function maybeShowCapTeach(def) {
     if (!def || def.teach !== 'cap') return;
     if (save.capTeachDone) return;
+    // INSTANT-CLARITY-P0 T1: pain-then-joy — invite pour first; uncap tip after lid block.
     const tipP = onboardingTip.querySelector('p');
     if (tipP) {
       tipP.innerHTML =
-        '🧢 <strong>Gold lids block pours.</strong><br />' +
-        '<strong>Tap</strong> the gold lid to uncap (free — doesn\'t use a move).';
+        '👆 Pour matching colors into one tube.<br />' +
+        'A <strong>gold lid</strong> may block you — try it.';
     }
     activeTipKind = 'cap';
     onboardingTip.hidden = false;
+  }
+
+  /** INSTANT-CLARITY-P0 T1: after lid-block pain, reveal uncap joy tip. */
+  function revealCapTeachUncap() {
+    if (save.capTeachDone) return;
+    const tipP = onboardingTip ? onboardingTip.querySelector('p') : null;
+    if (tipP) {
+      tipP.innerHTML =
+        '🧢 <strong>Uncap the gold lid. Then pour.</strong><br />' +
+        '<strong>Tap</strong> the gold lid to uncap (free — doesn\'t use a move).';
+    }
+    activeTipKind = 'cap';
+    if (onboardingTip) onboardingTip.hidden = false;
   }
 
   /** CAP-TEACH-ARM: clear once-per-load teach lid nudge + cue timer. */
@@ -6006,6 +6044,8 @@
     clearCapTeachArm();
     if (!def || def.teach !== 'cap') return;
     if (save.capTeachDone) return;
+    // INSTANT-CLARITY-P0 T1: soft-arm only after pain (lid-block) beat
+    if (!capTeachPainFelt) return;
     if (!tubesWrap || !caps) return;
     let armEl = null;
     for (let i = 0; i < caps.length; i++) {
@@ -6039,7 +6079,7 @@
       tipP.innerHTML =
         '👆 Tap a colored tube to lift, then tap another to pour.<br />' +
         'Goal: every tube is one solid color (or empty).<br />' +
-        '🧢 Gold lids block pours — <strong>tap the lid</strong> to uncap (free — doesn\'t use a move).';
+        '🧢 Uncap the gold lid. Then pour — <strong>tap the lid</strong> (free — doesn\'t use a move).';
     }
     activeTipKind = 'howto';
     onboardingTip.hidden = false;

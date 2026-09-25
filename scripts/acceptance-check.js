@@ -7678,6 +7678,89 @@ if (billRaw) {
 }
 
 
+
+// --- INSTANT-CLARITY-P0: V1≤2.9s idle + demote Blocked→Lid + thick lid; C1 Uncap lead+sub; T1 L3 pain-then-joy; #1/#3 stay Partial; no soft-arm ---
+{
+  const gameRaw = read('assets/js/game.js') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const htmlRaw = read('index.html') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const v1CssOk =
+    /INSTANT-CLARITY-P0/.test(cssRaw) &&
+    /animation:\s*shSrcLift\s+2\.9s/.test(cssRaw) &&
+    /animation:\s*shLid\s+2\.9s/.test(cssRaw) &&
+    /animation:\s*shBlockBadge\s+2\.9s/.test(cssRaw) &&
+    !/animation:\s*shSrcLift\s+5\.2s/.test(cssRaw) &&
+    /\.tube-lid\s*\{[\s\S]*?height:\s*30px/.test(cssRaw);
+  const v1HtmlOk =
+    /INSTANT-CLARITY-P0/.test(htmlRaw) &&
+    /start-hook-block[^>]*>Lid</.test(htmlRaw) &&
+    !/start-hook-block[^>]*>Blocked</.test(htmlRaw);
+  const c1Ok =
+    /Uncap the gold lid\. Then pour\./.test(htmlRaw) &&
+    /modal-sub/.test(htmlRaw) &&
+    /Match colors\. Gold lids block until you uncap\./.test(htmlRaw) &&
+    /id="btn-start"[^>]*>Play</.test(htmlRaw);
+  const t1Ok =
+    /INSTANT-CLARITY-P0/.test(gameRaw) &&
+    /capTeachPainFelt/.test(gameRaw) &&
+    /revealCapTeachUncap/.test(gameRaw) &&
+    /Lid blocks pour/.test(gameRaw) &&
+    /Pour matching colors into one tube/.test(gameRaw) &&
+    /if\s*\(\s*!capTeachPainFelt\s*\)\s*return/.test(gameRaw) &&
+    /loadedLevelDef\.teach\s*===\s*['"]cap['"]/.test(gameRaw);
+  // L1–2 unchanged: no teach on index 0/1
+  const levelsRaw = read('assets/js/levels.js') || '';
+  const levelLines = (levelsRaw.match(/const levels = \[[\s\S]*?\];/) || [''])[0]
+    .split('\n')
+    .filter((ln) => /\{capacity:/.test(ln));
+  const l12Ok =
+    /L1–2:\s*pure pour,\s*no caps/.test(levelsRaw) &&
+    levelLines.length >= 3 &&
+    !/teach\s*:\s*["']cap["']/.test(levelLines[0]) &&
+    !/teach\s*:\s*["']cap["']/.test(levelLines[1]) &&
+    /teach\s*:\s*["']cap["']/.test(levelLines[2]);
+  const docsOk =
+    /INSTANT-CLARITY-P0/.test(barRaw) &&
+    /INSTANT-CLARITY-P0/.test(accMd) &&
+    /INSTANT-CLARITY-P0/.test(designRaw) &&
+    /\*\*Partial\*\*/.test(barRaw) &&
+    /#1/.test(barRaw) &&
+    /永不假標 Pass|never fake Pass|不假 Pass|永不.*Pass/.test(barRaw + accMd + designRaw) &&
+    /15s UA/.test(barRaw + accMd + designRaw);
+  // Scope soft-arm ban to our new markers only (nearby HUD soft-arm comments are pre-existing).
+  const claritySlices =
+    (gameRaw.match(/INSTANT-CLARITY-P0 T1: on teach:cap[\s\S]{0,700}/) || [''])[0] +
+    (gameRaw.match(/function revealCapTeachUncap[\s\S]{0,500}/) || [''])[0] +
+    (gameRaw.match(/function maybeShowCapTeach[\s\S]{0,500}/) || [''])[0] +
+    (cssRaw.match(/INSTANT-CLARITY-P0 V1[\s\S]{0,400}/) || [''])[0] +
+    (htmlRaw.match(/INSTANT-CLARITY-P0[\s\S]{0,400}/) || [''])[0];
+  const noSoft = !/claim-juice|hud-pulse|INSTANT-CLARITY-P0-arm/.test(claritySlices);
+  const wwwJs = read('www/assets/js/game.js') || '';
+  const wwwCss = read('www/assets/css/style.css') || '';
+  const wwwHtml = read('www/index.html') || '';
+  const wwwOk =
+    !wwwJs ||
+    (/INSTANT-CLARITY-P0/.test(wwwJs) &&
+      /capTeachPainFelt/.test(wwwJs) &&
+      /shSrcLift\s+2\.9s/.test(wwwCss) &&
+      /Uncap the gold lid\. Then pour\./.test(wwwHtml) &&
+      /start-hook-block[^>]*>Lid</.test(wwwHtml));
+  if (v1CssOk && v1HtmlOk && c1Ok && t1Ok && l12Ok && docsOk && noSoft && wwwOk) {
+    pass(
+      'INSTANT-CLARITY-P0',
+      'V1≤2.9s idle+Lid demote+thick lid; C1 Uncap lead+sub+Play; T1 L3 pain-then-joy (L1–2 untouched); docs #1/#3 Partial honesty; no soft-arm'
+    );
+  } else {
+    fail(
+      'INSTANT-CLARITY-P0',
+      `missing P0 clarity (v1Css=${v1CssOk} v1Html=${v1HtmlOk} c1=${c1Ok} t1=${t1Ok} l12=${l12Ok} docs=${docsOk} noSoft=${noSoft} www=${wwwOk})`
+    );
+  }
+}
+
 // --- POUR-FEEL-MIDLAND: mid-land commit (~250ms) + POUR_MS 460 + CSS streamFall/glow 0.46s; #1/#3 stay Partial; no soft-arm ---
 {
   const gameRaw = read('assets/js/game.js') || '';
