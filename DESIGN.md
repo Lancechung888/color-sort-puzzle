@@ -3,7 +3,7 @@
 ## USP (unique selling points)
 
 - **Instant clarity:** Glass tubes + saturated liquids read in under a second; one-thumb pour loop.
-- **Satisfying pours:** Lift, tilt, stream, splash particles, complete-tube glow + light screen shake — dopamine without complex systems. **POUR-FEEL-MIDLAND:** board commits at mid-stream land (~250ms) so dest fill-rise plays under a live ~460ms stream (CSS `streamFall` synced); kills teleport liquid. **#3 stays Partial** (15s UA clip still missing; UA frozen). **#1 stays Partial** (external 3s playtest). Production / soft-launch forbidden.
+- **Satisfying pours:** Lift, tilt, stream, splash particles, complete-tube glow + light screen shake — dopamine without complex systems. **INSTANT-CLARITY-P0:** V1 ≤2.9s start idle 擋→揭→倒 + demote Blocked→Lid + thick gold lid; C1「Uncap the gold lid. Then pour.」+ sub + Play; T1 L3 pain-then-joy (pour-capped block → then uncap; L1–2 unchanged; Skip V2). **#1 stays Partial** until external mute stranger 3s evidence — never fake Pass. **POUR-FEEL-MIDLAND:** board commits at mid-stream land (~250ms) so dest fill-rise plays under a live ~460ms stream (CSS `streamFall` synced); kills teleport liquid. **#3 stays Partial** (15s UA clip still missing; UA frozen — do not invent clip Pass). Production / soft-launch forbidden.
 - **Fair difficulty curve:** Levels 1–5 teach the rule; later levels add colors, height, and tube count without timers or lives.
 - **Progression juice:** 3-star ratings, coins, daily streak / 今日挑戰, unlockable themes (經典玻璃、霓虹夜店、療癒貓咪色).
 - **English-first default UI:** store / ASO / default strings in English for global hybrid-casual; Traditional Chinese is secondary localization only (see STORE.md).

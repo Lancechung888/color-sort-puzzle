@@ -1409,38 +1409,39 @@ html, body {
   filter: brightness(0.9);
 }
 
+/* INSTANT-CLARITY-P0 V1: thick gold lid — readable at thumb distance */
 .tube-lid {
   position: absolute;
-  top: -8px;
+  top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  width: 124%;
-  height: 26px;
+  width: 128%;
+  height: 30px;
   z-index: 6;
   pointer-events: none;
-  border-radius: 11px 11px 6px 6px;
+  border-radius: 12px 12px 7px 7px;
   background:
     linear-gradient(180deg,
       var(--lid-top) 0%,
       var(--lid-mid) 42%,
       var(--lid-bot) 100%);
-  border: 3px solid var(--lid-edge);
+  border: 3.5px solid var(--lid-edge);
   box-shadow:
     var(--lid-glow),
-    0 6px 14px rgba(0,0,0,0.45),
-    inset 0 2px 0 rgba(255,255,255,0.75),
-    inset 0 -3px 6px rgba(0,0,0,0.28);
+    0 7px 16px rgba(0,0,0,0.5),
+    inset 0 2px 0 rgba(255,255,255,0.8),
+    inset 0 -4px 7px rgba(0,0,0,0.3);
 }
 
 /* Chunkier grip bar — readable at ~320px thumb */
 .tube-lid::before {
   content: '';
   position: absolute;
-  top: 5px;
+  top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 42%;
-  height: 7px;
+  width: 44%;
+  height: 8px;
   border-radius: 4px;
   background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.35));
   box-shadow: 0 1px 2px rgba(0,0,0,0.25);
@@ -3203,7 +3204,7 @@ html.reduced-motion #btn-install.btn-pwa-install {
   margin-top: 10px;
 }
 
-/* Start-screen USP hook — block(lid) → uncap → pour → sorted (≤3s twist readable) */
+/* INSTANT-CLARITY-P0 V1: start idle ≤3s silent loop 擋→揭→倒; demote Blocked→Lid; thick lid */
 .start-hook {
   position: relative;
   width: 100%;
@@ -3234,9 +3235,9 @@ html.reduced-motion #btn-install.btn-pwa-install {
 }
 
 .start-hook .tube-lid {
-  width: 128%;
-  height: 22px;
-  top: -6px;
+  width: 132%;
+  height: 26px;
+  top: -8px;
 }
 
 .start-hook .tube-rim {
@@ -3255,7 +3256,7 @@ html.reduced-motion #btn-install.btn-pwa-install {
   opacity: 0;
 }
 
-/* Timeline (~5.2s): 0–18% blocked pour attempt · 18–32% uncap · 32–60% pour · 60–100% settle */
+/* Timeline (~2.9s silent): 0–18% lid-block attempt · 18–32% uncap · 32–60% pour · 60–100% settle */
 @keyframes shLid {
   0%, 18% { transform: translateX(-50%) translateY(0) rotate(0) scale(1); opacity: 1; filter: drop-shadow(0 0 0 transparent); }
   8%, 14% { transform: translateX(-50%) translateY(0) rotate(0) scale(1.08); opacity: 1; filter: drop-shadow(0 0 10px rgba(255, 200, 60, 0.85)); }
@@ -3316,31 +3317,31 @@ html.reduced-motion #btn-install.btn-pwa-install {
 }
 
 .start-hook-src {
-  animation: shSrcLift 5.2s ease-in-out infinite;
+  animation: shSrcLift 2.9s ease-in-out infinite;
 }
 .start-hook-src .tube-glass {
   filter: brightness(0.9);
-  animation: shSrcGlass 5.2s ease-in-out infinite;
+  animation: shSrcGlass 2.9s ease-in-out infinite;
 }
 .start-hook-src .tube-lid {
-  animation: shLid 5.2s cubic-bezier(0.2, 0.9, 0.3, 1.2) infinite;
+  animation: shLid 2.9s cubic-bezier(0.2, 0.9, 0.3, 1.2) infinite;
   transform-origin: 50% 50%;
 }
 .start-hook-src .start-hook-l3 {
-  animation: shSrcTop 5.2s ease-in-out infinite;
+  animation: shSrcTop 2.9s ease-in-out infinite;
 }
 .start-hook-dst .start-hook-d1,
 .start-hook-dst .start-hook-d2 {
-  animation: shDstFill 5.2s ease-in-out infinite;
+  animation: shDstFill 2.9s ease-in-out infinite;
 }
 .start-hook-dst .start-hook-d2 {
   animation-delay: 0.08s;
 }
 .start-hook-dst {
-  animation: shDstDone 5.2s ease-in-out infinite, shDstBlockShake 5.2s ease-in-out infinite;
+  animation: shDstDone 2.9s ease-in-out infinite, shDstBlockShake 2.9s ease-in-out infinite;
 }
 .start-hook-done {
-  animation: shDonePulse 5.2s ease-in-out infinite;
+  animation: shDonePulse 2.9s ease-in-out infinite;
 }
 
 .start-hook-stream {
@@ -3355,33 +3356,41 @@ html.reduced-motion #btn-install.btn-pwa-install {
   transform-origin: top center;
   opacity: 0;
   pointer-events: none;
-  animation: shStream 5.2s ease-in-out infinite;
+  animation: shStream 2.9s ease-in-out infinite;
 }
 
 .start-hook-block {
+  /* INSTANT-CLARITY-P0 V1: demote Blocked → quiet "Lid" pill */
   position: absolute;
   top: 6px;
   left: 50%;
   transform: translate(-50%, 4px) scale(0.85);
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: 999px;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #1a1200;
-  background: linear-gradient(180deg, #ffe08a 0%, #f0b429 100%);
-  box-shadow: 0 2px 8px rgba(240, 180, 41, 0.55);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: rgba(26, 18, 0, 0.82);
+  background: linear-gradient(180deg, rgba(255, 224, 138, 0.92) 0%, rgba(240, 180, 41, 0.88) 100%);
+  box-shadow: 0 1px 5px rgba(240, 180, 41, 0.35);
   opacity: 0;
   white-space: nowrap;
   z-index: 2;
-  animation: shBlockBadge 5.2s ease-in-out infinite;
+  animation: shBlockBadge 2.9s ease-in-out infinite;
 }
 
 #start-screen .modal-lead {
-  margin-bottom: 14px;
-  font-size: 0.86rem;
-  line-height: 1.4;
+  margin-bottom: 4px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+#start-screen .modal-sub {
+  margin: 0 0 14px;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  opacity: 0.78;
 }
 
 @media (max-width: 360px) {
