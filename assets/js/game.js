@@ -3644,22 +3644,21 @@
       if (landed) return;
       landed = true;
       if (typeof onLand === 'function') onLand();
-    };
-    setTimeout(fireLand, LAND_MS);
-
-    setTimeout(() => {
-      fireLand(); // safety: never finish without board commit
-      // Winning pour: denser splash (~32) + short gold rim sparkle; else completing ~26 / first 24
-      // POUR-STREAM-THICK: slightly denser splash on win/complete/first pour paths
-      const splashN = willWinLevel ? 36 : (willComplete ? 30 : (firstPour ? 28 : null));
+      // POUR-LAND-SPLASH: splash + land SFX/haptic at mid-land with fill-rise (not POUR_MS end)
+      // Keeps midland anti-teleport; mute UA stills now show splash with rising liquid
+      const splashN = willWinLevel ? 40 : (willComplete ? 34 : (firstPour ? 30 : 22));
       spawnSplash(endX, endY, hex, splashN);
       if (willWinLevel) spawnWinPourSparkle(endX, endY);
       SFX.land();
-      // Winning land: distinct winPour (under full win/perfect); else completing / first / land
       if (willWinLevel) haptic('winPour');
       else if (willComplete) haptic('landComplete');
       else if (firstPour) haptic('firstPour');
       else haptic('land');
+    };
+    setTimeout(fireLand, LAND_MS);
+
+    setTimeout(() => {
+      fireLand(); // safety: never finish without board commit (+ splash if mid-land missed)
       stream.remove();
       // fromEl may be detached after mid-land render() — only clear if still live
       if (fromEl.isConnected) {
@@ -3707,7 +3706,7 @@
       p.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
       p.style.setProperty('--dy', Math.sin(ang) * dist - 10 + 'px');
       app.appendChild(p);
-      setTimeout(() => p.remove(), 480);
+      setTimeout(() => p.remove(), 520);
     }
   }
 
