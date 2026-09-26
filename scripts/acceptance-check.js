@@ -7796,6 +7796,53 @@ if (billRaw) {
   }
 }
 
+// --- INSTANT-CLARITY-HOOK-LOUD: enlarge start-hook + long gold-lid beat; #1 stays Partial; no fake Pass ---
+{
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const htmlRaw = read('index.html') || '';
+  const docsOk =
+    /INSTANT-CLARITY-HOOK-LOUD/.test(barRaw) &&
+    /INSTANT-CLARITY-HOOK-LOUD/.test(accMd) &&
+    /INSTANT-CLARITY-HOOK-LOUD/.test(designRaw) &&
+    /INSTANT-CLARITY-HOOK-LOUD/.test(cssRaw) &&
+    /INSTANT-CLARITY-HOOK-LOUD/.test(htmlRaw);
+  const row1 = (barRaw.match(/\| 1 \|[\s\S]*?\|\s*\*\*Partial\*\*[\s\S]*?\|/) || [''])[0];
+  const partialOk = /\*\*Partial\*\*/.test(row1) && /#1 仍 Partial/.test(barRaw + accMd);
+  const loudCssOk =
+    /max-width:\s*340px/.test(cssRaw) &&
+    /\.start-hook \.tube-lid[\s\S]{0,220}height:\s*36px/.test(cssRaw) &&
+    /0%,\s*28%\s*\{[\s\S]{0,180}drop-shadow\(0 0 16px rgba\(255,\s*200,\s*60/.test(cssRaw) &&
+    /shBlockBadge[\s\S]{0,120}0%,\s*26%/.test(cssRaw) &&
+    /animation:\s*shLid\s+2\.9s/.test(cssRaw) &&
+    /animation:\s*shSrcLift\s+2\.9s/.test(cssRaw);
+  const measureOk = /1972|teachComplete|2900|≤3s|<=3s|2\.9s/.test(barRaw + accMd);
+  const honestyOk = /永不假標 Pass|never fake Pass|awaiting re-blind|keep Partial/.test(
+    barRaw + accMd + designRaw
+  );
+  const noFakePass = !/#1[^\n]*\*\*Pass\*\*/.test(barRaw.split('\n').find((l) => l.includes('| 1 |')) || '');
+  const noSoft = !/HOOK-LOUD-arm|claim-juice|hud-pulse/.test(cssRaw + htmlRaw);
+  const wwwCss = read('www/assets/css/style.css') || '';
+  const wwwHtml = read('www/index.html') || '';
+  const wwwOk =
+    /INSTANT-CLARITY-HOOK-LOUD/.test(wwwCss) &&
+    /INSTANT-CLARITY-HOOK-LOUD/.test(wwwHtml) &&
+    /max-width:\s*340px/.test(wwwCss);
+  if (docsOk && partialOk && loudCssOk && measureOk && honestyOk && noFakePass && noSoft && wwwOk) {
+    pass(
+      'INSTANT-CLARITY-HOOK-LOUD',
+      'loud start-hook gold-lid 0–30% + enlarge; teach ≤3s; #1 stays Partial; no fake Pass'
+    );
+  } else {
+    fail(
+      'INSTANT-CLARITY-HOOK-LOUD',
+      `loud clarity gap (docs=${docsOk} partial=${partialOk} css=${loudCssOk} measure=${measureOk} honesty=${honestyOk} noFakePass=${noFakePass} noSoft=${noSoft} www=${wwwOk})`
+    );
+  }
+}
+
 // --- POUR-FEEL-MIDLAND: mid-land commit (~250ms) + POUR_MS 460 + CSS streamFall/glow 0.46s; #1/#3 stay Partial; no soft-arm ---
 {
   const gameRaw = read('assets/js/game.js') || '';

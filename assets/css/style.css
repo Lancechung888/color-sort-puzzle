@@ -3206,13 +3206,14 @@ html.reduced-motion #btn-install.btn-pwa-install {
   margin-top: 10px;
 }
 
-/* INSTANT-CLARITY-P0 V1: start idle ≤3s silent loop 擋→揭→倒; demote Blocked→Lid; thick lid */
+/* INSTANT-CLARITY-P0 V1 + INSTANT-CLARITY-HOOK-LOUD:
+   Larger start-hook + thick gold lid dominate 0–~1s; 擋→揭→倒 teach ≤3s (cycle 2.9s). */
 .start-hook {
   position: relative;
   width: 100%;
-  max-width: 280px;
-  margin: 4px auto 14px;
-  height: 118px;
+  max-width: 340px;
+  margin: 6px auto 16px;
+  height: 156px;
   pointer-events: none;
   user-select: none;
 }
@@ -3221,35 +3222,44 @@ html.reduced-motion #btn-install.btn-pwa-install {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 14px;
+  gap: 18px;
   height: 100%;
-  padding-top: 18px;
+  padding-top: 30px;
 }
 
 .start-hook .tube.start-hook-tube {
-  width: 42px;
+  width: 56px;
   cursor: default;
   flex-shrink: 0;
 }
 
 .start-hook .tube-glass {
-  height: 72px;
+  height: 96px;
 }
 
+/* HOOK-LOUD: oversized gold lid + constant glow while capped */
 .start-hook .tube-lid {
-  width: 132%;
-  height: 26px;
-  top: -8px;
+  width: 148%;
+  height: 36px;
+  top: -12px;
+  border-width: 4px;
+  border-radius: 14px 14px 8px 8px;
+  box-shadow:
+    0 0 18px rgba(255, 200, 60, 0.95),
+    0 0 36px rgba(255, 170, 40, 0.55),
+    0 8px 18px rgba(0, 0, 0, 0.55),
+    inset 0 2px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -4px 7px rgba(0, 0, 0, 0.3);
 }
 
 .start-hook .tube-rim {
-  height: 8px;
+  height: 10px;
 }
 
 .start-hook-src .start-hook-l1,
 .start-hook-src .start-hook-l2,
 .start-hook-src .start-hook-l3 {
-  height: 24px;
+  height: 32px;
 }
 
 .start-hook-dst .start-hook-d1,
@@ -3258,71 +3268,89 @@ html.reduced-motion #btn-install.btn-pwa-install {
   opacity: 0;
 }
 
-/* Timeline (~2.9s silent): 0–18% lid-block attempt · 18–32% uncap · 32–60% pour · 60–100% settle */
+/* Timeline (~2.9s LOUD): 0–30% gold-lid dominate · 30–42% uncap · 42–68% pour · 68–100% settle
+   teachComplete @68% ≈ 1972ms ≤ 3000ms; t=0 and t=1 stills must show gold lid */
 @keyframes shLid {
-  0%, 18% { transform: translateX(-50%) translateY(0) rotate(0) scale(1); opacity: 1; filter: drop-shadow(0 0 0 transparent); }
-  8%, 14% { transform: translateX(-50%) translateY(0) rotate(0) scale(1.08); opacity: 1; filter: drop-shadow(0 0 10px rgba(255, 200, 60, 0.85)); }
-  22% { transform: translateX(-50%) translateY(-8px) rotate(-16deg) scale(1.12); opacity: 1; filter: none; }
-  32%, 100% { transform: translateX(-40%) translateY(-34px) rotate(40deg) scale(0.65); opacity: 0; filter: none; }
+  0%, 28% {
+    transform: translateX(-50%) translateY(0) rotate(0) scale(1.06);
+    opacity: 1;
+    filter: drop-shadow(0 0 16px rgba(255, 200, 60, 1)) drop-shadow(0 0 28px rgba(255, 170, 40, 0.75));
+  }
+  8%, 16%, 24% {
+    transform: translateX(-50%) translateY(0) rotate(0) scale(1.14);
+    opacity: 1;
+    filter: drop-shadow(0 0 20px rgba(255, 210, 70, 1)) drop-shadow(0 0 34px rgba(255, 180, 40, 0.9));
+  }
+  34% {
+    transform: translateX(-50%) translateY(-12px) rotate(-18deg) scale(1.2);
+    opacity: 1;
+    filter: drop-shadow(0 0 14px rgba(255, 200, 60, 0.95));
+  }
+  42%, 100% {
+    transform: translateX(-38%) translateY(-46px) rotate(44deg) scale(0.58);
+    opacity: 0;
+    filter: none;
+  }
 }
 @keyframes shSrcLift {
-  /* False-start lift+shake while capped (blocked), then real pour lift after uncap */
-  0%, 6% { transform: none; filter: none; }
-  10% { transform: translate(-3px, -6px) scale(1.02); filter: drop-shadow(0 6px 8px rgba(255, 180, 40, 0.35)); }
-  12% { transform: translate(3px, -6px) scale(1.02); filter: drop-shadow(0 6px 8px rgba(255, 180, 40, 0.35)); }
-  14% { transform: translate(-2px, -6px) scale(1.02); filter: drop-shadow(0 6px 8px rgba(255, 180, 40, 0.35)); }
-  16% { transform: translate(2px, -5px) scale(1.02); filter: drop-shadow(0 6px 8px rgba(255, 180, 40, 0.35)); }
-  18%, 30% { transform: none; filter: none; }
-  36%, 58% { transform: translateY(-10px) scale(1.03); filter: drop-shadow(0 8px 10px rgba(78,205,196,0.45)); }
-  68%, 100% { transform: none; filter: none; }
+  /* Gold halo while capped + false-start shake, then pour lift after uncap */
+  0%, 6% { transform: none; filter: drop-shadow(0 0 14px rgba(255, 200, 60, 0.55)); }
+  10% { transform: translate(-4px, -8px) scale(1.04); filter: drop-shadow(0 8px 14px rgba(255, 180, 40, 0.55)); }
+  13% { transform: translate(4px, -8px) scale(1.04); filter: drop-shadow(0 8px 14px rgba(255, 180, 40, 0.55)); }
+  16% { transform: translate(-3px, -7px) scale(1.04); filter: drop-shadow(0 8px 14px rgba(255, 180, 40, 0.55)); }
+  20% { transform: translate(3px, -6px) scale(1.03); filter: drop-shadow(0 8px 14px rgba(255, 180, 40, 0.5)); }
+  24% { transform: translate(-2px, -5px) scale(1.02); filter: drop-shadow(0 6px 12px rgba(255, 180, 40, 0.45)); }
+  30%, 40% { transform: none; filter: none; }
+  46%, 66% { transform: translateY(-14px) scale(1.05); filter: drop-shadow(0 10px 14px rgba(78,205,196,0.5)); }
+  76%, 100% { transform: none; filter: none; }
 }
 @keyframes shSrcTop {
-  0%, 42% { height: 24px; opacity: 1; }
-  55%, 100% { height: 0; opacity: 0; }
+  0%, 48% { height: 32px; opacity: 1; }
+  62%, 100% { height: 0; opacity: 0; }
 }
 @keyframes shDstFill {
-  0%, 44% { height: 0; opacity: 0; }
-  58%, 100% { height: 24px; opacity: 1; }
+  0%, 50% { height: 0; opacity: 0; }
+  64%, 100% { height: 32px; opacity: 1; }
 }
 @keyframes shDstDone {
-  0%, 62% { filter: none; }
-  72%, 92% { filter: drop-shadow(0 0 12px rgba(231,76,60,0.55)); }
+  0%, 70% { filter: none; }
+  78%, 92% { filter: drop-shadow(0 0 14px rgba(231,76,60,0.6)); }
   100% { filter: none; }
 }
 @keyframes shDstBlockShake {
-  0%, 8%, 18%, 100% { transform: translateX(0); }
-  10% { transform: translateX(2px); }
-  12% { transform: translateX(-3px); }
-  14% { transform: translateX(3px); }
-  16% { transform: translateX(-2px); }
+  0%, 8%, 28%, 100% { transform: translateX(0); }
+  12% { transform: translateX(3px); }
+  16% { transform: translateX(-4px); }
+  20% { transform: translateX(4px); }
+  24% { transform: translateX(-3px); }
 }
 @keyframes shStream {
-  /* No stream during blocked beat — only after uncap */
-  0%, 40% { opacity: 0; transform: scaleY(0); }
-  44% { opacity: 0.95; transform: scaleY(0.35); }
-  54% { opacity: 0.95; transform: scaleY(1); }
-  60%, 100% { opacity: 0; transform: scaleY(0.2); }
+  /* No stream during gold-lid beat — only after uncap */
+  0%, 48% { opacity: 0; transform: scaleY(0); }
+  52% { opacity: 0.95; transform: scaleY(0.35); }
+  62% { opacity: 0.95; transform: scaleY(1); }
+  68%, 100% { opacity: 0; transform: scaleY(0.2); }
 }
 @keyframes shDonePulse {
-  0%, 72% { transform: scale(1); }
-  82% { transform: scale(1.06); }
-  92%, 100% { transform: scale(1); }
+  0%, 76% { transform: scale(1); }
+  84% { transform: scale(1.07); }
+  94%, 100% { transform: scale(1); }
 }
 @keyframes shSrcGlass {
-  0%, 18% { filter: brightness(0.9); }
-  28%, 100% { filter: brightness(1); }
+  0%, 30% { filter: brightness(0.88); }
+  40%, 100% { filter: brightness(1); }
 }
 @keyframes shBlockBadge {
-  0%, 7% { opacity: 0; transform: translate(-50%, 4px) scale(0.85); }
-  10%, 15% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-  18%, 100% { opacity: 0; transform: translate(-50%, -6px) scale(0.9); }
+  /* Lid pill visible from t=0 through lid-block beat */
+  0%, 26% { opacity: 1; transform: translate(-50%, 0) scale(1.06); }
+  32%, 100% { opacity: 0; transform: translate(-50%, -8px) scale(0.9); }
 }
 
 .start-hook-src {
   animation: shSrcLift 2.9s ease-in-out infinite;
 }
 .start-hook-src .tube-glass {
-  filter: brightness(0.9);
+  filter: brightness(0.88);
   animation: shSrcGlass 2.9s ease-in-out infinite;
 }
 .start-hook-src .tube-lid {
@@ -3348,13 +3376,13 @@ html.reduced-motion #btn-install.btn-pwa-install {
 
 .start-hook-stream {
   position: absolute;
-  top: 28px;
-  left: calc(50% - 52px);
-  width: 10px;
-  height: 52px;
-  border-radius: 5px;
+  top: 36px;
+  left: calc(50% - 68px);
+  width: 14px;
+  height: 64px;
+  border-radius: 7px;
   background: linear-gradient(180deg, #ff8a95 0%, #e74c3c 100%);
-  box-shadow: 0 0 8px rgba(231, 76, 60, 0.7);
+  box-shadow: 0 0 12px rgba(231, 76, 60, 0.85);
   transform-origin: top center;
   opacity: 0;
   pointer-events: none;
@@ -3362,23 +3390,23 @@ html.reduced-motion #btn-install.btn-pwa-install {
 }
 
 .start-hook-block {
-  /* INSTANT-CLARITY-P0 V1: demote Blocked → quiet "Lid" pill */
+  /* INSTANT-CLARITY-HOOK-LOUD: bigger Lid pill readable above the fold */
   position: absolute;
-  top: 6px;
+  top: 2px;
   left: 50%;
-  transform: translate(-50%, 4px) scale(0.85);
-  padding: 2px 7px;
+  transform: translate(-50%, 0) scale(1.06);
+  padding: 4px 12px;
   border-radius: 999px;
-  font-size: 0.58rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: none;
-  color: rgba(26, 18, 0, 0.82);
-  background: linear-gradient(180deg, rgba(255, 224, 138, 0.92) 0%, rgba(240, 180, 41, 0.88) 100%);
-  box-shadow: 0 1px 5px rgba(240, 180, 41, 0.35);
-  opacity: 0;
+  color: rgba(26, 18, 0, 0.9);
+  background: linear-gradient(180deg, rgba(255, 232, 150, 0.98) 0%, rgba(240, 180, 41, 0.95) 100%);
+  box-shadow: 0 2px 10px rgba(240, 180, 41, 0.55), 0 0 16px rgba(255, 200, 60, 0.45);
+  opacity: 1;
   white-space: nowrap;
-  z-index: 2;
+  z-index: 3;
   animation: shBlockBadge 2.9s ease-in-out infinite;
 }
 
@@ -3396,13 +3424,15 @@ html.reduced-motion #btn-install.btn-pwa-install {
 }
 
 @media (max-width: 360px) {
-  .start-hook { max-width: 240px; height: 108px; }
-  .start-hook .tube.start-hook-tube { width: 36px; }
-  .start-hook .tube-glass { height: 64px; }
+  .start-hook { max-width: 300px; height: 140px; }
+  .start-hook .tube.start-hook-tube { width: 48px; }
+  .start-hook .tube-glass { height: 84px; }
+  .start-hook .tube-lid { height: 32px; width: 145%; }
   .start-hook-src .start-hook-l1,
   .start-hook-src .start-hook-l2,
-  .start-hook-src .start-hook-l3 { height: 21px; }
-  .start-hook-stream { left: calc(50% - 46px); height: 46px; width: 8px; }
+  .start-hook-src .start-hook-l3 { height: 28px; }
+  .start-hook-stream { left: calc(50% - 58px); height: 56px; width: 12px; top: 32px; }
+  .start-hook-block { font-size: 0.7rem; padding: 3px 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3420,16 +3450,17 @@ html.reduced-motion #btn-install.btn-pwa-install {
   }
   .start-hook-src .tube-lid {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translateX(-50%) translateY(0) scale(1.06);
+    filter: drop-shadow(0 0 16px rgba(255, 200, 60, 1));
   }
   .start-hook-dst .start-hook-d1,
   .start-hook-dst .start-hook-d2 {
-    height: 24px;
+    height: 32px;
     opacity: 0.35;
   }
   .start-hook-block {
-    opacity: 0.95;
-    transform: translate(-50%, 0) scale(1);
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1.06);
   }
   .start-hook-stream {
     opacity: 0;
