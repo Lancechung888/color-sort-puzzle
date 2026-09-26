@@ -7887,7 +7887,7 @@ if (billRaw) {
   const barRaw = read('MILLION_USER_BAR.md') || '';
   const accMd = read('ACCEPTANCE.md') || '';
   const pourIdx = gameRaw.indexOf('function animatePour');
-  const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 3600) : '';
+  const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 4800) : '';
   const jsOk =
     /POUR-FEEL-MIDLAND/.test(gameRaw) &&
     /const POUR_MS\s*=\s*460/.test(pourSlice) &&
@@ -7947,15 +7947,16 @@ if (billRaw) {
   const accMd = read('ACCEPTANCE.md') || '';
   const designRaw = read('DESIGN.md') || '';
   const pourIdx = gameRaw.indexOf('function animatePour');
-  const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 3600) : '';
+  const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 4800) : '';
+  // Splash denser counts may be POUR-STREAM-THICK (36/30/28) or POUR-LAND-SPLASH (40/34/30)
   const jsOk =
     /POUR-STREAM-THICK/.test(gameRaw) &&
     /startX\s*-\s*9/.test(pourSlice) &&
     /const POUR_MS\s*=\s*460/.test(pourSlice) &&
     /const LAND_MS\s*=\s*250/.test(pourSlice) &&
-    /willWinLevel\s*\?\s*36/.test(pourSlice) &&
-    /willComplete\s*\?\s*30/.test(pourSlice) &&
-    /firstPour\s*\?\s*28/.test(pourSlice);
+    (/willWinLevel\s*\?\s*36/.test(pourSlice) || /willWinLevel\s*\?\s*40/.test(pourSlice)) &&
+    (/willComplete\s*\?\s*30/.test(pourSlice) || /willComplete\s*\?\s*34/.test(pourSlice)) &&
+    (/firstPour\s*\?\s*28/.test(pourSlice) || /firstPour\s*\?\s*30/.test(pourSlice));
   const cssOk =
     /POUR-STREAM-THICK/.test(cssRaw) &&
     /\.pour-stream\s*\{[^}]*width:\s*18px/s.test(cssRaw) &&
@@ -7993,6 +7994,70 @@ if (billRaw) {
     fail(
       'POUR-STREAM-THICK',
       `missing thick stream polish (js=${jsOk} css=${cssOk} html=${htmlOk} docs=${docsOk} noSoft=${noSoft} www=${wwwOk})`
+    );
+  }
+}
+
+
+// --- POUR-LAND-SPLASH: splash+SFX+haptic at LAND_MS≈250 with fill-rise; denser land counts; #3 Partial; no soft-arm ---
+{
+  const gameRaw = read('assets/js/game.js') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const htmlRaw = read('index.html') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const pourIdx = gameRaw.indexOf('function animatePour');
+  const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 4200) : '';
+  const fireIdx = pourSlice.indexOf('const fireLand');
+  const fireSlice = fireIdx >= 0 ? pourSlice.slice(fireIdx, fireIdx + 1200) : '';
+  const endIdx = pourSlice.indexOf('}, POUR_MS)');
+  const endSlice = endIdx >= 0 ? pourSlice.slice(Math.max(0, endIdx - 700), endIdx + 20) : '';
+  const jsOk =
+    /POUR-LAND-SPLASH/.test(gameRaw) &&
+    /const LAND_MS\s*=\s*250/.test(pourSlice) &&
+    /const POUR_MS\s*=\s*460/.test(pourSlice) &&
+    /spawnSplash\(endX,\s*endY,\s*hex,\s*splashN\)/.test(fireSlice) &&
+    /SFX\.land\(\)/.test(fireSlice) &&
+    /haptic\('land'\)/.test(fireSlice) &&
+    /willWinLevel\s*\?\s*40/.test(fireSlice) &&
+    /willComplete\s*\?\s*34/.test(fireSlice) &&
+    /firstPour\s*\?\s*30/.test(fireSlice) &&
+    !/spawnSplash\(endX,\s*endY,\s*hex,\s*splashN\)/.test(endSlice);
+  const cssOk =
+    /POUR-LAND-SPLASH/.test(cssRaw) &&
+    /animation:\s*splashOut\s+0\.48s/.test(cssRaw) &&
+    /\.splash-particle\s*\{[^}]*width:\s*7px/s.test(cssRaw);
+  const htmlOk = /POUR-LAND-SPLASH/.test(htmlRaw);
+  const docsOk =
+    /POUR-LAND-SPLASH/.test(barRaw) &&
+    /POUR-LAND-SPLASH/.test(accMd) &&
+    /POUR-LAND-SPLASH/.test(designRaw) &&
+    /\*\*Partial\*\*/.test(barRaw) &&
+    /#3/.test(barRaw) &&
+    !/\| 3 \|[^|]*\| \*\*Pass\*\*/.test(barRaw);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse|POUR-LAND-SPLASH-arm/.test(
+    (gameRaw.match(/POUR-LAND-SPLASH[\s\S]{0,800}/) || [''])[0] +
+      (cssRaw.match(/POUR-LAND-SPLASH[\s\S]{0,400}/) || [''])[0]
+  );
+  const wwwJs = read('www/assets/js/game.js') || '';
+  const wwwCss = read('www/assets/css/style.css') || '';
+  const wwwHtml = read('www/index.html') || '';
+  const wwwOk =
+    !wwwJs ||
+    (/POUR-LAND-SPLASH/.test(wwwJs) &&
+      /spawnSplash\(endX,\s*endY,\s*hex,\s*splashN\)/.test(wwwJs) &&
+      /POUR-LAND-SPLASH/.test(wwwCss) &&
+      /POUR-LAND-SPLASH/.test(wwwHtml));
+  if (jsOk && cssOk && htmlOk && docsOk && noSoft && wwwOk) {
+    pass(
+      'POUR-LAND-SPLASH',
+      'splash+SFX+haptic at LAND_MS with fill-rise; denser land counts; POUR_MS cleanup only; docs #3 Partial; no soft-arm'
+    );
+  } else {
+    fail(
+      'POUR-LAND-SPLASH',
+      `missing land-splash sync (js=${jsOk} css=${cssOk} html=${htmlOk} docs=${docsOk} noSoft=${noSoft} www=${wwwOk})`
     );
   }
 }

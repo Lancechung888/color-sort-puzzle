@@ -1653,18 +1653,19 @@ html, body {
 .splash-particle {
   position: absolute;
   /* POUR-STREAM-THICK: slightly richer splash particles 6→7 */
+  /* POUR-LAND-SPLASH: JS fires splash at LAND_MS≈250 with fill-rise (not POUR_MS end) */
   width: 7px;
   height: 7px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 55;
-  animation: splashOut 0.45s ease-out forwards;
+  animation: splashOut 0.48s ease-out forwards;
 }
 
 @keyframes splashOut {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  0% { transform: translate(0, 0) scale(1.15); opacity: 1; }
   100% {
-    transform: translate(var(--dx), var(--dy)) scale(0.3);
+    transform: translate(var(--dx), var(--dy)) scale(0.25);
     opacity: 0;
   }
 }
