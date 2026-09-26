@@ -3600,16 +3600,21 @@
     const dir = toRect.left >= fromRect.left ? 1 : -1;
     const tilt = 22 + Math.floor(Math.random() * 7); // 22–28deg
     // Aim stream from tilted source lip → destination mouth (not vertical under source)
-    const lipOffset = dir * (fromRect.width * 0.28);
+    // POUR-STREAM-CONTINUITY: lip tracks tilt lift + wider pour-side offset so ribbon starts at mouth
+    const lipOffset = dir * (fromRect.width * 0.42);
     const startX = fromRect.left + fromRect.width / 2 - appRect.left + lipOffset;
-    const startY = fromRect.top - appRect.top + 6;
+    const startY = fromRect.top - appRect.top - 4;
     const endX = toRect.left + toRect.width / 2 - appRect.left;
-    const endY = toRect.top - appRect.top + 14;
+    // Keep end near dest mouth (not deep into tube) so aim stays across-gap, not vertical stub over source
+    const endY = toRect.top - appRect.top + 16;
     const dx = endX - startX;
     const dy = endY - startY;
-    const dist = Math.max(36, Math.hypot(dx, dy));
+    // Overshoot ~18% so mute stills show continuous lip→mouth ribbon bridging the gap
+    const dist = Math.max(56, Math.hypot(dx, dy) * 1.18);
     // CSS stream grows downward; rotate from vertical so length reaches target mouth
-    const angleDeg = Math.atan2(dx, dy) * (180 / Math.PI);
+    // POUR-STREAM-CONTINUITY: negate atan2 — CSS rotate(+) is clockwise (local +Y → left);
+    // without negation the ribbon grew back over the source (mute stills = stubby mid-gap blob)
+    const angleDeg = -Math.atan2(dx, dy) * (180 / Math.PI);
 
     // POUR-FEEL: slightly longer stream (~460ms) + mid-land commit (~250ms)
     const POUR_MS = 460;
@@ -3617,14 +3622,19 @@
 
     const stream = document.createElement('div');
     stream.className = 'pour-stream';
-    stream.style.background = fill;
+    // POUR-STREAM-CONTINUITY: solid SOLIDS hex (gradient washes out when rotated → stubby mute stills)
+    stream.style.background = hex;
     stream.style.color = hex;
     // POUR-STREAM-THICK: center 18px stream (half-width 9; was 7 for 12px)
+    // POUR-STREAM-CONTINUITY keeps 18px width; half-width 9 unchanged
     stream.style.left = startX - 9 + 'px';
     stream.style.top = startY + 'px';
     stream.style.setProperty('--stream-h', dist + 'px');
     stream.style.transform = 'rotate(' + angleDeg + 'deg)';
     app.appendChild(stream);
+
+    // POUR-STREAM-CONTINUITY: droplet trail along aim path — mute stills show continuous ribbon, not stub
+    spawnStreamTrail(startX, startY, endX, endY, hex, fill);
 
     const layers = fromEl.querySelectorAll('.layer');
     for (let i = 0; i < amount && i < layers.length; i++) {
@@ -3672,7 +3682,30 @@
     }, POUR_MS);
   }
 
-  /** Short gold rim sparkle for level-clearing pour — tasteful, not confetti (confetti stays in showWin). */
+  /** Droplet trail along pour aim — reads as continuous stream on mute UA stills (POUR-STREAM-CONTINUITY). */
+  function spawnStreamTrail(x0, y0, x1, y1, color, fill) {
+    if (prefersReducedMotion()) return;
+    const n = 7;
+    for (let i = 1; i <= n; i++) {
+      const t = i / (n + 1);
+      const p = document.createElement('div');
+      p.className = 'splash-particle stream-trail';
+      p.style.background = color; // solid — matches stream ribbon on mute stills
+      p.style.width = '7px';
+      p.style.height = '9px';
+      p.style.borderRadius = '4px';
+      p.style.left = (x0 + (x1 - x0) * t - 3.5) + 'px';
+      p.style.top = (y0 + (y1 - y0) * t - 4.5) + 'px';
+      p.style.setProperty('--dx', ((x1 - x0) * 0.03 * (Math.random() - 0.5)) + 'px');
+      p.style.setProperty('--dy', (3 + Math.random() * 5) + 'px');
+      p.style.animationDuration = '0.5s';
+      p.style.opacity = String(0.7 + t * 0.2);
+      app.appendChild(p);
+      setTimeout(() => p.remove(), 520);
+    }
+  }
+
+    /** Short gold rim sparkle for level-clearing pour — tasteful, not confetti (confetti stays in showWin). */
   function spawnWinPourSparkle(x, y) {
     if (prefersReducedMotion()) return;
     const golds = ['#ffd78a', '#ffe6a0', '#ffc850', '#fff0c0'];

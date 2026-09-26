@@ -8008,9 +8008,10 @@ if (billRaw) {
   const accMd = read('ACCEPTANCE.md') || '';
   const designRaw = read('DESIGN.md') || '';
   const pourIdx = gameRaw.indexOf('function animatePour');
-  const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 4200) : '';
+  // Wider slice: POUR-STREAM-CONTINUITY lengthened animatePour (trail + mouth aim)
+  const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 6200) : '';
   const fireIdx = pourSlice.indexOf('const fireLand');
-  const fireSlice = fireIdx >= 0 ? pourSlice.slice(fireIdx, fireIdx + 1200) : '';
+  const fireSlice = fireIdx >= 0 ? pourSlice.slice(fireIdx, fireIdx + 1600) : '';
   const endIdx = pourSlice.indexOf('}, POUR_MS)');
   const endSlice = endIdx >= 0 ? pourSlice.slice(Math.max(0, endIdx - 700), endIdx + 20) : '';
   const jsOk =
@@ -8058,6 +8059,67 @@ if (billRaw) {
     fail(
       'POUR-LAND-SPLASH',
       `missing land-splash sync (js=${jsOk} css=${cssOk} html=${htmlOk} docs=${docsOk} noSoft=${noSoft} www=${wwwOk})`
+    );
+  }
+}
+
+// --- POUR-STREAM-CONTINUITY: streamFall full by ~40% + mouth aim + trail; KEEP LAND_MS splash/THICK; #3 Partial; no soft-arm ---
+{
+  const gameRaw = read('assets/js/game.js') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const htmlRaw = read('index.html') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const pourIdx = gameRaw.indexOf('function animatePour');
+  const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 5200) : '';
+  const jsOk =
+    /POUR-STREAM-CONTINUITY/.test(gameRaw) &&
+    /spawnStreamTrail\(/.test(pourSlice) &&
+    /toRect\.top\s*-\s*appRect\.top\s*\+\s*16/.test(pourSlice) &&
+    /Math\.hypot\(dx,\s*dy\)\s*\*\s*1\.18/.test(pourSlice) &&
+    /stream\.style\.background\s*=\s*hex/.test(pourSlice) &&
+    /angleDeg\s*=\s*-Math\.atan2\(dx,\s*dy\)/.test(pourSlice) &&
+    /const LAND_MS\s*=\s*250/.test(pourSlice) &&
+    /const POUR_MS\s*=\s*460/.test(pourSlice) &&
+    /spawnSplash\(endX,\s*endY,\s*hex,\s*splashN\)/.test(pourSlice) &&
+    /setTimeout\(\s*fireLand\s*,\s*LAND_MS\s*\)/.test(pourSlice);
+  const cssOk =
+    /POUR-STREAM-CONTINUITY/.test(cssRaw) &&
+    /animation:\s*streamFall\s+0\.46s\s+linear/.test(cssRaw) &&
+    /40%\s*\{\s*height:\s*var\(--stream-h/.test(cssRaw) &&
+    /\.pour-stream\s*\{[^}]*width:\s*18px/s.test(cssRaw);
+  const htmlOk = /POUR-STREAM-CONTINUITY/.test(htmlRaw);
+  const docsOk =
+    /POUR-STREAM-CONTINUITY/.test(barRaw) &&
+    /POUR-STREAM-CONTINUITY/.test(accMd) &&
+    /POUR-STREAM-CONTINUITY/.test(designRaw) &&
+    /\*\*Partial\*\*/.test(barRaw) &&
+    /#3/.test(barRaw) &&
+    !/\| 3 \|[^|]*\| \*\*Pass\*\*/.test(barRaw);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse|POUR-STREAM-CONTINUITY-arm/.test(
+    (gameRaw.match(/POUR-STREAM-CONTINUITY[\s\S]{0,900}/) || [''])[0] +
+      (cssRaw.match(/POUR-STREAM-CONTINUITY[\s\S]{0,500}/) || [''])[0]
+  );
+  const wwwJs = read('www/assets/js/game.js') || '';
+  const wwwCss = read('www/assets/css/style.css') || '';
+  const wwwHtml = read('www/index.html') || '';
+  const wwwOk =
+    !wwwJs ||
+    (/POUR-STREAM-CONTINUITY/.test(wwwJs) &&
+      /spawnStreamTrail\(/.test(wwwJs) &&
+      /POUR-STREAM-CONTINUITY/.test(wwwCss) &&
+      /streamFall\s+0\.46s\s+linear/.test(wwwCss) &&
+      /POUR-STREAM-CONTINUITY/.test(wwwHtml));
+  if (jsOk && cssOk && htmlOk && docsOk && noSoft && wwwOk) {
+    pass(
+      'POUR-STREAM-CONTINUITY',
+      'streamFall full by ~40% + mouth aim + trail; KEEP LAND_MS splash/THICK 18px; docs #3 Partial; no soft-arm'
+    );
+  } else {
+    fail(
+      'POUR-STREAM-CONTINUITY',
+      `missing stream continuity (js=${jsOk} css=${cssOk} html=${htmlOk} docs=${docsOk} noSoft=${noSoft} www=${wwwOk})`
     );
   }
 }
