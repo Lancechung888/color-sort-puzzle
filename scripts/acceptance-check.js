@@ -7838,7 +7838,7 @@ if (billRaw) {
 }
 
 
-// --- INSTANT-CLARITY-GATE1-PASS: #1 Instant clarity = Pass; #3 still Partial; Production held ---
+// --- INSTANT-CLARITY-GATE1-PASS: #1 Instant clarity = Pass; #3 may Pass via GATE3-DEVICE-FEEL-PASS; Production held ---
 {
   const barRaw = read('MILLION_USER_BAR.md') || '';
   const accMd = read('ACCEPTANCE.md') || '';
@@ -7851,7 +7851,9 @@ if (billRaw) {
   const row3Line = barRaw.split('\n').find((l) => l.includes('| 3 |')) || '';
   const row1Pass = /\| 1 \|[^|]*\| \*\*Pass\*\*/.test(row1Line);
   const row3Partial = /\| 3 \|[^|]*\| \*\*Partial\*\*/.test(row3Line);
-  const noRow3Pass = !/\| 3 \|[^|]*\| \*\*Pass\*\*/.test(barRaw);
+  const row3Pass = /\| 3 \|[^|]*\| \*\*Pass\*\*/.test(row3Line);
+  const gate3PassMarked = /GATE3-DEVICE-FEEL-PASS/.test(barRaw + accMd + designRaw);
+  const row3Ok = row3Partial || (row3Pass && gate3PassMarked);
   const evidenceOk =
     /HOOK-LOUD|INSTANT-CLARITY-HOOK-LOUD/.test(barRaw + accMd) &&
     /1972/.test(barRaw + accMd) &&
@@ -7859,22 +7861,25 @@ if (billRaw) {
     /Jev|jev-1\.13\.0|gate1_status/.test(barRaw + accMd + designRaw) &&
     /0\.9|Pass 0\.9|conf \*\*0\.9\*\*/.test(barRaw + accMd + designRaw);
   const totalsOk =
-    /8 Pass\s*[\/／]\s*1 Partial\s*[\/／]\s*0 Fail/.test(barRaw + accMd);
+    /8 Pass\s*[\/／]\s*1 Partial\s*[\/／]\s*0 Fail/.test(barRaw + accMd) ||
+    /9 Pass\s*[\/／]\s*0 Partial\s*[\/／]\s*0 Fail/.test(barRaw + accMd);
   const heldOk =
     /Production[\/／ ]*soft-launch 仍禁止|Production \/ soft-launch still forbidden|Production held|Production 仍禁止/.test(
       barRaw + accMd + designRaw
     );
-  const gateClosed =
-    /閘門仍關閉|Gate still \*\*CLOSED\*\*|Gate CLOSED|總評.*8 Pass/.test(barRaw + accMd + designRaw);
-  if (docsOk && row1Pass && row3Partial && noRow3Pass && evidenceOk && totalsOk && heldOk && gateClosed) {
+  const gateStateOk =
+    /閘門仍關閉|Gate still \*\*CLOSED\*\*|Gate CLOSED|總評.*8 Pass|產品閘門 OPEN|Product gate \*\*OPEN\*\*|gate OPEN/.test(
+      barRaw + accMd + designRaw
+    );
+  if (docsOk && row1Pass && row3Ok && evidenceOk && totalsOk && heldOk && gateStateOk) {
     pass(
       'INSTANT-CLARITY-GATE1-PASS',
-      'docs #1 Pass (HOOK-LOUD+mute+re-blind+Jev Pass 0.9); #3 Partial; 8/1/0; Production held'
+      'docs #1 Pass (HOOK-LOUD+mute+re-blind+Jev Pass 0.9); #3 Partial or GATE3 Pass; totals ok; Production held'
     );
   } else {
     fail(
       'INSTANT-CLARITY-GATE1-PASS',
-      `gate1 pass honesty gap (docs=${docsOk} row1Pass=${row1Pass} row3Partial=${row3Partial} noRow3Pass=${noRow3Pass} evidence=${evidenceOk} totals=${totalsOk} held=${heldOk} closed=${gateClosed})`
+      `gate1 pass honesty gap (docs=${docsOk} row1Pass=${row1Pass} row3Ok=${row3Ok} evidence=${evidenceOk} totals=${totalsOk} held=${heldOk} gate=${gateStateOk})`
     );
   }
 }
@@ -7907,7 +7912,6 @@ if (billRaw) {
   const docsOk =
     /POUR-FEEL-MIDLAND/.test(barRaw) &&
     /POUR-FEEL-MIDLAND/.test(accMd) &&
-    /\*\*Partial\*\*/.test(barRaw) &&
     /#1/.test(barRaw) &&
     /#3/.test(barRaw);
   const noSoft = !/soft-arm|claim-juice|hud-pulse|POUR-FEEL-MIDLAND-arm/.test(
@@ -7927,7 +7931,7 @@ if (billRaw) {
   if (jsOk && cssOk && htmlOk && docsOk && noSoft && wwwOk) {
     pass(
       'POUR-FEEL-MIDLAND',
-      'mid-land commit LAND_MS=250 + POUR_MS=460; CSS streamFall/glow/destReceive 0.46s; docs honesty; #1/#3 Partial; no soft-arm'
+      'mid-land commit LAND_MS=250 + POUR_MS=460; CSS streamFall/glow/destReceive 0.46s; docs honesty; #1/#3 present; no soft-arm'
     );
   } else {
     fail(
@@ -7969,9 +7973,7 @@ if (billRaw) {
     /POUR-STREAM-THICK/.test(barRaw) &&
     /POUR-STREAM-THICK/.test(accMd) &&
     /POUR-STREAM-THICK/.test(designRaw) &&
-    /\*\*Partial\*\*/.test(barRaw) &&
-    /#3/.test(barRaw) &&
-    !/\| 3 \|[^|]*\| \*\*Pass\*\*/.test(barRaw);
+    /#3/.test(barRaw);
   const noSoft = !/soft-arm|claim-juice|hud-pulse|POUR-STREAM-THICK-arm/.test(
     (gameRaw.match(/POUR-STREAM-THICK[\s\S]{0,800}/) || [''])[0] +
       (cssRaw.match(/POUR-STREAM-THICK[\s\S]{0,400}/) || [''])[0]
@@ -7988,7 +7990,7 @@ if (billRaw) {
   if (jsOk && cssOk && htmlOk && docsOk && noSoft && wwwOk) {
     pass(
       'POUR-STREAM-THICK',
-      'stream 18px+glow; JS half-width 9; splash 7px; denser win/complete/first; MIDLAND timing kept; docs #3 Partial; no soft-arm'
+      'stream 18px+glow; JS half-width 9; splash 7px; denser win/complete/first; MIDLAND timing kept; docs #3; no soft-arm'
     );
   } else {
     fail(
@@ -8034,9 +8036,7 @@ if (billRaw) {
     /POUR-LAND-SPLASH/.test(barRaw) &&
     /POUR-LAND-SPLASH/.test(accMd) &&
     /POUR-LAND-SPLASH/.test(designRaw) &&
-    /\*\*Partial\*\*/.test(barRaw) &&
-    /#3/.test(barRaw) &&
-    !/\| 3 \|[^|]*\| \*\*Pass\*\*/.test(barRaw);
+    /#3/.test(barRaw);
   const noSoft = !/soft-arm|claim-juice|hud-pulse|POUR-LAND-SPLASH-arm/.test(
     (gameRaw.match(/POUR-LAND-SPLASH[\s\S]{0,800}/) || [''])[0] +
       (cssRaw.match(/POUR-LAND-SPLASH[\s\S]{0,400}/) || [''])[0]
@@ -8053,7 +8053,7 @@ if (billRaw) {
   if (jsOk && cssOk && htmlOk && docsOk && noSoft && wwwOk) {
     pass(
       'POUR-LAND-SPLASH',
-      'splash+SFX+haptic at LAND_MS with fill-rise; denser land counts; POUR_MS cleanup only; docs #3 Partial; no soft-arm'
+      'splash+SFX+haptic at LAND_MS with fill-rise; denser land counts; POUR_MS cleanup only; docs #3; no soft-arm'
     );
   } else {
     fail(
@@ -8094,9 +8094,7 @@ if (billRaw) {
     /POUR-STREAM-CONTINUITY/.test(barRaw) &&
     /POUR-STREAM-CONTINUITY/.test(accMd) &&
     /POUR-STREAM-CONTINUITY/.test(designRaw) &&
-    /\*\*Partial\*\*/.test(barRaw) &&
-    /#3/.test(barRaw) &&
-    !/\| 3 \|[^|]*\| \*\*Pass\*\*/.test(barRaw);
+    /#3/.test(barRaw);
   const noSoft = !/soft-arm|claim-juice|hud-pulse|POUR-STREAM-CONTINUITY-arm/.test(
     (gameRaw.match(/POUR-STREAM-CONTINUITY[\s\S]{0,900}/) || [''])[0] +
       (cssRaw.match(/POUR-STREAM-CONTINUITY[\s\S]{0,500}/) || [''])[0]
@@ -8114,12 +8112,60 @@ if (billRaw) {
   if (jsOk && cssOk && htmlOk && docsOk && noSoft && wwwOk) {
     pass(
       'POUR-STREAM-CONTINUITY',
-      'streamFall full by ~40% + mouth aim + trail; KEEP LAND_MS splash/THICK 18px; docs #3 Partial; no soft-arm'
+      'streamFall full by ~40% + mouth aim + trail; KEEP LAND_MS splash/THICK 18px; docs #3; no soft-arm'
     );
   } else {
     fail(
       'POUR-STREAM-CONTINUITY',
       `missing stream continuity (js=${jsOk} css=${cssOk} html=${htmlOk} docs=${docsOk} noSoft=${noSoft} www=${wwwOk})`
+    );
+  }
+}
+
+
+// --- GATE3-DEVICE-FEEL-PASS: #3 Pass under device-feel-only policy (no paid UA); Production CEO-held ---
+{
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const docsOk =
+    /GATE3-DEVICE-FEEL-PASS/.test(barRaw) &&
+    /GATE3-DEVICE-FEEL-PASS/.test(accMd) &&
+    /GATE3-DEVICE-FEEL-PASS/.test(designRaw);
+  const policyOk =
+    /device feel|device-feel|實機級|no ad budget|NO ad budget|不要求.*付費 UA|paid\/UA.*out of scope|out of scope.*budget/i.test(
+      barRaw
+    );
+  const row3Line = barRaw.split('\n').find((l) => l.includes('| 3 |')) || '';
+  const row3Pass = /\| 3 \|[^|]*\| \*\*Pass\*\*/.test(row3Line);
+  const jevOk =
+    /gate3_status|jev-1\.13\.0/.test(barRaw + accMd) &&
+    (/Choice \*\*Pass\*\* conf \*\*1\.0\*\*|conf \*\*1\.0\*\*|Pass conf 1\.0|confidence.: 1/.test(barRaw + accMd) ||
+      /Pass.*conf.*1\.0|conf \*\*1\.0\*\*/.test(barRaw + accMd));
+  const evidenceOk =
+    /midpour_stream|midpour_splash|gate3_haptic_device_evidence|POUR-STREAM-THICK|POUR-LAND-SPLASH|POUR-STREAM-CONTINUITY/.test(
+      barRaw + accMd
+    );
+  const totalsOk = /9 Pass\s*[\/／]\s*0 Partial\s*[\/／]\s*0 Fail/.test(barRaw + accMd);
+  const heldOk =
+    /Production[\/／ ]*soft-launch 仍禁止|Production \/ soft-launch still forbidden|Production held|Production 仍禁止|CEO/.test(
+      barRaw + accMd + designRaw
+    );
+  const openOk = /產品閘門 OPEN|Product gate \*\*OPEN\*\*|gate OPEN|1–9 全 Pass|#1–#9 Pass/.test(
+    barRaw + accMd + designRaw
+  );
+  const noProdPush = /不 push store Production|do not push store Production|不宣稱已上架/.test(
+    barRaw + accMd + designRaw
+  );
+  if (docsOk && policyOk && row3Pass && jevOk && evidenceOk && totalsOk && heldOk && openOk && noProdPush) {
+    pass(
+      'GATE3-DEVICE-FEEL-PASS',
+      'docs #3 Pass device-feel-only (Jev Pass 1.0); 9/0/0 gate OPEN; Production CEO-held; no store push'
+    );
+  } else {
+    fail(
+      'GATE3-DEVICE-FEEL-PASS',
+      `gate3 device-feel pass gap (docs=${docsOk} policy=${policyOk} row3Pass=${row3Pass} jev=${jevOk} evidence=${evidenceOk} totals=${totalsOk} held=${heldOk} open=${openOk} noPush=${noProdPush})`
     );
   }
 }
@@ -8147,11 +8193,11 @@ console.log(
   `Summary: ${rows.filter((r) => r.status === 'PASS').length} Pass · ${fails} Fail · ${blocked} Blocked (external)`
 );
 console.log(
-  'Gate: suite green when DEVICE-THREE-GREEN evidence present (P0-2/P0-3/M-IAP Pass); MILLION_USER_BAR #1 Pass / #3 Partial → Production still held — not ship-ready.'
+  'Gate: suite green when DEVICE-THREE-GREEN evidence present (P0-2/P0-3/M-IAP Pass); MILLION_USER_BAR #1–#9 Pass (GATE3-DEVICE-FEEL-PASS) → product gate OPEN; Production still CEO-held — do not push store Production.'
 );
 if (fails > 0) {
   console.log(`結果: FAIL（${fails} automatable checks）`);
   process.exit(1);
 }
-console.log('結果: PASS — automatable checks green; #1 Pass (GATE1-PASS); #7/P0②③ Pass via DEVICE-THREE-GREEN; Production held (#3 Partial)');
+console.log('結果: PASS — automatable checks green; #1 Pass (GATE1-PASS); #3 Pass (GATE3-DEVICE-FEEL-PASS); #7/P0②③ Pass via DEVICE-THREE-GREEN; product gate OPEN; Production CEO-held');
 process.exit(0);
