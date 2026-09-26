@@ -1641,13 +1641,18 @@ html, body {
   opacity: 0.95;
   transform-origin: top center; /* rotate + height grow along aim axis */
   /* POUR-FEEL-MIDLAND: streamFall synced to JS POUR_MS 460 */
-  animation: streamFall 0.46s ease-in forwards;
-  box-shadow: 0 0 14px currentColor, 0 0 22px color-mix(in srgb, currentColor 55%, transparent), 0 0 3px rgba(255,255,255,0.45) inset;
+  /* POUR-STREAM-CONTINUITY: reach full length before LAND_MS; hold ribbon (anti-stubby mute stills) */
+  animation: streamFall 0.46s linear forwards;
+  box-shadow: 0 0 16px currentColor, 0 0 28px color-mix(in srgb, currentColor 65%, transparent), 0 0 4px rgba(255,255,255,0.5) inset;
 }
 
 @keyframes streamFall {
-  from { height: 0; opacity: 1; }
-  to { height: var(--stream-h, 60px); opacity: 0.9; }
+  /* ease-in stub: mid frames were ~15–30% length → mute stills read as blob/teleport */
+  0% { height: calc(var(--stream-h, 60px) * 0.12); opacity: 0.92; }
+  /* full ribbon by ~40% (~184ms) — before LAND_MS≈250 so land/fill see continuous path */
+  40% { height: var(--stream-h, 60px); opacity: 0.96; }
+  75% { height: var(--stream-h, 60px); opacity: 0.94; }
+  100% { height: var(--stream-h, 60px); opacity: 0.88; }
 }
 
 .splash-particle {
