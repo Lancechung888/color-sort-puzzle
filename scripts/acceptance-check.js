@@ -7762,6 +7762,40 @@ if (billRaw) {
   }
 }
 
+// --- INSTANT-CLARITY-MUTE-EVIDENCE: docs sync cold mute START evidence candidate; #1 stays Partial; no fake Pass ---
+{
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const docsOk =
+    /INSTANT-CLARITY-MUTE-EVIDENCE/.test(barRaw) &&
+    /INSTANT-CLARITY-MUTE-EVIDENCE/.test(accMd) &&
+    /INSTANT-CLARITY-MUTE-EVIDENCE/.test(designRaw);
+  // Gate row #1 must remain Partial (never auto-Pass from evidence docs)
+  const row1 = (barRaw.match(/\| 1 \|[\s\S]*?\|\s*\*\*Partial\*\*[\s\S]*?\|/) || [''])[0];
+  const partialOk = /\*\*Partial\*\*/.test(row1) && /#1 仍 Partial/.test(barRaw + accMd);
+  const measureOk =
+    /animation:\s*shSrcLift\s+2\.9s/.test(cssRaw) &&
+    /animation:\s*shLid\s+2\.9s/.test(cssRaw) &&
+    /teachComplete|1740|2900|≤3s|<=3s|2\.9s/.test(barRaw + accMd);
+  const honestyOk = /永不假標 Pass|never fake Pass|不假標 Pass|keep Partial/.test(
+    barRaw + accMd + designRaw
+  );
+  const noFakePass = !/#1[^\n]*\*\*Pass\*\*/.test(barRaw.split('\n').find((l) => l.includes('| 1 |')) || '');
+  if (docsOk && partialOk && measureOk && honestyOk && noFakePass) {
+    pass(
+      'INSTANT-CLARITY-MUTE-EVIDENCE',
+      'docs mute START evidence candidate + measure ≤3s honesty; #1 stays Partial; no fake Pass'
+    );
+  } else {
+    fail(
+      'INSTANT-CLARITY-MUTE-EVIDENCE',
+      `docs/honesty gap (docs=${docsOk} partial=${partialOk} measure=${measureOk} honesty=${honestyOk} noFakePass=${noFakePass})`
+    );
+  }
+}
+
 // --- POUR-FEEL-MIDLAND: mid-land commit (~250ms) + POUR_MS 460 + CSS streamFall/glow 0.46s; #1/#3 stay Partial; no soft-arm ---
 {
   const gameRaw = read('assets/js/game.js') || '';
