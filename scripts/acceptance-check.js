@@ -7762,7 +7762,7 @@ if (billRaw) {
   }
 }
 
-// --- INSTANT-CLARITY-MUTE-EVIDENCE: docs sync cold mute START evidence candidate; #1 stays Partial; no fake Pass ---
+// --- INSTANT-CLARITY-MUTE-EVIDENCE: historical mute START evidence docs; product measure ≤3s; superseded Pass lock by GATE1-PASS ---
 {
   const barRaw = read('MILLION_USER_BAR.md') || '';
   const accMd = read('ACCEPTANCE.md') || '';
@@ -7772,31 +7772,28 @@ if (billRaw) {
     /INSTANT-CLARITY-MUTE-EVIDENCE/.test(barRaw) &&
     /INSTANT-CLARITY-MUTE-EVIDENCE/.test(accMd) &&
     /INSTANT-CLARITY-MUTE-EVIDENCE/.test(designRaw);
-  // Gate row #1 must remain Partial (never auto-Pass from evidence docs)
-  const row1 = (barRaw.match(/\| 1 \|[\s\S]*?\|\s*\*\*Partial\*\*[\s\S]*?\|/) || [''])[0];
-  const partialOk = /\*\*Partial\*\*/.test(row1) && /#1 仍 Partial/.test(barRaw + accMd);
   const measureOk =
     /animation:\s*shSrcLift\s+2\.9s/.test(cssRaw) &&
     /animation:\s*shLid\s+2\.9s/.test(cssRaw) &&
-    /teachComplete|1740|2900|≤3s|<=3s|2\.9s/.test(barRaw + accMd);
-  const honestyOk = /永不假標 Pass|never fake Pass|不假標 Pass|keep Partial/.test(
+    /teachComplete|1740|1972|2900|≤3s|<=3s|2\.9s/.test(barRaw + accMd);
+  // Honesty: never fake #3 Pass (GATE1-PASS may mark #1 Pass)
+  const honestyOk = /永不假標 Pass|never fake Pass|不假標 Pass|不標 #3 Pass|never fake #3 Pass|Do NOT mark #3 Pass/.test(
     barRaw + accMd + designRaw
   );
-  const noFakePass = !/#1[^\n]*\*\*Pass\*\*/.test(barRaw.split('\n').find((l) => l.includes('| 1 |')) || '');
-  if (docsOk && partialOk && measureOk && honestyOk && noFakePass) {
+  if (docsOk && measureOk && honestyOk) {
     pass(
       'INSTANT-CLARITY-MUTE-EVIDENCE',
-      'docs mute START evidence candidate + measure ≤3s honesty; #1 stays Partial; no fake Pass'
+      'docs mute START evidence + measure ≤3s retained; Pass lock moved to INSTANT-CLARITY-GATE1-PASS'
     );
   } else {
     fail(
       'INSTANT-CLARITY-MUTE-EVIDENCE',
-      `docs/honesty gap (docs=${docsOk} partial=${partialOk} measure=${measureOk} honesty=${honestyOk} noFakePass=${noFakePass})`
+      `docs/honesty gap (docs=${docsOk} measure=${measureOk} honesty=${honestyOk})`
     );
   }
 }
 
-// --- INSTANT-CLARITY-HOOK-LOUD: enlarge start-hook + long gold-lid beat; #1 stays Partial; no fake Pass ---
+// --- INSTANT-CLARITY-HOOK-LOUD: enlarge start-hook + long gold-lid beat; product retained; Pass lock moved to GATE1-PASS ---
 {
   const barRaw = read('MILLION_USER_BAR.md') || '';
   const accMd = read('ACCEPTANCE.md') || '';
@@ -7809,8 +7806,6 @@ if (billRaw) {
     /INSTANT-CLARITY-HOOK-LOUD/.test(designRaw) &&
     /INSTANT-CLARITY-HOOK-LOUD/.test(cssRaw) &&
     /INSTANT-CLARITY-HOOK-LOUD/.test(htmlRaw);
-  const row1 = (barRaw.match(/\| 1 \|[\s\S]*?\|\s*\*\*Partial\*\*[\s\S]*?\|/) || [''])[0];
-  const partialOk = /\*\*Partial\*\*/.test(row1) && /#1 仍 Partial/.test(barRaw + accMd);
   const loudCssOk =
     /max-width:\s*340px/.test(cssRaw) &&
     /\.start-hook \.tube-lid[\s\S]{0,220}height:\s*36px/.test(cssRaw) &&
@@ -7819,10 +7814,9 @@ if (billRaw) {
     /animation:\s*shLid\s+2\.9s/.test(cssRaw) &&
     /animation:\s*shSrcLift\s+2\.9s/.test(cssRaw);
   const measureOk = /1972|teachComplete|2900|≤3s|<=3s|2\.9s/.test(barRaw + accMd);
-  const honestyOk = /永不假標 Pass|never fake Pass|awaiting re-blind|keep Partial/.test(
+  const honestyOk = /永不假標 Pass|never fake Pass|不標 #3 Pass|never fake #3 Pass|Do NOT mark #3 Pass/.test(
     barRaw + accMd + designRaw
   );
-  const noFakePass = !/#1[^\n]*\*\*Pass\*\*/.test(barRaw.split('\n').find((l) => l.includes('| 1 |')) || '');
   const noSoft = !/HOOK-LOUD-arm|claim-juice|hud-pulse/.test(cssRaw + htmlRaw);
   const wwwCss = read('www/assets/css/style.css') || '';
   const wwwHtml = read('www/index.html') || '';
@@ -7830,15 +7824,57 @@ if (billRaw) {
     /INSTANT-CLARITY-HOOK-LOUD/.test(wwwCss) &&
     /INSTANT-CLARITY-HOOK-LOUD/.test(wwwHtml) &&
     /max-width:\s*340px/.test(wwwCss);
-  if (docsOk && partialOk && loudCssOk && measureOk && honestyOk && noFakePass && noSoft && wwwOk) {
+  if (docsOk && loudCssOk && measureOk && honestyOk && noSoft && wwwOk) {
     pass(
       'INSTANT-CLARITY-HOOK-LOUD',
-      'loud start-hook gold-lid 0–30% + enlarge; teach ≤3s; #1 stays Partial; no fake Pass'
+      'loud start-hook gold-lid 0–30% + enlarge; teach ≤3s; product retained; Pass via INSTANT-CLARITY-GATE1-PASS'
     );
   } else {
     fail(
       'INSTANT-CLARITY-HOOK-LOUD',
-      `loud clarity gap (docs=${docsOk} partial=${partialOk} css=${loudCssOk} measure=${measureOk} honesty=${honestyOk} noFakePass=${noFakePass} noSoft=${noSoft} www=${wwwOk})`
+      `loud clarity gap (docs=${docsOk} css=${loudCssOk} measure=${measureOk} honesty=${honestyOk} noSoft=${noSoft} www=${wwwOk})`
+    );
+  }
+}
+
+
+// --- INSTANT-CLARITY-GATE1-PASS: #1 Instant clarity = Pass; #3 still Partial; Production held ---
+{
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const docsOk =
+    /INSTANT-CLARITY-GATE1-PASS/.test(barRaw) &&
+    /INSTANT-CLARITY-GATE1-PASS/.test(accMd) &&
+    /INSTANT-CLARITY-GATE1-PASS/.test(designRaw);
+  const row1Line = barRaw.split('\n').find((l) => l.includes('| 1 |')) || '';
+  const row3Line = barRaw.split('\n').find((l) => l.includes('| 3 |')) || '';
+  const row1Pass = /\| 1 \|[^|]*\| \*\*Pass\*\*/.test(row1Line);
+  const row3Partial = /\| 3 \|[^|]*\| \*\*Partial\*\*/.test(row3Line);
+  const noRow3Pass = !/\| 3 \|[^|]*\| \*\*Pass\*\*/.test(barRaw);
+  const evidenceOk =
+    /HOOK-LOUD|INSTANT-CLARITY-HOOK-LOUD/.test(barRaw + accMd) &&
+    /1972/.test(barRaw + accMd) &&
+    /re-blind|watchVideo/.test(barRaw + accMd + designRaw) &&
+    /Jev|jev-1\.13\.0|gate1_status/.test(barRaw + accMd + designRaw) &&
+    /0\.9|Pass 0\.9|conf \*\*0\.9\*\*/.test(barRaw + accMd + designRaw);
+  const totalsOk =
+    /8 Pass\s*[\/／]\s*1 Partial\s*[\/／]\s*0 Fail/.test(barRaw + accMd);
+  const heldOk =
+    /Production[\/／ ]*soft-launch 仍禁止|Production \/ soft-launch still forbidden|Production held|Production 仍禁止/.test(
+      barRaw + accMd + designRaw
+    );
+  const gateClosed =
+    /閘門仍關閉|Gate still \*\*CLOSED\*\*|Gate CLOSED|總評.*8 Pass/.test(barRaw + accMd + designRaw);
+  if (docsOk && row1Pass && row3Partial && noRow3Pass && evidenceOk && totalsOk && heldOk && gateClosed) {
+    pass(
+      'INSTANT-CLARITY-GATE1-PASS',
+      'docs #1 Pass (HOOK-LOUD+mute+re-blind+Jev Pass 0.9); #3 Partial; 8/1/0; Production held'
+    );
+  } else {
+    fail(
+      'INSTANT-CLARITY-GATE1-PASS',
+      `gate1 pass honesty gap (docs=${docsOk} row1Pass=${row1Pass} row3Partial=${row3Partial} noRow3Pass=${noRow3Pass} evidence=${evidenceOk} totals=${totalsOk} held=${heldOk} closed=${gateClosed})`
     );
   }
 }
@@ -7984,11 +8020,11 @@ console.log(
   `Summary: ${rows.filter((r) => r.status === 'PASS').length} Pass · ${fails} Fail · ${blocked} Blocked (external)`
 );
 console.log(
-  'Gate: suite green when DEVICE-THREE-GREEN evidence present (P0-2/P0-3/M-IAP Pass); MILLION_USER_BAR #1/#3 Partial → Production still held — not ship-ready.'
+  'Gate: suite green when DEVICE-THREE-GREEN evidence present (P0-2/P0-3/M-IAP Pass); MILLION_USER_BAR #1 Pass / #3 Partial → Production still held — not ship-ready.'
 );
 if (fails > 0) {
   console.log(`結果: FAIL（${fails} automatable checks）`);
   process.exit(1);
 }
-console.log('結果: PASS — automatable checks green; #7/P0②③ Pass via DEVICE-THREE-GREEN; Production held (#1/#3 Partial)');
+console.log('結果: PASS — automatable checks green; #1 Pass (GATE1-PASS); #7/P0②③ Pass via DEVICE-THREE-GREEN; Production held (#3 Partial)');
 process.exit(0);
