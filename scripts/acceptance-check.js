@@ -7820,6 +7820,66 @@ if (billRaw) {
   }
 }
 
+
+// --- POUR-STREAM-THICK: .pour-stream 12→18px + glow; JS half-width 9; splash 7px; denser win/complete/first; keep MIDLAND timing; #3 Partial; no soft-arm ---
+{
+  const gameRaw = read('assets/js/game.js') || '';
+  const cssRaw = read('assets/css/style.css') || '';
+  const htmlRaw = read('index.html') || '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const pourIdx = gameRaw.indexOf('function animatePour');
+  const pourSlice = pourIdx >= 0 ? gameRaw.slice(pourIdx, pourIdx + 3600) : '';
+  const jsOk =
+    /POUR-STREAM-THICK/.test(gameRaw) &&
+    /startX\s*-\s*9/.test(pourSlice) &&
+    /const POUR_MS\s*=\s*460/.test(pourSlice) &&
+    /const LAND_MS\s*=\s*250/.test(pourSlice) &&
+    /willWinLevel\s*\?\s*36/.test(pourSlice) &&
+    /willComplete\s*\?\s*30/.test(pourSlice) &&
+    /firstPour\s*\?\s*28/.test(pourSlice);
+  const cssOk =
+    /POUR-STREAM-THICK/.test(cssRaw) &&
+    /\.pour-stream\s*\{[^}]*width:\s*18px/s.test(cssRaw) &&
+    /\.pour-stream\s*\{[^}]*border-radius:\s*9px/s.test(cssRaw) &&
+    /animation:\s*streamFall\s+0\.46s/.test(cssRaw) &&
+    /\.splash-particle\s*\{[^}]*width:\s*7px/s.test(cssRaw) &&
+    /\.splash-particle\s*\{[^}]*height:\s*7px/s.test(cssRaw);
+  const htmlOk = /POUR-STREAM-THICK/.test(htmlRaw);
+  const docsOk =
+    /POUR-STREAM-THICK/.test(barRaw) &&
+    /POUR-STREAM-THICK/.test(accMd) &&
+    /POUR-STREAM-THICK/.test(designRaw) &&
+    /\*\*Partial\*\*/.test(barRaw) &&
+    /#3/.test(barRaw) &&
+    !/\| 3 \|[^|]*\| \*\*Pass\*\*/.test(barRaw);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse|POUR-STREAM-THICK-arm/.test(
+    (gameRaw.match(/POUR-STREAM-THICK[\s\S]{0,800}/) || [''])[0] +
+      (cssRaw.match(/POUR-STREAM-THICK[\s\S]{0,400}/) || [''])[0]
+  );
+  const wwwJs = read('www/assets/js/game.js') || '';
+  const wwwCss = read('www/assets/css/style.css') || '';
+  const wwwHtml = read('www/index.html') || '';
+  const wwwOk =
+    !wwwJs ||
+    (/POUR-STREAM-THICK/.test(wwwJs) &&
+      /startX\s*-\s*9/.test(wwwJs) &&
+      /\.pour-stream\s*\{[^}]*width:\s*18px/s.test(wwwCss) &&
+      /POUR-STREAM-THICK/.test(wwwHtml));
+  if (jsOk && cssOk && htmlOk && docsOk && noSoft && wwwOk) {
+    pass(
+      'POUR-STREAM-THICK',
+      'stream 18px+glow; JS half-width 9; splash 7px; denser win/complete/first; MIDLAND timing kept; docs #3 Partial; no soft-arm'
+    );
+  } else {
+    fail(
+      'POUR-STREAM-THICK',
+      `missing thick stream polish (js=${jsOk} css=${cssOk} html=${htmlOk} docs=${docsOk} noSoft=${noSoft} www=${wwwOk})`
+    );
+  }
+}
+
 // --- 5) Delegate native wiring ---
 const native = spawnSync('node', [path.join(root, 'scripts/native-wiring-check.js')], {
   cwd: root,

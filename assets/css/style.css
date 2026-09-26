@@ -1633,15 +1633,16 @@ html, body {
 /* Pour stream + splash — JS aims via rotate (source lip → target mouth) */
 .pour-stream {
   position: absolute;
-  width: 12px;
-  border-radius: 6px;
+  /* POUR-STREAM-THICK: 12→18px so stream reads at phone/25fps UA screenshots */
+  width: 18px;
+  border-radius: 9px;
   pointer-events: none;
   z-index: 50;
   opacity: 0.95;
   transform-origin: top center; /* rotate + height grow along aim axis */
   /* POUR-FEEL-MIDLAND: streamFall synced to JS POUR_MS 460 */
   animation: streamFall 0.46s ease-in forwards;
-  box-shadow: 0 0 10px currentColor, 0 0 2px rgba(255,255,255,0.35) inset;
+  box-shadow: 0 0 14px currentColor, 0 0 22px color-mix(in srgb, currentColor 55%, transparent), 0 0 3px rgba(255,255,255,0.45) inset;
 }
 
 @keyframes streamFall {
@@ -1651,8 +1652,9 @@ html, body {
 
 .splash-particle {
   position: absolute;
-  width: 6px;
-  height: 6px;
+  /* POUR-STREAM-THICK: slightly richer splash particles 6→7 */
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 55;

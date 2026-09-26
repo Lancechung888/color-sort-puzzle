@@ -3619,7 +3619,8 @@
     stream.className = 'pour-stream';
     stream.style.background = fill;
     stream.style.color = hex;
-    stream.style.left = startX - 7 + 'px';
+    // POUR-STREAM-THICK: center 18px stream (half-width 9; was 7 for 12px)
+    stream.style.left = startX - 9 + 'px';
     stream.style.top = startY + 'px';
     stream.style.setProperty('--stream-h', dist + 'px');
     stream.style.transform = 'rotate(' + angleDeg + 'deg)';
@@ -3649,7 +3650,8 @@
     setTimeout(() => {
       fireLand(); // safety: never finish without board commit
       // Winning pour: denser splash (~32) + short gold rim sparkle; else completing ~26 / first 24
-      const splashN = willWinLevel ? 32 : (willComplete ? 26 : (firstPour ? 24 : null));
+      // POUR-STREAM-THICK: slightly denser splash on win/complete/first pour paths
+      const splashN = willWinLevel ? 36 : (willComplete ? 30 : (firstPour ? 28 : null));
       spawnSplash(endX, endY, hex, splashN);
       if (willWinLevel) spawnWinPourSparkle(endX, endY);
       SFX.land();
