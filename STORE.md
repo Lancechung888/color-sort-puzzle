@@ -9,6 +9,12 @@ Suggested **appId**: `com.lancechung.colortubesort`
 
 > **Market lock (see `docs/MARKET_SCAN_EN.md`):** Keep title **ColorTube Sort: Lid Puzzle**. Stuff *water sort / color sort / tube* into short desc + Apple keywords. Remove Ads IAP target **$2.99**. UA first-3s: gold lid blocks pour → uncap (not plain water ASMR alone).
 
+## Current release status (2026-09-27 Asia/Taipei)
+
+- Play **internal testing Active**: `1.0.7-internal-vc8-pourfix` / versionCode **8** / versionName **1.0.7**; uploaded 2026-09-27 and available to internal testers.
+- `remove_ads`: **Active, USD $2.99** (no mismatch).
+- **Production untouched and held**; this note does not authorize a Production publish.
+
 ## ASO — Google Play
 
 ### English (EN) — **Primary / default listing**

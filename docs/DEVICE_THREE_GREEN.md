@@ -11,7 +11,9 @@
 | Device | **Seeker** (serial `SM02G4061932272`) via DESKTOP-EBT4G1I ADB |
 | Build | Sideload **vc6** APK **1.0.5** / `1.0.5-internal-vc6-iapBusy` (after uninstall for `UPDATE_INCOMPATIBLE`) |
 | Account | License tester `hanwen16888@gmail.com` + sandbox test card |
-| Play Active | `1.0.5-internal-vc6-iapBusy` / versionCode **6** / **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** / `USE_TEST_ADS=false` |
+| Play Active at verification | `1.0.5-internal-vc6-iapBusy` / versionCode **6** / **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** / `USE_TEST_ADS=false` |
+
+> **Current Play status (2026-09-27 Asia/Taipei):** Internal testing Active is `1.0.7-internal-vc8-pourfix` / versionCode **8** / versionName **1.0.7**, uploaded 2026-09-27 and available to internal testers. `remove_ads` is confirmed Active at **USD $2.99** (no mismatch). The vc6 build above is the historical device-verification build; **Production is untouched and remains held**.
 
 ## Three green lights — **Pass**
 
