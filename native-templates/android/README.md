@@ -760,14 +760,14 @@ bash scripts/patch-android-version.sh
 
 `npm run aab:internal` 在 Billing-8 patch **之後**、AdMob Manifest patch **之前**自動跑。
 
-## 2ak. Android versionCode ≥7（ANDROID-VERSION-CODE-7）
+## 2ak. Android versionCode ≥8（ANDROID-VERSION-CODE-8）
 
-Play internal testing rejects reused `versionCode`. Play **Active** internal is **vc7** / `1.0.6-internal-vc7-adUnavailable` (contains **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE**; uploaded from `…-2117-prodAdMob-vc7-adUnavailable-release.aab`; **NATIVE-VC7-INTERNAL-SYNC**). Historical Active was **vc6** / `1.0.5-internal-vc6-iapBusy`. Script default for rebuilds:
+Play internal testing rejects reused `versionCode`. Play **Active** internal is **vc8** / `1.0.7-internal-vc8-pourfix` (uploaded 2026-09-27; **NATIVE-VC8-INTERNAL-SYNC**). Historical Active was **vc7** / `1.0.6-internal-vc7-adUnavailable` (**NATIVE-VC7-INTERNAL-SYNC** / **ANDROID-VERSION-CODE-7**) then **vc6** / `1.0.5-internal-vc6-iapBusy`. Script default for rebuilds:
 
-1. `versionCode` → **7**
-2. `versionName` → **"1.0.6"**
+1. `versionCode` → **8**
+2. `versionName` → **"1.0.7"**
 
-Pairs with tip **AD-REWARD-UNAVAILABLE** (#244) + **REAL-ADMOB-IDS** (`USE_TEST_ADS=false`) + **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY**. Active Play is already **vc7** with **AD-REWARD-UNAVAILABLE**. **#7 Pass** remains DEVICE-THREE-GREEN Seeker evidence. Gate stays **7 Pass / 2 Partial** (#1/#3). No soft-arm / soft-launch / Production.
+Pairs with **REAL-ADMOB-IDS** (`USE_TEST_ADS=false`) + tip stack on tip (**UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE**). Active Play is already **vc8**. **#7 Pass** remains DEVICE-THREE-GREEN Seeker evidence. Product gates **1–9 Pass** (GATE3-DEVICE-FEEL-PASS). No soft-arm / soft-launch. CEO unlocked Production 2026-09-27; Play Closed-testing policy (≥12 testers × ≥14d) still blocks Production — track not pushed.
 
 一鍵補丁（冪等；無 `android/` 時 exit 0；override via `COLOR_TUBE_VERSION_CODE` / `COLOR_TUBE_VERSION_NAME`）：
 

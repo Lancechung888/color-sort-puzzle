@@ -2,16 +2,16 @@
 # Idempotent: set Play versionCode/versionName after cap sync (android/ is gitignored).
 # Cap sync / fresh cap add resets defaultConfig to versionCode 1 — always re-apply before bundleRelease.
 # Play internal testing rejects reused versionCode (prior upload used 1).
-# Defaults: VERSION_CODE=7, VERSION_NAME=1.0.6 (ANDROID-VERSION-CODE-7). Does NOT claim #7 Pass.
-# ANDROID-VERSION-CODE-7 (was CODE-6 for vc6 / 1.0.5).
-# Honesty: Play Active internal AAB remains vc6 / 1.0.5-internal-vc6-iapBusy until the next upload;
-# this script default prepares the *next* AAB (tip AD-REWARD-UNAVAILABLE / #244). Env overrides kept.
+# Defaults: VERSION_CODE=8, VERSION_NAME=1.0.7 (ANDROID-VERSION-CODE-8). Does NOT claim Production.
+# ANDROID-VERSION-CODE-8 (historical ANDROID-VERSION-CODE-7 for vc7 / 1.0.6; CODE-6 for vc6 / 1.0.5).
+# Honesty: Play Active internal is already 1.0.7-internal-vc8-pourfix / vc8 / 1.0.7 (NATIVE-VC8-INTERNAL-SYNC).
+# Script default matches Active / next rebuild. Env overrides kept.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GRADLE="$ROOT/android/app/build.gradle"
-VERSION_CODE="${COLOR_TUBE_VERSION_CODE:-7}"
-VERSION_NAME="${COLOR_TUBE_VERSION_NAME:-1.0.6}"
+VERSION_CODE="${COLOR_TUBE_VERSION_CODE:-8}"
+VERSION_NAME="${COLOR_TUBE_VERSION_NAME:-1.0.7}"
 
 log() { echo "[patch-android-version] $*"; }
 

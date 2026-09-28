@@ -1,11 +1,11 @@
-# 原生包可驗收說明（prod AdMob 配線＋內測 vc7）
+# 原生包可驗收說明（prod AdMob 配線＋內測 vc8）
 
 > **給 CEO 三問一行摘要**
 > 1) Capacitor android／簽名：**文件齊備**（本機 `cap add`＋keystore／`signingConfigs` 步驟齊，`android/` 不進 git）。
 > 2) 內測 AAB：`npm run aab:internal` 一鍵路徑已就緒；**包裝箱已具備 JDK 17 + Android SDK**；已多次產出**已簽名** release AAB（含現況 **vc7-adUnavailable**）。無 SDK 的 agent／CI 箱仍應非 0 退出並印缺項。
-> 3) AdMob／Billing：**REAL-ADMOB-IDS** 已配線 Android 正式 App／單元 ID＋`USE_TEST_ADS=false`；Billing≥8 patch 就緒；假 IAP 預設關。Play **internal testing Active** = `1.0.6-internal-vc7-adUnavailable`／versionCode **7**／**UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**＋**AD-REWARD-UNAVAILABLE**。**#7 Pass**（DEVICE-THREE-GREEN Seeker）。未上架 production（#1／#3 Partial）。
+> 3) AdMob／Billing：**REAL-ADMOB-IDS** 已配線 Android 正式 App／單元 ID＋`USE_TEST_ADS=false`；Billing≥8 patch 就緒；假 IAP 預設關。Play **internal testing Active** = `1.0.7-internal-vc8-pourfix`／versionCode **8**／versionName **1.0.7**（2026-09-27）。**#7 Pass**（DEVICE-THREE-GREEN Seeker）。產品閘門 1–9 Pass。CEO unlocked Production 2026-09-27；Play Closed-testing policy（≥12 testers × ≥14d）仍擋 Production — track not pushed。
 >
-> Marker: **NATIVE-ACCEPTANCE-VC7-SYNC** · **NATIVE-VC7-INTERNAL-SYNC** · **NATIVE-VC7-LOCAL-AAB-SYNC**（對齊 `docs/NATIVE_PACK_READY.md`／`docs/PLAY_CONSOLE_PASTE.md` 的 **NATIVE-VC7-INTERNAL-SYNC**／**PLAY-PASTE-VC7-SYNC**；歷史 **NATIVE-ACCEPTANCE-VC6-SYNC**／**NATIVE-VC6-INTERNAL-SYNC**／**NATIVE-VC6-LOCAL-AAB-SYNC**／**PLAY-PASTE-VC6-SYNC**）。
+> Marker: **NATIVE-ACCEPTANCE-VC8-SYNC** · **NATIVE-VC8-INTERNAL-SYNC** · **NATIVE-VC8-LOCAL-AAB-SYNC**（對齊 `docs/NATIVE_PACK_READY.md`／`docs/PLAY_CONSOLE_PASTE.md` 的 **NATIVE-VC8-INTERNAL-SYNC**／**PLAY-PASTE-VC8-SYNC**；歷史 **NATIVE-ACCEPTANCE-VC7-SYNC**／**NATIVE-VC7-INTERNAL-SYNC**／**NATIVE-VC7-LOCAL-AAB-SYNC**／**PLAY-PASTE-VC7-SYNC**／**NATIVE-ACCEPTANCE-VC6-SYNC**／**NATIVE-VC6-INTERNAL-SYNC**／**NATIVE-VC6-LOCAL-AAB-SYNC**／**PLAY-PASTE-VC6-SYNC**）。
 
 ---
 
@@ -13,11 +13,11 @@
 
 | 項目 | 現況 |
 |------|------|
-| 階段 | **prod AdMob 已配線**（`REAL-ADMOB-IDS`；`USE_TEST_ADS=false`）＋ Play **internal** Active **vc7** |
-| 上架 | **僅內部測試**；**未** production；勿宣稱已上架 |
+| 階段 | **prod AdMob 已配線**（`REAL-ADMOB-IDS`；`USE_TEST_ADS=false`）＋ Play **internal** Active **vc8** |
+| 上架 | **僅內部測試**；CEO unlocked 2026-09-27 但 Play Closed-testing policy 仍擋 Production；勿宣稱已上架 |
 | 假 IAP | **關**（`colorTubeSort_devIap` 預設關閉；無 native Billing 不 grant） |
 | #7 | **Pass** — DEVICE-THREE-GREEN 實機三綠燈已過（interstitial／rewarded 完整看完／`remove_ads` 購買＋還原） |
-| Active AAB | `1.0.6-internal-vc7-adUnavailable`／vc7／1.0.6／Billing≥8／prod AdMob／**UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**＋**AD-REWARD-UNAVAILABLE**；已由本機 ~21:17 建置的 signed AAB（`…-2117-prodAdMob-vc7-adUnavailable-release.aab`／`play-upload/ColorTubeSort-vc7-adUnavailable.aab`）上傳並在 Play Active（~21:21）。**NATIVE-VC7-INTERNAL-SYNC**（建置來源：**NATIVE-VC7-LOCAL-AAB-SYNC**）。歷史 vc6／`1.0.5-internal-vc6-iapBusy` superseded（**NATIVE-VC6-INTERNAL-SYNC**／**NATIVE-VC6-LOCAL-AAB-SYNC**） |
+| Active AAB | `1.0.7-internal-vc8-pourfix`／vc8／1.0.7／Billing≥8／prod AdMob（2026-09-27 上傳；**NATIVE-VC8-INTERNAL-SYNC**／**NATIVE-VC8-LOCAL-AAB-SYNC**）。歷史 vc7／`1.0.6-internal-vc7-adUnavailable` superseded（`…-2117-prodAdMob-vc7-adUnavailable-release.aab`；**NATIVE-VC7-INTERNAL-SYNC**／**NATIVE-VC7-LOCAL-AAB-SYNC**）。歷史 vc6／`1.0.5-internal-vc6-iapBusy` superseded（**NATIVE-VC6-INTERNAL-SYNC**／**NATIVE-VC6-LOCAL-AAB-SYNC**） |
 | 本文件 | **可驗收**：與 `NATIVE_PACK_READY`／paste 對齊；歷史測 ID 階段標 superseded |
 
 驗收以：**文件齊、現況不說謊、有 SDK 時可產出簽名 AAB、#7 不因配線／上傳 alone 標 Pass**。
@@ -146,17 +146,18 @@ npm run native:check
 
 - [x] **REAL-ADMOB-IDS** — Android 正式 App ID＋interstitial／rewarded；`USE_TEST_ADS=false`；`initializeForTesting=false`
   路徑：`capacitor.config.json`、`assets/js/ads.js`；詳見 `docs/ADMOB_POST_LINK_CHECKLIST.md`／`docs/PLAY_CONSOLE_PASTE.md`
-- [x] **billing.js** 產品 `remove_ads`＋無 web／無 plugin 時不 grant；**IAP-PURCHASE-BUSY**＋**AD-REWARD-UNAVAILABLE** 已在 Active vc7 AAB（與 **UNCAP-ONE-TAP** 同包）
+- [x] **billing.js** 產品 `remove_ads`＋無 web／無 plugin 時不 grant；**IAP-PURCHASE-BUSY**＋**AD-REWARD-UNAVAILABLE** 已在 tip（歷史 Active vc7 AAB 含同包；現況 Active **vc8-pourfix**）
 - [x] **Play Billing ≥8**：`scripts/patch-android-billing-8.sh`（`billing:8.3.0`＋`PendingPurchasesParams`＋`minSdk 23`）；`aab:internal` 在 `cap sync` 後呼叫
-- [x] **versionCode 腳本**：Active 為 **7／1.0.6**；`scripts/patch-android-version.sh` 預設 **7／1.0.6**（`ANDROID-VERSION-CODE-7`；env 可覆寫）；Active AAB 含 **UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**＋**AD-REWARD-UNAVAILABLE**（**NATIVE-VC7-INTERNAL-SYNC**）
+- [x] **versionCode 腳本**：Active 為 **8／1.0.7**；`scripts/patch-android-version.sh` 預設 **8／1.0.7**（`ANDROID-VERSION-CODE-8`；歷史 `ANDROID-VERSION-CODE-7`；env 可覆寫）（**NATIVE-VC8-INTERNAL-SYNC**）
 - [x] **game.js** 點擊不白送 `removeAds`（僅 `isBillingReady()` 走真購買；devIap 預設關）
 - [x] **native-templates** Manifest／Billing snippets
   路徑：`native-templates/android/README.md`
-- [x] 包裝箱已 `cap add android`＋產出並上傳 signed AAB（含 **vc7-adUnavailable**；歷史 **vc6-iapBusy**）
-- [x] Play **internal testing** 已上傳 current：`1.0.6-internal-vc7-adUnavailable`／vc7；含 **UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**＋**AD-REWARD-UNAVAILABLE**；testers `lancechung@gmail.com`＋`hanwen16888@gmail.com`（**INTERNAL-TESTER-SYNC**）。歷史 vc6 superseded
+- [x] 包裝箱已 `cap add android`＋產出並上傳 signed AAB（現況 **vc8-pourfix**；歷史 **vc7-adUnavailable**／**vc6-iapBusy**）
+- [x] Play **internal testing** 已上傳 current：`1.0.7-internal-vc8-pourfix`／vc8；testers `lancechung@gmail.com`＋`hanwen16888@gmail.com`（**INTERNAL-TESTER-SYNC**）。歷史 vc7／vc6 superseded
 
 ### 歷史（superseded — 勿當現況）
 
+- `1.0.6-internal-vc7-adUnavailable`／vc7／**UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY**＋**AD-REWARD-UNAVAILABLE** — **已 superseded**（**NATIVE-VC7-INTERNAL-SYNC**／**NATIVE-VC7-LOCAL-AAB-SYNC**／**NATIVE-ACCEPTANCE-VC7-SYNC**／**PLAY-PASTE-VC7-SYNC**）。
 - `1.0.5-internal-vc6-iapBusy`／vc6／**UNCAP-ONE-TAP**＋**IAP-PURCHASE-BUSY** — **已 superseded**（**NATIVE-VC6-INTERNAL-SYNC**／**NATIVE-VC6-LOCAL-AAB-SYNC**／**NATIVE-ACCEPTANCE-VC6-SYNC**／**PLAY-PASTE-VC6-SYNC**）。
 - Google sample／示範 AdMob App／單元 ID＋`USE_TEST_ADS=true`＋`1.0.1-internal-vc2-testids`／vc2 — **已 superseded**（見 `NATIVE_PACK_READY` 歷史段）。
 
@@ -166,16 +167,17 @@ npm run native:check
   (1) interstitial 實機播出
   (2) rewarded **完整看完**發獎
   (3) `remove_ads` 購買＋還原
-- [x] 上傳本機已建內測 AAB：**versionCode 7**／**1.0.6**／`1.0.6-internal-vc7-adUnavailable`（`/workspace/colortube-artifacts/ColorTubeSort-internal-20260921-2117-prodAdMob-vc7-adUnavailable-release.aab`；**NATIVE-VC7-LOCAL-AAB-SYNC**）— 已在 Play Active；**無 AAB rebuild**
+- [x] 上傳 current 內測 AAB：**versionCode 8**／**1.0.7**／`1.0.7-internal-vc8-pourfix`（**NATIVE-VC8-LOCAL-AAB-SYNC**）— 已在 Play Active（2026-09-27）；**無 AAB rebuild** this honesty pass
+- [x] 歷史上傳：**versionCode 7**／**1.0.6**／`1.0.6-internal-vc7-adUnavailable`（`…-2117-prodAdMob-vc7-adUnavailable-release.aab`；**NATIVE-VC7-LOCAL-AAB-SYNC**）— superseded
 - [x] 歷史上傳：**versionCode 6**／**1.0.5**／`1.0.5-internal-vc6-iapBusy`（`…-1826-prodAdMob-vc6-iapBusy-release.aab`；**NATIVE-VC6-LOCAL-AAB-SYNC**）— superseded
-- [ ] Production／公開軌道 — **未動**；過審後清單見 `docs/PLAY_POST_APPROVAL_CHECKLIST.md`
+- [ ] Production／公開軌道 — CEO unlocked 2026-09-27；Play Closed-testing policy（≥12 testers × ≥14d）仍擋；track not pushed；過審後清單見 `docs/PLAY_POST_APPROVAL_CHECKLIST.md`
 
 ---
 
 ## 相關連結
 
-- 英文就緒狀態：`docs/NATIVE_PACK_READY.md`（**NATIVE-VC7-INTERNAL-SYNC**；歷史 **NATIVE-VC6-INTERNAL-SYNC**）
-- Paste 現況：`docs/PLAY_CONSOLE_PASTE.md`（**PLAY-PASTE-VC7-SYNC**；歷史 **PLAY-PASTE-VC6-SYNC**）
+- 英文就緒狀態：`docs/NATIVE_PACK_READY.md`（**NATIVE-VC8-INTERNAL-SYNC**；歷史 **NATIVE-VC7-INTERNAL-SYNC**／**NATIVE-VC6-INTERNAL-SYNC**）
+- Paste 現況：`docs/PLAY_CONSOLE_PASTE.md`（**PLAY-PASTE-VC8-SYNC**；歷史 **PLAY-PASTE-VC7-SYNC**／**PLAY-PASTE-VC6-SYNC**）
 - 過審後清單：`docs/PLAY_POST_APPROVAL_CHECKLIST.md`
 - Capacitor 備註：`capacitor.config.notes.md`
 - Android 模板：`native-templates/android/README.md`

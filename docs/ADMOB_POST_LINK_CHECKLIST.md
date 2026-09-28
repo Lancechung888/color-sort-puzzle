@@ -1,8 +1,8 @@
 # AdMob checklist — after Play package link
 
-> Marker: **DEVICE-THREE-GREEN** — Seeker #7 Pass; see `docs/DEVICE_THREE_GREEN.md`. Production still held (#1/#3 Partial).
+> Marker: **DEVICE-THREE-GREEN** — Seeker #7 Pass; see `docs/DEVICE_THREE_GREEN.md`. CEO unlocked Production 2026-09-27; Play Closed-testing policy (≥12 testers × ≥14d) still blocks Production — track not pushed.
 
-**Context (2026-09-21):** **Current** Play internal testing Active = `1.0.6-internal-vc7-adUnavailable` / **versionCode 7** / **versionName 1.0.6** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE**. Historical: `1.0.5-internal-vc6-iapBusy` / vc6 (superseded; **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**); vc5 / 1.0.4 (`1.0.4-internal-vc5-uncap1tap`); vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` / vc2 (superseded; **NATIVE-INTERNAL-TESTING-SYNC**). **REAL-ADMOB-IDS** wires Android prod App ID `ca-app-pub-3904450574947460~6670970617` + interstitial `…/2731725604` + rewarded `…/8768677032` with `initializeForTesting=false`. Play package `com.lancechung.colortubesort`. `remove_ads` IAP Active @ $2.99 in Console (device purchase+restore **Pass** on Seeker — DEVICE-THREE-GREEN). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921` (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**). Support email / GA4 `MEASUREMENT_ID` still external placeholders. Markers: **NATIVE-VC7-INTERNAL-SYNC** · **NATIVE-VC7-LOCAL-AAB-SYNC** · **PLAY-PASTE-VC7-SYNC** (historical vc6/vc5/vc3 markers).
+**Context (2026-09-28):** **Current** Play internal testing Active = `1.0.7-internal-vc8-pourfix` / **versionCode 8** / **versionName 1.0.7** / Billing≥8 / **prod AdMob** (`USE_TEST_ADS=false`) (uploaded 2026-09-27; **NATIVE-VC8-INTERNAL-SYNC**). Historical: `1.0.6-internal-vc7-adUnavailable` / vc7 (superseded; **NATIVE-VC7-INTERNAL-SYNC** · **NATIVE-VC7-LOCAL-AAB-SYNC**); tip stack on tip (**UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE**); `1.0.5-internal-vc6-iapBusy` / vc6 (superseded; **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**); vc5 / 1.0.4 (`1.0.4-internal-vc5-uncap1tap`); vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded; **NATIVE-VC3-INTERNAL-SYNC**); `1.0.1-internal-vc2-testids` / vc2 (superseded; **NATIVE-INTERNAL-TESTING-SYNC**). **REAL-ADMOB-IDS** wires Android prod App ID `ca-app-pub-3904450574947460~6670970617` + interstitial `…/2731725604` + rewarded `…/8768677032` with `initializeForTesting=false`. Play package `com.lancechung.colortubesort`. `remove_ads` IAP Active @ $2.99 in Console (device purchase+restore **Pass** on Seeker — DEVICE-THREE-GREEN). Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921` (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**). Support email / GA4 `MEASUREMENT_ID` still external placeholders. Markers: **NATIVE-VC8-INTERNAL-SYNC** · **NATIVE-VC8-LOCAL-AAB-SYNC** · **PLAY-PASTE-VC8-SYNC** (historical vc7/vc6/vc5/vc3 markers).
 
 **Rule:** **#7 Pass** only via DEVICE-THREE-GREEN (interstitial, rewarded full-watch, remove_ads purchase+restore). Repo wiring alone is **not** enough.
 
@@ -11,9 +11,9 @@
 ## 0) Preconditions
 
 - [x] Play app exists + package fixed: `com.lancechung.colortubesort`
-- [x] Internal testing track has a build (**current Active:** `1.0.6-internal-vc7-adUnavailable` / vc7 / 1.0.6 / prod AdMob / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + AD-REWARD-UNAVAILABLE)
+- [x] Internal testing track has a build (**current Active:** `1.0.7-internal-vc8-pourfix` / vc8 / 1.0.7 / prod AdMob)
 - [x] License testers Gmail added — `lancechung@gmail.com` + `hanwen16888@gmail.com` / **RESPOND_NORMALLY** (**INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**)
-- [x] Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for `1.0.6-internal-vc7-adUnavailable`); opt-in `https://play.google.com/apps/internaltest/4701709602422954921`
+- [x] Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com` (selected for `1.0.7-internal-vc8-pourfix`); opt-in `https://play.google.com/apps/internaltest/4701709602422954921`
 - [x] `remove_ads` product Active @ **$2.99** (Console); device purchase+restore **Pass** → **#7 Pass** (DEVICE-THREE-GREEN Seeker)
 - [ ] Support email for privacy page (user)
 
@@ -84,15 +84,15 @@ No placeholders. No sample `3940256099942544` IDs.
 
 See also: `docs/PLAY_IAP_ADMOB_SETUP.md` (full IAP + AdMob), `docs/PLAY_CONSOLE_PASTE_PACK.md`.
 
-## Status update (2026-09-21) — **NATIVE-VC7-INTERNAL-SYNC** + **NATIVE-VC7-LOCAL-AAB-SYNC** + **INTERNAL-TESTER-SYNC** / **INTERNAL-TESTER-HANWEN-SYNC** / **PLAY-PASTE-VC7-SYNC** (historical **NATIVE-VC6-INTERNAL-SYNC** / **PLAY-PASTE-VC6-SYNC**)
+## Status update (2026-09-28) — **NATIVE-VC8-INTERNAL-SYNC** + **NATIVE-VC8-LOCAL-AAB-SYNC** + **INTERNAL-TESTER-SYNC** / **INTERNAL-TESTER-HANWEN-SYNC** / **PLAY-PASTE-VC8-SYNC** (historical **NATIVE-VC7-INTERNAL-SYNC** / **PLAY-PASTE-VC7-SYNC** / **NATIVE-VC6-INTERNAL-SYNC** / **PLAY-PASTE-VC6-SYNC**)
 
 - Android AdMob App ID + interstitial + rewarded **wired in repo** (Play store link may still 404 until listing public).
 - `USE_TEST_ADS=false`, `initializeForTesting=false`.
-- Play **internal testing** **UPLOADED current Active**: `1.0.6-internal-vc7-adUnavailable` / versionCode **7** / **1.0.6** / Billing≥8 / prod AdMob / **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE** (published ~21:21 Asia/Taipei). Historical: `1.0.5-internal-vc6-iapBusy` / vc6 superseded; `1.0.4-internal-vc5-uncap1tap` / vc5; vc4 / 1.0.3; vc3 / vc2-testids superseded.
+- Play **internal testing** **UPLOADED current Active**: `1.0.7-internal-vc8-pourfix` / versionCode **8** / **1.0.7** / Billing≥8 / prod AdMob (uploaded 2026-09-27 Asia/Taipei). Historical: `1.0.6-internal-vc7-adUnavailable` / vc7 superseded; `1.0.5-internal-vc6-iapBusy` / vc6 superseded; `1.0.4-internal-vc5-uncap1tap` / vc5; vc4 / 1.0.3; vc3 / vc2-testids superseded.
 - Internal tester list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`.
-- Active vc7 AAB **includes** **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE**; the already-built ~21:17 AAB (`…-2117-prodAdMob-vc7-adUnavailable-release.aab` / `play-upload/ColorTubeSort-vc7-adUnavailable.aab`) is uploaded as `1.0.6-internal-vc7-adUnavailable` (**NATIVE-VC7-INTERNAL-SYNC** · **NATIVE-VC7-LOCAL-AAB-SYNC**). Historical vc6 upload retained under **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**.
+- Current Active **vc8-pourfix** (**NATIVE-VC8-INTERNAL-SYNC** · **NATIVE-VC8-LOCAL-AAB-SYNC**). Historical vc7 AAB (`…-2117-prodAdMob-vc7-adUnavailable-release.aab` / `play-upload/ColorTubeSort-vc7-adUnavailable.aab`) retained under **NATIVE-VC7-INTERNAL-SYNC** · **NATIVE-VC7-LOCAL-AAB-SYNC**. Historical vc6 upload retained under **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**.
 - Device QA **Pass** (**#7 Pass** · DEVICE-THREE-GREEN Seeker):
   - [ ] Interstitial only fail-loop / clear
   - [ ] Rewarded grants only after complete
   - [ ] `remove_ads` purchase + restore; owned → no interstitial
-- **#7 Pass** recorded after those three green lights (DEVICE-THREE-GREEN). Production untouched. Paste pack / PLAY_CONSOLE_PASTE synced under **PLAY-PASTE-VC7-SYNC** (historical **PLAY-PASTE-VC6-SYNC** / **PLAY-PASTE-VC5-SYNC** / **PLAY-PASTE-VC3-SYNC**; no “keep sample IDs + USE_TEST_ADS=true” as current advice).
+- **#7 Pass** recorded after those three green lights (DEVICE-THREE-GREEN). CEO unlocked Production 2026-09-27; Play Closed-testing policy (≥12 testers × ≥14d) still blocks Production — track not pushed. Paste pack / PLAY_CONSOLE_PASTE synced under **PLAY-PASTE-VC8-SYNC** (historical **PLAY-PASTE-VC7-SYNC** / **PLAY-PASTE-VC6-SYNC** / **PLAY-PASTE-VC5-SYNC** / **PLAY-PASTE-VC3-SYNC**; no “keep sample IDs + USE_TEST_ADS=true” as current advice).
