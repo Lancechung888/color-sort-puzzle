@@ -2,10 +2,10 @@
 
 > **EN first** (primary listing). Traditional Chinese secondary below.
 > Play developer account: **APPROVED** (2026-09-21 Asia/Taipei).
-> **Current** internal testing Active: `1.0.6-internal-vc7-adUnavailable` / versionCode **7** / versionName **1.0.6** / Billing≥8 / prod AdMob (`USE_TEST_ADS=false`) / **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE**. Historical: `1.0.5-internal-vc6-iapBusy` / vc6 (superseded); vc5 / 1.0.4; vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded); vc2-testids superseded.
-> **Do not** claim live / #7 Pass — verified DEVICE-THREE-GREEN (interstitial, rewarded full-watch, `remove_ads` purchase+restore). **#7 Pass** (DEVICE-THREE-GREEN Seeker). Production untouched.
-> Active vc7 AAB **includes** **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE** (tip main / #244; the already-built ~21:17 AAB `…-2117-prodAdMob-vc7-adUnavailable-release.aab` / `play-upload/ColorTubeSort-vc7-adUnavailable.aab` is uploaded as `1.0.6-internal-vc7-adUnavailable`; **NATIVE-VC7-INTERNAL-SYNC** · **NATIVE-VC7-LOCAL-AAB-SYNC**). Historical vc6 Active `1.0.5-internal-vc6-iapBusy` (…-1826 / `play-upload/ColorTubeSort-vc6-iapBusy.aab`; **NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**) superseded.
-> Marker: **PLAY-PASTE-VC7-SYNC** · **NATIVE-VC7-INTERNAL-SYNC** · **NATIVE-VC7-LOCAL-AAB-SYNC** (historical **PLAY-PASTE-VC6-SYNC** / **NATIVE-VC6-INTERNAL-SYNC** / **NATIVE-VC6-LOCAL-AAB-SYNC** / **PLAY-PASTE-VC5-SYNC** / **NATIVE-VC5-INTERNAL-SYNC** / **PLAY-PASTE-VC3-SYNC** / **NATIVE-VC3-INTERNAL-SYNC**).
+> **Current** internal testing Active: `1.0.7-internal-vc8-pourfix` / versionCode **8** / versionName **1.0.7** / Billing≥8 / prod AdMob (`USE_TEST_ADS=false`) (uploaded 2026-09-27). Historical: `1.0.6-internal-vc7-adUnavailable` / vc7 (superseded); `1.0.5-internal-vc6-iapBusy` / vc6 (superseded); vc5 / 1.0.4; vc4 / 1.0.3; `1.0.2-internal-vc3-prodAdMob` / vc3 (superseded); vc2-testids superseded.
+> **Do not** claim Production live. **#7 Pass** (DEVICE-THREE-GREEN Seeker). CEO unlocked Production 2026-09-27; Play Closed-testing policy (≥12 testers × ≥14d) still blocks Production — track not pushed.
+> Current Active **vc8-pourfix** (**NATIVE-VC8-INTERNAL-SYNC** · **NATIVE-VC8-LOCAL-AAB-SYNC**). Historical vc7 AAB `…-2117-prodAdMob-vc7-adUnavailable-release.aab` / `play-upload/ColorTubeSort-vc7-adUnavailable.aab` as `1.0.6-internal-vc7-adUnavailable` (**NATIVE-VC7-INTERNAL-SYNC** · **NATIVE-VC7-LOCAL-AAB-SYNC**; tip **UNCAP-ONE-TAP** + **IAP-PURCHASE-BUSY** + **AD-REWARD-UNAVAILABLE**) superseded. Historical vc6 `1.0.5-internal-vc6-iapBusy` (**NATIVE-VC6-INTERNAL-SYNC** · **NATIVE-VC6-LOCAL-AAB-SYNC**) superseded.
+> Marker: **PLAY-PASTE-VC8-SYNC** · **NATIVE-VC8-INTERNAL-SYNC** · **NATIVE-VC8-LOCAL-AAB-SYNC** (historical **PLAY-PASTE-VC7-SYNC** / **NATIVE-VC7-INTERNAL-SYNC** / **NATIVE-VC7-LOCAL-AAB-SYNC** / **PLAY-PASTE-VC6-SYNC** / **NATIVE-VC6-INTERNAL-SYNC** / **NATIVE-VC6-LOCAL-AAB-SYNC** / **PLAY-PASTE-VC5-SYNC** / **NATIVE-VC5-INTERNAL-SYNC** / **PLAY-PASTE-VC3-SYNC** / **NATIVE-VC3-INTERNAL-SYNC**).
 
 Source of truth: `STORE.md` · `docs/PRIVACY_README.md` · `docs/PLAY_POST_APPROVAL_CHECKLIST.md` · `docs/ADMOB_POST_LINK_CHECKLIST.md`
 
@@ -19,7 +19,7 @@ Source of truth: `STORE.md` · `docs/PRIVACY_README.md` · `docs/PLAY_POST_APPRO
 | **Play listing title (EN)** | ColorTube Sort: Lid Puzzle |
 | **Package name / appId** | `com.lancechung.colortubesort` |
 | **Play app ID** | `4972040404691889159` |
-| **Internal testing (current Active)** | `1.0.6-internal-vc7-adUnavailable` / versionCode **7** / versionName **1.0.6** / Billing≥8 / prod AdMob / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + AD-REWARD-UNAVAILABLE |
+| **Internal testing (current Active)** | `1.0.7-internal-vc8-pourfix` / versionCode **8** / versionName **1.0.7** / Billing≥8 / prod AdMob |
 | **Privacy policy URL (HTTPS)** | https://lancechung888.github.io/color-sort-puzzle/privacy/ |
 
 Verified live on GitHub Pages (`main` → `/docs`). Use this exact URL in the Play form.
@@ -143,7 +143,7 @@ Android prod IDs are **already wired** in repo (`USE_TEST_ADS=false`). Do **not*
 
 ## Still open (honest; not done by paste alone) — **INTERNAL-TESTER-SYNC** · **INTERNAL-TESTER-HANWEN-SYNC**
 
-1. **Play app / internal testing / AdMob Android IDs** — **DONE** (app ID `4972040404691889159`; Active internal `1.0.6-internal-vc7-adUnavailable`; **REAL-ADMOB-IDS**).
+1. **Play app / internal testing / AdMob Android IDs** — **DONE** (app ID `4972040404691889159`; Active internal `1.0.7-internal-vc8-pourfix`; **REAL-ADMOB-IDS**).
 2. **Internal testers** — list **ColorTube-internal** includes `lancechung@gmail.com` + `hanwen16888@gmail.com`; license testers **RESPOND_NORMALLY**; opt-in `https://play.google.com/apps/internaltest/4701709602422954921`.
 3. **Device three green lights** — interstitial / rewarded full-watch / `remove_ads` purchase+restore → **#7 Pass** (DEVICE-THREE-GREEN Seeker).
 4. **Still external placeholders** — support email; GA4 `MEASUREMENT_ID`; Merchant / Data Safety Device IDs deep form may still be incomplete. Do not invent.

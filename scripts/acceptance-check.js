@@ -4139,7 +4139,7 @@ if (billRaw) {
 }
 
 
-// --- ANDROID-VERSION-CODE-7: Play versionCode≥7 + versionName 1.0.6; no soft-arm ---
+// --- ANDROID-VERSION-CODE-8: Play versionCode≥8 + versionName 1.0.7; no soft-arm ---
 {
   const patchRaw = read('scripts/patch-android-version.sh') || '';
   const aabRaw = read('scripts/build-internal-aab.sh') || '';
@@ -4149,9 +4149,9 @@ if (billRaw) {
     ? fs.readFileSync(appGradlePath, 'utf8')
     : '';
   const patchOk =
-    /ANDROID-VERSION-CODE-7/.test(patchRaw) &&
-    /COLOR_TUBE_VERSION_CODE:-7/.test(patchRaw) &&
-    /COLOR_TUBE_VERSION_NAME:-1\.0\.6/.test(patchRaw) &&
+    /ANDROID-VERSION-CODE-8/.test(patchRaw) &&
+    /COLOR_TUBE_VERSION_CODE:-8/.test(patchRaw) &&
+    /COLOR_TUBE_VERSION_NAME:-1\.0\.7/.test(patchRaw) &&
     /versionCode/.test(patchRaw) &&
     /versionName/.test(patchRaw);
   const syncIdx = aabRaw.search(/npx cap sync/);
@@ -4168,24 +4168,48 @@ if (billRaw) {
     versionIdx < admobIdx &&
     !/patch-android-version-code\.sh/.test(aabRaw);
   const readmeOk =
-    /ANDROID-VERSION-CODE-7/.test(readmeRaw) && /2ak/.test(readmeRaw);
+    /ANDROID-VERSION-CODE-8/.test(readmeRaw) && /2ak/.test(readmeRaw);
   let localOk = !appGradle;
   if (appGradle) {
     localOk =
-      /versionCode\s+7\b/.test(appGradle) &&
-      /versionName\s+"1\.0\.6"/.test(appGradle);
+      /versionCode\s+8\b/.test(appGradle) &&
+      /versionName\s+"1\.0\.7"/.test(appGradle);
   }
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(patchRaw + appGradle);
   if (patchOk && aabHookOk && readmeOk && localOk && noSoft) {
     pass(
+      'ANDROID-VERSION-CODE-8',
+      'versionCode 8 / versionName 1.0.7 via patch-android-version.sh + aab after billing before admob + README §2ak; Active Play vc8/1.0.7 pourfix; no soft-arm'
+    );
+  } else {
+    fail(
+      'ANDROID-VERSION-CODE-8',
+      `missing versionCode≥8 patch / aab hook-after-billing-before-admob / README / local gradle, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- ANDROID-VERSION-CODE-7: historical docs-only (superseded by CODE-8); no soft-arm ---
+{
+  const patchRaw = read('scripts/patch-android-version.sh') || '';
+  const readmeRaw = read('native-templates/android/README.md') || '';
+  const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
+  const histOk =
+    /ANDROID-VERSION-CODE-7/.test(patchRaw + readmeRaw + packRaw) &&
+    (/historical/i.test(patchRaw + readmeRaw + packRaw) ||
+      /superseded/i.test(readmeRaw + packRaw) ||
+      /was CODE-7/i.test(patchRaw));
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(patchRaw);
+  if (histOk && noSoft) {
+    pass(
       'ANDROID-VERSION-CODE-7',
-      'versionCode 7 / versionName 1.0.6 via patch-android-version.sh + aab after billing before admob + README §2ak; Active Play vc7/1.0.6 with AD-REWARD-UNAVAILABLE; no soft-arm'
+      'historical ANDROID-VERSION-CODE-7 / vc7 / 1.0.6 documented (superseded by ANDROID-VERSION-CODE-8); no soft-arm'
     );
   } else {
     fail(
       'ANDROID-VERSION-CODE-7',
-      `missing versionCode≥7 patch / aab hook-after-billing-before-admob / README / local gradle, or soft-arm slipped in (patchOk=${patchOk} aabHookOk=${aabHookOk} readmeOk=${readmeOk} localOk=${localOk} noSoft=${noSoft})`
+      `missing historical CODE-7 docs (histOk=${histOk} noSoft=${noSoft})`
     );
   }
 }
@@ -6839,7 +6863,7 @@ if (billRaw) {
   }
 }
 
-// --- NATIVE-PACK-READY-SYNC: docs truth + package 1.0.6 + REAL-ADMOB-IDS; Active vc7; no soft-arm ---
+// --- NATIVE-PACK-READY-SYNC: docs truth + package 1.0.7 + REAL-ADMOB-IDS; Active vc8; no soft-arm ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
   const pkgRaw = read('package.json') || '';
@@ -6853,19 +6877,18 @@ if (billRaw) {
   const approvedOk =
     /Play developer account\s+\*?\*?APPROVED\*?\*?/i.test(packRaw) ||
     (/APPROVED/.test(packRaw) && /Play/.test(packRaw) && /account/i.test(packRaw));
-  // Active Play track honesty (uploaded vc7 / 1.0.6)
+  // Active Play track honesty (uploaded vc8 / 1.0.7)
   const vcActiveOk =
-    /1\.0\.6-internal-vc7-adUnavailable/.test(packRaw) &&
-    (/versionCode\s*\*?\*?7\*?\*?/.test(packRaw) || /ANDROID-VERSION-CODE-7/.test(packRaw)) &&
-    /UNCAP-ONE-TAP/.test(packRaw) &&
-    /IAP-PURCHASE-BUSY/.test(packRaw) &&
-    /AD-REWARD-UNAVAILABLE/.test(packRaw);
-  // Script remains pinned to vc7 / 1.0.6 + local AAB path honesty
+    /1\.0\.7-internal-vc8-pourfix/.test(packRaw) &&
+    (/versionCode\s*\*?\*?8\*?\*?/.test(packRaw) || /ANDROID-VERSION-CODE-8/.test(packRaw));
+  // Script pinned to vc8 / 1.0.7; historical vc7 AAB path retained
   const vcScriptOk =
-    /ANDROID-VERSION-CODE-7/.test(packRaw) &&
-    (/versionCode\s*7/.test(packRaw) || /versionName\s*1\.0\.6/.test(packRaw) || /1\.0\.6/.test(packRaw)) &&
-    (/2117-prodAdMob-vc7-adUnavailable/.test(packRaw) || /ColorTubeSort-vc7-adUnavailable\.aab/.test(packRaw));
-  const pkgOk = pkgVer === '1.0.6';
+    /ANDROID-VERSION-CODE-8/.test(packRaw) &&
+    (/versionCode\s*8/.test(packRaw) || /versionName\s*1\.0\.7/.test(packRaw) || /1\.0\.7/.test(packRaw)) &&
+    (/1\.0\.6-internal-vc7-adUnavailable/.test(packRaw) ||
+      /2117-prodAdMob-vc7-adUnavailable/.test(packRaw) ||
+      /ColorTubeSort-vc7-adUnavailable\.aab/.test(packRaw));
+  const pkgOk = pkgVer === '1.0.7';
   const realAdOk =
     /REAL-ADMOB-IDS/.test(packRaw) ||
     /3904450574947460/.test(packRaw) ||
@@ -6874,7 +6897,7 @@ if (billRaw) {
   if (noStale && approvedOk && vcActiveOk && vcScriptOk && pkgOk && realAdOk && noSoft) {
     pass(
       'NATIVE-PACK-READY-SYNC',
-      'NATIVE_PACK_READY: Play account APPROVED + Active vc7/1.0.6 with UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + AD-REWARD-UNAVAILABLE + local 2117 AAB + REAL-ADMOB-IDS; package.json 1.0.6; no soft-arm'
+      'NATIVE_PACK_READY: Play account APPROVED + Active vc8/1.0.7 pourfix + script ANDROID-VERSION-CODE-8 + historical vc7 AAB + REAL-ADMOB-IDS; package.json 1.0.7; no soft-arm'
     );
   } else {
     fail(
@@ -7192,25 +7215,24 @@ if (billRaw) {
 }
 
 
-// --- NATIVE-VC7-INTERNAL-SYNC: current internal = vc7-adUnavailable; #7 Pass; no soft-arm ---
+// --- NATIVE-VC7-INTERNAL-SYNC: historical vc7-adUnavailable still documented; #7 Pass; no soft-arm ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
   const admobRaw = read('docs/ADMOB_POST_LINK_CHECKLIST.md') || '';
   const designRaw = read('DESIGN.md') || '';
   const markerOk = /NATIVE-VC7-INTERNAL-SYNC/.test(packRaw) && /NATIVE-VC7-INTERNAL-SYNC/.test(admobRaw);
-  const currentOk =
+  const histVc7Ok =
     /1\.0\.6-internal-vc7-adUnavailable/.test(packRaw) &&
     /1\.0\.6-internal-vc7-adUnavailable/.test(admobRaw) &&
-    (/versionCode\s*7/.test(packRaw) || /ANDROID-VERSION-CODE-7/.test(packRaw)) &&
-    (/versionName\s*\*?\*?1\.0\.6\*?\*?/.test(packRaw) || /1\.0\.6/.test(packRaw));
+    (/historical/i.test(packRaw) || /superseded/i.test(packRaw)) &&
+    (/historical/i.test(admobRaw) || /superseded/i.test(admobRaw));
   const prodOk =
     (/USE_TEST_ADS\s*=\s*false/.test(packRaw) || /prod AdMob/i.test(packRaw)) &&
     (/USE_TEST_ADS\s*=\s*false/.test(admobRaw) || /prod AdMob/i.test(admobRaw));
   const uncapOk = /UNCAP-ONE-TAP/.test(packRaw) && /UNCAP-ONE-TAP/.test(admobRaw);
   const busyOk = /IAP-PURCHASE-BUSY/.test(packRaw) && /IAP-PURCHASE-BUSY/.test(admobRaw);
   const rewardOk = /AD-REWARD-UNAVAILABLE/.test(packRaw) && /AD-REWARD-UNAVAILABLE/.test(admobRaw);
-  const histOk =
-    (/historical/i.test(packRaw) || /superseded/i.test(packRaw)) &&
+  const olderHistOk =
     (/1\.0\.5-internal-vc6-iapBusy/.test(packRaw) || /vc6/.test(packRaw)) &&
     (/1\.0\.4-internal-vc5-uncap1tap/.test(packRaw) || /vc5/.test(packRaw));
   const fail7Ok = pass7DeviceOk(packRaw) && pass7DeviceOk(admobRaw);
@@ -7222,29 +7244,29 @@ if (billRaw) {
     !/soft-arm|claim-juice|hud-pulse/.test(admobRaw);
   if (
     markerOk &&
-    currentOk &&
+    histVc7Ok &&
     prodOk &&
     uncapOk &&
     busyOk &&
     rewardOk &&
-    histOk &&
+    olderHistOk &&
     fail7Ok &&
     designOk &&
     noSoft
   ) {
     pass(
       'NATIVE-VC7-INTERNAL-SYNC',
-      'NATIVE_PACK_READY + ADMOB checklist: current Active 1.0.6-internal-vc7-adUnavailable / vc7 / 1.0.6 / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + AD-REWARD-UNAVAILABLE; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
+      'NATIVE_PACK_READY + ADMOB checklist: historical 1.0.6-internal-vc7-adUnavailable / vc7 documented; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
       'NATIVE-VC7-INTERNAL-SYNC',
-      `missing vc7 internal truth (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} uncapOk=${uncapOk} busyOk=${busyOk} rewardOk=${rewardOk} histOk=${histOk} fail7Ok=${fail7Ok} designOk=${designOk} noSoft=${noSoft})`
+      `missing vc7 historical truth (markerOk=${markerOk} histVc7Ok=${histVc7Ok} prodOk=${prodOk} uncapOk=${uncapOk} busyOk=${busyOk} rewardOk=${rewardOk} olderHistOk=${olderHistOk} fail7Ok=${fail7Ok} designOk=${designOk} noSoft=${noSoft})`
     );
   }
 }
 
-// --- NATIVE-VC7-LOCAL-AAB-SYNC: built vc7-adUnavailable AAB uploaded Active; #7 Pass ---
+// --- NATIVE-VC7-LOCAL-AAB-SYNC: historical vc7-adUnavailable AAB path still documented; #7 Pass ---
 {
   const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
   const na = read('docs/NATIVE_ACCEPTANCE.md') || '';
@@ -7259,39 +7281,37 @@ if (billRaw) {
     /2117-prodAdMob-vc7-adUnavailable/.test(packRaw) &&
     (/ColorTubeSort-vc7-adUnavailable\.aab/.test(packRaw) ||
       /play-upload\/ColorTubeSort-vc7-adUnavailable/.test(packRaw)) &&
-    (/uploaded/i.test(packRaw) || /上傳/.test(packRaw));
-  const activeVc7 =
+    (/uploaded/i.test(packRaw) || /上傳/.test(packRaw) || /historical/i.test(packRaw) || /superseded/i.test(packRaw));
+  const histVc7 =
     /1\.0\.6-internal-vc7-adUnavailable/.test(packRaw) &&
-    (/Active.*vc7/i.test(packRaw) || /current.*vc7/i.test(packRaw) || /Play Active.*vc7/i.test(packRaw));
-  const rewardActive =
-    /AD-REWARD-UNAVAILABLE/.test(packRaw) &&
-    (/includes/.test(packRaw) || /含/.test(packRaw));
+    (/historical/i.test(packRaw) || /superseded/i.test(packRaw));
+  const rewardOk = /AD-REWARD-UNAVAILABLE/.test(packRaw);
   const fail7Ok = pass7DeviceOk(packRaw);
   const naOk =
-    /2117-prodAdMob-vc7-adUnavailable/.test(na) &&
-    (/已在 Play Active/.test(na) || /uploaded/i.test(na));
+    (/2117-prodAdMob-vc7-adUnavailable/.test(na) || /1\.0\.6-internal-vc7-adUnavailable/.test(na)) &&
+    (/NATIVE-VC7-LOCAL-AAB-SYNC/.test(na) || /historical/i.test(na) || /superseded/i.test(na) || /歷史/.test(na));
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(packRaw + na + paste + pastePack);
-  if (markerOk && localAabOk && activeVc7 && rewardActive && fail7Ok && naOk && noSoft) {
+  if (markerOk && localAabOk && histVc7 && rewardOk && fail7Ok && naOk && noSoft) {
     pass(
       'NATIVE-VC7-LOCAL-AAB-SYNC',
-      'docs: existing vc7-adUnavailable AAB uploaded; Active is vc7 + AD-REWARD-UNAVAILABLE; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
+      'docs: historical vc7-adUnavailable AAB path documented (superseded by vc8 Active); #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
       'NATIVE-VC7-LOCAL-AAB-SYNC',
-      `missing vc7 AAB sync (markerOk=${markerOk} localAabOk=${localAabOk} activeVc7=${activeVc7} rewardActive=${rewardActive} fail7Ok=${fail7Ok} naOk=${naOk} noSoft=${noSoft})`
+      `missing vc7 historical AAB sync (markerOk=${markerOk} localAabOk=${localAabOk} histVc7=${histVc7} rewardOk=${rewardOk} fail7Ok=${fail7Ok} naOk=${naOk} noSoft=${noSoft})`
     );
   }
 }
 
-// --- NATIVE-ACCEPTANCE-VC7-SYNC: NATIVE_ACCEPTANCE current Active vc7; #7 Pass ---
+// --- NATIVE-ACCEPTANCE-VC7-SYNC: historical vc7 still documented in NATIVE_ACCEPTANCE; #7 Pass ---
 {
   const na = read('docs/NATIVE_ACCEPTANCE.md') || '';
   const markerOk = /NATIVE-ACCEPTANCE-VC7-SYNC/.test(na);
-  const currentOk =
+  const histOk =
     /1\.0\.6-internal-vc7-adUnavailable/.test(na) &&
-    (/versionCode\s*\*?\*?7\*?\*?/.test(na) || /vc7/.test(na));
+    (/historical/i.test(na) || /superseded/i.test(na) || /歷史/.test(na));
   const prodOk =
     /REAL-ADMOB-IDS/.test(na) &&
     (/USE_TEST_ADS\s*=\s*false/.test(na) || /prod AdMob/i.test(na));
@@ -7299,38 +7319,37 @@ if (billRaw) {
     !/^# 原生包可驗收說明（測試 ID 階段）/m.test(na) &&
     !/\|\s*階段\s*\|\s*\*\*測試 ID\*\*/.test(na) &&
     !/AdMob／Billing 測 ID：\*\*接線打勾已過關\*\*/.test(na);
-  const activeFeatures =
+  const featuresOk =
     /UNCAP-ONE-TAP/.test(na) &&
     /IAP-PURCHASE-BUSY/.test(na) &&
-    /AD-REWARD-UNAVAILABLE/.test(na) &&
-    (/已在 Play Active/.test(na) || /uploaded/i.test(na));
+    /AD-REWARD-UNAVAILABLE/.test(na);
   const fail7Ok = pass7DeviceOk(na);
   const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(na);
-  if (markerOk && currentOk && prodOk && noStaleTestStage && activeFeatures && fail7Ok && noSoft) {
+  if (markerOk && histOk && prodOk && noStaleTestStage && featuresOk && fail7Ok && noSoft) {
     pass(
       'NATIVE-ACCEPTANCE-VC7-SYNC',
-      'NATIVE_ACCEPTANCE: Active vc7 / REAL-ADMOB-IDS / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + AD-REWARD-UNAVAILABLE / #7 Pass DEVICE-THREE-GREEN; no soft-arm'
+      'NATIVE_ACCEPTANCE: historical vc7 / REAL-ADMOB-IDS / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + AD-REWARD-UNAVAILABLE / #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
       'NATIVE-ACCEPTANCE-VC7-SYNC',
-      `stale or incomplete NATIVE_ACCEPTANCE (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} noStaleTestStage=${noStaleTestStage} activeFeatures=${activeFeatures} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+      `stale or incomplete NATIVE_ACCEPTANCE vc7 hist (markerOk=${markerOk} histOk=${histOk} prodOk=${prodOk} noStaleTestStage=${noStaleTestStage} featuresOk=${featuresOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
     );
   }
 }
 
-// --- PLAY-PASTE-VC7-SYNC: paste pack/docs = vc7-adUnavailable; #7 Pass ---
+// --- PLAY-PASTE-VC7-SYNC: historical vc7-adUnavailable still documented; #7 Pass ---
 {
   const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
   const paste = read('docs/PLAY_CONSOLE_PASTE.md') || '';
   const post = read('docs/PLAY_POST_APPROVAL_CHECKLIST.md') || '';
   const markerOk =
     /PLAY-PASTE-VC7-SYNC/.test(pastePack) && /PLAY-PASTE-VC7-SYNC/.test(paste);
-  const currentOk =
+  const histVc7Ok =
     /1\.0\.6-internal-vc7-adUnavailable/.test(pastePack) &&
     /1\.0\.6-internal-vc7-adUnavailable/.test(paste) &&
-    (/USE_TEST_ADS\s*=\s*false/.test(pastePack) || /prod AdMob/i.test(pastePack)) &&
-    (/versionCode\s*\*?\*?7\*?\*?/.test(pastePack) || /versionCode\s+7/.test(pastePack));
+    (/historical/i.test(pastePack) || /superseded/i.test(pastePack)) &&
+    (/historical/i.test(paste) || /superseded/i.test(paste));
   const uncapOk = /UNCAP-ONE-TAP/.test(pastePack) || /uncap1tap/i.test(pastePack);
   const busyOk = /IAP-PURCHASE-BUSY/.test(pastePack) && /IAP-PURCHASE-BUSY/.test(paste);
   const rewardOk = /AD-REWARD-UNAVAILABLE/.test(pastePack) && /AD-REWARD-UNAVAILABLE/.test(paste);
@@ -7342,11 +7361,167 @@ if (billRaw) {
     !/Until then:\s*keep Google\s+\*\*sample\*\*\s*IDs\s+\+\s*`USE_TEST_ADS=true`/i.test(pastePack) &&
     !/Until units exist:\s*keep Google\s+\*\*sample\*\*\s*IDs\s+\+\s*`USE_TEST_ADS\s*=\s*true`/i.test(paste) &&
     !/\*\*Do not invent\*\*\s+real\s+`ca-app-pub/i.test(paste);
-  const histOk =
-    (/superseded/i.test(pastePack) || /historical/i.test(pastePack)) &&
+  const olderHistOk =
     (/1\.0\.5-internal-vc6-iapBusy/.test(pastePack) || /vc6/.test(pastePack)) &&
     /1\.0\.1-internal-vc2-testids/.test(pastePack);
-  const postOk = /1\.0\.6-internal-vc7-adUnavailable/.test(post);
+  const postOk =
+    /1\.0\.6-internal-vc7-adUnavailable/.test(post) ||
+    /NATIVE-VC7-INTERNAL-SYNC/.test(post) ||
+    /PLAY-PASTE-VC7-SYNC/.test(post);
+  const fail7Ok = pass7DeviceOk(pastePack) && pass7DeviceOk(paste);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(pastePack) &&
+    !/soft-arm|claim-juice|hud-pulse/.test(paste);
+  if (
+    markerOk &&
+    histVc7Ok &&
+    uncapOk &&
+    busyOk &&
+    rewardOk &&
+    idsOk &&
+    noStaleSampleAdvice &&
+    olderHistOk &&
+    postOk &&
+    fail7Ok &&
+    noSoft
+  ) {
+    pass(
+      'PLAY-PASTE-VC7-SYNC',
+      'PLAY_CONSOLE_PASTE(_PACK): historical vc7-adUnavailable / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + AD-REWARD-UNAVAILABLE documented; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
+    );
+  } else {
+    fail(
+      'PLAY-PASTE-VC7-SYNC',
+      `missing paste vc7 historical sync (markerOk=${markerOk} histVc7Ok=${histVc7Ok} uncapOk=${uncapOk} busyOk=${busyOk} rewardOk=${rewardOk} idsOk=${idsOk} noStaleSampleAdvice=${noStaleSampleAdvice} olderHistOk=${olderHistOk} postOk=${postOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- NATIVE-VC8-INTERNAL-SYNC: current internal = vc8-pourfix; #7 Pass; no soft-arm ---
+{
+  const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
+  const admobRaw = read('docs/ADMOB_POST_LINK_CHECKLIST.md') || '';
+  const designRaw = read('DESIGN.md') || '';
+  const markerOk = /NATIVE-VC8-INTERNAL-SYNC/.test(packRaw) && /NATIVE-VC8-INTERNAL-SYNC/.test(admobRaw);
+  const currentOk =
+    /1\.0\.7-internal-vc8-pourfix/.test(packRaw) &&
+    /1\.0\.7-internal-vc8-pourfix/.test(admobRaw) &&
+    (/versionCode\s*8/.test(packRaw) || /ANDROID-VERSION-CODE-8/.test(packRaw)) &&
+    (/versionName\s*\*?\*?1\.0\.7\*?\*?/.test(packRaw) || /1\.0\.7/.test(packRaw));
+  const prodOk =
+    (/USE_TEST_ADS\s*=\s*false/.test(packRaw) || /prod AdMob/i.test(packRaw)) &&
+    (/USE_TEST_ADS\s*=\s*false/.test(admobRaw) || /prod AdMob/i.test(admobRaw));
+  const histOk =
+    (/historical/i.test(packRaw) || /superseded/i.test(packRaw)) &&
+    (/1\.0\.6-internal-vc7-adUnavailable/.test(packRaw) || /vc7/.test(packRaw)) &&
+    (/1\.0\.5-internal-vc6-iapBusy/.test(packRaw) || /vc6/.test(packRaw));
+  const fail7Ok = pass7DeviceOk(packRaw) && pass7DeviceOk(admobRaw);
+  const designOk =
+    /REAL-ADMOB-IDS/.test(designRaw) &&
+    !/AdMob interstitial \+ rewarded \(Capacitor plugin \+ publisher account\)/.test(designRaw);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(packRaw) &&
+    !/soft-arm|claim-juice|hud-pulse/.test(admobRaw);
+  if (markerOk && currentOk && prodOk && histOk && fail7Ok && designOk && noSoft) {
+    pass(
+      'NATIVE-VC8-INTERNAL-SYNC',
+      'NATIVE_PACK_READY + ADMOB checklist: current Active 1.0.7-internal-vc8-pourfix / vc8 / 1.0.7; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
+    );
+  } else {
+    fail(
+      'NATIVE-VC8-INTERNAL-SYNC',
+      `missing vc8 internal truth (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} histOk=${histOk} fail7Ok=${fail7Ok} designOk=${designOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- NATIVE-VC8-LOCAL-AAB-SYNC: Active vc8-pourfix documented; #7 Pass ---
+{
+  const packRaw = read('docs/NATIVE_PACK_READY.md') || '';
+  const na = read('docs/NATIVE_ACCEPTANCE.md') || '';
+  const paste = read('docs/PLAY_CONSOLE_PASTE.md') || '';
+  const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
+  const markerOk =
+    /NATIVE-VC8-LOCAL-AAB-SYNC/.test(packRaw) &&
+    /NATIVE-VC8-LOCAL-AAB-SYNC/.test(na) &&
+    /NATIVE-VC8-LOCAL-AAB-SYNC/.test(paste) &&
+    /NATIVE-VC8-LOCAL-AAB-SYNC/.test(pastePack);
+  const activeVc8 =
+    /1\.0\.7-internal-vc8-pourfix/.test(packRaw) &&
+    (/Active.*vc8/i.test(packRaw) || /current.*vc8/i.test(packRaw) || /Play Active.*vc8/i.test(packRaw) || /versionCode\s*\*?\*?8/.test(packRaw));
+  const fail7Ok = pass7DeviceOk(packRaw);
+  const naOk =
+    /1\.0\.7-internal-vc8-pourfix/.test(na) &&
+    (/已在 Play Active/.test(na) || /uploaded/i.test(na) || /Active/.test(na));
+  const noSoft =
+    !/soft-arm|claim-juice|hud-pulse/.test(packRaw + na + paste + pastePack);
+  if (markerOk && activeVc8 && fail7Ok && naOk && noSoft) {
+    pass(
+      'NATIVE-VC8-LOCAL-AAB-SYNC',
+      'docs: Active is vc8-pourfix / 1.0.7; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
+    );
+  } else {
+    fail(
+      'NATIVE-VC8-LOCAL-AAB-SYNC',
+      `missing vc8 AAB sync (markerOk=${markerOk} activeVc8=${activeVc8} fail7Ok=${fail7Ok} naOk=${naOk} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- NATIVE-ACCEPTANCE-VC8-SYNC: NATIVE_ACCEPTANCE current Active vc8; #7 Pass ---
+{
+  const na = read('docs/NATIVE_ACCEPTANCE.md') || '';
+  const markerOk = /NATIVE-ACCEPTANCE-VC8-SYNC/.test(na);
+  const currentOk =
+    /1\.0\.7-internal-vc8-pourfix/.test(na) &&
+    (/versionCode\s*\*?\*?8\*?\*?/.test(na) || /vc8/.test(na));
+  const prodOk =
+    /REAL-ADMOB-IDS/.test(na) &&
+    (/USE_TEST_ADS\s*=\s*false/.test(na) || /prod AdMob/i.test(na));
+  const noStaleTestStage =
+    !/^# 原生包可驗收說明（測試 ID 階段）/m.test(na) &&
+    !/\|\s*階段\s*\|\s*\*\*測試 ID\*\*/.test(na) &&
+    !/AdMob／Billing 測 ID：\*\*接線打勾已過關\*\*/.test(na);
+  const fail7Ok = pass7DeviceOk(na);
+  const noSoft = !/soft-arm|claim-juice|hud-pulse/.test(na);
+  if (markerOk && currentOk && prodOk && noStaleTestStage && fail7Ok && noSoft) {
+    pass(
+      'NATIVE-ACCEPTANCE-VC8-SYNC',
+      'NATIVE_ACCEPTANCE: Active vc8 / REAL-ADMOB-IDS / #7 Pass DEVICE-THREE-GREEN; no soft-arm'
+    );
+  } else {
+    fail(
+      'NATIVE-ACCEPTANCE-VC8-SYNC',
+      `stale or incomplete NATIVE_ACCEPTANCE vc8 (markerOk=${markerOk} currentOk=${currentOk} prodOk=${prodOk} noStaleTestStage=${noStaleTestStage} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+    );
+  }
+}
+
+// --- PLAY-PASTE-VC8-SYNC: paste pack/docs = vc8-pourfix; #7 Pass ---
+{
+  const pastePack = read('docs/PLAY_CONSOLE_PASTE_PACK.md') || '';
+  const paste = read('docs/PLAY_CONSOLE_PASTE.md') || '';
+  const post = read('docs/PLAY_POST_APPROVAL_CHECKLIST.md') || '';
+  const markerOk =
+    /PLAY-PASTE-VC8-SYNC/.test(pastePack) && /PLAY-PASTE-VC8-SYNC/.test(paste);
+  const currentOk =
+    /1\.0\.7-internal-vc8-pourfix/.test(pastePack) &&
+    /1\.0\.7-internal-vc8-pourfix/.test(paste) &&
+    (/USE_TEST_ADS\s*=\s*false/.test(pastePack) || /prod AdMob/i.test(pastePack)) &&
+    (/versionCode\s*\*?\*?8\*?\*?/.test(pastePack) || /versionCode\s+8/.test(pastePack));
+  const idsOk =
+    /ca-app-pub-3904450574947460~6670970617/.test(pastePack) &&
+    (/2731725604/.test(pastePack) || /…\/2731725604/.test(pastePack)) &&
+    (/8768677032/.test(pastePack) || /…\/8768677032/.test(pastePack));
+  const noStaleSampleAdvice =
+    !/Until then:\s*keep Google\s+\*\*sample\*\*\s*IDs\s+\+\s*`USE_TEST_ADS=true`/i.test(pastePack) &&
+    !/Until units exist:\s*keep Google\s+\*\*sample\*\*\s*IDs\s+\+\s*`USE_TEST_ADS\s*=\s*true`/i.test(paste) &&
+    !/\*\*Do not invent\*\*\s+real\s+`ca-app-pub/i.test(paste);
+  const histOk =
+    (/superseded/i.test(pastePack) || /historical/i.test(pastePack)) &&
+    (/1\.0\.6-internal-vc7-adUnavailable/.test(pastePack) || /vc7/.test(pastePack)) &&
+    (/1\.0\.5-internal-vc6-iapBusy/.test(pastePack) || /vc6/.test(pastePack));
+  const postOk = /1\.0\.7-internal-vc8-pourfix/.test(post);
   const fail7Ok = pass7DeviceOk(pastePack) && pass7DeviceOk(paste);
   const noSoft =
     !/soft-arm|claim-juice|hud-pulse/.test(pastePack) &&
@@ -7354,9 +7529,6 @@ if (billRaw) {
   if (
     markerOk &&
     currentOk &&
-    uncapOk &&
-    busyOk &&
-    rewardOk &&
     idsOk &&
     noStaleSampleAdvice &&
     histOk &&
@@ -7365,13 +7537,13 @@ if (billRaw) {
     noSoft
   ) {
     pass(
-      'PLAY-PASTE-VC7-SYNC',
-      'PLAY_CONSOLE_PASTE(_PACK): Active vc7-adUnavailable / UNCAP-ONE-TAP + IAP-PURCHASE-BUSY + AD-REWARD-UNAVAILABLE / USE_TEST_ADS=false; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
+      'PLAY-PASTE-VC8-SYNC',
+      'PLAY_CONSOLE_PASTE(_PACK): Active vc8-pourfix / USE_TEST_ADS=false; #7 Pass DEVICE-THREE-GREEN; no soft-arm'
     );
   } else {
     fail(
-      'PLAY-PASTE-VC7-SYNC',
-      `missing paste vc7 sync (markerOk=${markerOk} currentOk=${currentOk} uncapOk=${uncapOk} busyOk=${busyOk} rewardOk=${rewardOk} idsOk=${idsOk} noStaleSampleAdvice=${noStaleSampleAdvice} histOk=${histOk} postOk=${postOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
+      'PLAY-PASTE-VC8-SYNC',
+      `missing paste vc8 sync (markerOk=${markerOk} currentOk=${currentOk} idsOk=${idsOk} noStaleSampleAdvice=${noStaleSampleAdvice} histOk=${histOk} postOk=${postOk} fail7Ok=${fail7Ok} noSoft=${noSoft})`
     );
   }
 }
@@ -8193,11 +8365,11 @@ console.log(
   `Summary: ${rows.filter((r) => r.status === 'PASS').length} Pass · ${fails} Fail · ${blocked} Blocked (external)`
 );
 console.log(
-  'Gate: suite green when DEVICE-THREE-GREEN evidence present (P0-2/P0-3/M-IAP Pass); MILLION_USER_BAR #1–#9 Pass (GATE3-DEVICE-FEEL-PASS) → product gate OPEN; Production still CEO-held — do not push store Production.'
+  'Gate: suite green when DEVICE-THREE-GREEN evidence present (P0-2/P0-3/M-IAP Pass); MILLION_USER_BAR #1–#9 Pass (GATE3-DEVICE-FEEL-PASS) → product gate OPEN; CEO unlocked Production 2026-09-27; Play Closed-testing policy (≥12 testers × ≥14d) still blocks Production — track not pushed.'
 );
 if (fails > 0) {
   console.log(`結果: FAIL（${fails} automatable checks）`);
   process.exit(1);
 }
-console.log('結果: PASS — automatable checks green; #1 Pass (GATE1-PASS); #3 Pass (GATE3-DEVICE-FEEL-PASS); #7/P0②③ Pass via DEVICE-THREE-GREEN; product gate OPEN; Production CEO-held');
+console.log('結果: PASS — automatable checks green; #1 Pass (GATE1-PASS); #3 Pass (GATE3-DEVICE-FEEL-PASS); #7/P0②③ Pass via DEVICE-THREE-GREEN; product gate OPEN; Production blocked by Closed-testing policy (CEO unlocked 2026-09-27; track not pushed)');
 process.exit(0);

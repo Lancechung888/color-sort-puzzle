@@ -1,6 +1,6 @@
 # 彩管分類 · 驗收報告（百萬用戶閘門）
 
-> 結論：**產品閘門 OPEN** — MILLION_USER_BAR **1–9 全 Pass**（**#3 Pass** via **GATE3-DEVICE-FEEL-PASS** device-feel-only；Jev Choice Pass conf 1.0）。**#1 Pass**（INSTANT-CLARITY-GATE1-PASS）。P0②③／#7 **Pass**（DEVICE-THREE-GREEN Seeker）。**Production／soft-launch 仍禁止** until CEO unlock（historical hold；本輪不 push store Production）。
+> 結論：**產品閘門 OPEN** — MILLION_USER_BAR **1–9 全 Pass**（**#3 Pass** via **GATE3-DEVICE-FEEL-PASS** device-feel-only；Jev Choice Pass conf 1.0）。**#1 Pass**（INSTANT-CLARITY-GATE1-PASS）。P0②③／#7 **Pass**（DEVICE-THREE-GREEN Seeker）。**Production／soft-launch 仍禁止** — CEO unlocked 2026-09-27；Play Closed-testing policy（≥12 testers × ≥14d）仍擋 Production；track not pushed。
 > 標準：找問題／擋過關，不是蓋章。能玩 ≠ 通過。
 
 驗收日：2026-09-18
@@ -14,7 +14,7 @@
 | 結果 | 說明 |
 |------|------|
 | **產品閘門 OPEN** | P0①②③④ **Pass**；MILLION_USER_BAR **#3 Pass**（**GATE3-DEVICE-FEEL-PASS** device-feel-only；Jev Pass conf 1.0）；**#1 Pass**（INSTANT-CLARITY-GATE1-PASS）。總評 **9 Pass／0 Partial／0 Fail** |
-| 上架 | **禁止** Production／soft-launch until CEO explicitly unlocks（1–9 已全 Pass；historical hold；本輪不 push store Production） |
+| 上架 | **禁止** Production／soft-launch — CEO unlocked 2026-09-27；Play Closed-testing policy（≥12 testers × ≥14d）仍擋；track not pushed |
 
 ---
 
@@ -47,6 +47,7 @@
 （已補）**POUR-FEEL-MIDLAND**已上 — `animatePour` mid-land board commit（`LAND_MS≈250`／`onLand`→`commitPour`）讓 fill-rise 在 live stream 下播放（殺 teleport liquid）；`POUR_MS=460`＋CSS `streamFall`／`.completing-pour`／`#app.winning-pour`／`destReceive` 同步 **0.46s**（不改 screenShake／lidPop）；accept `POUR-FEEL-MIDLAND`；**無** soft-arm／claim-juice／HUD pulse；閘門仍 **7 Pass／2 Partial／0 Fail**（**#1** 外部 3s playtest／**#3** 15s UA 剪輯仍缺；UA 凍結無預算）；**未**把 #1／#3 標 Pass。**Production／soft-launch 仍禁止**。**不宣稱 ship-ready。**
 
 （已補）**NATIVE-VC8-INTERNAL-SYNC**已上 — Play **internal testing Active**（2026-09-27 Asia/Taipei）現為 `1.0.7-internal-vc8-pourfix`／versionCode **8**／versionName **1.0.7**；release 已於 2026-09-27 上傳並可供 internal testers；歷史 vc7／`1.0.6-internal-vc7-adUnavailable` 標 superseded；`remove_ads` confirmed Active **USD $2.99**（no mismatch）；**Production untouched／held**。**不宣稱 Production 已上架。**
+（已補）**ANDROID-VERSION-CODE-8**已上 — `scripts/patch-android-version.sh` 預設 **versionCode 8**／`versionName 1.0.7`；`package.json` **1.0.7**；README §2ak；accept `ANDROID-VERSION-CODE-8`／`NATIVE-PACK-READY-SYNC`／`NATIVE-VC8-INTERNAL-SYNC`（Active Play `1.0.7-internal-vc8-pourfix`／vc8；歷史 `ANDROID-VERSION-CODE-7`／vc7）；產品閘門 **9 Pass**；CEO unlocked Production 2026-09-27；Play Closed-testing policy（≥12 testers × ≥14d）仍擋 Production — track not pushed。**無** soft-arm／claim-juice／HUD pulse。**不宣稱 Production 已上架。**
 
 （已補）**ANDROID-VERSION-CODE-7**已上 — `scripts/patch-android-version.sh` 預設 **versionCode 7**／`versionName 1.0.6`；`package.json` **1.0.6**；README §2ak；accept `ANDROID-VERSION-CODE-7`／`NATIVE-PACK-READY-SYNC`（Active Play 仍 vc6／1.0.5／`1.0.5-internal-vc6-iapBusy`；腳本就緒下次含 **AD-REWARD-UNAVAILABLE**）；**#7 Pass**（DEVICE-THREE-GREEN）不變；閘門仍 **7 Pass／2 Partial／0 Fail**（#1／#3 Partial）；**無** soft-arm／claim-juice／HUD pulse。**未**把 #1／#3 標 Pass。**不宣稱** vc7 已上傳／ship-ready。**Production／soft-launch 仍禁止**。
 

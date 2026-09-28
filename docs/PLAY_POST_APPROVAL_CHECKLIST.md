@@ -1,6 +1,6 @@
 # Play 帳號過審後操作清單（ColorTube Sort）
 
-> Marker: **DEVICE-THREE-GREEN** — Seeker #7 Pass; see `docs/DEVICE_THREE_GREEN.md`. Production still held (#1/#3 Partial).
+> Marker: **DEVICE-THREE-GREEN** — Seeker #7 Pass; see `docs/DEVICE_THREE_GREEN.md`. CEO unlocked Production 2026-09-27; Play Closed-testing policy (≥12 testers × ≥14d) still blocks Production — track not pushed.
 
 > AppId：`com.lancechung.colortubesort`　顯示名稱：ColorTube Sort／彩管分類  
 > **Play Console developer account: APPROVED**（2026-09-21 Asia/Taipei）。  
@@ -71,7 +71,7 @@
 4. `npx cap sync`
 5. 依 `native-templates/android/README.md` 確認 AdMob App ID、Billing 權限；簽名步驟見 `docs/NATIVE_ACCEPTANCE.md` §1。
 6. 設定簽章（keystore）後跑 `npm run aab:internal`（或手動 `./gradlew bundleRelease`）產出 AAB。
-7. Play Console → **內部測試** → **Active** AAB `1.0.6-internal-vc7-adUnavailable`／vc7／1.0.6／prod AdMob／UNCAP-ONE-TAP＋IAP-PURCHASE-BUSY＋AD-REWARD-UNAVAILABLE 已上傳（**NATIVE-VC7-INTERNAL-SYNC**／**PLAY-PASTE-VC7-SYNC**；歷史 vc6／vc5／vc4／vc3 superseded；**NATIVE-VC6-INTERNAL-SYNC**／**PLAY-PASTE-VC6-SYNC** 為歷史）；testers `lancechung@gmail.com` + `hanwen16888@gmail.com` 已在 **ColorTube-internal**。仍須實機驗證：
+7. Play Console → **內部測試** → **Active** AAB `1.0.7-internal-vc8-pourfix`（歷史 Active `1.0.6-internal-vc7-adUnavailable`／vc7 superseded）／vc8／1.0.7／prod AdMob 已上傳（**NATIVE-VC8-INTERNAL-SYNC**／**PLAY-PASTE-VC8-SYNC**；歷史 vc7／vc6／vc5／vc4／vc3 superseded；**NATIVE-VC7-INTERNAL-SYNC**／**PLAY-PASTE-VC7-SYNC**／**NATIVE-VC6-INTERNAL-SYNC**／**PLAY-PASTE-VC6-SYNC** 為歷史）；testers `lancechung@gmail.com` + `hanwen16888@gmail.com` 已在 **ColorTube-internal**。仍須實機驗證：
    - 正式廣告 interstitial／rewarded full-watch
    - `remove_ads` 購買成功後 `removeAds` 才為 true；一般點擊不得白送 → **#7 Pass**（DEVICE-THREE-GREEN Seeker） 直到三綠燈
 

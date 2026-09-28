@@ -13,7 +13,7 @@ Suggested **appId**: `com.lancechung.colortubesort`
 
 - Play **internal testing Active**: `1.0.7-internal-vc8-pourfix` / versionCode **8** / versionName **1.0.7**; uploaded 2026-09-27 and available to internal testers.
 - `remove_ads`: **Active, USD $2.99** (no mismatch).
-- **Production untouched and held**; this note does not authorize a Production publish.
+- **Production not published** — CEO unlocked 2026-09-27; Play Closed-testing policy (≥12 testers × ≥14d) still blocks Production; track not pushed.
 
 ## ASO — Google Play
 
