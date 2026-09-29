@@ -6269,7 +6269,12 @@ if (billRaw) {
     if (!/"price"\s*:\s*"0"/.test(raw)) return false;
     if (!/"priceCurrency"\s*:\s*"USD"/.test(raw)) return false;
     if (expectUrl && !raw.includes(expectUrl)) return false;
-    if (/play\.google\.com|aggregateRating|ratingValue|downloadCount/.test(raw)) {
+    // Ban store/rating claims inside JSON-LD only (closed-tester opt-in links may appear in page body)
+    const ldMatch = raw.match(
+      /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i
+    );
+    const ldBody = ldMatch ? ldMatch[1] : raw;
+    if (/play\.google\.com|aggregateRating|ratingValue|downloadCount/.test(ldBody)) {
       return false;
     }
     return true;
@@ -6552,7 +6557,11 @@ if (billRaw) {
     (/href=["']play\/["']/.test(landing) ||
       /href=["']\.\/play\/["']/.test(landing) ||
       /href=["']play["']/.test(landing));
-  const comingSoonOk = /Coming soon on Google Play/.test(landing);
+  // CLOSED-TESTER-LANDING honesty: Closed testing / not Production / join closed (replaces vague Coming soon)
+  const comingSoonOk =
+    (/closed testing/i.test(landing) || /Closed testing/.test(landing)) &&
+    (/Not on Production yet/.test(landing) || /not live/.test(landing) || /not on Production/i.test(landing)) &&
+    (/Join closed Android test/.test(landing) || /apps\/testing\/com\.lancechung\.colortubesort/.test(landing));
   const privacyOk =
     /href=["']privacy\/?["']/.test(landing) || /href=["']\.\/privacy\/?["']/.test(landing);
   const brandNoSw = !/serviceWorker\.register/.test(landing);
@@ -6601,7 +6610,7 @@ if (billRaw) {
   ) {
     pass(
       'SHARE-PLAY-DEMO',
-      'docs landing Play free in browser → play/; docs/play synced from root (index+assets+sw+manifest start_url ./); brand landing no SW; no soft-arm'
+      'docs landing Play free in browser → play/; Closed testing honesty (not Production); docs/play synced from root; brand landing no SW; no soft-arm'
     );
   } else {
     fail(
@@ -8294,6 +8303,68 @@ if (billRaw) {
   }
 }
 
+
+// --- CLOSED-TESTER-LANDING: honest landing + closed opt-in + recruit pack; Production still 12×14d ---
+{
+  const landingPath = path.join(root, 'docs/index.html');
+  const landing = fs.existsSync(landingPath) ? fs.readFileSync(landingPath, 'utf8') : '';
+  const recruitPath = path.join(root, 'docs/CLOSED_TESTER_RECRUIT.md');
+  const recruit = fs.existsSync(recruitPath) ? fs.readFileSync(recruitPath, 'utf8') : '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const storeMd = read('STORE.md') || '';
+
+  const markerOk = /CLOSED-TESTER-LANDING/.test(landing);
+  const copyOk =
+    (/Not on Production yet/.test(landing) || /not on Production/i.test(landing)) &&
+    /closed testing/i.test(landing) &&
+    (/Join closed Android test/.test(landing) || /Become a tester/.test(landing));
+  const closedUrlOk = /https:\/\/play\.google\.com\/apps\/testing\/com\.lancechung\.colortubesort/.test(
+    landing
+  );
+  const ctaOk = /Play free in browser/.test(landing);
+  const privacyOk =
+    /href=["']privacy\/?["']/.test(landing) || /href=["']\.\/privacy\/?["']/.test(landing);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-.*-pulse|play-demo-arm|cta-pulse|share-play-arm/.test(landing);
+  const recruitOk =
+    fs.existsSync(recruitPath) &&
+    /CLOSED-TESTER-LANDING/.test(recruit) &&
+    /https:\/\/play\.google\.com\/apps\/testing\/com\.lancechung\.colortubesort/.test(recruit) &&
+    /https:\/\/play\.google\.com\/apps\/internaltest\/4701709602422954921/.test(recruit) &&
+    (/Become a tester/.test(recruit) || /成為測試人員/.test(recruit)) &&
+    (/Listed ≠ opted-in|listed ≠ opted-in|list alone/i.test(recruit) ||
+      /Listed ≠ opted-in/.test(recruit));
+  const docsNoteOk =
+    /CLOSED-TESTER-LANDING/.test(barRaw) &&
+    /CLOSED-TESTER-LANDING/.test(accMd) &&
+    /CLOSED-TESTER-LANDING/.test(storeMd) &&
+    (/12/.test(barRaw + accMd + storeMd) && /14/.test(barRaw + accMd + storeMd));
+  const noComingSoonLie = !/Coming soon on Google Play/.test(landing);
+
+  if (
+    markerOk &&
+    copyOk &&
+    closedUrlOk &&
+    ctaOk &&
+    privacyOk &&
+    noSoft &&
+    recruitOk &&
+    docsNoteOk &&
+    noComingSoonLie
+  ) {
+    pass(
+      'CLOSED-TESTER-LANDING',
+      'landing honesty + closed opt-in URL + recruit pack (EN+ZH invites); both URLs; MILLION_USER_BAR/ACCEPTANCE/STORE note; no Coming-soon lie; no soft-arm'
+    );
+  } else {
+    fail(
+      'CLOSED-TESTER-LANDING',
+      'closed-tester landing/recruit gap' +
+        ` (marker=${markerOk} copy=${copyOk} url=${closedUrlOk} cta=${ctaOk} priv=${privacyOk} noSoft=${noSoft} recruit=${recruitOk} docs=${docsNoteOk} noLie=${noComingSoonLie})`
+    );
+  }
+}
 
 // --- GATE3-DEVICE-FEEL-PASS: #3 Pass under device-feel-only policy (no paid UA); Production CEO-held ---
 {

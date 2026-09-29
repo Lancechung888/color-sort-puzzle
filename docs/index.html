@@ -150,6 +150,26 @@
       outline-offset: 2px;
     }
     .cta:active { filter: brightness(0.97); }
+    .cta-secondary {
+      display: block;
+      width: 100%;
+      margin: 0 0 1rem;
+      padding: 0.7rem 1.1rem;
+      border: 1px solid rgba(125, 211, 252, 0.35);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--link);
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+    }
+    .cta-secondary:hover, .cta-secondary:focus-visible {
+      background: rgba(125, 211, 252, 0.08);
+      outline: 2px solid var(--link);
+      outline-offset: 2px;
+    }
+    .note a { font-weight: 600; }
     nav { margin-top: 0.25rem; font-size: 0.9rem; }
     footer {
       margin-top: 1.5rem;
@@ -170,7 +190,14 @@
       and chapter chests keep you coming back.
     </p>
     <a class="cta" href="play/">Play free in browser</a>
-    <p class="note"><strong>Coming soon on Google Play</strong> — developer account approved; store listing not live yet.</p>
+    <!-- CLOSED-TESTER-LANDING -->
+    <p class="note">
+      <strong>Not on Production yet</strong> — the public Google Play listing is not live.
+      Android <strong>closed testing</strong> is available for invited testers.
+      You must be on the tester list <em>and</em> tap Become a tester — list alone does not count.
+      Production needs ≥12 opted-in testers for ≥14 days (personal developer rule).
+    </p>
+    <a class="cta-secondary" href="https://play.google.com/apps/testing/com.lancechung.colortubesort">Join closed Android test</a>
     <nav>
       <a href="privacy/">Privacy Policy</a>
     </nav>
