@@ -11,9 +11,12 @@ Suggested **appId**: `com.lancechung.colortubesort`
 
 ## Current release status (2026-09-27 Asia/Taipei)
 
+> **CLOSED-TESTER-LANDING** (2026-09-29 Asia/Taipei): landing + recruit pack shipped — Closed Alpha opt-in linked; product gates still **9 Pass**; Production still blocked by **≥12 opted-in × ≥14 days** (not a soft-launch; not published).
+
 - Play **internal testing Active**: `1.0.7-internal-vc8-pourfix` / versionCode **8** / versionName **1.0.7**; uploaded 2026-09-27 and available to internal testers.
 - `remove_ads`: **Active, USD $2.99** (no mismatch).
 - **Production not published** — CEO unlocked 2026-09-27; Play Closed-testing policy (≥12 testers × ≥14d) still blocks Production; track not pushed.
+- **Closed testing (Alpha) Available** — opt-in `https://play.google.com/apps/testing/com.lancechung.colortubesort` (see `docs/CLOSED_TESTER_RECRUIT.md`). Internal opt-in (different track): `https://play.google.com/apps/internaltest/4701709602422954921`.
 
 ## ASO — Google Play
 
