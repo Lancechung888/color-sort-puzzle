@@ -8366,6 +8366,76 @@ if (billRaw) {
   }
 }
 
+
+// --- CLOSED-TESTER-INVITE-COPY: landing one-tap Copy invite EN/繁中; clipboard short pastes; Production still 12×14d ---
+{
+  const landingPath = path.join(root, 'docs/index.html');
+  const landing = fs.existsSync(landingPath) ? fs.readFileSync(landingPath, 'utf8') : '';
+  const recruitPath = path.join(root, 'docs/CLOSED_TESTER_RECRUIT.md');
+  const recruit = fs.existsSync(recruitPath) ? fs.readFileSync(recruitPath, 'utf8') : '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+
+  const markerOk = /CLOSED-TESTER-INVITE-COPY/.test(landing);
+  const btnEnOk =
+    /Copy invite \(EN\)/.test(landing) &&
+    (/btn-copy-invite-en/.test(landing) || /aria-label=["'][^"']*English/i.test(landing));
+  const btnZhOk =
+    (/Copy invite \(繁中\)/.test(landing) || /Copy invite \(ZH\)/.test(landing)) &&
+    (/btn-copy-invite-zh/.test(landing) || /aria-label=["'][^"']*(Traditional Chinese|繁中)/i.test(landing));
+  const clipboardOk = /clipboard\.writeText/.test(landing);
+  const closedUrlOk =
+    /https:\/\/play\.google\.com\/apps\/testing\/com\.lancechung\.colortubesort/.test(landing) ||
+    /https:\/\/play\.google\.com\/apps\/testing\/com\.lancechung\.colortubesort/.test(recruit);
+  const joinKept = /Join closed Android test/.test(landing);
+  const landingHonesty = /CLOSED-TESTER-LANDING/.test(landing);
+  const copiedToast =
+    /Copied/.test(landing) &&
+    (/invite-copy-status/.test(landing) || /setStatus/.test(landing) || /role=["']status["']/.test(landing));
+  const recruitNoteOk =
+    /CLOSED-TESTER-INVITE-COPY/.test(recruit) ||
+    (/Copy invite/.test(recruit) && (/landing/i.test(recruit) || /index\.html/.test(recruit)));
+  const docsNoteOk =
+    /CLOSED-TESTER-INVITE-COPY/.test(barRaw) &&
+    /CLOSED-TESTER-INVITE-COPY/.test(accMd) &&
+    /12/.test(barRaw + accMd) &&
+    /14/.test(barRaw + accMd);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-.*-pulse|play-demo-arm|cta-pulse|share-play-arm/.test(landing);
+  const noSw = !/serviceWorker\.register/.test(landing);
+  // Short invite sources should mention Become a tester / closed URL
+  const inviteSourceOk =
+    (/Become a tester/.test(landing) || /成為測試人員/.test(landing)) &&
+    /https:\/\/play\.google\.com\/apps\/testing\/com\.lancechung\.colortubesort/.test(landing);
+
+  if (
+    markerOk &&
+    btnEnOk &&
+    btnZhOk &&
+    clipboardOk &&
+    closedUrlOk &&
+    joinKept &&
+    landingHonesty &&
+    copiedToast &&
+    recruitNoteOk &&
+    docsNoteOk &&
+    noSoft &&
+    noSw &&
+    inviteSourceOk
+  ) {
+    pass(
+      'CLOSED-TESTER-INVITE-COPY',
+      'landing Copy invite EN+繁中 + clipboard.writeText + closed URL; recruit/bar/acceptance note; Join closed kept; no soft-arm; no SW'
+    );
+  } else {
+    fail(
+      'CLOSED-TESTER-INVITE-COPY',
+      'invite-copy gap' +
+        ` (marker=${markerOk} en=${btnEnOk} zh=${btnZhOk} clip=${clipboardOk} url=${closedUrlOk} join=${joinKept} honesty=${landingHonesty} toast=${copiedToast} recruit=${recruitNoteOk} docs=${docsNoteOk} noSoft=${noSoft} noSw=${noSw} src=${inviteSourceOk})`
+    );
+  }
+}
+
 // --- GATE3-DEVICE-FEEL-PASS: #3 Pass under device-feel-only policy (no paid UA); Production CEO-held ---
 {
   const barRaw = read('MILLION_USER_BAR.md') || '';
