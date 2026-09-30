@@ -3,6 +3,8 @@
 
 EN-first. Goal: recruit **≥12 real opted-in** closed testers and keep them for **≥14 consecutive days** so a personal Play developer account can unlock Production. This is **not** a soft-launch and **not** a Production publish.
 
+> **Landing Copy invite:** `docs/index.html` has one-tap **Copy invite (EN)** / **Copy invite (繁中)** buttons that clipboard the Short EN / Short 繁中 paste texts below (same closed URL + Become a tester steps). Keep honesty rules; do not invent testers; Prefer closed Alpha URL over internal.
+
 ## What to ask friends to do
 
 1. **Join the tester list** (email must be on the closed Alpha list — ask the owner if you are not sure).
@@ -31,6 +33,8 @@ Prefer the **closed Alpha** URL when recruiting for the Production unlock. Inter
 - Product gates are **9 Pass**; this pack only unblocks store-access recruitment. Production remains blocked until 12×14d is real.
 
 ## Paste-ready invites
+
+<!-- CLOSED-TESTER-INVITE-COPY: landing Copy invite EN/繁中 uses these exact Short blocks -->
 
 ### Short EN
 

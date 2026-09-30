@@ -171,6 +171,19 @@
     }
     .note a { font-weight: 600; }
     nav { margin-top: 0.25rem; font-size: 0.9rem; }
+
+    .cta-secondary[type="button"] {
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .invite-copy-status {
+      min-height: 1.25rem;
+      margin: -0.35rem 0 0.85rem;
+      font-size: 0.85rem;
+      color: var(--accent-soft);
+      font-weight: 600;
+    }
+    .invite-copy-status.is-error { color: #f87171; }
     footer {
       margin-top: 1.5rem;
       font-size: 0.8rem;
@@ -198,10 +211,93 @@
       Production needs ≥12 opted-in testers for ≥14 days (personal developer rule).
     </p>
     <a class="cta-secondary" href="https://play.google.com/apps/testing/com.lancechung.colortubesort">Join closed Android test</a>
+    <!-- CLOSED-TESTER-INVITE-COPY -->
+    <button type="button" class="cta-secondary" id="btn-copy-invite-en" aria-label="Copy closed tester invite in English">Copy invite (EN)</button>
+    <button type="button" class="cta-secondary" id="btn-copy-invite-zh" aria-label="Copy closed tester invite in Traditional Chinese">Copy invite (繁中)</button>
+    <p class="invite-copy-status" id="invite-copy-status" role="status" aria-live="polite"></p>
+    <textarea id="invite-copy-fallback" readonly hidden aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;"></textarea>
     <nav>
       <a href="privacy/">Privacy Policy</a>
     </nav>
   </main>
   <footer>ColorTube Sort: Lid Puzzle · English-first hybrid-casual puzzle</footer>
+
+  <script>
+  /* CLOSED-TESTER-INVITE-COPY — clipboard short invites from CLOSED_TESTER_RECRUIT.md; no service worker */
+  (function () {
+    var INVITE_EN = "Hey — can you help test my Android puzzle ColorTube Sort (closed Alpha)?\n1) I’ll add your Gmail to the tester list (reply with the address you use on Play).\n2) On that Android account open:\nhttps://play.google.com/apps/testing/com.lancechung.colortubesort\n3) Tap Become a tester → Install → open the app once.\nBeing on the list alone doesn’t count — need the Become a tester tap. Thanks!";
+    var INVITE_ZH = "嗨，想請你幫測我的 Android 益智遊戲 ColorTube Sort（封閉測試 Alpha）。\n1) 把你在 Play 用的 Gmail 回我，我先加進測試者名單。\n2) 用該帳號在手機開啟：\nhttps://play.google.com/apps/testing/com.lancechung.colortubesort\n3) 點「成為測試人員」→ 安裝 → 打開一次 App。\n只在名單裡不算數，一定要點成為測試人員。謝謝！";
+
+    var statusEl = document.getElementById('invite-copy-status');
+    var fallbackEl = document.getElementById('invite-copy-fallback');
+    var statusTimer = null;
+
+    function setStatus(msg, isError) {
+      if (!statusEl) return;
+      statusEl.textContent = msg || '';
+      statusEl.classList.toggle('is-error', !!isError);
+      if (statusTimer) clearTimeout(statusTimer);
+      if (msg) {
+        statusTimer = setTimeout(function () {
+          statusEl.textContent = '';
+          statusEl.classList.remove('is-error');
+        }, 2200);
+      }
+    }
+
+    function fallbackCopy(text) {
+      if (!fallbackEl) return false;
+      fallbackEl.hidden = false;
+      fallbackEl.value = text;
+      fallbackEl.focus();
+      fallbackEl.select();
+      fallbackEl.setSelectionRange(0, text.length);
+      var ok = false;
+      try {
+        ok = document.execCommand && document.execCommand('copy');
+      } catch (e) {
+        ok = false;
+      }
+      fallbackEl.hidden = true;
+      return ok;
+    }
+
+    function copyInvite(text) {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        return navigator.clipboard.writeText(text).then(function () {
+          setStatus('Copied', false);
+        }).catch(function () {
+          if (fallbackCopy(text)) {
+            setStatus('Copied', false);
+          } else {
+            setStatus('Copy failed — select text manually', true);
+            if (fallbackEl) {
+              fallbackEl.hidden = false;
+              fallbackEl.value = text;
+              fallbackEl.focus();
+              fallbackEl.select();
+            }
+          }
+        });
+      }
+      if (fallbackCopy(text)) {
+        setStatus('Copied', false);
+      } else {
+        setStatus('Copy failed — select text manually', true);
+        if (fallbackEl) {
+          fallbackEl.hidden = false;
+          fallbackEl.value = text;
+          fallbackEl.focus();
+          fallbackEl.select();
+        }
+      }
+    }
+
+    var btnEn = document.getElementById('btn-copy-invite-en');
+    var btnZh = document.getElementById('btn-copy-invite-zh');
+    if (btnEn) btnEn.addEventListener('click', function () { copyInvite(INVITE_EN); });
+    if (btnZh) btnZh.addEventListener('click', function () { copyInvite(INVITE_ZH); });
+  })();
+  </script>
 </body>
 </html>

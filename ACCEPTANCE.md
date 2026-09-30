@@ -18,6 +18,8 @@
 
 ---
 
+（已補）**CLOSED-TESTER-INVITE-COPY**已上 — `docs/index.html` 一鍵 **Copy invite (EN)**／**Copy invite (繁中)** clipboard Short EN／Short 繁中（`docs/CLOSED_TESTER_RECRUIT.md`；含 closed URL＋Become a tester）；保留 Join closed＋CLOSED-TESTER-LANDING 誠實文案；accept `CLOSED-TESTER-INVITE-COPY`／`CLOSED-TESTER-LANDING`／`SHARE-PLAY-DEMO`；產品閘門仍 **9 Pass**；Production 仍擋於 12×14d（**非** soft-launch／**不**宣稱 Production 已上架）。**無** soft-arm／claim-juice／HUD pulse／付費 UA。
+
 （已補）**CLOSED-TESTER-LANDING**已上 — `docs/index.html` 誠實改寫：Not on Production yet＋Android closed testing＋Join closed Android test（`https://play.google.com/apps/testing/com.lancechung.colortubesort`）；list alone ≠ opted-in；≥12×≥14d personal rule；新增 `docs/CLOSED_TESTER_RECRUIT.md`（EN＋繁中 paste invite；internal vs closed URL）；accept `CLOSED-TESTER-LANDING`／`SHARE-PLAY-DEMO` 對齊；產品閘門仍 **9 Pass**；Production 仍擋於 12×14d（**非** soft-launch／**不**宣稱 Production 已上架）。**無** soft-arm／claim-juice／HUD pulse／付費 UA。
 
 ## 自動化套件 · `npm run accept`
