@@ -4,6 +4,8 @@
 EN-first. Goal: recruit **≥12 real opted-in** closed testers and keep them for **≥14 consecutive days** so a personal Play developer account can unlock Production. This is **not** a soft-launch and **not** a Production publish.
 
 > **Landing Copy invite:** `docs/index.html` has one-tap **Copy invite (EN)** / **Copy invite (繁中)** buttons that clipboard the Short EN / Short 繁中 paste texts below (same closed URL + Become a tester steps). Keep honesty rules; do not invent testers; Prefer closed Alpha URL over internal.
+>
+> **CLOSED-TESTER-SHARE-QR:** Landing also has **Share invite (EN)** / **Share invite (繁中)** (`navigator.share` when available; clipboard fallback via the same Copy path) plus a local QR PNG (`docs/closed-tester-qr.png`) for the closed Alpha URL. Scanning opens Become a tester — listed ≠ opted-in. No fake testers; not Production / Open testing.
 
 ## What to ask friends to do
 

@@ -8436,6 +8436,91 @@ if (billRaw) {
   }
 }
 
+
+// --- CLOSED-TESTER-SHARE-QR: Share invite EN/繁中 + local QR PNG; clipboard fallback; Production still 12×14d ---
+{
+  const landingPath = path.join(root, 'docs/index.html');
+  const landing = fs.existsSync(landingPath) ? fs.readFileSync(landingPath, 'utf8') : '';
+  const recruitPath = path.join(root, 'docs/CLOSED_TESTER_RECRUIT.md');
+  const recruit = fs.existsSync(recruitPath) ? fs.readFileSync(recruitPath, 'utf8') : '';
+  const barRaw = read('MILLION_USER_BAR.md') || '';
+  const accMd = read('ACCEPTANCE.md') || '';
+  const qrPath = path.join(root, 'docs/closed-tester-qr.png');
+
+  const markerOk = /CLOSED-TESTER-SHARE-QR/.test(landing);
+  const btnShareEnOk =
+    /Share invite \(EN\)/.test(landing) &&
+    (/btn-share-invite-en/.test(landing) || /aria-label=["'][^"']*Share[^"']*English/i.test(landing));
+  const btnShareZhOk =
+    (/Share invite \(繁中\)/.test(landing) || /Share invite \(ZH\)/.test(landing)) &&
+    (/btn-share-invite-zh/.test(landing) || /aria-label=["'][^"']*Share[^"']*(Traditional Chinese|繁中)/i.test(landing));
+  const shareApiOk = /navigator\.share/.test(landing) && /shareInvite/.test(landing);
+  const clipboardFallbackOk =
+    /clipboard\.writeText/.test(landing) &&
+    (/copyInvite\(/.test(landing) || /fallbackCopy\(/.test(landing));
+  const closedUrlOk =
+    /https:\/\/play\.google\.com\/apps\/testing\/com\.lancechung\.colortubesort/.test(landing);
+  const qrImgOk =
+    /closed-tester-qr\.png/.test(landing) &&
+    (/alt=["'][^"']*QR[^"']*closed/i.test(landing) || /QR: join closed Android test/.test(landing));
+  const qrFileOk = fs.existsSync(qrPath) && fs.statSync(qrPath).size > 200;
+  // PNG magic bytes
+  let qrPngOk = false;
+  if (qrFileOk) {
+    const buf = fs.readFileSync(qrPath);
+    qrPngOk = buf.length >= 8 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47;
+  }
+  const copyKept =
+    /Copy invite \(EN\)/.test(landing) &&
+    (/Copy invite \(繁中\)/.test(landing) || /Copy invite \(ZH\)/.test(landing));
+  const joinKept = /Join closed Android test/.test(landing);
+  const landingHonesty = /CLOSED-TESTER-LANDING/.test(landing);
+  const recruitNoteOk =
+    /CLOSED-TESTER-SHARE-QR/.test(recruit) ||
+    (/Share invite/.test(recruit) && /QR|qr/.test(recruit));
+  const docsNoteOk =
+    /CLOSED-TESTER-SHARE-QR/.test(barRaw) &&
+    /CLOSED-TESTER-SHARE-QR/.test(accMd) &&
+    /12/.test(barRaw + accMd) &&
+    /14/.test(barRaw + accMd);
+  const noSoft =
+    !/soft-arm|claim-juice|hud-.*-pulse|play-demo-arm|cta-pulse|share-play-arm/.test(landing);
+  const noSw = !/serviceWorker\.register/.test(landing);
+  const noFakeProd =
+    !/Production is live|Open testing is live|public Google Play listing is live/i.test(landing);
+
+  if (
+    markerOk &&
+    btnShareEnOk &&
+    btnShareZhOk &&
+    shareApiOk &&
+    clipboardFallbackOk &&
+    closedUrlOk &&
+    qrImgOk &&
+    qrFileOk &&
+    qrPngOk &&
+    copyKept &&
+    joinKept &&
+    landingHonesty &&
+    recruitNoteOk &&
+    docsNoteOk &&
+    noSoft &&
+    noSw &&
+    noFakeProd
+  ) {
+    pass(
+      'CLOSED-TESTER-SHARE-QR',
+      'Share invite EN+繁中 navigator.share + clipboard fallback; QR PNG closed URL; Copy/Join/honesty kept; recruit/bar/acceptance note; no soft-arm; no SW'
+    );
+  } else {
+    fail(
+      'CLOSED-TESTER-SHARE-QR',
+      'share-qr gap' +
+        ` (marker=${markerOk} en=${btnShareEnOk} zh=${btnShareZhOk} share=${shareApiOk} clip=${clipboardFallbackOk} url=${closedUrlOk} img=${qrImgOk} file=${qrFileOk} png=${qrPngOk} copy=${copyKept} join=${joinKept} honesty=${landingHonesty} recruit=${recruitNoteOk} docs=${docsNoteOk} noSoft=${noSoft} noSw=${noSw} noFake=${noFakeProd})`
+    );
+  }
+}
+
 // --- GATE3-DEVICE-FEEL-PASS: #3 Pass under device-feel-only policy (no paid UA); Production CEO-held ---
 {
   const barRaw = read('MILLION_USER_BAR.md') || '';

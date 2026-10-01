@@ -184,6 +184,26 @@
       font-weight: 600;
     }
     .invite-copy-status.is-error { color: #f87171; }
+    /* CLOSED-TESTER-SHARE-QR */
+    .closed-tester-qr-wrap {
+      margin: 0.25rem 0 1.15rem;
+      text-align: center;
+    }
+    .closed-tester-qr-wrap img {
+      display: inline-block;
+      width: 168px;
+      height: 168px;
+      border-radius: 12px;
+      background: #fff;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    .closed-tester-qr-caption {
+      margin: 0.55rem 0 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
     footer {
       margin-top: 1.5rem;
       font-size: 0.8rem;
@@ -214,6 +234,13 @@
     <!-- CLOSED-TESTER-INVITE-COPY -->
     <button type="button" class="cta-secondary" id="btn-copy-invite-en" aria-label="Copy closed tester invite in English">Copy invite (EN)</button>
     <button type="button" class="cta-secondary" id="btn-copy-invite-zh" aria-label="Copy closed tester invite in Traditional Chinese">Copy invite (繁中)</button>
+    <!-- CLOSED-TESTER-SHARE-QR -->
+    <button type="button" class="cta-secondary" id="btn-share-invite-en" aria-label="Share closed tester invite in English">Share invite (EN)</button>
+    <button type="button" class="cta-secondary" id="btn-share-invite-zh" aria-label="Share closed tester invite in Traditional Chinese">Share invite (繁中)</button>
+    <div class="closed-tester-qr-wrap">
+      <img src="closed-tester-qr.png" width="168" height="168" alt="QR: join closed Android test" />
+      <p class="closed-tester-qr-caption">Scan to open Become a tester (listed ≠ opted-in).</p>
+    </div>
     <p class="invite-copy-status" id="invite-copy-status" role="status" aria-live="polite"></p>
     <textarea id="invite-copy-fallback" readonly hidden aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;"></textarea>
     <nav>
@@ -223,7 +250,7 @@
   <footer>ColorTube Sort: Lid Puzzle · English-first hybrid-casual puzzle</footer>
 
   <script>
-  /* CLOSED-TESTER-INVITE-COPY — clipboard short invites from CLOSED_TESTER_RECRUIT.md; no service worker */
+  /* CLOSED-TESTER-INVITE-COPY + CLOSED-TESTER-SHARE-QR — clipboard/share short invites from CLOSED_TESTER_RECRUIT.md; no service worker */
   (function () {
     var INVITE_EN = "Hey — can you help test my Android puzzle ColorTube Sort (closed Alpha)?\n1) I’ll add your Gmail to the tester list (reply with the address you use on Play).\n2) On that Android account open:\nhttps://play.google.com/apps/testing/com.lancechung.colortubesort\n3) Tap Become a tester → Install → open the app once.\nBeing on the list alone doesn’t count — need the Become a tester tap. Thanks!";
     var INVITE_ZH = "嗨，想請你幫測我的 Android 益智遊戲 ColorTube Sort（封閉測試 Alpha）。\n1) 把你在 Play 用的 Gmail 回我，我先加進測試者名單。\n2) 用該帳號在手機開啟：\nhttps://play.google.com/apps/testing/com.lancechung.colortubesort\n3) 點「成為測試人員」→ 安裝 → 打開一次 App。\n只在名單裡不算數，一定要點成為測試人員。謝謝！";
@@ -293,10 +320,39 @@
       }
     }
 
+    var CLOSED_URL = 'https://play.google.com/apps/testing/com.lancechung.colortubesort';
+
+    function shareInvite(text, langLabel) {
+      var canShare = typeof navigator.share === 'function';
+      if (canShare) {
+        var payload = { title: 'ColorTube Sort closed Alpha', text: text };
+        try {
+          if (typeof navigator.canShare !== 'function' || navigator.canShare({ url: CLOSED_URL })) {
+            payload.url = CLOSED_URL;
+          }
+        } catch (e) { /* ignore canShare quirks */ }
+        return Promise.resolve(navigator.share(payload)).then(function () {
+          setStatus('Shared', false);
+        }).catch(function (err) {
+          if (err && err.name === 'AbortError') {
+            setStatus('', false);
+            return;
+          }
+          // Fallback: clipboard same text as Copy invite
+          return copyInvite(text);
+        });
+      }
+      return copyInvite(text);
+    }
+
     var btnEn = document.getElementById('btn-copy-invite-en');
     var btnZh = document.getElementById('btn-copy-invite-zh');
+    var btnShareEn = document.getElementById('btn-share-invite-en');
+    var btnShareZh = document.getElementById('btn-share-invite-zh');
     if (btnEn) btnEn.addEventListener('click', function () { copyInvite(INVITE_EN); });
     if (btnZh) btnZh.addEventListener('click', function () { copyInvite(INVITE_ZH); });
+    if (btnShareEn) btnShareEn.addEventListener('click', function () { shareInvite(INVITE_EN, 'EN'); });
+    if (btnShareZh) btnShareZh.addEventListener('click', function () { shareInvite(INVITE_ZH, '繁中'); });
   })();
   </script>
 </body>

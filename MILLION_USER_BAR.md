@@ -146,6 +146,8 @@
 
 ## 下一刀 Top gaps（仍禁止 soft-launch）
 
+（已補）**CLOSED-TESTER-SHARE-QR**已上 — `docs/index.html` **Share invite (EN)**／**Share invite (繁中)**（`navigator.share`＋clipboard fallback；Short EN／Short 繁中同 `docs/CLOSED_TESTER_RECRUIT.md`）＋本地 QR `docs/closed-tester-qr.png`（closed Alpha URL；listed≠opted-in）；保留 Copy invite＋Join closed＋誠實文案；accept `CLOSED-TESTER-SHARE-QR`；產品閘門仍 **9 Pass**；Production 仍擋於 12×14d（**非** soft-launch／**不**宣稱 Production 已上架）。**無** soft-arm／claim-juice／HUD pulse／付費 UA。
+
 （已補）**CLOSED-TESTER-INVITE-COPY**已上 — `docs/index.html` 一鍵 **Copy invite (EN)**／**Copy invite (繁中)** clipboard Short EN／Short 繁中（`docs/CLOSED_TESTER_RECRUIT.md`；含 closed URL＋Become a tester）；保留 Join closed Android test＋CLOSED-TESTER-LANDING 誠實文案；accept `CLOSED-TESTER-INVITE-COPY`；產品閘門仍 **9 Pass**；Production 仍擋於 12×14d（**非** soft-launch／**不**宣稱 Production 已上架）。**無** soft-arm／claim-juice／HUD pulse／付費 UA。
 
 （已補）**CLOSED-TESTER-LANDING**已上 — `docs/index.html` 誠實改寫：Not on Production yet＋Android closed testing＋Join closed Android test（`https://play.google.com/apps/testing/com.lancechung.colortubesort`）；list alone ≠ opted-in；≥12×≥14d personal rule；新增 `docs/CLOSED_TESTER_RECRUIT.md`（EN＋繁中 paste invite；internal vs closed URL）；accept `CLOSED-TESTER-LANDING`／`SHARE-PLAY-DEMO` 對齊；產品閘門仍 **9 Pass**；Production 仍擋於 12×14d（**非** soft-launch／**不**宣稱 Production 已上架）。**無** soft-arm／claim-juice／HUD pulse／付費 UA。
